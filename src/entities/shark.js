@@ -1,10 +1,12 @@
 import { Entity } from './entity.js';
 import { clamp, lerp, lerpAngle, TAU } from '../engine/math.js';
-import { PLAYER, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
+import { CONTROLS, PLAYER, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 
 export class Shark extends Entity {
-  constructor(x, y) {
+  constructor(x, y, options = {}) {
     super({ x, y, radius: PLAYER.radius });
+    this.controls = options.controls ?? CONTROLS.solo;
+    this.pointerSteering = options.pointer ?? true;
     this.heading = 0;
     this.speed = 0;
     this.invulnerable = 0;
@@ -12,8 +14,15 @@ export class Shark extends Entity {
 
   update(dt, input) {
     super.update(dt);
-    const horizontal = (input.isDown('right') ? 1 : 0) - (input.isDown('left') ? 1 : 0);
-    const vertical = (input.isDown('down') ? 1 : 0) - (input.isDown('up') ? 1 : 0);
+    let horizontal = (input.isDown(this.controls.right) ? 1 : 0) - (input.isDown(this.controls.left) ? 1 : 0);
+    let vertical = (input.isDown(this.controls.down) ? 1 : 0) - (input.isDown(this.controls.up) ? 1 : 0);
+    if (this.pointerSteering && input.pointer.down) {
+      const drag = Math.hypot(input.pointer.dragX, input.pointer.dragY);
+      if (drag > PLAYER.pointerDeadzone) {
+        horizontal = input.pointer.dragX / drag;
+        vertical = input.pointer.dragY / drag;
+      }
+    }
     const length = Math.hypot(horizontal, vertical);
     const dirX = length > 0 ? horizontal / length : 0;
     const dirY = length > 0 ? vertical / length : 0;

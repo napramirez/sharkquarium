@@ -94,10 +94,21 @@ export class SelectList {
         height: this.height,
       });
       const pulse = selected ? 1 + Math.sin(this.time * 6) * 0.04 : 1;
+      const highlighted = !selected && item.highlight === true;
       drawText(ctx, item.label, centerX, y, {
         size: this.fontSize * pulse,
-        color: item.disabled ? this.disabledColor : selected ? this.accentColor : this.color,
-        alpha: item.disabled ? 0.6 : selected ? 1 : 0.72,
+        color: item.disabled
+          ? this.disabledColor
+          : selected || highlighted
+            ? this.accentColor
+            : this.color,
+        alpha: item.disabled
+          ? 0.6
+          : selected
+            ? 1
+            : highlighted
+              ? 0.6 + 0.4 * Math.sin(this.time * 6)
+              : 0.72,
         glow: selected ? this.glowColor : null,
       });
       if (selected) {

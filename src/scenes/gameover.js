@@ -9,6 +9,8 @@ export class GameOverScene extends Scene {
     this.score = params.score ?? 0;
     this.best = params.best ?? this.score;
     this.isNewBest = Boolean(params.isNewBest);
+    this.longestRun = params.longestRun ?? 0;
+    this.newLongestRun = Boolean(params.newLongestRun);
     this.mode = params.params ?? {};
     this.time = 0;
     this.menu = new SelectList(
@@ -99,6 +101,20 @@ export class GameOverScene extends Scene {
         color: COLORS.foam,
         alpha: 0.8,
       });
+    }
+    if (this.longestRun > 0) {
+      drawText(
+        ctx,
+        this.newLongestRun
+          ? `NEW LONGEST RUN ${Math.round(this.longestRun)}s`
+          : `LONGEST RUN ${Math.round(this.longestRun)}s`,
+        centerX,
+        panelY + 238,
+        {
+          size: 13,
+          color: this.newLongestRun ? COLORS.accent : COLORS.textDim,
+        },
+      );
     }
 
     const promptFade = clamp((this.time - 0.5) / 0.4, 0, 1);

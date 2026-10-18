@@ -3,6 +3,18 @@ export class AudioBus {
     this.context = null;
     this.master = null;
     this.enabled = true;
+    this.sfxEnabled = true;
+    this.volume = 1;
+    this.baseGain = 0.5;
+  }
+
+  setVolume(value) {
+    this.volume = Math.min(1, Math.max(0, value));
+    if (this.master) this.master.gain.value = this.volume * this.baseGain;
+  }
+
+  setSfxEnabled(enabled) {
+    this.sfxEnabled = Boolean(enabled);
   }
 
   unlock() {
@@ -14,13 +26,13 @@ export class AudioBus {
     }
     this.context = new AudioContextClass();
     this.master = this.context.createGain();
-    this.master.gain.value = 0.35;
+    this.master.gain.value = this.volume * this.baseGain;
     this.master.connect(this.context.destination);
     if (this.context.state === 'suspended') this.context.resume();
   }
 
   tone(options = {}) {
-    if (!this.enabled) return;
+    if (!this.enabled || !this.sfxEnabled) return;
     this.unlock();
     if (!this.context) return;
     const {

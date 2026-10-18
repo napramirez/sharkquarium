@@ -1,11 +1,15 @@
 import { AudioBus } from './engine/audio.js';
 import { Game } from './engine/game.js';
 import { Input } from './engine/input.js';
+import { loadJSON } from './engine/storage.js';
 import { BootScene } from './scenes/boot.js';
 import { MenuScene } from './scenes/menu.js';
+import { TankSelectScene } from './scenes/tanks.js';
+import { SettingsScene } from './scenes/settings.js';
 import { PlayScene } from './scenes/play.js';
 import { GameOverScene } from './scenes/gameover.js';
-import { LOGICAL_WIDTH, LOGICAL_HEIGHT } from './config.js';
+import { DawnScene } from './scenes/dawn.js';
+import { AUDIO, LOGICAL_WIDTH, LOGICAL_HEIGHT, SETTINGS_KEY } from './config.js';
 
 const canvas = document.getElementById('game');
 if (!canvas) throw new Error('Canvas element #game not found');
@@ -14,6 +18,9 @@ const input = new Input();
 input.attach(canvas, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 
 const audio = new AudioBus();
+const savedSettings = loadJSON(SETTINGS_KEY, {});
+audio.setVolume(savedSettings.volume ?? AUDIO.volume);
+audio.setSfxEnabled(savedSettings.sfx ?? true);
 let audioUnlocked = false;
 const unlockAudio = () => {
   if (audioUnlocked) return;
@@ -35,8 +42,11 @@ const game = new Game({
 
 game.register('boot', new BootScene());
 game.register('menu', new MenuScene());
+game.register('tanks', new TankSelectScene());
+game.register('settings', new SettingsScene());
 game.register('play', new PlayScene());
 game.register('gameover', new GameOverScene());
+game.register('dawn', new DawnScene());
 
 game.changeScene('boot');
 game.start();

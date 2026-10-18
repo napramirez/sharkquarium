@@ -1,3 +1,5 @@
+import { MusicPlayer } from './music.js';
+
 export const FIXED_STEP = 1 / 60;
 export const MAX_FRAME_TIME = 0.25;
 
@@ -8,6 +10,7 @@ export class Game {
     this.height = height;
     this.input = input;
     this.audio = audio;
+    this.music = audio ? new MusicPlayer(audio) : null;
     this.context = canvas.getContext('2d', { alpha: false });
     this.scenes = new Map();
     this.scene = null;
@@ -93,6 +96,7 @@ export class Game {
     this.pending = null;
     const next = this.scenes.get(name);
     if (!next) throw new Error(`Unknown scene "${name}"`);
+    if (this.music) this.music.stop();
     if (this.scene) this.scene.exit();
     this.scene = next;
     this.currentSceneName = name;

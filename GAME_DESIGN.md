@@ -1,180 +1,100 @@
-# Sharkquarium — Game Design
+# Sharkquarium — Technical Design
 
-This document is the source of truth for game-specific work. The scaffold currently
-implements the starter concept described below; replace or extend these sections as the
-design evolves. Engine code (`src/engine/`) is intentionally game-agnostic and should not
-need to change when the game design changes.
+Implementation details for the scaffold: architecture, engine APIs, build pipeline, and
+workflow. Game-specific requirements — lore, navigation, entities, scoring, art and
+audio direction — live in `FEATURES.md`. Keep both files in sync when either changes.
 
-## 1. Concept
+## 1. Architecture
 
-You are a small shark exploring a cozy aquarium at closing time. Time is running out,
-bubbles drift toward the surface, and grumpy jellyfish are drifting through the tank.
-Collect as many bubbles as you can before the clock hits zero.
+Layers:
 
-- Session length: about one minute per run.
-- Fantasy: fluid, slightly floaty swimming with snappy feedback.
-- Tone: calm and friendly, no gore, no text-heavy UI.
+| Path                     | Responsibility                                        |
+| ------------------------ | ----------------------------------------------------- |
+| `src/engine/`            | Reusable engine: loop, scenes, input, audio, rendering, UI widgets |
+| `src/ui/`                | Game-facing UI components (HUD)                       |
+| `src/config.js`          | All game tuning, palette, and the storage key         |
+| `src/entities/`          | Game entities built on `Entity`                       |
+| `src/scenes/`            | Scene implementations                                 |
+| `src/assets/manifest.js` | Image manifest, empty by default                      |
+| `src/main.js`            | Composition root: wires input, audio, scenes, and starts the loop |
 
-## 2. Core Loop
+Engine modules: `game.js` (fixed-timestep loop, scene registry, DPR-aware resize),
+`scene.js` (base class), `input.js` (action bindings and pointer state), `audio.js`
+(WebAudio synth bus), `render.js` (draw helpers), `selectlist.js` (navigable list
+widget), `math.js`, `collision.js` (circle overlap), `particles.js`, `assets.js` (image
+loader), `storage.js` (safe localStorage JSON).
 
-1. Dive starts with a 30 second timer.
-2. Collect bubbles: each is worth 1 point and adds 1.25 seconds back to the timer.
-3. Touch a jellyfish: lose 3 seconds, get knocked back, and briefly flash invulnerable.
-4. Timer reaches zero: show score, save the best score, offer another dive.
+Game modules: `config.js` holds every tuning value referenced by `FEATURES.md`;
+entities share the `Entity` base (center x/y, velocity, collision radius, age, alive);
+scenes follow the `Scene` base (`enter`/`exit`/`update`/`render`); `ui/hud.js` consumes
+a state object only, so it works with any gameplay content.
 
-The loop rewards greedy, smooth swimming: chaining bubbles extends the run, so the
-difficulty curve is player-driven rather than scripted.
+Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
+(minifier), `build.mjs` (artifact writer), `dev.mjs` (static dev server), `smoke.mjs`
+(headless verification). See sections 8–10 and 12.
 
-## 3. Controls
+## 2. Scenes and Transitions
 
-| Action   | Bindings                              |
-| -------- | ------------------------------------- |
-| Move     | `WASD` / arrow keys                   |
-| Pause    | `Escape` / `P`                        |
-| Confirm  | `Enter` / `Space` / mouse / tap       |
-| Back     | `Escape` (menu scenes only)           |
+- Scenes are registered in `src/main.js` with `game.register(name, scene)` and switched
+  with `game.changeScene(name, params)`.
+- Transitions are queued and applied at a fixed-step boundary, so a scene change during
+  `update` never half-updates the outgoing scene.
+- `enter(params)` receives mode payloads: `{ empty: true }` starts the empty tank test
+  mode. Game over forwards the play scene's params so PLAY AGAIN keeps the mode.
+- Pause is a flag inside `PlayScene` rather than a separate scene, so gameplay state
+  (score, timer, entities) is never torn down.
+- `BootScene` loads `IMAGE_MANIFEST` and always proceeds to the menu; load failures are
+  recorded as `error` on the scene so a broken manifest cannot brick startup.
 
-Menus are navigated with `Up`/`Down` (or mouse hover) and confirmed with `Enter` or a
-click. Bindings live in `DEFAULT_BINDINGS` in `src/engine/input.js`. The pointer is
-exposed as the virtual key `PointerPrimary`, so it can be bound like any keyboard key;
-`Input.pointer` also tracks position and whether the pointer moved this frame so UI
-widgets can support hover.
+## 3. Game Loop and Timing
 
-## 4. Entities
+- Fixed timestep: `FIXED_STEP = 1/60`; frame time is clamped to
+  `MAX_FRAME_TIME = 0.25` and fed to an accumulator, so hitches cannot produce
+  catch-up spirals.
+- Rendering happens once per animation frame after all fixed steps for that frame; no
+  interpolation between steps.
+- The canvas backs at device pixel ratio; drawing uses 960×540 logical coordinates and
+  CSS letterboxes the element. Resize is handled with `ResizeObserver` plus a window
+  resize fallback.
 
-All entities extend `Entity` (`src/entities/entity.js`): center `x`/`y`, `vx`/`vy`,
-collision `radius`, `age`, `alive` flag, and `update(dt)` / `render(ctx)`.
+## 4. Input
 
-| Entity    | File                       | Collision radius | Behavior                                                 |
-| --------- | -------------------------- | ---------------- | -------------------------------------------------------- |
-| Shark     | `src/entities/shark.js`    | 26               | Exponential steering toward input, clamped to the tank    |
-| Bubble    | `src/entities/bubble.js`   | 9–14             | Rises 55–95 px/s with a sine wobble                       |
-| Jellyfish | `src/entities/jellyfish.js`| 24               | Vertical bob (40–80 px) and slow horizontal drift         |
+- `Input` maps raw key codes to actions (`left`, `right`, `up`, `down`, `confirm`,
+  `pause`, `back`) via `DEFAULT_BINDINGS`.
+- Pressed/released edges are cleared after each fixed step, so scenes read input edges
+  exactly once.
+- Pointer input is exposed as the virtual key `PointerPrimary` and as `input.pointer`
+  (logical coordinates, `down`, and a `moved` flag that UI hover logic uses).
+- Window blur clears the held-key set to prevent stuck movement.
 
-Tuning constants live in `src/config.js` (`PLAYER`, `BUBBLE`, `HAZARD`, `ROUND`).
+## 5. UI Components
 
-### Spawning
+- `Hud` (`src/ui/hud.js`): renderer driven by a state object
+  `{ score, best, timeLeft, timeLimit, empty }`; it owns only its animation clocks.
+  Layout and behavior requirements are in `FEATURES.md` §7.
+- `SelectList` (`src/engine/selectlist.js`): keyboard navigation with wrapping, pointer
+  hover selection, click-to-confirm, disabled entries, and `onChange` / `onConfirm`
+  callbacks. All screens use it, so navigation behavior is implemented once.
+- Both are canvas-drawn; there is no DOM UI, which keeps the single-file artifact
+  simple.
 
-| Spawn      | Interval        | Cap | Notes                                        |
-| ---------- | --------------- | --- | -------------------------------------------- |
-| Bubble     | 0.45–0.95 s     | 14  | Uniform random `x`, spawned below the tank    |
-| Jellyfish  | 4.5–7.5 s       | 3   | Kept at least 240 px away from the player     |
+## 6. Assets and Audio Pipeline
 
-### Interactions
+- The single-file contract forbids runtime requests, so images must be inlined as data
+  URIs in `IMAGE_MANIFEST` and audio is synthesized.
+- `loadImages(manifest)` resolves a keyed map of `HTMLImageElement`s. The scaffold's
+  manifest is empty and all art is procedural canvas drawing.
+- `AudioBus.tone({ freq, endFreq, type, duration, volume, delay })` schedules oscillator
+  envelopes. The context is created lazily; `src/main.js` unlocks it on the first
+  pointer or key event, and the bus disables itself if WebAudio is unavailable.
 
-| Contact          | Effects                                                                       |
-| ---------------- | ----------------------------------------------------------------------------- |
-| Shark ↔ Bubble   | Bubble pops, +1 point, +1.25 s, foam particles, rising "pop" blip              |
-| Shark ↔ Jelly    | −3 s, knockback impulse 520, 1.2 s invulnerability, red flash, screen shake    |
+## 7. Persistence
 
-## 5. Scoring and Progression
+- `loadJSON(key, fallback)` / `saveJSON(key, value)` in `src/engine/storage.js` wrap
+  `localStorage` and swallow errors, degrading to session-only state in private mode.
+- The only persisted value is the best score, under `STORAGE_KEY` in `src/config.js`.
 
-- Score = bubbles collected. The timer is the only resource; there are no lives.
-- Best score persists in `localStorage` under `sharkquarium.best-score`.
-- Current build uses constant spawn rates. Suggested next steps: ramp spawn rate with
-  elapsed time, raise the jellyfish cap after 30 s, and add a rare golden bubble worth
-  +5 s.
-
-## 6. Scene Flow
-
-```
-boot ──▶ menu ──▶ play ⇄ (paused) ──▶ gameover ──▶ play or menu
-```
-
-| Scene   | Class           | File                      |
-| ------- | --------------- | ------------------------- |
-| Boot    | `BootScene`     | `src/scenes/boot.js`      |
-| Menu    | `MenuScene`     | `src/scenes/menu.js`      |
-| Play    | `PlayScene`     | `src/scenes/play.js`      |
-| Gameover| `GameOverScene` | `src/scenes/gameover.js`  |
-
-Pause is a flag inside `PlayScene` rather than a separate scene, so gameplay state is
-never torn down. Every screen is navigable without any game content: the menu offers
-`EMPTY TANK`, which starts a dive with spawning disabled and a 10 second clock, so the
-whole shell (HUD, pause menu, game over) can be exercised while the game is a stub.
-Add scenes with `game.register(name, new Scene())` in `src/main.js` and switch with
-`this.game.changeScene(name, params)`.
-
-Navigable surfaces:
-
-| Surface       | Options                                  | Notes |
-| ------------- | ---------------------------------------- | ----- |
-| Main menu     | START DIVE, HOW TO PLAY, EMPTY TANK      | HOW TO PLAY opens an in-scene overlay closed with Enter/Esc |
-| Pause overlay | RESUME, RESTART, QUIT TO MENU            | Esc also resumes; RESTART keeps mode params |
-| Game over     | PLAY AGAIN, MENU                         | PLAY AGAIN preserves the previous mode (empty or full) |
-
-## 7. Presentation
-
-Palette (see `COLORS` in `src/config.js`): abyss `#04101d`, deep `#0a2740`, bubble
-`#cfefff`, accent `#ffd166`, danger `#ff6b81`, jelly `#ff8fa3`.
-
-- Art is 100% procedural canvas drawing. No image files are required.
-- Backdrop: vertical gradient, three swaying light shafts, vignette (`drawWater`).
-- Feedback: particle bursts, red hit flash, screen shake, invulnerable blinking.
-- Audio is synthesized with WebAudio oscillators (`AudioBus.tone`) — no sound files.
-
-Sound cues as implemented:
-
-| Cue        | Shape                                      |
-| ---------- | ------------------------------------------ |
-| UI confirm | Sine 300 → 620 Hz, 0.14–0.16 s (menu choices, pause actions, game over) |
-| UI back    | Sine 520 → 320 Hz, 0.1 s (closing HOW TO PLAY) |
-| UI navigate| Sine 640 Hz blip, 0.05 s (SelectList selection changes) |
-| Pause      | Sine 300 Hz pause / 560 Hz resume, 0.08 s  |
-| Bubble pop | Triangle 480 → 900 Hz, 0.11 s              |
-| Jelly hit  | Sawtooth 160 → 70 Hz, 0.3 s                |
-| Low time   | Square 720 Hz ticks at ≤ 5 seconds         |
-| Game over  | Triangle arpeggio 392 / 523 / 659 Hz       |
-
-## 8. HUD and UX
-
-The HUD is a standalone component (`src/ui/hud.js`) that only consumes a state object
-`{ score, best, timeLeft, timeLimit, empty }`, so it keeps working for any game content
-(including none):
-
-- Top-left: bubble icon and current score; the icon and number pulse gold when the score
-  increases.
-- Top-right: best score.
-- Top-center: time bar (smoothed toward `timeLeft / timeLimit`) with a numeric countdown;
-  the bar and countdown turn red and pulse during the last 5 seconds.
-- Bottom-right: pause hint.
-- Bottom-center: `EMPTY TANK — UI TEST` badge when running without content.
-
-Menus and overlays are rendered with a reusable `SelectList` widget
-(`src/engine/selectlist.js`): keyboard navigation, wrapping selection, pointer hover
-selection, click-to-confirm, disabled entries, and pulsing chevron indicators. Scenes
-wire `onChange` / `onConfirm` callbacks to play UI sounds and trigger actions.
-
-Additional feedback: particle bursts, red hit flash, screen shake, invulnerable
-blinking, and the elastic scale-in on the game over panel.
-
-## 9. Persistence
-
-Single key: `sharkquarium.best-score` holding a number. See `src/engine/storage.js`.
-`loadJSON` / `saveJSON` swallow storage errors, so private-mode failures degrade to
-session-only scoring.
-
-## 10. Technical Architecture
-
-### Layers
-
-| Path                       | Responsibility                                    |
-| -------------------------- | ------------------------------------------------- |
-| `src/engine/`              | Reusable engine: loop, scenes, input, audio, etc. |
-| `src/ui/`                  | Game HUD and other composable UI pieces           |
-| `src/config.js`            | All game tuning and palette                       |
-| `src/entities/`            | Game entities                                     |
-| `src/scenes/`              | Scene implementations                             |
-| `src/assets/manifest.js`   | Image manifest (currently empty)                  |
-| `src/main.js`              | Composition root: wires everything together       |
-
-Engine modules: `game.js` (fixed 1/60 s timestep loop, scene registry, DPR-aware
-resize), `scene.js` (base class), `input.js` (action bindings), `audio.js` (WebAudio
-synth bus), `render.js` (draw helpers), `selectlist.js` (navigable menu list),
-`math.js`, `collision.js` (circle overlap), `particles.js`, `assets.js` (image loader),
-`storage.js`. Game UI lives in `src/ui/hud.js`.
-
-### Single-file artifact contract
+## 8. Single-File Artifact Contract
 
 `node scripts/build.mjs` produces `dist/index.html` containing all CSS and JS inlined,
 minified, and nothing else. The artifact runs from `file://` with no network requests.
@@ -186,7 +106,7 @@ Consequences:
 - Prefer procedural drawing and synthesized audio as the scaffold does.
 - The build fails loudly if an external `script src` or stylesheet link survives.
 
-### Bundler constraints (`scripts/bundle.mjs`)
+## 9. Bundler Constraints (`scripts/bundle.mjs`)
 
 The zero-dependency bundler supports a deliberate subset of ES modules and fails fast
 on anything else:
@@ -199,7 +119,7 @@ on anything else:
 - No `export default`, `export *`, re-exports, default imports, dynamic `import()`,
   or `import.meta`.
 
-### Minification (`scripts/minify.mjs`)
+## 10. Minification (`scripts/minify.mjs`)
 
 Every build minifies the bundle, the inline CSS, and the HTML template with a
 zero-dependency, conservative minifier:
@@ -213,24 +133,24 @@ zero-dependency, conservative minifier:
   smoke test runs against the minified artifact, so a minifier regression fails
   `node --run verify` before the artifact ships.
 
-### Conventions
+## 11. Conventions
 
-- Logical resolution is 960×540; the canvas backs at device pixel ratio and CSS handles
-  letterboxing, so all gameplay math uses logical coordinates.
-- Fixed timestep updates (1/60 s) with a max frame clamp of 0.25 s.
+- Logical resolution is 960×540; all gameplay math uses logical coordinates.
 - Scenes own their entity collections; entities never reference the game directly.
+- Source files carry no comments by convention; behavior is documented in `FEATURES.md`
+  and `GAME_DESIGN.md`.
 - The running game is exposed as `window.__game` for console debugging.
 
-## 11. Workflow
+## 12. Workflow
 
 No dependencies and no npm required. Use whatever runner is available:
 
-| Task             | Command                              |
-| ---------------- | ------------------------------------ |
-| Dev server       | `node scripts/dev.mjs` → `http://localhost:5173/` |
-| Build artifact   | `node scripts/build.mjs`             |
-| Smoke test       | `node scripts/smoke.mjs` (after build) |
-| Build + smoke    | `node --run verify` (Node 22+)       |
+| Task           | Command                                          |
+| -------------- | ------------------------------------------------ |
+| Dev server     | `node scripts/dev.mjs` → `http://localhost:5173/` |
+| Build artifact | `node scripts/build.mjs`                         |
+| Smoke test     | `node scripts/smoke.mjs` (after build)           |
+| Build + smoke  | `node --run verify` (Node 22+)                   |
 
 The same scripts are exposed as `npm run dev` / `build` / `smoke` / `verify` for
 environments with npm. The dev server serves the workspace over HTTP so native ES
@@ -242,10 +162,15 @@ overlay, EMPTY TANK, hover and click selection), pause/resume, the pause menu (R
 QUIT TO MENU), the empty tank clock reaching game over, and the game over menu — failing
 on any runtime error.
 
-## 12. Roadmap
+## 13. Documentation Map
 
-- [ ] Replace the starter concept with the real design.
-- [ ] Difficulty ramp: spawn-rate and hazard-cap curves over elapsed time.
-- [ ] New entities: golden bubble, angelfish bonus, current/updraft zones.
-- [ ] Touch controls: drag-to-swim, on-screen pause.
-- [ ] Persistent stats: games played, total bubbles, longest run.
+| File                  | Covers                                                                              | Update when                    |
+| --------------------- | ----------------------------------------------------------------------------------- | ------------------------------ |
+| `README.md`           | Entry point: quick start, project layout, links to all other docs                   | Commands, structure, or doc layout change |
+| `FEATURES.md`         | Lore, navigation, controls, entities, scoring, HUD requirements, art/audio direction, backlog | Gameplay behavior or values change |
+| `GAME_DESIGN.md`      | Architecture, engine APIs, build pipeline, workflow                                 | Structure, tooling, or APIs change |
+| `src/config.js`       | The tuning values themselves                                                        | Any tuning change — mirror it in `FEATURES.md` |
+
+Rule of thumb: player-visible behavior and requirements go in `FEATURES.md`; how it is
+built and where the code lives go in `GAME_DESIGN.md`. `README.md` is the entry point
+that maps to everything else; keep its links and commands current.

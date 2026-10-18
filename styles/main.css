@@ -1,0 +1,63 @@
+:root {
+  color-scheme: dark;
+  --abyss: #04101d;
+  --deep: #0a2740;
+  --bubble: #cfefff;
+  --accent: #ffd166;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 15%, var(--deep) 0%, var(--abyss) 65%);
+  font-family: "Trebuchet MS", "Segoe UI", system-ui, -apple-system, sans-serif;
+  color: var(--bubble);
+}
+
+.stage {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  padding: clamp(8px, 2vmin, 28px);
+}
+
+#game {
+  display: block;
+  width: min(100%, calc((100vh - 2 * clamp(8px, 2vmin, 28px)) * 16 / 9));
+  height: auto;
+  aspect-ratio: 16 / 9;
+  background: var(--abyss);
+  border-radius: clamp(6px, 1.2vmin, 16px);
+  box-shadow:
+    0 0 0 1px rgba(207, 239, 255, 0.14),
+    0 24px 70px rgba(0, 0, 0, 0.6),
+    0 0 140px rgba(27, 109, 156, 0.28);
+  outline: none;
+  touch-action: none;
+}
+
+#game:focus-visible {
+  box-shadow:
+    0 0 0 3px var(--accent),
+    0 24px 70px rgba(0, 0, 0, 0.6),
+    0 0 140px rgba(27, 109, 156, 0.28);
+}
+
+noscript {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  text-align: center;
+}

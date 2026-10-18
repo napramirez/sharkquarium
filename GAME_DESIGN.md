@@ -194,6 +194,13 @@ No dependencies and no npm required. Use whatever runner is available:
 | Build artifact | `node scripts/build.mjs`                         |
 | Smoke test     | `node scripts/smoke.mjs` (after build)           |
 | Build + smoke  | `node --run verify` (Node 22+)                   |
+| Deploy (CI)    | `.github/workflows/pages.yml` — build, smoke, publish `dist/` to Pages |
+
+Pushes to `master`/`main` (or a manual dispatch) run the Pages workflow: Node setup,
+`node scripts/build.mjs`, `node scripts/smoke.mjs`, then the official Pages artifact
+upload and deploy. One-time repository setup: **Settings → Pages → Source: GitHub
+Actions**. The artifact has no external references, so it serves correctly from the
+`/<repo>/` subpath.
 
 The same scripts are exposed as `npm run dev` / `build` / `smoke` / `verify` for
 environments with npm. The dev server serves the workspace over HTTP so native ES

@@ -31,10 +31,11 @@ styles/main.css      page shell styles
 src/engine/          reusable engine (loop, scenes, input, audio, rendering, UI widgets)
 src/ui/              game HUD
 src/scenes/          boot, menu, tank select, settings, play, game over, dawn cutscene
-src/entities/        shark, bubble, jellyfish
+src/entities/        each tank's player creatures, hazards, and collectibles
 src/config.js        all game tuning and palette
 src/assets/          image manifest (data URIs) + miniboss music tracks
 scripts/             bundler, minifier, build, dev server, smoke test
+.github/workflows/   GitHub Actions: build and deploy dist/ to GitHub Pages
 ```
 
 ## Documentation map
@@ -80,6 +81,17 @@ Where new information belongs:
 - Player-visible behavior, values, and requirements → `FEATURES.md`.
 - Architecture, engine APIs, tooling, and workflow → `GAME_DESIGN.md`.
 - Tuning values themselves → `src/config.js`, mirrored in `FEATURES.md`.
+
+## Deployment
+
+Pushes to `master`/`main` (or a manual workflow dispatch) run
+`.github/workflows/pages.yml`, which sets up Node, builds the minified
+`dist/index.html`, smoke-tests it, and publishes `dist/` to GitHub Pages with the
+official Pages actions. Enable this once in the repository settings with
+**Settings → Pages → Source: GitHub Actions**.
+
+The artifact is fully self-contained (inline CSS/JS, procedural art, synthesized
+audio), so it serves correctly from the project subpath (`https://<owner>.github.io/<repo>/`).
 
 ## Verification
 

@@ -62,6 +62,7 @@ export class Game {
     while (this.accumulator >= FIXED_STEP) {
       this.applyPending();
       if (this.scene) this.scene.update(FIXED_STEP);
+      if (this.music) this.music.update(FIXED_STEP);
       this.input.update();
       this.accumulator -= FIXED_STEP;
     }
@@ -96,7 +97,10 @@ export class Game {
     this.pending = null;
     const next = this.scenes.get(name);
     if (!next) throw new Error(`Unknown scene "${name}"`);
-    if (this.music) this.music.stop();
+    if (this.music) {
+      if (!this.music.hold) this.music.stop();
+      this.music.paused = false;
+    }
     if (this.scene) this.scene.exit();
     this.scene = next;
     this.currentSceneName = name;

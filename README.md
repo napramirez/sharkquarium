@@ -30,10 +30,10 @@ index.html           dev entry that loads the ES modules
 styles/main.css      page shell styles
 src/engine/          reusable engine (loop, scenes, input, audio, rendering, UI widgets)
 src/ui/              game HUD
-src/scenes/          boot, menu, tank select, settings, play, game over, dawn cutscene
+src/scenes/          boot, intro, menu, tank select, settings, shop, minigames, tag, dodgeball, track player, play, game over, descent, dawn cutscene
 src/entities/        each tank's player creatures, hazards, and collectibles
 src/config.js        all game tuning and palette
-src/assets/          image manifest (data URIs) + miniboss music tracks
+src/assets/          image manifest (data URIs) + tank music tracks
 scripts/             bundler, minifier, build, dev server, smoke test
 .github/workflows/   GitHub Actions: build and deploy dist/ to GitHub Pages
 ```
@@ -51,12 +51,13 @@ Start with the two documents below; everything player-facing is specified in
 | [§2](FEATURES.md#2-core-loop-and-session) | Core loop and session |
 | [§3](FEATURES.md#3-navigation-and-screens) | Navigation and screens |
 | [§4](FEATURES.md#4-controls) | Controls |
-| [§5](FEATURES.md#5-entities) | Entities ([shark](FEATURES.md#51-shark-player), [bubble](FEATURES.md#52-bubble-collectible), [jellyfish](FEATURES.md#53-jellyfish-hazard), [golden bubble](FEATURES.md#54-golden-bubble-rare-collectible), [angelfish](FEATURES.md#55-angelfish-bonus), [zones](FEATURES.md#56-current-and-updraft-zones-environment), [stingray](FEATURES.md#57-stingray-stingray-tank-player), [eel pack](FEATURES.md#58-eel-pack-stingray-tank-hazard), [archway](FEATURES.md#59-rock-archway-stingray-tank-scenery), [shrimp](FEATURES.md#510-red-shrimp-stingray-tank-bonus), [squid](FEATURES.md#511-squid-deep-sea-tank-player), [anglerfish](FEATURES.md#512-anglerfish-deep-sea-tank-hazard), [crab](FEATURES.md#513-crab-deep-sea-tank-bonus), [ledges](FEATURES.md#514-stone-ledges-deep-sea-tank-hiding-spots), [arctic shrimp](FEATURES.md#515-arctic-shrimp-arctic-tank-player), [seals](FEATURES.md#516-seals-arctic-tank-hazard), [plankton](FEATURES.md#517-plankton-arctic-tank-bonus), [sardine schools](FEATURES.md#518-sardine-schools-arctic-tank-hiding-spots), [ice chunk](FEATURES.md#519-ice-chunk-arctic-tank-scenery), [moon jelly](FEATURES.md#520-moon-jelly-jelly-tank-player), [turtle](FEATURES.md#521-turtle-jelly-tank-miniboss), [minnow](FEATURES.md#522-minnow-jelly-tank-collectible), [freshwater ray](FEATURES.md#523-freshwater-stingray-freshwater-tank-player), [catfish](FEATURES.md#524-catfish-freshwater-tank-chaser), [freshwater obstacles](FEATURES.md#525-freshwater-obstacles), [bubble lines](FEATURES.md#526-bubble-lines-freshwater-tank-goal), [electric eels](FEATURES.md#527-electric-eels-freshwater-tank-late-hazard)) |
+| [§5](FEATURES.md#5-entities) | Entities ([shark](FEATURES.md#51-shark-player), [bubble](FEATURES.md#52-bubble-collectible), [jellyfish](FEATURES.md#53-jellyfish-hazard), [golden bubble](FEATURES.md#54-golden-bubble-rare-collectible), [angelfish](FEATURES.md#55-angelfish-bonus), [zones](FEATURES.md#56-current-and-updraft-zones-environment), [stingray](FEATURES.md#57-stingray-stingray-tank-player), [eel pack](FEATURES.md#58-eel-pack-stingray-tank-hazard), [archway](FEATURES.md#59-rock-archway-stingray-tank-scenery), [shrimp](FEATURES.md#510-red-shrimp-stingray-tank-bonus), [squid](FEATURES.md#511-squid-deep-sea-tank-player), [anglerfish](FEATURES.md#512-anglerfish-deep-sea-tank-hazard), [crab](FEATURES.md#513-crab-deep-sea-tank-bonus), [ledges](FEATURES.md#514-stone-ledges-deep-sea-tank-hiding-spots), [arctic shrimp](FEATURES.md#515-arctic-shrimp-arctic-tank-player), [seals](FEATURES.md#516-seals-arctic-tank-hazard), [plankton](FEATURES.md#517-plankton-arctic-tank-bonus), [sardine schools](FEATURES.md#518-sardine-schools-arctic-tank-hiding-spots), [ice chunk](FEATURES.md#519-ice-chunk-arctic-tank-scenery), [moon jelly](FEATURES.md#520-moon-jelly-jelly-tank-player), [turtle](FEATURES.md#521-turtle-jelly-tank-miniboss), [minnow](FEATURES.md#522-minnow-jelly-tank-collectible), [freshwater ray](FEATURES.md#523-freshwater-stingray-freshwater-tank-player), [catfish](FEATURES.md#524-catfish-freshwater-tank-chaser), [freshwater obstacles](FEATURES.md#525-freshwater-obstacles), [bubble lines](FEATURES.md#526-bubble-lines-freshwater-tank-goal), [electric eels](FEATURES.md#527-electric-eels-freshwater-tank-late-hazard), [coral](FEATURES.md#528-coral-reef-tank-scenery), [colorful school](FEATURES.md#529-colorful-school-reef-tank-cosmetics), [reef boulders](FEATURES.md#530-reef-boulders-reef-tank-corner-scenery), [nautilus](FEATURES.md#531-nautilus-nautilus-tank-player), [chaser shark](FEATURES.md#532-chaser-shark-nautilus-tank-chaser), [whale skeleton](FEATURES.md#533-whale-skeleton-nautilus-tank-obstacle), [dart eel](FEATURES.md#534-dart-eel-nautilus-tank-obstacle), [bait squid](FEATURES.md#535-bait-squid-nautilus-tank-interceptor), [kelp crab](FEATURES.md#536-kelp-crab-kelp-forest-tank-player), [octopus](FEATURES.md#537-octopus-kelp-forest-tank-boss), [kelp stalks](FEATURES.md#538-kelp-stalks-kelp-forest-tank-scenery), [tank backdrops](FEATURES.md#539-tank-backdrops-themed-decor)) |
 | [§6](FEATURES.md#6-scoring-progression-and-persistence) | Scoring, progression, persistence |
 | [§7](FEATURES.md#7-hud-and-player-feedback) | HUD and player feedback |
 | [§8](FEATURES.md#8-art-and-audio-direction) | Art and audio direction |
 | [§9](FEATURES.md#9-test-modes) | Test modes |
-| [§10](FEATURES.md#10-backlog) | Backlog |
+| [§10](FEATURES.md#10-shop-sea-coins-and-minigames) | Shop, sea coins, and minigames |
+| [§11](FEATURES.md#11-backlog) | Backlog |
 
 ### [GAME_DESIGN.md](GAME_DESIGN.md) — technical design
 
@@ -97,7 +98,8 @@ audio), so it serves correctly from the project subpath (`https://<owner>.github
 
 `node --run verify` rebuilds the minified artifact and runs the smoke test against it.
 The smoke test evaluates `dist/index.html` in stubbed browser globals and drives the
-full navigation flow (boot → menu → play → pause → game over), drag steering, the
+full navigation flow (boot → intro → menu → play → pause → game over), the descent
+cutscenes between tanks, drag steering, the
 pause button, bonus entities and zones, persistent stats, the 60-point stingray
 teleport, burrow crawling, bubble-gated eel hunts, eel bite penalties, the 250-point
 deep-sea teleport, squid ledge hiding, anglerfish tracking loss, the 40-bubble arctic
@@ -105,7 +107,20 @@ teleport, sardine-school concealment with wandering seals and drifting plankton,
 30-plankton jelly teleport, minnow tangling, turtle head-stuns, the freshwater chase
 (lane pinning, bubble rows, rock burrowing, plant tangles, piranha stuns, catfish
 bites), the freshwater difficulty ramp with electric eels, the 150-bubble goal and dawn
-cutscene, miniboss music in the jelly and freshwater tanks, tank selection with the
-co-op toggle, the settings switches, difficulty selector, and volume slider, and co-op
+cutscene, the nautilus descent (lane pinning, side steering, whale skeletons, darting
+eels, squid interception and dodge-fed shark distraction, and its 120-bubble goal
+opening the freshwater chase),
+the per-tank music themes, tank selection with the
+co-op toggle, the settings switches, the difficulty selector (through APOCALYPTIC
+WIPEOUT), and the volume slider, the shop (a welcome sea-coin bank, difficulty-scaled
+payouts with equipped-color bonuses, color purchases with creature browsing, cheap
+accessories, the SHADOW and RAINBOW specials, and the
+playpass), the minigames
+menu, the two-player competition race, the tag minigame with named players, CPU
+swimmers, random CPU targeting, and tag-separation pushes, minigame coin rewards and
+win counters, pufferfish dodgeball with
+its three lives, no timer, and endless escalation, the kelp forest tank with its crab
+player and octopus boss, the per-tank themed backdrops, the track player with every level theme
+(including tracks held across scenes), and co-op
 two-creature control — so code and build regressions surface immediately. The artifact
 is a single HTML file with no external requests and can be opened from `file://`.

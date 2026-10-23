@@ -5,11 +5,16 @@ import { Shark } from '../entities/shark.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
 import { loadJSON } from '../engine/storage.js';
 import { rand } from '../engine/math.js';
+import { drawSkinAura, setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
+import { accessoryByKey, setActiveAccessory } from '../engine/accessory.js';
 import {
+  COINS,
+  COINS_KEY,
   GAME_TITLE,
   TAGLINE,
   STATS_KEY,
   STORAGE_KEY,
+  SHOP_KEY,
   COLORS,
   WATER_PALETTE,
   LOGICAL_WIDTH,
@@ -23,27 +28,38 @@ export class MenuScene extends Scene {
     this.time = 0;
     this.showHelp = false;
     this.best = loadJSON(STORAGE_KEY, 0);
-    this.stats = { games: 0, bubbles: 0, longestRun: 0, ...loadJSON(STATS_KEY, {}) };
+    this.coins = loadJSON(COINS_KEY, COINS.starting);
+    this.stats = {
+      games: 0,
+      bubbles: 0,
+      longestRun: 0,
+      minigames: 0,
+      minigameWins: 0,
+      ...loadJSON(STATS_KEY, {}),
+    };
+    this.shop = { owned: ['natural'], skin: 'natural', passes: [], ...loadJSON(SHOP_KEY, {}) };
+    this.skin = skinByKey(this.shop.skin);
+    this.accessory = accessoryByKey(this.shop.accessory);
     this.bubbles = [];
     this.spawnTimer = 0.3;
     this.shark = new Shark(LOGICAL_WIDTH * 0.5, LOGICAL_HEIGHT * 0.72);
-    this.menu = new SelectList(
-      [
-        { label: 'START DIVE', action: 'play' },
-        { label: 'CHOOSE TANK', action: 'tanks' },
-        { label: 'CO-OP DIVE (2P)', action: 'coop' },
-        { label: 'SETTINGS', action: 'settings' },
-        { label: 'HOW TO PLAY', action: 'help' },
-      ],
-      {
-        glowColor: COLORS.bubble,
-        accentColor: COLORS.accent,
-        color: COLORS.text,
-        spacing: 42,
-        onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
-        onConfirm: (item) => this.choose(item.action),
-      },
-    );
+    const items = [
+      { label: 'START DIVE', action: 'play' },
+      { label: 'CHOOSE TANK', action: 'tanks' },
+      { label: 'CO-OP DIVE (2P)', action: 'coop' },
+    ];
+    if (this.shop.passes.length > 0) items.push({ label: 'MINIGAMES', action: 'minigames' });
+    items.push({ label: 'SHOP', action: 'shop' });
+    items.push({ label: 'SETTINGS', action: 'settings' });
+    items.push({ label: 'HOW TO PLAY', action: 'help' });
+    this.menu = new SelectList(items, {
+      glowColor: COLORS.bubble,
+      accentColor: COLORS.accent,
+      color: COLORS.text,
+      spacing: items.length > 5 ? 34 : 42,
+      onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
+      onConfirm: (item) => this.choose(item.action),
+    });
     this.menu.reset();
   }
 
@@ -52,6 +68,8 @@ export class MenuScene extends Scene {
     if (action === 'play') this.game.changeScene('play');
     else if (action === 'tanks') this.game.changeScene('tanks');
     else if (action === 'coop') this.game.changeScene('play', { coop: true });
+    else if (action === 'minigames') this.game.changeScene('minigames');
+    else if (action === 'shop') this.game.changeScene('shop');
     else if (action === 'settings') this.game.changeScene('settings');
     else if (action === 'help') this.showHelp = true;
   }
@@ -94,10 +112,11 @@ export class MenuScene extends Scene {
   render(ctx) {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);
     for (const bubble of this.bubbles) bubble.render(ctx);
-    ctx.save();
-    ctx.globalAlpha = 0.4;
+    setActiveSkin(this.skin);
+    setSkinClock(this.time);
+    setActiveAccessory(this.accessory);
     this.shark.render(ctx);
-    ctx.restore();
+    drawSkinAura(ctx, this.shark);
 
     const titleY = LOGICAL_HEIGHT * 0.2 + Math.sin(this.time * 1.6) * 4;
     drawText(ctx, GAME_TITLE, LOGICAL_WIDTH / 2, titleY, {
@@ -118,7 +137,7 @@ export class MenuScene extends Scene {
       'and if you gather enough bubbles, the tanks will pull you somewhere stranger.',
     ];
     story.forEach((line, index) => {
-      drawText(ctx, line, LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.33 + index * 20, {
+      drawText(ctx, line, LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.31 + index * 20, {
         size: 13,
         weight: 400,
         color: COLORS.foam,
@@ -128,17 +147,35 @@ export class MenuScene extends Scene {
 
     this.menu.render(ctx, LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.62);
 
-    drawText(ctx, this.best > 0 ? `BEST ${this.best}` : 'NO SCORE YET', LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.83, {
-      size: 16,
-      color: COLORS.accent,
-      alpha: 0.85,
-    });
+    drawText(
+      ctx,
+      this.best > 0 ? `BEST ${this.best} — SEA COINS ${this.coins}` : `NO SCORE YET — SEA COINS ${this.coins}`,
+      LOGICAL_WIDTH / 2,
+      LOGICAL_HEIGHT * 0.843,
+      {
+        size: 16,
+        color: COLORS.accent,
+        alpha: 0.85,
+      },
+    );
     if (this.stats.games > 0) {
       drawText(
         ctx,
         `${this.stats.games} DIVES — ${this.stats.bubbles} BUBBLES — LONGEST ${Math.round(this.stats.longestRun)}s`,
         LOGICAL_WIDTH / 2,
-        LOGICAL_HEIGHT * 0.87,
+        LOGICAL_HEIGHT * 0.882,
+        {
+          size: 13,
+          color: COLORS.textDim,
+        },
+      );
+    }
+    if (this.stats.minigames > 0) {
+      drawText(
+        ctx,
+        `${this.stats.minigameWins}/${this.stats.minigames} MINIGAMES WON`,
+        LOGICAL_WIDTH / 2,
+        LOGICAL_HEIGHT * 0.92,
         {
           size: 13,
           color: COLORS.textDim,
@@ -163,7 +200,7 @@ export class MenuScene extends Scene {
     ctx.fillStyle = 'rgba(4, 16, 29, 0.68)';
     ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     const width = 560;
-    const height = 340;
+    const height = 380;
     const x = (LOGICAL_WIDTH - width) / 2;
     const y = (LOGICAL_HEIGHT - height) / 2;
     fillRoundRect(ctx, x, y, width, height, 24, 'rgba(10, 39, 64, 0.95)');
@@ -174,7 +211,8 @@ export class MenuScene extends Scene {
       glow: 'rgba(255, 209, 102, 0.45)',
     });
     const lines = [
-      'MOVE — WASD / ARROWS (CO-OP: P1 AND P2 SHARE ONE CREATURE)',
+      'MOVE — WASD / ARROWS / DRAG / ON-SCREEN JOYSTICK',
+      'CO-OP — P1: WASD      P2: ARROWS',
       'COLLECT BUBBLES — +1 SCORE, +1.25 SECONDS',
       'AVOID JELLYFISH — -3 SECONDS',
       'PAUSE — ESC',

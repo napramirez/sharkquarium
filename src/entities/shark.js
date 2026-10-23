@@ -1,6 +1,8 @@
 import { Entity } from './entity.js';
 import { clamp, lerp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, PLAYER, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
+import { playerColor } from '../engine/skin.js';
+import { drawAccessory } from '../engine/accessory.js';
 
 export class Shark extends Entity {
   constructor(x, y, options = {}) {
@@ -59,18 +61,18 @@ export class Shark extends Entity {
     ctx.lineTo(-radius * 0.55, 0);
     ctx.lineTo(-radius * 0.9, radius * 0.62);
     ctx.closePath();
-    ctx.fillStyle = COLORS.sharkFin;
+    ctx.fillStyle = playerColor('accent', COLORS.sharkFin);
     ctx.fill();
     ctx.restore();
 
     ctx.beginPath();
     ctx.ellipse(0, 0, radius * 1.7, radius * 0.85, 0, 0, TAU);
-    ctx.fillStyle = COLORS.shark;
+    ctx.fillStyle = playerColor('body', COLORS.shark);
     ctx.fill();
 
     ctx.beginPath();
     ctx.ellipse(0, radius * 0.22, radius * 1.25, radius * 0.42, 0, 0, TAU);
-    ctx.fillStyle = COLORS.sharkBelly;
+    ctx.fillStyle = playerColor('belly', COLORS.sharkBelly);
     ctx.fill();
 
     ctx.beginPath();
@@ -98,6 +100,7 @@ export class Shark extends Entity {
     ctx.fillStyle = '#10233a';
     ctx.fill();
 
+    drawAccessory(ctx, radius, this.age);
     ctx.restore();
   }
 }

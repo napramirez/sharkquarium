@@ -1,6 +1,8 @@
 import { Entity } from './entity.js';
 import { clamp, lerp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, PLAYER, STINGRAY, SAND, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
+import { playerColor } from '../engine/skin.js';
+import { drawAccessory } from '../engine/accessory.js';
 
 export class Stingray extends Entity {
   constructor(x, y, options = {}) {
@@ -123,10 +125,10 @@ export class Stingray extends Entity {
       ctx.quadraticCurveTo(-radius * 1.0, radius * 0.3, -radius * 0.7, radius * 1.1);
       ctx.quadraticCurveTo(radius * 0.4, radius * 1.5, radius * 1.3, 0);
       ctx.closePath();
-      ctx.fillStyle = this.bodyColor;
+      ctx.fillStyle = playerColor('body', this.bodyColor);
       ctx.fill();
 
-      ctx.fillStyle = this.spotColor;
+      ctx.fillStyle = playerColor('accent', this.spotColor);
       for (let i = 0; i < 4; i += 1) {
         ctx.beginPath();
         ctx.arc(
@@ -147,6 +149,7 @@ export class Stingray extends Entity {
       ctx.arc(radius * 0.75, radius * 0.3, radius * 0.09, 0, TAU);
       ctx.fill();
 
+      drawAccessory(ctx, radius, this.age);
       ctx.restore();
     }
     if (this.tangleTimer > 0) {

@@ -1,6 +1,8 @@
 import { Entity } from './entity.js';
 import { rand, clamp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, PLAYER, MOONJELLY, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
+import { playerColor } from '../engine/skin.js';
+import { drawAccessory } from '../engine/accessory.js';
 
 export class MoonJelly extends Entity {
   constructor(x, y, options = {}) {
@@ -71,9 +73,9 @@ export class MoonJelly extends Entity {
     ctx.quadraticCurveTo(radius * 0.5 * pulse, radius * 0.5, 0, radius * 0.2);
     ctx.quadraticCurveTo(-radius * 0.5 * pulse, radius * 0.5, -radius * pulse, radius * 0.2);
     ctx.closePath();
-    ctx.fillStyle = 'rgba(255, 143, 163, 0.55)';
+    ctx.fillStyle = playerColor('body', 'rgba(255, 143, 163, 0.55)');
     ctx.fill();
-    ctx.strokeStyle = COLORS.jelly;
+    ctx.strokeStyle = playerColor('accent', COLORS.jelly);
     ctx.lineWidth = 1.5;
     ctx.stroke();
 
@@ -83,6 +85,7 @@ export class MoonJelly extends Entity {
     ctx.fillStyle = '#ffffff';
     ctx.fill();
 
+    drawAccessory(ctx, radius, this.age);
     ctx.restore();
   }
 }

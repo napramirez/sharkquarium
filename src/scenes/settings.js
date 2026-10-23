@@ -16,7 +16,7 @@ import {
 
 const CONTROLS_X = LOGICAL_WIDTH / 2 + 160;
 const TRACK_WIDTH = 120;
-const PILL_WIDTH = 62;
+const PILL_MIN_WIDTH = 62;
 const PILL_GAP = 4;
 const PILL_HEIGHT = 30;
 
@@ -36,6 +36,7 @@ export class SettingsScene extends Scene {
         { label: 'DIFFICULTY', action: 'difficulty' },
         { label: 'VOLUME', action: 'volume' },
         { label: 'SFX', action: 'sfx' },
+        { label: 'TRACK PLAYER', action: 'tracks' },
         { label: 'BACK', action: 'back' },
       ],
       {
@@ -64,6 +65,19 @@ export class SettingsScene extends Scene {
     this.setDifficulty(DIFFICULTY_ORDER[next]);
   }
 
+  difficultyPills() {
+    let offset = 0;
+    const pills = DIFFICULTY_ORDER.map((key) => {
+      const label = DIFFICULTY[key].label;
+      const width = Math.max(PILL_MIN_WIDTH, label.length * 7.2 + 16);
+      const pill = { key, label, x: offset, width };
+      offset += width + PILL_GAP;
+      return pill;
+    });
+    const startX = LOGICAL_WIDTH - 48 - (offset - PILL_GAP);
+    return pills.map((pill) => ({ ...pill, x: pill.x + startX }));
+  }
+
   adjustVolume(delta) {
     const next = Math.round(clamp(this.settings.volume + delta, 0, 1) * 10) / 10;
     if (next === this.settings.volume) return;
@@ -77,6 +91,11 @@ export class SettingsScene extends Scene {
     if (item.action === 'back') {
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.14, volume: 0.2 });
       this.game.changeScene('menu');
+      return;
+    }
+    if (item.action === 'tracks') {
+      this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.14, volume: 0.2 });
+      this.game.changeScene('tracks');
       return;
     }
     if (item.action === 'coopTankSelect') {
@@ -100,10 +119,11 @@ export class SettingsScene extends Scene {
     }
     if (item.action === 'difficulty') {
       const pointer = this.game.input.pointer;
-      const startX = CONTROLS_X - (PILL_WIDTH * 3 + PILL_GAP * 2) / 2;
       if (pointer.down) {
-        const index = Math.floor((pointer.x - startX) / (PILL_WIDTH + PILL_GAP));
-        this.setDifficulty(DIFFICULTY_ORDER[clamp(index, 0, DIFFICULTY_ORDER.length - 1)]);
+        const pill = this.difficultyPills().find(
+          (entry) => pointer.x >= entry.x && pointer.x <= entry.x + entry.width,
+        );
+        if (pill) this.setDifficulty(pill.key);
       } else {
         this.cycleDifficulty(1);
       }
@@ -140,6 +160,17 @@ export class SettingsScene extends Scene {
       if (input.wasPressed('left')) this.cycleDifficulty(-1);
       if (input.wasPressed('right')) this.cycleDifficulty(1);
     }
+    const pointer = input.pointer;
+    if (pointer.down && input.wasPressed('confirm')) {
+      const index = this.menu.items.findIndex((item) => item.action === 'difficulty');
+      const bounds = this.menu.bounds[index];
+      if (bounds && pointer.y >= bounds.y && pointer.y <= bounds.y + bounds.height) {
+        const pill = this.difficultyPills().find(
+          (entry) => pointer.x >= entry.x && pointer.x <= entry.x + entry.width,
+        );
+        if (pill) this.menu.setIndex(index, false);
+      }
+    }
     this.menu.update(dt, input);
   }
 
@@ -164,7 +195,7 @@ export class SettingsScene extends Scene {
     );
     drawText(
       ctx,
-      'DIFFICULTY — EASY AND HARD SCALE ENEMY SPEED, SPAWNS, AND PENALTIES',
+      'DIFFICULTY — SCALES ENEMY SPEED, SPAWNS, PENALTIES, AND THE CLOCK',
       LOGICAL_WIDTH / 2,
       150,
       {
@@ -186,6 +217,11 @@ export class SettingsScene extends Scene {
     this.renderDifficulty(ctx, CONTROLS_X, top + this.menu.spacing, this.settings.difficulty);
     this.renderSlider(ctx, CONTROLS_X, top + this.menu.spacing * 2, this.settings.volume);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 3, this.settings.sfx);
+    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 4, {
+      size: 13,
+      color: COLORS.textDim,
+      alpha: 0.85,
+    });
 
     drawText(
       ctx,
@@ -200,35 +236,33 @@ export class SettingsScene extends Scene {
   }
 
   renderDifficulty(ctx, x, y, current) {
-    const startX = x - (PILL_WIDTH * 3 + PILL_GAP * 2) / 2;
-    DIFFICULTY_ORDER.forEach((key, index) => {
-      const pillX = startX + index * (PILL_WIDTH + PILL_GAP);
-      const active = key === current;
+    for (const pill of this.difficultyPills()) {
+      const active = pill.key === current;
       fillRoundRect(
         ctx,
-        pillX,
+        pill.x,
         y - PILL_HEIGHT / 2,
-        PILL_WIDTH,
+        pill.width,
         PILL_HEIGHT,
         PILL_HEIGHT / 2,
         active ? 'rgba(255, 209, 102, 0.9)' : 'rgba(10, 39, 64, 0.9)',
       );
       strokeRoundRect(
         ctx,
-        pillX,
+        pill.x,
         y - PILL_HEIGHT / 2,
-        PILL_WIDTH,
+        pill.width,
         PILL_HEIGHT,
         PILL_HEIGHT / 2,
         'rgba(207, 239, 255, 0.4)',
         1.5,
       );
-      drawText(ctx, DIFFICULTY[key].label, pillX + PILL_WIDTH / 2, y, {
+      drawText(ctx, pill.label, pill.x + pill.width / 2, y, {
         size: 12,
         weight: 700,
         color: active ? '#10233a' : COLORS.textDim,
       });
-    });
+    }
   }
 
   renderSwitch(ctx, x, y, on) {

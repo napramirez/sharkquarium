@@ -172,6 +172,20 @@ export class Hud {
         alpha,
       });
     }
+    if (state.octopus) {
+      const labels = {
+        patrol: ['OCTOPUS — PATROLLING', COLORS.textDim, 0.75],
+        lunge: ['OCTOPUS — LUNGING', COLORS.danger, 0.65 + 0.35 * Math.sin(this.time * 8)],
+        recover: ['OCTOPUS — RECOVERING', COLORS.textDim, 0.75],
+        stunned: ['OCTOPUS — STUNNED — GRAB THE BUBBLES', COLORS.foam, 0.9],
+      };
+      const [label, color, alpha] = labels[state.octopus] ?? labels.patrol;
+      drawText(ctx, label, LOGICAL_WIDTH / 2, barY + barHeight + 42, {
+        size: 12,
+        color,
+        alpha,
+      });
+    }
     if (state.catfish) {
       const progress = Math.round((state.sunrise ?? 0) * 100);
       const labels = {
@@ -184,6 +198,36 @@ export class Hud {
         stunned: [`CATFISH — STUNNED — SUNRISE ${progress}%`, COLORS.foam, 0.9],
       };
       const [label, color, alpha] = labels[state.catfish] ?? labels.chase;
+      drawText(ctx, label, LOGICAL_WIDTH / 2, barY + barHeight + 42, {
+        size: 12,
+        color,
+        alpha,
+      });
+    }
+    if (state.race) {
+      drawText(ctx, `P1: ${state.race[0]}`, LOGICAL_WIDTH / 2, barY + barHeight + 42, {
+        size: 14,
+        color: COLORS.bubble,
+        alpha: 0.95,
+      });
+      drawText(ctx, `P2: ${state.race[1]}`, LOGICAL_WIDTH / 2, barY + barHeight + 62, {
+        size: 14,
+        color: COLORS.accent,
+        alpha: 0.95,
+      });
+    }
+    if (state.nautilus) {
+      const progress = Math.round((state.depth ?? 0) * 100);
+      const labels = {
+        lurking: [`SHARK — LURKING ABOVE — DEPTH ${progress}%`, COLORS.textDim, 0.75],
+        chase: [
+          `SHARK — HUNTING — DEPTH ${progress}%`,
+          COLORS.danger,
+          0.65 + 0.35 * Math.sin(this.time * 8),
+        ],
+        distracted: [`SHARK — DISTRACTED — DEPTH ${progress}%`, COLORS.foam, 0.9],
+      };
+      const [label, color, alpha] = labels[state.nautilus] ?? labels.chase;
       drawText(ctx, label, LOGICAL_WIDTH / 2, barY + barHeight + 42, {
         size: 12,
         color,
@@ -261,6 +305,30 @@ export class Hud {
       drawText(
         ctx,
         'DOWN OVER THE SAND DODGES ROCKS — LET PIRANHAS PAST TO STUN THE CATFISH',
+        LOGICAL_WIDTH / 2,
+        LOGICAL_HEIGHT - 18,
+        {
+          size: 12,
+          color: COLORS.textDim,
+          alpha: 0.65,
+        },
+      );
+    } else if (state.tank === 'kelp') {
+      drawText(
+        ctx,
+        'RAM THE OCTOPUS HEAD TO STUN IT — IT DROPS BUBBLES',
+        LOGICAL_WIDTH / 2,
+        LOGICAL_HEIGHT - 18,
+        {
+          size: 12,
+          color: COLORS.textDim,
+          alpha: 0.65,
+        },
+      );
+    } else if (state.tank === 'nautilus') {
+      drawText(
+        ctx,
+        'DODGE SIDE TO SIDE — LET SQUIDS FEED THE SHARK',
         LOGICAL_WIDTH / 2,
         LOGICAL_HEIGHT - 18,
         {

@@ -3,9 +3,12 @@ import { rand, clamp, TAU } from '../engine/math.js';
 import { ANGLER, DEEPSEA, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 
 export class Anglerfish extends Entity {
-  constructor() {
+  constructor(zoneCenter = null) {
     super({
-      x: rand(90, LOGICAL_WIDTH - 90),
+      x:
+        zoneCenter === null
+          ? rand(90, LOGICAL_WIDTH - 90)
+          : zoneCenter + rand(-ANGLER.zoneJitter, ANGLER.zoneJitter),
       y: rand(80, LOGICAL_HEIGHT - DEEPSEA.floorHeight - 70),
       radius: ANGLER.radius,
     });

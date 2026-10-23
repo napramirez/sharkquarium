@@ -7,6 +7,172 @@ export const LOGICAL_HEIGHT = 540;
 export const STORAGE_KEY = 'sharkquarium.best-score';
 export const STATS_KEY = 'sharkquarium.stats';
 export const SETTINGS_KEY = 'sharkquarium.settings';
+export const SHOP_KEY = 'sharkquarium.shop';
+export const COINS_KEY = 'sharkquarium.coins';
+
+export const COINS = {
+  starting: 500,
+  bonus: 5,
+  perScore: 2,
+  perSecond: 1,
+  skinBonusScale: 8000,
+  minigamePlay: 30,
+  minigameWin: 60,
+  difficultyScale: {
+    easy: 1,
+    normal: 1.5,
+    hard: 2.5,
+    apocalyptic: 4,
+  },
+};
+
+export const SKINS = [
+  { key: 'natural', label: 'NATURAL', cost: 0 },
+  {
+    key: 'lagoon',
+    label: 'LAGOON',
+    cost: 200,
+    body: '#3fa79b',
+    accent: '#9fe8dd',
+    belly: '#e4fff9',
+  },
+  {
+    key: 'coral',
+    label: 'CORAL',
+    cost: 450,
+    body: '#e2755f',
+    accent: '#ffc9a8',
+    belly: '#fff0e2',
+  },
+  {
+    key: 'midnight',
+    label: 'MIDNIGHT',
+    cost: 900,
+    body: '#3d4f96',
+    accent: '#9fb2ff',
+    belly: '#dce4ff',
+  },
+  {
+    key: 'gold',
+    label: 'GOLD',
+    cost: 1400,
+    body: '#d9a93c',
+    accent: '#fff0b8',
+    belly: '#fff7dd',
+  },
+  { key: 'shadow', label: 'SHADOW', cost: 2500, special: 'shadow' },
+  { key: 'rainbow', label: 'RAINBOW', cost: 2500, special: 'rainbow' },
+];
+
+export const PASSES = [
+  { key: 'competitions', label: 'COMPETITIONS', cost: 1200 },
+];
+
+export const ACCESSORIES = [
+  { key: 'none', label: 'NONE', cost: 0 },
+  { key: 'tophat', label: 'TOP HAT', cost: 80 },
+  { key: 'party', label: 'PARTY CONE', cost: 60 },
+  { key: 'sunglasses', label: 'SUNGLASSES', cost: 70 },
+  { key: 'bowtie', label: 'BOW TIE', cost: 50 },
+  { key: 'armor', label: 'SHELL ARMOR', cost: 120 },
+  { key: 'crown', label: 'CROWN', cost: 150 },
+];
+
+export const TANK_INTROS = {
+  reef: { label: 'REEF TANK', blurb: 'THE LAST LAP BEGINS' },
+  stingray: { label: 'STINGRAY TANK', blurb: 'THE EELS ARE WATCHING' },
+  deepsea: { label: 'DEEP SEA TANK', blurb: 'THE LURES ARE LIGHTS' },
+  arctic: { label: 'ARCTIC TANK', blurb: 'THE SEALS ARE WATCHING' },
+  kelp: { label: 'KELP FOREST TANK', blurb: 'THE OCTOPUS IS WATCHING' },
+  jelly: { label: 'JELLY TANK', blurb: 'TANGLE THE MINNOWS — STUN THE TURTLE' },
+  nautilus: { label: 'NAUTILUS TANK', blurb: 'DODGE THE BONES — FEED THE SHARK' },
+  freshwater: { label: 'FRESHWATER TANK', blurb: 'OUTRUN THE CATFISH' },
+};
+
+export const RACE = {
+  duration: 30,
+};
+
+export const PUFFER = {
+  radius: 22,
+  speedMin: 260,
+  speedMax: 380,
+  spawnMin: 1.4,
+  spawnMax: 2.2,
+  spawnFloor: 0.35,
+  rampDuration: 60,
+  endlessSpawn: 0.35,
+  speedRamp: 1.5,
+  speedCeiling: 2.2,
+  speedOvertime: 0.2,
+  chargeTime: 0.8,
+  chargeRamp: 0.55,
+  chargeFloor: 0.28,
+  chargeOvertime: 0.05,
+  doubleChance: 0.5,
+  doubleCeiling: 0.65,
+  doubleOvertime: 0.05,
+  aimChance: 0.6,
+  aimCeiling: 0.75,
+  aimOvertime: 0.05,
+  wobble: 30,
+  lives: 3,
+  invulnerableTime: 1.6,
+  knockback: 380,
+};
+
+export const TAG = {
+  duration: 60,
+  flashTime: 1.6,
+  tagCooldown: 1.4,
+  tagPush: 320,
+  tagGap: 26,
+  worldWidth: 1760,
+  worldHeight: 990,
+  radius: 18,
+  cpuCount: 5,
+  playerSpeed: 300,
+  cpuSpeed: 285,
+  taggerBoost: 1.08,
+  fleeDrop: 0.96,
+  nameMaxLength: 8,
+  p1Color: '#ffd166',
+  p2Color: '#cfefff',
+  cpuColors: [
+    '#7bdff2',
+    '#c1a3ff',
+    '#9be564',
+    '#ffb26b',
+    '#f4e6c4',
+    '#e2755f',
+    '#3fa79b',
+    '#a06fd0',
+    '#d9a93c',
+    '#8b98a5',
+  ],
+  cpuNames: [
+    'NIBBLES',
+    'SPLASH',
+    'CORAL',
+    'PEBBLE',
+    'BUBBLES',
+    'ZIPPY',
+    'KELP',
+    'GLIMMER',
+    'SQUIRT',
+    'ROCKY',
+    'MURKY',
+    'FINS',
+    'PUDDLE',
+    'SHELLY',
+    'DRIFTY',
+    'TIDAL',
+    'WAVY',
+    'BRINY',
+    'SONAR',
+    'FLIPPER',
+  ],
+};
 
 export const AUDIO = {
   volume: 0.7,
@@ -21,6 +187,8 @@ export const DIFFICULTY = {
     grace: 1.5,
     chargeScale: 1.5,
     timeScale: 1.5,
+    rampScale: 1,
+    hazardBonus: 0,
   },
   normal: {
     label: 'NORMAL',
@@ -30,6 +198,8 @@ export const DIFFICULTY = {
     grace: 1,
     chargeScale: 1,
     timeScale: 1,
+    rampScale: 1,
+    hazardBonus: 0,
   },
   hard: {
     label: 'HARD',
@@ -39,10 +209,23 @@ export const DIFFICULTY = {
     grace: 0.6,
     chargeScale: 0.6,
     timeScale: 0.75,
+    rampScale: 1,
+    hazardBonus: 0,
+  },
+  apocalyptic: {
+    label: 'APOCALYPTIC WIPEOUT',
+    enemySpeed: 2.4,
+    spawnInterval: 0.3,
+    penalty: 3,
+    grace: 0.35,
+    chargeScale: 0.4,
+    timeScale: 0.6,
+    rampScale: 0.5,
+    hazardBonus: 2,
   },
 };
 
-export const DIFFICULTY_ORDER = ['easy', 'normal', 'hard'];
+export const DIFFICULTY_ORDER = ['easy', 'normal', 'hard', 'apocalyptic'];
 
 export const COLORS = {
   abyss: '#04101d',
@@ -87,6 +270,21 @@ export const COLORS = {
   weed: '#4f7a3a',
   weedDark: '#3a5c2a',
   electric: '#8a9a4f',
+  bone: '#e8e2d0',
+  boneDark: '#bdb49b',
+  puffer: '#e0c56a',
+  urchin: '#4b2e59',
+  urchinSpike: '#6d4884',
+  octopus: '#a8567a',
+  octopusDark: '#7c3d58',
+  octopusAlert: '#e2758f',
+  kelpLeaf: '#3f7a4a',
+  kelpLeafDark: '#2c5a37',
+  kelpFloor: '#22382a',
+  pufferSpike: '#9c8340',
+  nautilusShell: '#d9b28c',
+  nautilusShellDark: '#9c6b4d',
+  nautilusSkin: '#c98d6b',
 };
 
 export const WATER_PALETTE = {
@@ -118,6 +316,30 @@ export const FRESHWATER_PALETTE = {
   bottom: '#16251c',
   ray: 'rgba(210, 240, 200, 0.05)',
 };
+
+export const KELP_PALETTE = {
+  top: '#1d4230',
+  bottom: '#0a1d14',
+  ray: 'rgba(190, 240, 190, 0.05)',
+};
+
+export const NAUTILUS_PALETTE = {
+  top: '#123c4a',
+  bottom: '#04181f',
+  ray: 'rgba(140, 225, 225, 0.05)',
+};
+
+export const CORAL_PALETTE = ['#e8834f', '#d95f8a', '#a06fd0', '#4fb3a5', '#e8b04f'];
+
+export const COLORSCHOOL_PALETTE = [
+  '#ffd166',
+  '#ff8fa3',
+  '#7bdff2',
+  '#c1a3ff',
+  '#9be564',
+  '#ffb26b',
+  '#f4e6c4',
+];
 
 export const PLAYER = {
   radius: 26,
@@ -204,6 +426,9 @@ export const ANGLER = {
   detectRadius: 320,
   searchDuration: 4,
   roamDuration: 7,
+  separation: 76,
+  zoneJitter: 40,
+  spawnAttempts: 24,
   penaltyScore: 20,
   knockback: 520,
   invulnerableTime: 1.5,
@@ -233,6 +458,7 @@ export const LEDGES = {
 
 export const ARCTIC = {
   teleportBubbles: 40,
+  teleportPlankton: 30,
   schoolCount: 2,
 };
 
@@ -277,9 +503,71 @@ export const SARDINE = {
   wanderY: 80,
 };
 
+export const CORAL = {
+  count: 6,
+  margin: 90,
+  heightMin: 48,
+  heightMax: 96,
+  jitter: 0.3,
+  sway: 4,
+  swaySpeed: 0.9,
+};
+
+export const REEF_ROCK = {
+  inset: 62,
+  radiusMin: 50,
+  radiusMax: 64,
+};
+
+export const COLORSCHOOL = {
+  radius: 46,
+  fishCountMin: 5,
+  fishCountMax: 7,
+  speedMin: 65,
+  speedMax: 95,
+  spawnMin: 7,
+  spawnMax: 12,
+  maxActive: 1,
+  bobAmp: 16,
+  bobSpeedMin: 0.7,
+  bobSpeedMax: 1.3,
+  spreadX: 54,
+  spreadY: 34,
+  cullMargin: 140,
+};
+
 export const JELLY = {
-  teleportPlankton: 30,
   clearPoints: 10,
+};
+
+export const KELP = {
+  teleportBubbles: 25,
+  stalkCount: 5,
+};
+
+export const KELP_CRAB = {
+  radius: 24,
+  maxSpeed: 380,
+  response: 6,
+  turnResponse: 10,
+};
+
+export const OCTOPUS = {
+  radius: 30,
+  headRadius: 18,
+  headOffset: 42,
+  patrolSpeed: 55,
+  lungeSpeed: 165,
+  lungeIntervalMin: 4,
+  lungeIntervalMax: 6.5,
+  lungeDuration: 1.5,
+  recoverTime: 0.9,
+  stunDuration: 4,
+  stunBubbles: 4,
+  stunScore: 10,
+  penaltyScore: 10,
+  knockback: 480,
+  invulnerableTime: 1.2,
 };
 
 export const MOONJELLY = {
@@ -346,6 +634,50 @@ export const FRESHWATER = {
   spawnPiranhaMax: 5.6,
   spawnWeedMin: 2.4,
   spawnWeedMax: 4,
+};
+
+export const NAUTILUS = {
+  radius: 24,
+  maxSpeed: 390,
+  response: 6,
+  playerY: 190,
+  scrollSpeed: 140,
+  goalBubbles: 120,
+  spawnRampFloor: 0.55,
+  scrollRamp: 1.35,
+  sharkRamp: 1.6,
+  sharkStartY: -170,
+  sharkRadius: 38,
+  sharkChaseSpeed: 46,
+  sharkReturnSpeed: 90,
+  sharkDistractTime: 4.5,
+  sharkPenalty: 15,
+  sharkKnockback: 300,
+  sharkInvulnerableTime: 1.5,
+  skeletonPenalty: 10,
+  eelRadius: 16,
+  eelSpeedMin: 360,
+  eelSpeedMax: 460,
+  eelPenalty: 15,
+  squidRadius: 16,
+  squidSeek: 90,
+  squidRise: 60,
+  squidPenalty: 10,
+  squidParalysis: 0.8,
+  bubbleSpacing: 64,
+  bubbleCountMin: 4,
+  bubbleCountMax: 7,
+  bubbleRowMin: 2.4,
+  bubbleRowMax: 4,
+  spawnSkeletonMin: 4.2,
+  spawnSkeletonMax: 6.8,
+  spawnEelMin: 3.6,
+  spawnEelMax: 6,
+  spawnSquidMin: 4.5,
+  spawnSquidMax: 7,
+  maxSkeletons: 3,
+  maxEels: 3,
+  maxSquids: 3,
 };
 
 export const ELECTRIC_EEL = {
@@ -418,9 +750,20 @@ export const EEL = {
   penaltyScore: 15,
   knockback: 500,
   invulnerableTime: 1.5,
-  searchRadius: 70,
   jawOpenRadius: 140,
+  roamSpeed: 80,
+  roamMinDistance: 180,
+  roamIntervalMin: 0.8,
+  roamIntervalMax: 1.6,
 };
+
+export const EEL_VARIANTS = [
+  { label: 'BROWN', body: '#7a5c3e', ridge: '#9d7f58', outline: 'rgba(48, 34, 22, 0.55)', eye: '#10233a', spots: false },
+  { label: 'OLIVE', body: '#98854a', ridge: '#bba763', outline: 'rgba(58, 48, 26, 0.55)', eye: '#10233a', spots: false },
+  { label: 'SPOTTED YELLOW', body: '#d9b93f', ridge: '#eed77a', outline: 'rgba(84, 70, 20, 0.6)', eye: '#1a1a1a', spots: true },
+  { label: 'SAGE GRAY', body: '#9a9c86', ridge: '#bcc0ab', outline: 'rgba(52, 54, 46, 0.55)', eye: '#10233a', spots: false },
+  { label: 'BLUE-EYED GRAY', body: '#8b98a5', ridge: '#b3c0cc', outline: 'rgba(44, 52, 60, 0.55)', eye: '#4fa8e0', spots: false },
+];
 
 export const ROUND = {
   duration: 30,

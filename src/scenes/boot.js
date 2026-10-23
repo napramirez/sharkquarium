@@ -20,7 +20,7 @@ export class BootScene extends Scene {
   }
 
   update() {
-    if (this.ready) this.game.changeScene('menu');
+    if (this.ready) this.game.changeScene('intro');
   }
 
   render(ctx) {

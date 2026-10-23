@@ -17,6 +17,9 @@ dimming, and the tank is settling into its quiet blue dark.
 - Bubbles are stray air puffs from the filter pumps. Popping one is satisfying and buys
   the shark a moment more.
 - Jellyfish are grumpy night drifters. Brushing one stings and costs time.
+- The reef floor is dressed with swaying corals and a boulder in each bottom corner,
+  and schools of brightly colored fish drift through as pure scenery — they cannot be
+  caught or touched.
 - At 60 points the tank teleports the player into the Stingray Tank: a sand-floored
   arena with a rock archway where a pack of eels lurks in five holes, peeking before
   they swarm out to hunt.
@@ -26,11 +29,17 @@ dimming, and the tank is settling into its quiet blue dark.
 - After 40 bubbles collected in the Deep Sea Tank, the run surfaces into the Arctic
   Tank: a grey shrimp riding sardine schools under the watch of two ice-perched seals,
   with plankton drifting past.
-- After 30 plankton collected there, the run is pulled into the Jelly Tank: the player
-  is a jellyfish tangling minnows while dodging a charging turtle miniboss.
-- Clearing the Jelly Tank drops the run into the Freshwater Tank: a scrolling river
-  chase where a freshwater stingray outruns a giant catfish through logs, rocks, plants,
-  and piranha schools.
+- After 30 plankton collected there, the run is pulled into the Kelp Forest Tank: a
+  rust-red crab scuttling among swaying kelp under the watch of an octopus boss whose
+  lunges must be dodged and whose head can be rammed to stun it.
+- Collecting 25 bubbles there pulls the run into the Jelly Tank: the player is a
+  jellyfish tangling minnows while dodging a charging turtle miniboss.
+- Clearing the Jelly Tank drops the run into the Nautilus Tank: the chase turns
+  vertical — a nautilus sinks past whale skeletons and darting eels while a shark stalks
+  from above, and the squids it dodges become shark bait.
+- Collecting 120 bubbles in the Nautilus Tank pulls the run into the Freshwater Tank: a
+  scrolling river chase where a freshwater stingray outruns a giant catfish through logs,
+  rocks, plants, and piranha schools.
 - When the clock hits zero the lights go out and the lap ends.
 
 Tone: calm, cozy, friendly. No gore; the clock is the only pressure.
@@ -47,11 +56,17 @@ Tone: calm, cozy, friendly. No gore; the clock is the only pressure.
    becomes a squid hiding in ledge holes from roaming anglerfish (§5.11–5.14).
 7. Collect 40 bubbles in the Deep Sea Tank to be teleported into the Arctic Tank, where
    the shrimp hides inside sardine schools from the seals (§5.15–5.19).
-8. Collect 30 plankton in the Arctic Tank to enter the Jelly Tank miniboss, where the
-   jellyfish tangles minnows for points and stuns the turtle by ramming its head
-   (§5.20–5.22); 10 points opens the freshwater chase.
-9. Clearing the Jelly Tank drops the run into the Freshwater Tank chase: an
-   auto-scrolling river where the ray outruns a giant catfish (§5.23–5.26).
+8. Collect 30 plankton in the Arctic Tank to enter the Kelp Forest Tank: the crab dodges
+   the octopus boss and rams its head to stun it and burst bubbles free (§5.36–5.38);
+   collecting 25 bubbles opens the Jelly Tank miniboss.
+9. In the Jelly Tank the jellyfish tangles minnows for points and stuns the turtle by
+   ramming its head (§5.20–5.22); 10 points opens the nautilus chase.
+10. Collect 120 bubbles in the Nautilus Tank to be pulled into the Freshwater Tank
+    chase: an auto-scrolling river where the ray outruns a giant catfish (§5.23–5.26).
+11. Collect 150 bubbles in the Freshwater Tank to complete the run — best score and
+    stats are saved and the dawn cutscene plays.
+12. Completed dives also pay sea coins, scaled by difficulty, which the SHOP spends on
+    character colors and playpasses (§10).
 
 Chaining bubbles extends the run, so difficulty is player-driven rather than scripted.
 The tank also gets busier over time: spawn rates ramp up and jellyfish grow more
@@ -60,7 +75,8 @@ strong runs that descend through the tanks.
 
 ## 3. Navigation and Screens
 
-Flow: `boot → menu → play ⇄ pause → game over → play or menu`
+Flow: `boot → intro → menu → play ⇄ pause → game over → play or menu`, with a descent
+cutscene between tanks.
 
 Requirements:
 
@@ -69,26 +85,42 @@ Requirements:
 - Selection lists wrap around, play a blip when the selection moves, and confirm with
   Enter, Space, or a click.
 - `Esc` resumes from pause and closes overlays; `Esc` on game over returns to the menu.
-- Touch play is fully supported: drag anywhere on the tank to steer and tap the
-  on-screen pause button.
+- Touch play is fully supported: drag anywhere on the tank to steer, drag the on-screen
+  joystick in the bottom-right corner, and tap the on-screen pause button.
 - Tanks are not menu options: the run teleports mid-dive through the reef, Stingray,
   Deep Sea, Arctic, Jelly, and Freshwater tanks as its challenges are met (§6).
 - CHOOSE TANK opens the tank select, where any tank — and the empty-tank test mode — can
   be started directly with an optional co-op toggle. A chosen tank starts with a fresh
   score and continues the normal chain from there.
 - SETTINGS holds the `CO-OP TANK SELECT` switch, the `DIFFICULTY` selector
-  (EASY / NORMAL / HARD), the `VOLUME` slider (stepped in 10% steps; `Left`/`Right`
-  adjust, clicking the track sets it), and the `SFX` switch. When co-op tank select is
-  ON, the tank select starts with co-op enabled (still adjustable per visit), so players
-  can run co-op dives in any tank. Preferences persist under `sharkquarium.settings`.
+  (EASY / NORMAL / HARD / APOCALYPTIC WIPEOUT), the `VOLUME` slider (stepped in 10%
+  steps; `Left`/`Right` adjust, clicking the track sets it), the `SFX` switch, and the
+  `TRACK PLAYER` (opens the track player screen). When
+  co-op tank select is ON, the tank select starts with co-op enabled (still adjustable
+  per visit), so players can run co-op dives in any tank. Preferences persist under
+  `sharkquarium.settings`.
 - The main menu shows the story blurb (§1, condensed) above the options list.
+- The cutscene pack frames the gauntlet: an intro splash plays on boot (story cards,
+  the ambient shark in the equipped color, `ENTER — BEGIN`), and every tank teleport
+  plays a short descent interstitial before the next tank loads. Both are skippable and
+  auto-advance, so the pack never blocks play.
+- SHOP (always on the menu) sells character colors and the playpass: `Left`/`Right`
+  browses the color catalog, `Enter` buys (with enough sea coins) and equips the shown
+  color or equips an owned one, and the PLAYPASS row buys the competitions pass.
+- MINIGAMES appears on the menu once any playpass is owned; it hosts local competitions
+  (§10).
 
 | Screen        | Options                              | Behavior                                                              |
 | ------------- | ------------------------------------ | --------------------------------------------------------------------- |
-| Boot          | —                                    | Loads the asset manifest, then hands off to the menu                  |
-| Main menu     | START DIVE, CHOOSE TANK, CO-OP DIVE (2P), SETTINGS, HOW TO PLAY | Story blurb above the list; HOW TO PLAY opens an overlay closed with Enter or Esc |
-| Tank select   | CO-OP: OFF/ON, REEF TANK, STINGRAY TANK, DEEP SEA TANK, ARCTIC TANK, JELLY TANK, FRESHWATER TANK, EMPTY TANK, BACK | ESC or BACK returns to the menu; choosing a tank starts it immediately |
-| Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD (Left/Right or click), and adjusts master volume plus SFX; preferences persist |
+| Boot          | —                                    | Loads the asset manifest, then hands off to the intro splash          |
+| Intro splash  | —                                    | Story cards over the ambient shark; ENTER or a click begins, auto-advances after 8 s |
+| Descent       | —                                    | One per tank teleport: the tank name and tagline rise through streaking bubbles; ENTER skips, auto-advances after 1.7 s |
+| Main menu     | START DIVE, CHOOSE TANK, CO-OP DIVE (2P), MINIGAMES (with a playpass), SHOP, SETTINGS, HOW TO PLAY | Story blurb, best score, and sea-coin balance above the list; HOW TO PLAY opens an overlay closed with Enter or Esc |
+| Shop          | COLOR picker, PLAYPASS, BACK         | Left/Right browses the color catalog; Enter buys/equips with sea coins; the playpass adds MINIGAMES to the menu |
+| Minigames     | COMPETITIONS (2P RACE), TAG (2P + 5 CPU), PUFFERFISH DODGEBALL (2P), BACK | Listed when the competitions playpass is owned; starts the bubble race, the tag round with name entry, or the survive-the-pufferfish knockout |
+| Tank select   | CO-OP: OFF/ON, REEF TANK, STINGRAY TANK, DEEP SEA TANK, ARCTIC TANK, KELP FOREST TANK, JELLY TANK, NAUTILUS TANK, FRESHWATER TANK, EMPTY TANK, BACK | ESC or BACK returns to the menu; choosing a tank starts it immediately |
+| Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, TRACK PLAYER, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD/APOCALYPTIC WIPEOUT (Left/Right or click), adjusts master volume plus SFX, and opens the track player; preferences persist |
+| Track player  | REEF TRACK, STINGRAY TRACK, DEEP SEA TRACK, ARCTIC TRACK, KELP TRACK, JELLY TRACK, FRESHWATER TRACK, NAUTILUS TRACK, BACK | Plays or stops any level theme through the shared sequencer; the selected track shows its mood and BPM, the playing one shows a live equalizer; ESC returns to settings and the chosen track keeps playing |
 | Dawn cutscene | —                                    | Plays when the freshwater goal is met; ENTER returns to the menu |
 | Play          | —                                    | HUD visible; Esc opens the pause overlay                              |
 | Pause overlay | RESUME, RESTART, QUIT TO MENU        | Gameplay state stays intact; Esc also resumes; RESTART keeps the mode |
@@ -102,10 +134,12 @@ Requirements:
 | Co-op P1     | `WASD`                                  |
 | Co-op P2     | arrow keys                              |
 | Steer (drag) | drag anywhere on the tank (touch or mouse) |
+| Joystick     | drag the on-screen joystick (bottom-right) — touch or mouse, steers P1 |
 | Hide in sand | hold `Down` / `S` (or drag down) over the sand to bury; `Up` (or drag up) to surface (Stingray Tank) |
 | Hide in hole | hold `Down` / `S` (or drag down) by a stone-ledge hole to tuck in; release to swim out (Deep Sea Tank) |
 | Crawl        | `Left` / `Right` while buried in the sand (Stingray Tank) |
 | Break away   | `Up` / `W` (or drag up) to leave a sardine school (Arctic Tank) |
+| Dodge sideways | `Left` / `Right` (`A`/`D`, or drag sideways) in the Nautilus Tank |
 | Pause        | `Escape` / `P`                          |
 | Pause button | on-screen button, bottom-left corner    |
 | Confirm      | `Enter` / `Space` / mouse / tap         |
@@ -114,11 +148,16 @@ Requirements:
 In **CO-OP DIVE (2P)** the tank holds two of the player creature — two sharks, two
 stingrays, or two squids — and each player controls their own: P1 on `WASD`, P2 on the
 arrow keys. Score, timer, and tank teleports are shared, and the mode threads through
-RESTART and PLAY AGAIN. Pointer drag steers only P1.
+RESTART and PLAY AGAIN. Pointer drag — including the on-screen joystick — steers only
+P1.
 
 In the **Freshwater Tank** chase the river scrolls the ray right automatically, so
 strafing is unnecessary: only `Up`/`Down` (arrow keys or `W`/`S`, or drag up/down) steer
 the ray, while left/right input is ignored.
+
+In the **Nautilus Tank** the descent scrolls downward automatically: the nautilus is
+locked to its depth lane and only `Left`/`Right` (arrow keys or `A`/`D`, or a sideways
+drag) steer it, while up/down input is ignored.
 
 ## 5. Entities
 
@@ -208,7 +247,9 @@ target the nearest visible player.
   lighter dorsal ridge, and a pointed snout whose jaws are lined with small, needle-like
   white teeth. The jaws gape open only when a hunting eel comes within 140 px of a
   surfaced stingray, easing shut otherwise. The body keeps its full length at any
-  swimming speed. Inside their holes they are invisible, and peeking shows only the head
+  swimming speed. Each of the five eels wears its own palette — brown, olive, yellow
+  with black body spots, sage grey, and grey with blue eyes — so the pack reads as five
+  individuals. Inside their holes they are invisible, and peeking shows only the head
   sliding out of the dark hole.
 - Cycle: in their holes until the stingray has collected 10 bubbles since the last hunt
   → peek warning (2.2 s, each eel peeks at a random moment) → all five emerge and hunt
@@ -216,9 +257,10 @@ target the nearest visible player.
   not time-gated, so the eels never become a constant threat; leftover bubbles carry
   toward the next hunt.
 - Hunting: 240 px/s toward the stingray, ×1.25 while it is surfaced. A hidden stingray
-  cannot be tracked: the pack converges on the last place the stingray was seen and
-  slowly circles it, so it loses a mound that crawls away; a hidden stingray can never
-  be bitten.
+  cannot be tracked: the pack loses it and scatters instead of swarming one spot — each
+  eel picks roam waypoints at least 180 px away from the last-seen place and patrols at
+  80 px/s, re-targeting about once a second — so a buried mound can crawl away unseen;
+  a hidden stingray can never be bitten.
 - Bite (surfaced contact): −15 points (floor 0, a severe deduction), knockback 500,
   1.5 s invulnerability, red flash, screen shake, green particle burst.
 - Collision radius: 16 px.
@@ -261,6 +303,9 @@ target the nearest visible player.
 - Behavior: three of them actively roam waypoints at 55 px/s. A surfaced squid within
   320 px is chased at 115 px/s; when the squid hides, they lose track, search the last
   seen spot for up to 4 s, then resume roaming.
+- Spacing: the three spawn one per third of the tank — at least 240 px apart — each placed
+  on the sampled spot farthest from the players, and hold a soft 76 px personal space
+  while roaming, hunting, or searching, so they push past each other instead of stacking.
 - On contact with a surfaced squid: −20 points (floor 0), knockback 520, 1.5 s
   invulnerability, red flash, screen shake, lure-green burst.
 - Collision radius: 22 px.
@@ -430,12 +475,136 @@ target the nearest visible player.
 - Burrowing under the sand is the counter — a concealed ray is immune and untracked.
 - Collision radius: 20 px body, 44 px field.
 
+### 5.28 Coral (Reef Tank scenery)
+
+- Role: the reef tank's floor decoration.
+- Look: six swaying coral clusters along the bottom edge in three shapes — branching
+  staghorn, webbed fan, and tube coral — each in one of five colors (orange, pink,
+  purple, teal, gold), rooted on a small dark rock mound.
+- Behavior: purely decorative — the shark swims over them and nothing collides; they
+  sway gently in place.
+- Placement: spread evenly across the floor with a random jitter, shape, and height,
+  fixed for the dive.
+
+### 5.29 Colorful School (Reef Tank cosmetics)
+
+- Role: pure ambience for the starting tank — a school of tropical fish crossing by.
+- Look: five to seven fish per school, each a different color from the seven-tone
+  school palette (gold, pink, sky, lilac, lime, apricot, cream), with tail and dorsal
+  fins, fluttering around a drifting center.
+- Behavior: enters from a random side, swims across at 65–95 px/s with a gentle vertical
+  bob, and leaves the far edge; about one school every 7–12 s, at most one at a time.
+- No interaction: the school cannot be caught, collected, bumped, or tracked — it never
+  touches the score, timer, or collision system.
+
+### 5.30 Reef Boulders (Reef Tank corner scenery)
+
+- Role: the reef tank's corner anchors.
+- Look: one large rounded boulder in each bottom corner — roughly 100–128 px across and
+  82–105 px tall, with a jittered hump silhouette, a shaded base, a darker outline, and
+  crevice lines.
+- Behavior: purely decorative — the shark swims over them and nothing collides.
+- Colors: `rock` and `rockDark`.
+
+### 5.31 Nautilus (Nautilus Tank player)
+
+- Role: the player's avatar in the vertical chase.
+- Look: cream-and-brown spiral shell that wobbles gently, a small hooded head with a dark
+  eye, and five wavy tentacles trailing beneath; flips to face the swim direction.
+- Movement: locked to the depth lane (`autoScrollY` ≈ 190); only `Left`/`Right` (`A`/`D`,
+  or a sideways drag) steer at 390 px/s with response 6/s. Up/down input is ignored.
+- Tangling: intercepting squids tangle the nautilus — dampened steering for 0.8 s.
+- Collision radius: 24 px.
+
+### 5.32 Chaser Shark (Nautilus Tank chaser)
+
+- Role: the threat above, the nautilus tank's catfish counterpart.
+- Look: full-size grey-blue shark with a pale belly, dorsal and pectoral fins, gill arcs,
+  a dark jaw line, and circling gold stars while distracted.
+- Behavior: starts above at y = −170 and creeps down at 46 px/s while tracking sideways
+  slowly; the creep accelerates up to ×1.6 with depth progress.
+- Distraction: a dodged bait squid is eaten — the shark is distracted for 4.5 s and
+  falls back at 90 px/s. This is the only way to buy distance.
+- Bite: −15 points, knockback 300, 1.5 s invulnerability, then it is shoved back 320 px.
+- Collision radius: 38 px.
+
+### 5.33 Whale Skeleton (Nautilus Tank obstacle)
+
+- Role: the big obstacle to dodge sideways.
+- Look: ivory ribcage — five rib pairs, a beaded spine, and a whale skull hint with a
+  dark eye socket and jaw line — with a randomized scale and slight lean.
+- Behavior: drifts upward with the scroll, tilting gently like a falling ruin.
+- Contact: −10 points, knockback 320, 1 s invulnerability.
+- Collision radius: 46 px.
+
+### 5.34 Dart Eel (Nautilus Tank obstacle)
+
+- Role: the fast sideways sweeper.
+- Look: slim green eel with a fast-fluttering sine body, round head, and dark eye.
+- Behavior: crosses the tank horizontally at 360–460 px/s, bouncing off the side walls,
+  while drifting upward with the scroll.
+- Contact: −15 points, knockback 300, 1 s invulnerability.
+- Collision radius: 16 px.
+
+### 5.35 Bait Squid (Nautilus Tank interceptor)
+
+- Role: the homing pest that doubles as shark bait.
+- Look: small rose squid with side fins and four trailing tentacles.
+- Behavior: rises faster than the scroll (+60 px/s) while steering sideways toward the
+  nearest player at 90 px/s, so it can intercept the nautilus.
+- Contact with the nautilus: −10 points, knockback 260, 1 s invulnerability, and a 0.8 s
+  tangle; the squid is lost.
+- Dodged squids: any squid that slips past the nautilus's depth lane without touching it
+  is instantly fed to the shark — it pops in a burst, and the shark is distracted for
+  4.5 s and falls back. Simply dodging is all it takes; no contact with the shark is
+  needed.
+- Collision radius: 16 px.
+
+### 5.36 Kelp Crab (Kelp Forest Tank player)
+
+- Role: the player's avatar in the kelp forest.
+- Look: rounded rust-red shell with a ridge pattern, three scuttling legs per side, two
+  claws out front, and eyestalks with white-capped eyes; blinks while invulnerable.
+- Movement: exponential steering at 380 px/s, response 6/s, turn response 10/s, always
+  confined to the tank.
+- Collision radius: 24 px.
+
+### 5.37 Octopus (Kelp Forest Tank boss)
+
+- Role: the tank's boss; patrols the kelp and lunges at intruders.
+- Look: plump purple-rose mantle with darker spots and two big eyes, six wavy arms
+  trailing behind, circling gold stars when stunned, and a pink flush while lunging.
+- Behavior: patrols slowly (55 px/s) between waypoints, lunges at the nearest player
+  every 4–6.5 s for 1.5 s at 165 px/s, then recovers briefly before patrolling again.
+- Head stun: ramming the head (the front hitbox) stuns it for 4 s, awards +10 score,
+  and bursts four free bubbles (which count toward the tank goal).
+- Body contact while not stunned: −10 points, knockback 480, 1.2 s invulnerability.
+- Collision radius: 30 px body, 18 px head at a 42 px forward offset.
+
+### 5.38 Kelp Stalks (Kelp Forest Tank scenery)
+
+- Role: the forest itself plus the tank's soft seabed.
+- Look: five tall stalks (190–330 px) rising from a dark moss floor, each a swaying
+  stem with alternating leaf blades; the floor is a mossy gradient with speckles.
+- Behavior: purely decorative — nothing collides.
+
+### 5.39 Tank Backdrops (themed decor)
+
+- Every tank carries a themed background layer behind the gameplay: starfish and
+  dark purple spiked urchins on the Stingray Tank sand, pulsing hydrothermal vents and tube
+  worms in the Deep Sea, drifting snow and small ice floes in the Arctic, glowing
+  spores and ghost-jelly silhouettes in the Jelly Tank, lily pads with blossoms on the
+  Freshwater surface, drifting motes and half-buried spiral shells in the Nautilus
+  Tank, and floating motes through the Kelp Forest. Purely decorative in every case.
+
 ## 6. Scoring, Progression, and Persistence
 
 - Score = bubbles collected, +5 for golden bubbles, +10 for angelfish and shrimps, +15
   for crabs, +5 for plankton, +5 per tangled minnow. Penalties: −5 for logs and plant
-  tangles, −10 for rocks and piranhas, −15 for catfish bites. The timer is the only
-  resource; there are no lives.
+  tangles, −10 for rocks, piranhas, whale skeletons, intercepting squids, and octopus
+  body hits, −15 for catfish bites, darting eels, and shark bites; octopus head stuns
+  award +10. The timer is the only resource; there
+  are no lives.
 - Difficulty ramps over the first 60 seconds of a dive:
 
   | Effect                   | Base        | Ramp                                  |
@@ -444,29 +613,39 @@ target the nearest visible player.
   | Jellyfish spawn interval | 4.5–7.5 s   | ×0.5 by 60 s                          |
   | Jellyfish cap            | 3           | +1 every 30 s, up to 5                |
 
-- Difficulty (SETTINGS): EASY / NORMAL / HARD are a dramatic spread over enemy speeds
-  (×0.5 / ×1 / ×1.6), spawn intervals (×2 / ×1 / ×0.5), score penalties (×0.4 / ×1 / ×2,
-  rounded), invulnerability grace (×1.5 / ×1 / ×0.6), tank clocks (×1.5 / ×1 / ×0.75),
-  and pack charge thresholds (×1.5 / ×1 / ×0.6 — eels wake after 15 / 10 / 6 bubbles and
-  seals dive after 23 / 15 / 9 plankton). NORMAL is the default and matches the tuning
-  tables above.
+- Difficulty (SETTINGS): EASY / NORMAL / HARD / APOCALYPTIC WIPEOUT are a dramatic
+  spread over enemy speeds (×0.5 / ×1 / ×1.6 / ×2.4), spawn intervals (×2 / ×1 / ×0.5 /
+  ×0.3), score penalties (×0.4 / ×1 / ×2 / ×3, rounded), invulnerability grace (×1.5 /
+  ×1 / ×0.6 / ×0.35), tank clocks (×1.5 / ×1 / ×0.75 / ×0.6), and pack charge thresholds
+  (×1.5 / ×1 / ×0.6 / ×0.4 — eels wake after 15 / 10 / 6 / 4 bubbles and seals dive
+  after 23 / 15 / 9 / 6 plankton). APOCALYPTIC WIPEOUT additionally compresses the
+  spawn-rate ramp from 60 s to 30 s and floods the reef's jellyfish caps with two extra
+  slots (start 5, ceiling 7). NORMAL is the default and matches the tuning tables above.
 - Best score persists under `sharkquarium.best-score` and is shown on the menu, the
   HUD, and the game over panel (`NEW BEST!` when beaten).
 - Settings persist under `sharkquarium.settings` as
   `{ coopTankSelect, difficulty, volume, sfx }`.
-- Lifetime stats persist under `sharkquarium.stats` as `{ games, bubbles, longestRun }`,
-  recorded only when a non-empty dive completes:
+- Lifetime stats persist under `sharkquarium.stats` as
+  `{ games, bubbles, longestRun, minigames, minigameWins }`, where the dive counters are
+  recorded only when a non-empty dive completes and the minigame counters when any
+  minigame round finishes:
   - games: completed dives; bubbles: total bubbles collected (golden included);
-    longestRun: longest dive in seconds.
+    longestRun: longest dive in seconds; minigames: finished minigame rounds;
+    minigameWins: rounds won.
   - Shown on the menu; the game over panel adds a `LONGEST RUN` line and highlights
     `NEW LONGEST RUN` records.
   - The EMPTY TANK test mode never writes score or stats.
 - Tank teleports: at 60 points the reef dive becomes the Stingray Tank; at 250 points
   that becomes the Deep Sea Tank; after 40 bubbles collected there it becomes the Arctic
-  Tank; after 30 plankton collected there it becomes the Jelly Tank miniboss; clearing
-  that opens the Freshwater Tank chase. Score, timer, bubbles collected, and elapsed
-  time carry over so the whole run stays one continuous score.
-- Miniboss clear: tangling 10 minnows opens the Freshwater Tank chase with a fanfare.
+  Tank; after 30 plankton collected there it becomes the Kelp Forest Tank; collecting 25
+  bubbles there becomes the Jelly Tank miniboss; clearing that opens the Nautilus Tank
+  chase, and its 120-bubble goal opens the Freshwater Tank chase. Score, timer, bubbles
+  collected, and elapsed time carry over so the whole run stays one continuous score.
+- Kelp goal: collecting 25 bubbles in the Kelp Forest Tank opens the Jelly Tank
+  miniboss; stunning the octopus head drops four free bubbles and +10 score.
+- Miniboss clear: tangling 10 minnows opens the Nautilus Tank chase with a fanfare.
+- Nautilus goal: collecting 120 bubbles in the Nautilus Tank opens the Freshwater Tank
+  chase, carrying score, timer, and totals into the river.
 - Freshwater goal: collecting 150 bubbles in the tank completes the run — best score
   and stats are saved and the dawn cutscene plays before returning to the menu.
 
@@ -477,7 +656,7 @@ target the nearest visible player.
 - Top-center: time bar smoothed toward `timeLeft / timeLimit` plus a numeric countdown;
   both turn red and pulse during the final 5 seconds, with a tick sound each second.
 - Bottom-left: on-screen pause button (mouse and touch).
-- Bottom-right: `ESC — PAUSE` hint.
+- Bottom-right: the on-screen joystick pad, with the `ESC — PAUSE` hint beneath it.
 - Bottom-center: `EMPTY TANK — UI TEST` badge in the test mode, a burrow hint in the
   Stingray Tank (`HOLD DOWN ON THE SAND TO HIDE FROM THE EELS`, switching to
   `LEFT / RIGHT TO CRAWL — UP TO SURFACE` while hidden), or a ledge hint in the Deep Sea
@@ -492,19 +671,43 @@ target the nearest visible player.
   `DIVING / HUNTING / CLIMBING BACK`), pulsing red while hunting, plus a school hint
   (`SWIM INTO A SARDINE SCHOOL TO HIDE FROM THE SEALS`, switching to
   `IN THE SARDINE SCHOOL — PRESS UP TO BREAK AWAY`).
+- Kelp Forest Tank: an octopus status line (`OCTOPUS — PATROLLING / LUNGING /
+  RECOVERING / STUNNED — GRAB THE BUBBLES`), pulsing red while lunging, plus a hint
+  (`RAM THE OCTOPUS HEAD TO STUN IT — IT DROPS BUBBLES`).
 - Jelly Tank: a miniboss status line (`MINIBOSS n/10 — TURTLE PATROLLING / CHARGING /
   RECOVERING / STUNNED`), pulsing red while charging, plus a hint
   (`SWIM INTO MINNOWS TO TANGLE THEM — RAM THE TURTLE'S HEAD TO STUN IT`).
 - Freshwater Tank: a catfish status line (`CATFISH — LURKING BEHIND / CHASING /
   STUNNED — SUNRISE n%`), pulsing red while chasing, plus a hint
   (`DOWN OVER THE SAND DODGES ROCKS — LET PIRANHAS PAST TO STUN THE CATFISH`).
+- Nautilus Tank: a shark status line (`SHARK — LURKING ABOVE / HUNTING / DISTRACTED —
+  DEPTH n%`), pulsing red while hunting, plus a hint
+  (`DODGE SIDE TO SIDE — LET SQUIDS FEED THE SHARK`).
+- Competitions: a race tally under the timer — `P1: n` in bubble blue over `P2: n` in
+  gold — and the results panel replaces the score with the two totals and the winner.
+- Pufferfish Dodgeball: three mini puffer icons per player in the top corners (filled
+  while alive, dimmed when lost) and **no timer bar** — the panel only ends on a
+  knockout.
+- Shop: the coin balance, the browsable color-and-creature panel — every playable
+  creature (shark, stingray, squid, arctic shrimp, kelp crab, jellyfish, nautilus)
+  rendered live with the selected color, including the SHADOW and RAINBOW specials — plus its
+  price/owned/equipped status, its dive payout bonus (`DIVE PAYOUT +n%`), a worn-accessory
+  line, the accessory panel (label, cheap price, `WORN`/`OWNED — ENTER TO WEAR`/`TAKE
+  OFF`), the playpass panel, and purchase feedback lines
+  (`COLOR UNLOCKED AND EQUIPPED`, `PLAYPASS BOUGHT — MINIGAMES UNLOCKED`,
+  `NOT ENOUGH SEA COINS`).
+- Game over: a `+n SEA COINS` payout line; the menu shows `BEST n — SEA COINS n` and,
+  once any minigame has finished, `w/t MINIGAMES WON` beneath the dive stats. Minigame
+  results panels show their own `+n SEA COINS` payout.
 - Dawn cutscene: the window fills the screen as the sun rises — night fading, stars,
   glitter on the water, glass reflections, and light entering the tank — with the score
   and 150-bubble goal shown; ENTER returns to the menu.
-- Teleport arrival: a banner fades out and a particle swirl marks the arrival
-  (`STINGRAY TANK — THE EELS ARE WATCHING`, `DEEP SEA TANK — THE LURES ARE LIGHTS`,
-  `ARCTIC TANK — THE SEALS ARE WATCHING`, `JELLY TANK — TANGLE THE MINNOWS — STUN THE
-  TURTLE`, or `FRESHWATER TANK — OUTRUN THE CATFISH`).
+- Teleport arrival: each teleport plays the descent cutscene — the tank name rises
+  through streaking bubbles with its tagline (`STINGRAY TANK — THE EELS ARE WATCHING`,
+  `DEEP SEA TANK — THE LURES ARE LIGHTS`, `ARCTIC TANK — THE SEALS ARE WATCHING`,
+  `KELP FOREST TANK — THE OCTOPUS IS WATCHING`, `JELLY TANK — TANGLE THE MINNOWS — STUN
+  THE TURTLE`, `NAUTILUS TANK — DODGE THE BONES — FEED THE SHARK`, or
+  `FRESHWATER TANK — OUTRUN THE CATFISH`) — and ENTER skips it.
 - Co-op dives show a two-color control legend under the score (`P1 — WASD` in bubble
   blue, `P2 — ARROWS` in gold).
 - Game over panel: score, best, and a `LONGEST RUN` line.
@@ -533,10 +736,10 @@ Palette:
 | jelly      | `#ff8fa3`                 | jellyfish                        |
 | sand       | `#c4af87`                 | Stingray Tank floor              |
 | sandDark   | `#b09a72`                 | sand shading and burrow mounds   |
-| rock       | `#6d7178`                 | archway rock                     |
+| rock       | `#6d7178`                 | archway rock, reef boulders      |
 | rockDark   | `#565a61`                 | rock texture and shading         |
 | stingray   | `#8b8272`                 | stingray body                    |
-| eel        | `#5d7a52`                 | eel body                         |
+| eel        | `#5d7a52`                 | dart eel bodies (Nautilus Tank)  |
 | shrimp     | `#e26052`                 | red shrimp                       |
 | squid      | `#d29aa6`                 | squid body                       |
 | angler     | `#454e5b`                 | anglerfish body                  |
@@ -559,6 +762,21 @@ Palette:
 | weed       | `#4f7a3a`                 | freshwater plants                |
 | weedDark   | `#3a5c2a`                 | plant roots and shadows          |
 | electric   | `#8a9a4f`                 | electric eel bodies              |
+| urchin     | `#4b2e59`                 | sea-urchin balls                 |
+| urchinSpike | `#6d4884`                | urchin spikes and rims           |
+| octopus    | `#a8567a`                 | octopus mantle and arms          |
+| octopusDark| `#7c3d58`                 | octopus shading and spots        |
+| octopusAlert | `#e2758f`               | octopus lunge flush              |
+| kelpLeaf   | `#3f7a4a`                 | kelp blades                      |
+| kelpLeafDark | `#2c5a37`               | kelp stems                       |
+| kelpFloor  | `#22382a`                 | kelp forest seabed               |
+| bone       | `#e8e2d0`                 | whale skeleton bones             |
+| boneDark   | `#bdb49b`                 | bone shading and sockets         |
+| nautilusShell | `#d9b28c`              | nautilus shell                   |
+| nautilusShellDark | `#9c6b4d`          | shell spiral and outline         |
+| nautilusSkin | `#c98d6b`                | nautilus head and tentacles      |
+| puffer     | `#e0c56a`                 | pufferfish bodies                |
+| pufferSpike | `#9c8340`                | pufferfish spikes and rims       |
 
 - All art is procedural canvas drawing; no image files ship in the artifact.
 - Backdrop: vertical gradient, three swaying light shafts, vignette. The menu adds
@@ -566,14 +784,31 @@ Palette:
   darker water palette (`DEEPSEA_PALETTE`: `#07202f` → `#010406`); the Arctic Tank uses
   a pale icy palette (`ARCTIC_PALETTE`: `#10394f` → `#061a26`); the Jelly Tank uses an
   indigo palette (`JELLY_PALETTE`: `#1b2447` → `#0a0d1f`); the Freshwater Tank uses a
-  murky green palette (`FRESHWATER_PALETTE`: `#33513a` → `#16251c`).
+  murky green palette (`FRESHWATER_PALETTE`: `#33513a` → `#16251c`); the Nautilus Tank
+  uses a cold trench palette (`NAUTILUS_PALETTE`: `#123c4a` → `#04181f`); the Kelp
+  Forest uses a mossy green palette (`KELP_PALETTE`: `#1d4230` → `#0a1d14`). The reef tank
+  adds five-tone corals (`CORAL_PALETTE`: `#e8834f` / `#d95f8a` / `#a06fd0` / `#4fb3a5` /
+  `#e8b04f`), seven-tone cosmetic fish schools (`COLORSCHOOL_PALETTE`: `#ffd166` /
+  `#ff8fa3` / `#7bdff2` / `#c1a3ff` / `#9be564` / `#ffb26b` / `#f4e6c4`), and the five
+  Stingray Tank eel palettes (`EEL_VARIANTS`: brown, olive, spotted yellow, sage grey,
+  blue-eyed grey).
 - Audio is synthesized WebAudio only. Master volume (default 70%) and the SFX switch
   live in SETTINGS: SFX off mutes every cue, and the volume slider scales the whole
   bus; both are re-applied on startup from the saved settings.
-- Miniboss music: the Jelly Tank and Freshwater Tank play looping synthesized themes —
-  turtle: an A-minor pulse at 140 BPM; catfish: a D-minor drive at 150 BPM — sequenced
-  in eighth notes through the same bus. They pause with gameplay, stop on scene
-  changes, and follow the volume and SFX settings.
+- Tank music: every tank plays a looping synthesized theme — reef: a bright C-major
+  saunter at 104 BPM; stingray: a warm D-minor sway at 112 BPM; deep sea: a sparse
+  C-minor drone at 90 BPM (no hats); arctic: a glassy F-major shimmer at 120 BPM; jelly:
+  the A-minor turtle pulse at 140 BPM; freshwater: the D-minor catfish drive at 150 BPM;
+  kelp: a deep G-major groove at 108 BPM; nautilus: an E-minor descent at 96 BPM (no
+  hats) — sequenced in eighth notes through
+  the same bus. Themes pause with gameplay, stop on scene changes, follow the volume and
+  SFX settings, and the EMPTY TANK test mode stays silent. The TRACK PLAYER (SETTINGS)
+  lists all seven by tank name — REEF, STINGRAY, DEEP SEA, ARCTIC, JELLY, FRESHWATER,
+  NAUTILUS TRACK, and KELP TRACK — and plays or stops any of them on demand, showing the theme's
+  mood and BPM plus a live equalizer while it plays. A theme started there is **held**:
+  it keeps playing as you leave the player and roam the menus and settings, and only
+  ends when you stop it in the player or start a dive, which takes over with that tank's
+  own theme.
 
 | Cue        | Shape                                                              |
 | ---------- | ------------------------------------------------------------------ |
@@ -602,9 +837,16 @@ Palette:
 | Piranha bite | Sawtooth 200 → 90 Hz, 0.25 s                                     |
 | Catfish stun | Triangle 660 → 990 Hz + 990 → 1320 Hz, 0.15 / 0.2 s              |
 | Catfish bite | Sawtooth 70 → 35 Hz, 0.5 s                                       |
+| Shark bite | Sawtooth 70 → 35 Hz, 0.5 s                                        |
+| Skeleton crash | Sawtooth 90 → 45 Hz, 0.4 s                                    |
+| Dart eel zap | Sawtooth 240 → 90 Hz, 0.22 s                                   |
+| Squid intercept | Triangle 200 → 110 Hz, 0.25 s                               |
+| Squid fed  | Triangle 420 → 180 Hz, 0.3 s                                      |
 | Electric shock | Sawtooth 300 → 80 Hz, 0.3 s                                    |
+| Purchase   | Triangle 520 → 880 Hz + 880 → 1320 Hz, 0.14 / 0.2 s (shop buys, equip) |
+| Denied     | Sawtooth 180 → 90 Hz, 0.2 s (not enough sea coins)                 |
 | Dawn       | Triangle arpeggio 392 / 523 / 659 / 784 Hz                         |
-| Miniboss music | Looping triangle bass + square lead + hats, 140–150 BPM        |
+| Tank music | Looping triangle bass + square lead (+ hats), 90–150 BPM       |
 | Miniboss   | Triangle arpeggio 523 / 659 / 784 / 1047 Hz                        |
 | Teleport   | Triangle 200 → 1200 Hz, 0.5 s                                      |
 | Game over  | Triangle arpeggio 392 / 523 / 659 Hz                               |
@@ -616,7 +858,76 @@ exists so the full navigation shell — HUD, pause menu, game over — can be ex
 while the game itself is a stub; the HUD shows an `EMPTY TANK — UI TEST` badge. It still
 ends in game over, PLAY AGAIN keeps the mode, and it never writes score or stats.
 
-## 10. Backlog
+## 10. Shop, Sea Coins, and Minigames
+
+Sea coins are the soft currency, earned by completing dives — never in EMPTY TANK or in
+competitions. A completed dive banks `5 + 2 × score + 1 × elapsed seconds`, multiplied
+by the difficulty (EASY ×1, NORMAL ×1.5, HARD ×2.5, APOCALYPTIC WIPEOUT ×4) and by the
+equipped color's payout bonus (below). The bank persists under `sharkquarium.coins`; new
+players start with a 500-coin welcome bank (`COINS.starting`), the game over panel shows
+the payout, and the menu shows the balance.
+
+The SHOP (always on the menu) persists under `sharkquarium.shop` as
+`{ owned, skin, passes, accessories, accessory }`:
+
+- COLOR — seven character colors. NATURAL is free; LAGOON 200, CORAL 450, MIDNIGHT 900,
+  GOLD 1400; the rare SHADOW and RAINBOW cost 2500 each. A purchase deducts the coins
+  and equips immediately; owned colors re-equip for free.
+- CREATURE — browses all seven playable creatures (shark, stingray, squid, arctic
+  shrimp, kelp crab, jellyfish, nautilus) in the preview panel, each rendered live in
+  the selected color.
+- ACCESSORY — six cheap trinkets (NONE is free): BOW TIE 50, PARTY CONE 60, SUNGLASSES
+  70, TOP HAT 80, SHELL ARMOR 120, CROWN 150. Left/Right browses; Enter buys and wears
+  the trinket, or wears an owned one for free (NONE takes it off). Looks: a black top
+  hat with a red band, a striped pink party cone with a gold pompom, dark sunglasses
+  with a white outline and glints, a red bow tie, a scalloped cream shell breastplate,
+  and a gold crown. Trinkets ride on the creature in every tank, on the menu shark, and
+  in the shop preview.
+- Payout bonus — the equipped color raises dive payouts by `1 + cost / 8000`: LAGOON
+  +3%, CORAL +6%, MIDNIGHT +11%, GOLD +18%, SHADOW and RAINBOW +31%. It stacks on top of
+  the difficulty scale, so bought colors pay more even on EASY. The shop shows each
+  color's bonus (`DIVE PAYOUT +n%`).
+- SHADOW is near-black with pulsing red fins and a pulsing red aura ring.
+- RAINBOW cycles body, accent, and belly through hues over time and draws rotating
+  rainbow aura rings.
+- Colors recolor the player creature in every tank and the menu shark: body, accent
+  (fins/spots/shell), and belly slots map onto each creature's palette.
+- PLAYPASS — the COMPETITIONS pass costs 1200 and adds MINIGAMES to the main menu.
+
+MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks two minigames:
+
+- COMPETITIONS (2P RACE) — both players dive as sharks (P1 `WASD`, P2 arrows), hazards
+  stay on with neutral NORMAL tuning, and after 30 seconds the most bubbles wins — the
+  results panel announces `P1 WINS`, `P2 WINS`, or `IT'S A TIE`.
+- PUFFERFISH DODGEBALL (2P) — the arena's only rule is survive: **no timer runs**, each
+  player has three lives, and the round ends the instant either player loses their
+  third. Pufferfish telegraph at a random edge by inflating with a red warning ring,
+  then fly across the arena on wobbling lines; a hit costs a life, pops the fish, knocks
+  the player back, and grants 1.6 s of blinking invulnerability. The pressure escalates
+  endlessly: over a 60 s ramp spawns tighten from every 1.4–2.2 s toward ×0.35 and keep
+  shrinking in overtime (`/(1 + overtime × 0.35)`); pufferfish speed rises to ×1.5 at
+  full ramp and up to the ×2.2 playability cap; telegraphs shrink from 0.8 s to 0.44 s
+  and down to the 0.28 s floor; and past the ramp an increasing share of launches become
+  aimed at a player's position (up to 75%) and double volleys (up to 65%). The results
+  panel announces `P1 WINS`, `P2 WINS`, or `DOUBLE KO` with the lives left, and offers
+  PLAY AGAIN or MINIGAMES.
+- TAG (2P + 5 CPU) — two players type their names first, then join five randomly named
+  CPU swimmers in a 1760×990 arena shown fully zoomed out (everything on one screen).
+  The starting tagger is random; the screen flashes `<NAME> IS IT!` whenever the tag
+  passes; the tagger hands off by touching anyone. Every tag shoves the newly tagged
+  swimmer away from the original tagger (26 px plus a 320 px/s impulse) with a 1.4 s
+  grace, so the pair can never get stuck together or ping-pong the tag. CPU swimmers flee whoever is it; when a CPU holds the tag it chases a random
+  swimmer — player or CPU, re-rolled every time it takes the tag — instead of
+  homing on whoever happens to be closest. After 60
+  seconds the swimmer still it loses; the results panel lists every name with its tag
+  count and offers PLAY AGAIN (same names, fresh CPUs) or MINIGAMES.
+
+Minigames pay sea coins — 30 for finishing plus a 60-coin win bonus (the race isn't a
+tie, a CPU is still it in tag, or dodgeball isn't a double KO) — and count in
+`sharkquarium.stats` as `minigames` / `minigameWins`, shown on the menu as
+`w/t MINIGAMES WON`. They never touch the best score or the dive stats.
+
+## 11. Backlog
 
 - [ ] Replace the starter concept and lore with the real design.
 - [x] Difficulty ramp: spawn-rate and jellyfish-cap curves over elapsed time.

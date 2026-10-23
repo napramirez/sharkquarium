@@ -1,6 +1,8 @@
 import { Entity } from './entity.js';
 import { clamp, lerp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, PLAYER, SQUID, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
+import { playerColor } from '../engine/skin.js';
+import { drawAccessory } from '../engine/accessory.js';
 
 export class Squid extends Entity {
   constructor(x, y, options = {}) {
@@ -89,7 +91,7 @@ export class Squid extends Entity {
     ctx.quadraticCurveTo(-radius * 1.9, radius * 0.45, -radius * 0.6, radius * 0.8);
     ctx.quadraticCurveTo(radius * 0.8, radius * 0.95, radius * 1.1, 0);
     ctx.closePath();
-    ctx.fillStyle = COLORS.squid;
+    ctx.fillStyle = playerColor('body', COLORS.squid);
     ctx.fill();
 
     ctx.fillStyle = 'rgba(122, 62, 74, 0.4)';
@@ -100,7 +102,7 @@ export class Squid extends Entity {
     ctx.ellipse(-radius * 0.9, radius * 0.5, radius * 0.5, radius * 0.22, 0.5, 0, TAU);
     ctx.fill();
 
-    ctx.strokeStyle = COLORS.squid;
+    ctx.strokeStyle = playerColor('accent', COLORS.squid);
     ctx.lineWidth = 2.4;
     ctx.lineCap = 'round';
     for (let i = 0; i < 4; i += 1) {
@@ -128,6 +130,7 @@ export class Squid extends Entity {
       ctx.fill();
     }
 
+    drawAccessory(ctx, radius, this.age);
     ctx.restore();
   }
 }

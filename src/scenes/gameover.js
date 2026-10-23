@@ -12,6 +12,8 @@ export class GameOverScene extends Scene {
     this.longestRun = params.longestRun ?? 0;
     this.newLongestRun = Boolean(params.newLongestRun);
     this.mode = params.params ?? {};
+    this.race = params.race ?? null;
+    this.coins = params.coins ?? 0;
     this.time = 0;
     this.menu = new SelectList(
       [
@@ -75,21 +77,33 @@ export class GameOverScene extends Scene {
     fillRoundRect(ctx, panelX, panelY, panelWidth, panelHeight, 26, 'rgba(10, 39, 64, 0.94)');
     strokeRoundRect(ctx, panelX, panelY, panelWidth, panelHeight, 26, 'rgba(207, 239, 255, 0.3)', 2);
 
-    drawText(ctx, "TIME'S UP", centerX, panelY + 54, {
+    drawText(ctx, this.race ? 'COMPETITION OVER' : "TIME'S UP", centerX, panelY + 54, {
       size: 38,
       color: COLORS.accent,
       glow: 'rgba(255, 209, 102, 0.55)',
       glowBlur: 20,
     });
-    drawText(ctx, 'BUBBLES COLLECTED', centerX, panelY + 108, {
+    drawText(ctx, this.race ? 'P1 VS P2 — BUBBLES' : 'BUBBLES COLLECTED', centerX, panelY + 108, {
       size: 13,
       color: COLORS.textDim,
     });
-    drawText(ctx, `${this.score}`, centerX, panelY + 158, {
-      size: 64,
+    drawText(ctx, this.race ? `${this.race[0]} — ${this.race[1]}` : `${this.score}`, centerX, panelY + 158, {
+      size: this.race ? 52 : 64,
       color: COLORS.text,
     });
-    if (this.isNewBest) {
+    if (this.race) {
+      const winner =
+        this.race[0] === this.race[1]
+          ? "IT'S A TIE"
+          : this.race[0] > this.race[1]
+            ? 'P1 WINS'
+            : 'P2 WINS';
+      drawText(ctx, winner, centerX, panelY + 212, {
+        size: 20,
+        color: COLORS.accent,
+        alpha: 0.65 + 0.35 * Math.sin(this.time * 6),
+      });
+    } else if (this.isNewBest) {
       drawText(ctx, 'NEW BEST!', centerX, panelY + 212, {
         size: 20,
         color: COLORS.accent,
@@ -102,7 +116,7 @@ export class GameOverScene extends Scene {
         alpha: 0.8,
       });
     }
-    if (this.longestRun > 0) {
+    if (!this.race && this.longestRun > 0) {
       drawText(
         ctx,
         this.newLongestRun
@@ -115,6 +129,14 @@ export class GameOverScene extends Scene {
           color: this.newLongestRun ? COLORS.accent : COLORS.textDim,
         },
       );
+    }
+
+    if (this.coins > 0) {
+      drawText(ctx, `+${this.coins} SEA COINS`, centerX, panelY + 262, {
+        size: 14,
+        color: COLORS.accent,
+        alpha: 0.9,
+      });
     }
 
     const promptFade = clamp((this.time - 0.5) / 0.4, 0, 1);

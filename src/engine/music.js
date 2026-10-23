@@ -6,9 +6,12 @@ export class MusicPlayer {
     this.track = null;
     this.step = 0;
     this.timer = 0;
+    this.hold = false;
+    this.paused = false;
   }
 
   play(track) {
+    this.paused = false;
     if (this.track === track) return;
     this.track = track;
     this.step = 0;
@@ -17,10 +20,12 @@ export class MusicPlayer {
 
   stop() {
     this.track = null;
+    this.hold = false;
+    this.paused = false;
   }
 
   update(dt) {
-    if (!this.track) return;
+    if (!this.track || this.paused) return;
     this.timer -= dt;
     if (this.timer > 0) return;
     this.timer += this.track.beat;

@@ -23,16 +23,29 @@ import { Weed } from '../entities/weed.js';
 import { PiranhaSchool } from '../entities/piranha.js';
 import { ElectricEel } from '../entities/electriceel.js';
 import { Catfish } from '../entities/catfish.js';
+import { Nautilus } from '../entities/nautilus.js';
+import { ChaserShark } from '../entities/chasershark.js';
+import { WhaleSkeleton } from '../entities/whaleskeleton.js';
+import { DartEel } from '../entities/darteel.js';
+import { BaitSquid } from '../entities/baitsquid.js';
+import { KelpCrab } from '../entities/kelpcrab.js';
+import { KelpForest } from '../entities/kelpforest.js';
+import { Octopus } from '../entities/octopus.js';
+import { Decor } from '../entities/decor.js';
 import { Archway } from '../entities/archway.js';
 import { Ledges } from '../entities/ledges.js';
 import { IceChunk } from '../entities/icechunk.js';
 import { SardineSchool } from '../entities/sardineschool.js';
+import { Coral } from '../entities/coral.js';
+import { ReefRock } from '../entities/reefrock.js';
+import { ColorSchool } from '../entities/colorschool.js';
 import { CurrentZone } from '../entities/currentzone.js';
 import { UpdraftZone } from '../entities/updraftzone.js';
 import { Hud, hitPauseButton } from '../ui/hud.js';
+import { drawJoystick, joystickState } from '../engine/joystick.js';
 import { ParticleSystem } from '../engine/particles.js';
 import { circleOverlap } from '../engine/collision.js';
-import { clamp, distance, lerp, rand } from '../engine/math.js';
+import { clamp, distance, lerp, rand, TAU } from '../engine/math.js';
 import {
   drawWater,
   drawText,
@@ -40,8 +53,20 @@ import {
   fillRoundRect,
   strokeRoundRect,
 } from '../engine/render.js';
-import { CATFISH_TRACK, TURTLE_TRACK } from '../assets/tracks.js';
+import {
+  ARCTIC_TRACK,
+  CATFISH_TRACK,
+  DEEPSEA_TRACK,
+  KELP_TRACK,
+  NAUTILUS_TRACK,
+  REEF_TRACK,
+  STINGRAY_TRACK,
+  TURTLE_TRACK,
+} from '../assets/tracks.js';
+import { drawSkinAura, setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
+import { accessoryByKey, setActiveAccessory } from '../engine/accessory.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
+import { recordMinigame } from '../engine/progress.js';
 import {
   ANGELFISH,
   ANGLER,
@@ -49,24 +74,36 @@ import {
   ARCTIC_PALETTE,
   CATFISH,
   COLORS,
+  COLORSCHOOL,
   CONTROLS,
+  CORAL,
   CRAB,
   DEEPSEA,
   DEEPSEA_PALETTE,
   DIFFICULTY,
   EEL,
   ELECTRIC_EEL,
+  COINS,
+  COINS_KEY,
   FRESHWATER,
   FRESHWATER_PALETTE,
   GOLDEN,
   JELLY,
   JELLY_PALETTE,
+  KELP,
+  KELP_PALETTE,
   MINNOW,
+  NAUTILUS,
+  NAUTILUS_PALETTE,
+  OCTOPUS,
   PLANKTON,
+  REEF_ROCK,
+  RACE,
   ROUND,
   SAND,
   SEAL,
   SETTINGS_KEY,
+  SHOP_KEY,
   SHRIMP,
   STATS_KEY,
   STINGRAY,
@@ -78,25 +115,43 @@ import {
   LOGICAL_HEIGHT,
 } from '../config.js';
 
+const TANK_TRACKS = {
+  reef: REEF_TRACK,
+  stingray: STINGRAY_TRACK,
+  deepsea: DEEPSEA_TRACK,
+  arctic: ARCTIC_TRACK,
+  kelp: KELP_TRACK,
+  jelly: TURTLE_TRACK,
+  freshwater: CATFISH_TRACK,
+  nautilus: NAUTILUS_TRACK,
+};
+
 export class PlayScene extends Scene {
   enter(params = {}) {
     this.params = params;
     this.empty = Boolean(params.empty);
-    this.rules =
-      DIFFICULTY[loadJSON(SETTINGS_KEY, {}).difficulty] ?? DIFFICULTY.normal;
+    this.race = Boolean(params.race);
+    this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
+    this.rules = this.race ? DIFFICULTY.normal : DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
     this.eelNeed = Math.max(1, Math.round(EEL.bubblesPerHunt * this.rules.chargeScale));
     this.sealNeed = Math.max(1, Math.round(SEAL.chargePlankton * this.rules.chargeScale));
-    this.coop = Boolean(params.coop);
+    this.coop = this.race || Boolean(params.coop);
+    this.skin = skinByKey(loadJSON(SHOP_KEY, {}).skin);
+    this.accessory = accessoryByKey(loadJSON(SHOP_KEY, {}).accessory);
     this.tank = params.tank ?? 'reef';
     this.stingrayTank = this.tank === 'stingray';
     this.deepsea = this.tank === 'deepsea';
     this.arctic = this.tank === 'arctic';
     this.jellyTank = this.tank === 'jelly';
     this.freshwater = this.tank === 'freshwater';
+    this.nautilusTank = this.tank === 'nautilus';
+    this.kelp = this.tank === 'kelp';
     const carry = params.carry ?? null;
-    this.timeLimit = this.empty
-      ? ROUND.emptyDuration
-      : ROUND.duration * this.rules.timeScale;
+    this.timeLimit = this.race
+      ? RACE.duration
+      : this.empty
+        ? ROUND.emptyDuration
+        : ROUND.duration * this.rules.timeScale;
     const PlayerClass = this.jellyTank
       ? MoonJelly
       : this.arctic
@@ -105,7 +160,11 @@ export class PlayScene extends Scene {
           ? Squid
           : this.stingrayTank || this.freshwater
             ? Stingray
-            : Shark;
+            : this.nautilusTank
+              ? Nautilus
+              : this.kelp
+                ? KelpCrab
+                : Shark;
     const spawns = this.coop
       ? [
           { x: LOGICAL_WIDTH * 0.42, y: LOGICAL_HEIGHT / 2, controls: CONTROLS.p1, pointer: true },
@@ -116,6 +175,7 @@ export class PlayScene extends Scene {
       (spawn) => new PlayerClass(spawn.x, spawn.y, { controls: spawn.controls, pointer: spawn.pointer }),
     );
     this.player = this.players[0];
+    this.playerBubbles = this.players.map(() => 0);
     this.wasConcealed = this.players.map(() => false);
     if (this.freshwater) {
       this.players.forEach((player, index) => {
@@ -126,13 +186,20 @@ export class PlayScene extends Scene {
         player.x = player.autoScrollX;
       });
     }
+    if (this.nautilusTank) {
+      this.players.forEach((player, index) => {
+        player.x = LOGICAL_WIDTH / 2 + (this.coop ? (index === 0 ? -45 : 45) : 0);
+        player.autoScrollY = NAUTILUS.playerY;
+        player.y = player.autoScrollY;
+      });
+    }
     this.bubbles = [];
     this.hazards = [];
     this.bonus = [];
     this.zones = [];
     this.archway = this.stingrayTank ? new Archway() : null;
     this.eels = this.archway
-      ? this.archway.holes.map((hole) => new Eel(hole.x, hole.y))
+      ? this.archway.holes.map((hole, index) => new Eel(hole.x, hole.y, index))
       : [];
     this.eelPhase = this.eels.length > 0 ? 'hidden' : null;
     this.eelTimer = 0;
@@ -140,15 +207,18 @@ export class PlayScene extends Scene {
     this.ledges = this.deepsea ? new Ledges() : null;
     this.anglers = [];
     if (this.deepsea) {
+      const zoneWidth = LOGICAL_WIDTH / DEEPSEA.anglerCount;
       for (let i = 0; i < DEEPSEA.anglerCount; i += 1) {
-        let angler = new Anglerfish();
-        for (
-          let attempt = 0;
-          attempt < 8 &&
-          this.players.some((player) => distance(angler.x, angler.y, player.x, player.y) < 260);
-          attempt += 1
-        ) {
-          angler = new Anglerfish();
+        const center = zoneWidth * (i + 0.5);
+        let angler = new Anglerfish(center);
+        let clearance = this.anglerClearance(angler);
+        for (let attempt = 1; attempt < ANGLER.spawnAttempts; attempt += 1) {
+          const candidate = new Anglerfish(center);
+          const candidateClearance = this.anglerClearance(candidate);
+          if (candidateClearance > clearance) {
+            angler = candidate;
+            clearance = candidateClearance;
+          }
         }
         this.anglers.push(angler);
       }
@@ -163,7 +233,10 @@ export class PlayScene extends Scene {
     this.sealPhase = this.seals.length > 0 ? 'perched' : null;
     this.sealTimer = 0;
     this.sealCharge = 0;
-    this.turtle = this.jellyTank ? new Turtle() : null;
+    this.turtle = this.jellyTank ? this.spawnBoss(Turtle) : null;
+    this.octopus = this.kelp ? this.spawnBoss(Octopus) : null;
+    this.kelpStalks = this.kelp ? new KelpForest() : null;
+    this.decor = new Decor(this.tank);
     this.minnows = [];
     this.minnowTimer = rand(2, 4);
     this.jellyPoints = 0;
@@ -174,15 +247,27 @@ export class PlayScene extends Scene {
     this.piranhas = [];
     this.weeds = [];
     this.electricEels = [];
+    this.skeletons = [];
+    this.dartEels = [];
+    this.baitSquids = [];
+    this.nautilusShark = this.nautilusTank ? new ChaserShark() : null;
+    this.corals = this.tank === 'reef' && !this.empty ? this.buildCorals() : [];
+    this.reefRocks = this.tank === 'reef' && !this.empty
+      ? [new ReefRock(-1), new ReefRock(1)]
+      : [];
+    this.colorSchools = [];
     this.difficulty = 0;
-    this.scrollSpeed = FRESHWATER.scrollSpeed;
+    this.scrollSpeed = this.nautilusTank ? NAUTILUS.scrollSpeed : FRESHWATER.scrollSpeed;
     this.eelTimer = rand(4, 6);
     this.logTimer = rand(1.5, 3);
     this.rockTimer = rand(2.5, 4.5);
     this.piranhaTimer = rand(2.5, 4);
     this.weedTimer = rand(1.2, 2.4);
     this.bubbleRowTimer = rand(0.8, 1.6);
-    this.speckles = this.stingrayTank || this.freshwater
+    this.skeletonTimer = rand(1.5, 3);
+    this.dartEelTimer = rand(2, 3.5);
+    this.baitSquidTimer = rand(2.5, 4);
+    this.speckles = this.stingrayTank || this.freshwater || this.kelp
       ? Array.from({ length: SAND.speckles }, () => ({
           x: rand(4, LOGICAL_WIDTH - 4),
           y: rand(SAND.height - 56, SAND.height - 8),
@@ -203,21 +288,18 @@ export class PlayScene extends Scene {
     this.hazardTimer = ROUND.hazardSpawnMin + 2;
     this.bonusTimer = this.arctic ? rand(1.5, 3) : rand(8, 12);
     this.zoneTimer = rand(6, 10);
+    this.colorTimer = rand(COLORSCHOOL.spawnMin, COLORSCHOOL.spawnMax);
     this.paused = false;
     this.flash = 0;
     this.shake = 0;
     this.time = 0;
     this.teleported = false;
-    this.announce = carry ? 2.6 : 0;
-    this.banner = null;
-    if (carry && this.stingrayTank) this.banner = ['STINGRAY TANK', 'THE EELS ARE WATCHING'];
-    if (carry && this.deepsea) this.banner = ['DEEP SEA TANK', 'THE LURES ARE LIGHTS'];
-    if (carry && this.arctic) this.banner = ['ARCTIC TANK', 'THE SEALS ARE WATCHING'];
-    if (carry && this.jellyTank) this.banner = ['JELLY TANK', 'TANGLE THE MINNOWS — STUN THE TURTLE'];
-    if (carry && this.freshwater) this.banner = ['FRESHWATER TANK', 'OUTRUN THE CATFISH'];
     if (this.game.music) {
-      if (this.jellyTank) this.game.music.play(TURTLE_TRACK);
-      else if (this.freshwater) this.game.music.play(CATFISH_TRACK);
+      this.game.music.paused = false;
+      if (!this.empty) {
+        this.game.music.hold = false;
+        this.game.music.play(TANK_TRACKS[this.tank] ?? REEF_TRACK);
+      }
     }
     this.hud = new Hud();
     this.pauseMenu = new SelectList(
@@ -252,6 +334,7 @@ export class PlayScene extends Scene {
   replayParams() {
     const base = {};
     if (this.empty) base.empty = true;
+    if (this.race) base.race = true;
     if (this.coop) base.coop = true;
     if (this.tank !== 'reef') base.tank = this.tank;
     return base;
@@ -262,6 +345,19 @@ export class PlayScene extends Scene {
       if (player.concealed !== true) return player;
     }
     return this.player;
+  }
+
+  spawnBoss(BossClass) {
+    let boss = new BossClass();
+    for (
+      let attempt = 0;
+      attempt < 24 &&
+      this.players.some((player) => Math.hypot(boss.x - player.x, boss.y - player.y) < 150);
+      attempt += 1
+    ) {
+      boss = new BossClass();
+    }
+    return boss;
   }
 
   schoolNear(player) {
@@ -288,12 +384,20 @@ export class PlayScene extends Scene {
       sealCharge: this.sealCharge,
       sealNeed: this.sealNeed,
       turtle: this.turtle ? this.turtle.state : null,
+      octopus: this.octopus ? this.octopus.state : null,
       minibossPoints: this.jellyPoints,
       catfish: this.catfish
         ? this.catfish.state !== 'stunned' && this.catfish.x < 0
           ? 'lurking'
           : this.catfish.state
         : null,
+      nautilus: this.nautilusShark
+        ? this.nautilusShark.state !== 'distracted' && this.nautilusShark.y < 0
+          ? 'lurking'
+          : this.nautilusShark.state
+        : null,
+      depth: this.nautilusTank ? this.difficulty : 0,
+      race: this.race ? this.playerBubbles : null,
       sunrise: this.freshwater ? this.difficulty : 0,
       hidden: this.players.every((player) => player.concealed === true),
     };
@@ -303,6 +407,58 @@ export class PlayScene extends Scene {
     if (this.anglers.some((angler) => angler.mode === 'chase')) return 'chase';
     if (this.anglers.some((angler) => angler.mode === 'search')) return 'search';
     return 'roam';
+  }
+
+  feedShark(squid) {
+    squid.kill();
+    this.nautilusShark.stun();
+    this.particles.burst(squid.x, squid.y, {
+      count: 16,
+      speed: 200,
+      life: 0.6,
+      colors: [COLORS.squid, COLORS.accent, '#ffffff'],
+      buoyancy: -20,
+    });
+    this.game.audio.tone({ freq: 420, endFreq: 180, type: 'triangle', duration: 0.3, volume: 0.24 });
+  }
+
+  anglerClearance(angler) {
+    let nearest = Infinity;
+    for (const player of this.players) {
+      nearest = Math.min(nearest, distance(angler.x, angler.y, player.x, player.y));
+    }
+    return nearest;
+  }
+
+  separateAnglers() {
+    const min = ANGLER.separation;
+    for (let i = 0; i < this.anglers.length; i += 1) {
+      for (let j = i + 1; j < this.anglers.length; j += 1) {
+        const a = this.anglers[i];
+        const b = this.anglers[j];
+        let dx = b.x - a.x;
+        let dy = b.y - a.y;
+        let dist = Math.hypot(dx, dy);
+        if (dist === 0) {
+          const angle = (((i + j) % 4) * TAU) / 4;
+          dx = Math.cos(angle);
+          dy = Math.sin(angle);
+          dist = 1;
+        }
+        if (dist >= min) continue;
+        const push = (min - dist) / 2;
+        const nx = dx / dist;
+        const ny = dy / dist;
+        a.x -= nx * push;
+        a.y -= ny * push;
+        b.x += nx * push;
+        b.y += ny * push;
+      }
+    }
+    for (const angler of this.anglers) {
+      angler.x = clamp(angler.x, ANGLER.radius, LOGICAL_WIDTH - ANGLER.radius);
+      angler.y = clamp(angler.y, ANGLER.radius, LOGICAL_HEIGHT - ANGLER.radius);
+    }
   }
 
   update(dt) {
@@ -318,7 +474,7 @@ export class PlayScene extends Scene {
       return;
     }
     this.elapsed += dt;
-    this.ramp = clamp(this.elapsed / ROUND.rampDuration, 0, 1);
+    this.ramp = clamp(this.elapsed / (ROUND.rampDuration * this.rules.rampScale), 0, 1);
     if (this.freshwater) {
       this.difficulty = clamp(this.tankBubbles / FRESHWATER.goalBubbles, 0, 1);
       this.scrollSpeed = lerp(
@@ -327,9 +483,18 @@ export class PlayScene extends Scene {
         this.difficulty,
       );
     }
-    this.announce = Math.max(0, this.announce - dt);
-    if (this.game.music) this.game.music.update(dt);
+    if (this.nautilusTank) {
+      this.difficulty = clamp(this.tankBubbles / NAUTILUS.goalBubbles, 0, 1);
+      this.scrollSpeed = lerp(
+        NAUTILUS.scrollSpeed,
+        NAUTILUS.scrollSpeed * NAUTILUS.scrollRamp,
+        this.difficulty,
+      );
+    }
     for (const school of this.schools) school.update(dt);
+    for (const coral of this.corals) coral.update(dt);
+    for (const school of this.colorSchools) school.update(dt);
+    this.colorSchools = this.colorSchools.filter((school) => school.alive);
     if (this.freshwater) {
       this.players.forEach((player, index) => {
         const base = FRESHWATER.playerX + (this.coop ? (index === 0 ? -45 : 45) : 0);
@@ -350,7 +515,7 @@ export class PlayScene extends Scene {
     this.updateEntities(dt);
     this.updateZones(dt);
     this.updateCollisions();
-    if (!this.empty && !this.teleported) {
+    if (!this.empty && !this.race && !this.teleported) {
       if (this.tank === 'reef' && this.score >= STINGRAY.teleportScore) {
         this.teleport('stingray');
         return;
@@ -363,7 +528,11 @@ export class PlayScene extends Scene {
         this.teleport('arctic');
         return;
       }
-      if (this.tank === 'arctic' && this.tankPlankton >= JELLY.teleportPlankton) {
+      if (this.tank === 'arctic' && this.tankPlankton >= ARCTIC.teleportPlankton) {
+        this.teleport('kelp');
+        return;
+      }
+      if (this.tank === 'kelp' && this.tankBubbles >= KELP.teleportBubbles) {
         this.teleport('jelly');
         return;
       }
@@ -374,12 +543,16 @@ export class PlayScene extends Scene {
       this.game.audio.tone({ freq: 659, type: 'triangle', duration: 0.18, volume: 0.22, delay: 0.12 });
       this.game.audio.tone({ freq: 784, type: 'triangle', duration: 0.18, volume: 0.22, delay: 0.24 });
       this.game.audio.tone({ freq: 1047, type: 'triangle', duration: 0.26, volume: 0.22, delay: 0.36 });
-      this.teleport('freshwater');
+      this.teleport('nautilus');
       return;
     }
     if (this.freshwater && !this.teleported && this.tankBubbles >= FRESHWATER.goalBubbles) {
       this.teleported = true;
       this.game.changeScene('dawn', { ...this.completionPayload(), goal: FRESHWATER.goalBubbles });
+      return;
+    }
+    if (this.nautilusTank && !this.teleported && this.tankBubbles >= NAUTILUS.goalBubbles) {
+      this.teleport('freshwater');
       return;
     }
     this.updateTimer(dt);
@@ -389,15 +562,16 @@ export class PlayScene extends Scene {
 
   teleport(targetTank) {
     this.teleported = true;
-    this.game.audio.tone({ freq: 200, endFreq: 1200, type: 'triangle', duration: 0.5, volume: 0.3 });
-    this.game.changeScene('play', {
+    this.game.changeScene('descent', {
       tank: targetTank,
-      coop: this.coop,
-      carry: {
-        score: this.score,
-        timeLeft: this.timeLeft,
-        bubblesCollected: this.bubblesCollected,
-        elapsed: this.elapsed,
+      payload: {
+        coop: this.coop,
+        carry: {
+          score: this.score,
+          timeLeft: this.timeLeft,
+          bubblesCollected: this.bubblesCollected,
+          elapsed: this.elapsed,
+        },
       },
     });
   }
@@ -405,13 +579,14 @@ export class PlayScene extends Scene {
   setPaused(paused) {
     if (this.paused === paused) return;
     this.paused = paused;
+    if (this.game.music) this.game.music.paused = paused;
     if (paused) this.pauseMenu.reset();
     this.game.audio.tone({ freq: paused ? 300 : 560, duration: 0.08, volume: 0.15 });
   }
 
   handlePauseAction(action) {
     this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.14, volume: 0.18 });
-    if (action === 'resume') this.paused = false;
+    if (action === 'resume') this.setPaused(false);
     else if (action === 'restart') this.game.changeScene('play', this.replayParams());
     else if (action === 'menu') this.game.changeScene('menu');
   }
@@ -586,6 +761,31 @@ export class PlayScene extends Scene {
       }
       return;
     }
+    if (this.nautilusTank) {
+      const spawnScale = lerp(1, NAUTILUS.spawnRampFloor, this.difficulty) * this.rules.spawnInterval;
+      this.bubbleRowTimer -= dt;
+      if (this.bubbleRowTimer <= 0) {
+        this.bubbleRowTimer = rand(NAUTILUS.bubbleRowMin, NAUTILUS.bubbleRowMax);
+        this.spawnBubbleColumn();
+      }
+      this.skeletonTimer -= dt;
+      if (this.skeletonTimer <= 0 && this.skeletons.length < NAUTILUS.maxSkeletons) {
+        this.skeletonTimer =
+          rand(NAUTILUS.spawnSkeletonMin, NAUTILUS.spawnSkeletonMax) * spawnScale;
+        this.spawnSkeleton();
+      }
+      this.dartEelTimer -= dt;
+      if (this.dartEelTimer <= 0 && this.dartEels.length < NAUTILUS.maxEels) {
+        this.dartEelTimer = rand(NAUTILUS.spawnEelMin, NAUTILUS.spawnEelMax) * spawnScale;
+        this.spawnDartEel();
+      }
+      this.baitSquidTimer -= dt;
+      if (this.baitSquidTimer <= 0 && this.baitSquids.length < NAUTILUS.maxSquids) {
+        this.baitSquidTimer = rand(NAUTILUS.spawnSquidMin, NAUTILUS.spawnSquidMax) * spawnScale;
+        this.spawnBaitSquid();
+      }
+      return;
+    }
     const bubbleScale = lerp(1, ROUND.bubbleRateFloor, this.ramp);
     const hazardScale = lerp(1, ROUND.hazardRateFloor, this.ramp);
     this.bubbleTimer -= dt;
@@ -596,14 +796,19 @@ export class PlayScene extends Scene {
     }
     if (this.tank === 'reef') {
       const hazardCap = Math.min(
-        ROUND.maxHazardsCeiling,
-        ROUND.maxHazards + Math.floor(this.elapsed / ROUND.hazardCapStep),
+        ROUND.maxHazardsCeiling + this.rules.hazardBonus,
+        ROUND.maxHazards + this.rules.hazardBonus + Math.floor(this.elapsed / ROUND.hazardCapStep),
       );
       this.hazardTimer -= dt;
       if (this.hazardTimer <= 0 && this.hazards.length < hazardCap) {
         this.hazardTimer =
           rand(ROUND.hazardSpawnMin, ROUND.hazardSpawnMax) * hazardScale * this.rules.spawnInterval;
         this.spawnHazard();
+      }
+      this.colorTimer -= dt;
+      if (this.colorTimer <= 0 && this.colorSchools.length < COLORSCHOOL.maxActive) {
+        this.colorTimer = rand(COLORSCHOOL.spawnMin, COLORSCHOOL.spawnMax);
+        this.spawnColorSchool();
       }
     }
     this.bonusTimer -= dt;
@@ -710,6 +915,40 @@ export class PlayScene extends Scene {
     this.weeds.push(new Weed());
   }
 
+  spawnBubbleColumn() {
+    const count = Math.floor(rand(NAUTILUS.bubbleCountMin, NAUTILUS.bubbleCountMax + 1));
+    const x = rand(70, LOGICAL_WIDTH - 70);
+    for (let i = 0; i < count; i += 1) {
+      this.bubbles.push(
+        new Bubble(x, LOGICAL_HEIGHT + 40 + i * NAUTILUS.bubbleSpacing, { rise: 0, wobble: 0 }),
+      );
+    }
+  }
+
+  spawnSkeleton() {
+    this.skeletons.push(new WhaleSkeleton());
+  }
+
+  spawnDartEel() {
+    this.dartEels.push(new DartEel());
+  }
+
+  spawnBaitSquid() {
+    this.baitSquids.push(new BaitSquid());
+  }
+
+  spawnColorSchool() {
+    this.colorSchools.push(new ColorSchool());
+  }
+
+  buildCorals() {
+    const span = (LOGICAL_WIDTH - CORAL.margin * 2) / CORAL.count;
+    return Array.from({ length: CORAL.count }, (_, index) => {
+      const x = CORAL.margin + span * (index + 0.5) + rand(-span * CORAL.jitter, span * CORAL.jitter);
+      return new Coral(x, index % 3);
+    });
+  }
+
   spawnElectricEel() {
     this.electricEels.push(new ElectricEel());
   }
@@ -744,6 +983,31 @@ export class PlayScene extends Scene {
       });
       this.catfish.update(dt, this.players, this.difficulty, this.rules.enemySpeed);
     }
+    if (this.nautilusTank) {
+      for (const bubble of this.bubbles) bubble.y -= this.scrollSpeed * dt;
+      this.skeletons = this.skeletons.filter((skeleton) => {
+        skeleton.update(dt, this.scrollSpeed);
+        return skeleton.alive && skeleton.y > -170;
+      });
+      this.dartEels = this.dartEels.filter((eel) => {
+        eel.update(dt, this.scrollSpeed);
+        return eel.alive && eel.y > -140;
+      });
+      const laneY = Math.min(...this.players.map((player) => player.y));
+      const clearGap = NAUTILUS.squidRadius + NAUTILUS.radius + 4;
+      this.baitSquids = this.baitSquids.filter((squid) => {
+        squid.update(dt, this.players, this.scrollSpeed);
+        if (!squid.alive) return false;
+        if (this.nautilusShark && squid.y < laneY - clearGap) {
+          this.feedShark(squid);
+          return false;
+        }
+        return squid.y > -170;
+      });
+      if (this.nautilusShark) {
+        this.nautilusShark.update(dt, this.players, this.difficulty, this.rules.enemySpeed);
+      }
+    }
     this.bubbles = this.bubbles.filter((bubble) => {
       bubble.update(dt);
       return bubble.alive && bubble.y > -40 && bubble.x > -80;
@@ -759,7 +1023,9 @@ export class PlayScene extends Scene {
     this.updateEelPack(dt);
     this.updateSeals(dt);
     for (const angler of this.anglers) angler.update(dt, this.players, this.rules.enemySpeed);
+    this.separateAnglers();
     if (this.turtle) this.turtle.update(dt, this.players, this.rules.enemySpeed);
+    if (this.octopus) this.octopus.update(dt, this.players, this.rules.enemySpeed);
     this.minnows = this.minnows.filter((minnow) => {
       minnow.update(dt);
       if (minnow.completed) {
@@ -863,14 +1129,48 @@ export class PlayScene extends Scene {
         }
       }
     }
+    if (this.nautilusTank) {
+      for (const player of this.players) {
+        if (player.invulnerable > 0) continue;
+        for (const skeleton of this.skeletons) {
+          if (!circleOverlap(player, skeleton)) continue;
+          this.bite(player, player.x - skeleton.x, player.y - skeleton.y, NAUTILUS.skeletonPenalty, 320, 1, [COLORS.bone, COLORS.boneDark, '#ffffff'], { freq: 90, endFreq: 45, duration: 0.4, volume: 0.3 });
+          break;
+        }
+        for (const eel of this.dartEels) {
+          if (!circleOverlap(player, eel)) continue;
+          this.bite(player, player.x - eel.x, player.y - eel.y, NAUTILUS.eelPenalty, 300, 1, [COLORS.eel, '#8fae76', '#ffffff'], { freq: 240, endFreq: 90, duration: 0.22, volume: 0.28 });
+          break;
+        }
+        for (const squid of this.baitSquids) {
+          if (!squid.alive || !circleOverlap(player, squid)) continue;
+          squid.kill();
+          this.bite(player, player.x - squid.x, player.y - squid.y, NAUTILUS.squidPenalty, 260, 1, [COLORS.squid, '#7a4a52', '#ffffff'], { freq: 200, endFreq: 110, duration: 0.25, volume: 0.24 });
+          player.tangle(NAUTILUS.squidParalysis);
+          break;
+        }
+      }
+      if (this.nautilusShark) {
+        if (this.nautilusShark.state === 'chase') {
+          for (const player of this.players) {
+            if (player.invulnerable > 0) continue;
+            if (!circleOverlap(player, this.nautilusShark)) continue;
+            this.bite(player, player.x - this.nautilusShark.x, player.y - this.nautilusShark.y, NAUTILUS.sharkPenalty, NAUTILUS.sharkKnockback, NAUTILUS.sharkInvulnerableTime, [COLORS.shark, COLORS.sharkFin, '#ffffff'], { freq: 70, endFreq: 35, duration: 0.5, volume: 0.3 });
+            this.nautilusShark.y = Math.max(NAUTILUS.sharkStartY, this.nautilusShark.y - 320);
+          }
+        }
+      }
+    }
     for (const bubble of this.bubbles) {
       if (!bubble.alive) continue;
-      for (const player of this.players) {
+      for (let index = 0; index < this.players.length; index += 1) {
+        const player = this.players[index];
         if (player.concealed === true) continue;
         if (!circleOverlap(player, bubble)) continue;
         bubble.kill();
         this.bubblesCollected += 1;
         this.tankBubbles += 1;
+        if (this.race) this.playerBubbles[index] += 1;
         if (this.eels.length > 0) this.eelCharge += 1;
         this.score += bubble.golden ? GOLDEN.score : ROUND.bubbleScore;
         this.timeLeft += bubble.golden ? GOLDEN.bonusTime : ROUND.bubbleBonusTime;
@@ -942,7 +1242,7 @@ export class PlayScene extends Scene {
       for (const eel of this.eels) {
         if (eel.state !== 'hunting') continue;
         if (!circleOverlap(player, eel)) continue;
-        this.bite(player, player.x - eel.x, player.y - eel.y, EEL.penaltyScore, EEL.knockback, EEL.invulnerableTime, [COLORS.eel, '#8fae76', COLORS.sand], { freq: 120, endFreq: 60, duration: 0.4, volume: 0.3 });
+        this.bite(player, player.x - eel.x, player.y - eel.y, EEL.penaltyScore, EEL.knockback, EEL.invulnerableTime, [eel.bodyColor, eel.ridgeColor, COLORS.sand], { freq: 120, endFreq: 60, duration: 0.4, volume: 0.3 });
         break;
       }
     }
@@ -970,6 +1270,36 @@ export class PlayScene extends Scene {
         if (!circleOverlap(player, minnow)) continue;
         minnow.beginTangle(player);
         break;
+      }
+    }
+    if (this.octopus && this.octopus.state !== 'stunned') {
+      for (const player of this.players) {
+        if (player.invulnerable > 0) continue;
+        const head = this.octopus.headPosition();
+        if (circleOverlap(player, { x: head.x, y: head.y, radius: OCTOPUS.headRadius })) {
+          this.octopus.stun();
+          this.score += OCTOPUS.stunScore;
+          for (let i = 0; i < OCTOPUS.stunBubbles; i += 1) {
+            this.bubbles.push(
+              new Bubble(this.octopus.x + rand(-50, 50), this.octopus.y + rand(-40, 40), {
+                rise: rand(30, 60),
+              }),
+            );
+          }
+          this.particles.burst(head.x, head.y, {
+            count: 12,
+            speed: 160,
+            life: 0.5,
+            colors: [COLORS.octopus, COLORS.accent, '#ffffff'],
+            buoyancy: -20,
+          });
+          this.game.audio.tone({ freq: 880, endFreq: 1320, type: 'triangle', duration: 0.15, volume: 0.22 });
+          this.game.audio.tone({ freq: 1320, endFreq: 1760, type: 'triangle', duration: 0.2, volume: 0.18, delay: 0.12 });
+          continue;
+        }
+        if (circleOverlap(player, this.octopus)) {
+          this.bite(player, player.x - this.octopus.x, player.y - this.octopus.y, OCTOPUS.penaltyScore, OCTOPUS.knockback, OCTOPUS.invulnerableTime, [COLORS.octopus, COLORS.octopusDark, '#ffffff'], { freq: 90, endFreq: 50, duration: 0.35, volume: 0.3 });
+        }
       }
     }
     if (this.turtle && this.turtle.state !== 'stunned') {
@@ -1016,11 +1346,12 @@ export class PlayScene extends Scene {
 
   completionPayload() {
     const storedBest = loadJSON(STORAGE_KEY, 0);
-    const isNewBest = this.score > storedBest;
+    const isNewBest = !this.race && this.score > storedBest;
     if (isNewBest) saveJSON(STORAGE_KEY, this.score);
     const stats = { games: 0, bubbles: 0, longestRun: 0, ...loadJSON(STATS_KEY, {}) };
     let newLongestRun = false;
-    if (!this.empty) {
+    let coins = 0;
+    if (!this.empty && !this.race) {
       stats.games += 1;
       stats.bubbles += this.bubblesCollected;
       if (this.elapsed > stats.longestRun) {
@@ -1028,6 +1359,14 @@ export class PlayScene extends Scene {
         newLongestRun = true;
       }
       saveJSON(STATS_KEY, stats);
+      const scale = COINS.difficultyScale[this.difficultyKey] ?? 1;
+      const skinScale = 1 + (this.skin.cost ?? 0) / COINS.skinBonusScale;
+      coins = Math.round(
+        (COINS.bonus + this.score * COINS.perScore + Math.floor(this.elapsed) * COINS.perSecond) *
+          scale *
+          skinScale,
+      );
+      saveJSON(COINS_KEY, loadJSON(COINS_KEY, COINS.starting) + coins);
     }
     return {
       score: this.score,
@@ -1036,6 +1375,7 @@ export class PlayScene extends Scene {
       longestRun: stats.longestRun,
       newLongestRun,
       bubbles: this.bubblesCollected,
+      coins,
     };
   }
 
@@ -1048,14 +1388,26 @@ export class PlayScene extends Scene {
     }
     if (this.timeLeft <= 0) {
       this.timeLeft = 0;
+      let race = null;
+      let raceReward = 0;
+      if (this.race) {
+        race = this.playerBubbles.slice();
+        raceReward = recordMinigame(race[0] !== race[1]);
+      }
+      const payload = this.completionPayload();
       this.game.changeScene('gameover', {
-        ...this.completionPayload(),
+        ...payload,
+        coins: payload.coins + raceReward,
+        race,
         params: this.replayParams(),
       });
     }
   }
 
   render(ctx) {
+    setActiveSkin(this.skin);
+    setSkinClock(this.time);
+    setActiveAccessory(this.accessory);
     drawWater(
       ctx,
       LOGICAL_WIDTH,
@@ -1063,21 +1415,30 @@ export class PlayScene extends Scene {
       this.time,
       this.freshwater
         ? FRESHWATER_PALETTE
-        : this.jellyTank
-          ? JELLY_PALETTE
-          : this.arctic
-            ? ARCTIC_PALETTE
-            : this.deepsea
-              ? DEEPSEA_PALETTE
-              : WATER_PALETTE,
+        : this.nautilusTank
+          ? NAUTILUS_PALETTE
+          : this.kelp
+            ? KELP_PALETTE
+            : this.jellyTank
+            ? JELLY_PALETTE
+            : this.arctic
+              ? ARCTIC_PALETTE
+              : this.deepsea
+                ? DEEPSEA_PALETTE
+                : WATER_PALETTE,
     );
     ctx.save();
     if (this.shake > 0) {
       ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
     }
+    for (const rock of this.reefRocks) rock.render(ctx);
+    for (const coral of this.corals) coral.render(ctx);
     for (const zone of this.zones) zone.render(ctx);
     if (this.stingrayTank || this.freshwater) {
       this.renderSand(ctx);
+    }
+    if (this.kelp) {
+      this.renderKelpFloor(ctx);
     }
     if (this.stingrayTank) {
       this.archway.render(ctx);
@@ -1089,6 +1450,8 @@ export class PlayScene extends Scene {
     if (this.arctic) {
       this.icechunk.render(ctx);
     }
+    this.decor.render(ctx);
+    if (this.kelpStalks) this.kelpStalks.render(ctx);
     for (const weed of this.weeds) weed.render(ctx);
     for (const log of this.logs) log.render(ctx);
     for (const rock of this.rocks) rock.render(ctx);
@@ -1096,41 +1459,49 @@ export class PlayScene extends Scene {
     for (const eel of this.electricEels) eel.render(ctx);
     if (this.catfish) this.catfish.render(ctx);
     for (const school of this.schools) school.render(ctx);
+    for (const school of this.colorSchools) school.render(ctx);
+    for (const skeleton of this.skeletons) skeleton.render(ctx);
     for (const bubble of this.bubbles) bubble.render(ctx);
     for (const hazard of this.hazards) hazard.render(ctx);
     for (const eel of this.eels) eel.render(ctx);
     for (const angler of this.anglers) angler.render(ctx);
     for (const seal of this.seals) seal.render(ctx);
     if (this.turtle) this.turtle.render(ctx);
+    if (this.octopus) this.octopus.render(ctx);
     for (const minnow of this.minnows) minnow.render(ctx);
     for (const entity of this.bonus) entity.render(ctx);
-    for (const player of this.players) player.render(ctx);
+    for (const squid of this.baitSquids) squid.render(ctx);
+    for (const eel of this.dartEels) eel.render(ctx);
+    if (this.nautilusShark) this.nautilusShark.render(ctx);
+    for (const player of this.players) {
+      player.render(ctx);
+      drawSkinAura(ctx, player);
+    }
     this.particles.render(ctx);
     ctx.restore();
 
     this.hud.render(ctx, this.hudState());
-
-    if (this.announce > 0 && this.banner) {
-      const alpha = Math.min(1, this.announce / 0.5);
-      drawText(ctx, this.banner[0], LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.36, {
-        size: 48,
-        color: COLORS.text,
-        glow: COLORS.bubble,
-        glowBlur: 24,
-        alpha,
-      });
-      drawText(ctx, this.banner[1], LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.36 + 42, {
-        size: 15,
-        color: COLORS.foam,
-        alpha: alpha * 0.9,
-      });
-    }
+    drawJoystick(ctx, joystickState(this.game.input));
 
     if (this.flash > 0) {
       ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.45})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.paused) this.renderPause(ctx);
+  }
+
+  renderKelpFloor(ctx) {
+    const top = LOGICAL_HEIGHT - SAND.height;
+    const gradient = ctx.createLinearGradient(0, top, 0, LOGICAL_HEIGHT);
+    gradient.addColorStop(0, '#2c4a34');
+    gradient.addColorStop(1, COLORS.kelpFloor);
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, top, LOGICAL_WIDTH, SAND.height);
+    for (const speckle of this.speckles) {
+      ctx.globalAlpha = speckle.alpha;
+      fillCircle(ctx, speckle.x, top + speckle.y, speckle.radius, '#16281c');
+    }
+    ctx.globalAlpha = 1;
   }
 
   renderSand(ctx) {

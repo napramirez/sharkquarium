@@ -1,6 +1,8 @@
 import { Entity } from './entity.js';
 import { clamp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, ARCTIC_SHRIMP, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
+import { playerColor } from '../engine/skin.js';
+import { drawAccessory } from '../engine/accessory.js';
 
 export class ArcticShrimp extends Entity {
   constructor(x, y, options = {}) {
@@ -96,7 +98,7 @@ export class ArcticShrimp extends Entity {
     ctx.lineTo(-radius * 0.9, 0);
     ctx.lineTo(-radius * 0.7, radius * 0.5);
     ctx.closePath();
-    ctx.fillStyle = COLORS.arcticshrimp;
+    ctx.fillStyle = playerColor('accent', COLORS.arcticshrimp);
     ctx.fill();
     ctx.restore();
 
@@ -106,7 +108,7 @@ export class ArcticShrimp extends Entity {
     ctx.quadraticCurveTo(-radius * 0.8, 0, -radius * 0.5, radius * 0.2);
     ctx.quadraticCurveTo(radius * 0.2, radius * 0.62, radius * 0.9, 0);
     ctx.closePath();
-    ctx.fillStyle = COLORS.arcticshrimp;
+    ctx.fillStyle = playerColor('body', COLORS.arcticshrimp);
     ctx.fill();
 
     ctx.strokeStyle = 'rgba(70, 78, 86, 0.5)';
@@ -138,6 +140,7 @@ export class ArcticShrimp extends Entity {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
     ctx.fill();
 
+    drawAccessory(ctx, radius, this.age);
     ctx.restore();
   }
 }

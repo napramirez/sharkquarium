@@ -9,7 +9,9 @@ const TANK_OPTIONS = [
   { label: 'STINGRAY TANK', params: { tank: 'stingray' } },
   { label: 'DEEP SEA TANK', params: { tank: 'deepsea' } },
   { label: 'ARCTIC TANK', params: { tank: 'arctic' } },
+  { label: 'KELP FOREST TANK', params: { tank: 'kelp' } },
   { label: 'JELLY TANK', params: { tank: 'jelly' } },
+  { label: 'NAUTILUS TANK', params: { tank: 'nautilus' } },
   { label: 'FRESHWATER TANK', params: { tank: 'freshwater' } },
   { label: 'EMPTY TANK', params: { empty: true } },
 ];
@@ -32,7 +34,7 @@ export class TankSelectScene extends Scene {
         glowColor: COLORS.bubble,
         accentColor: COLORS.accent,
         color: COLORS.text,
-        spacing: 42,
+        spacing: 36,
         fontSize: 20,
         onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
         onConfirm: (item) => this.choose(item),

@@ -1,10 +1,16 @@
 import { Entity } from './entity.js';
 import { rand, clamp, TAU } from '../engine/math.js';
-import { EEL, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
+import { EEL, EEL_VARIANTS, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
 
 export class Eel extends Entity {
-  constructor(holeX, holeY) {
+  constructor(holeX, holeY, variant = 0) {
     super({ x: holeX, y: holeY, radius: EEL.radius });
+    const palette = EEL_VARIANTS[variant % EEL_VARIANTS.length];
+    this.bodyColor = palette.body;
+    this.ridgeColor = palette.ridge;
+    this.outlineColor = palette.outline;
+    this.eyeColor = palette.eye;
+    this.spots = palette.spots;
     this.homeX = holeX;
     this.homeY = holeY;
     this.state = 'hidden';
@@ -15,7 +21,9 @@ export class Eel extends Entity {
     this.trail = [];
     this.targetX = holeX;
     this.targetY = holeY;
-    this.searchPhase = rand(0, TAU);
+    this.roamX = holeX;
+    this.roamY = holeY;
+    this.roamTimer = 0;
     this.jawOpen = 0;
   }
 
@@ -57,6 +65,20 @@ export class Eel extends Entity {
 
   goHome() {
     if (this.state !== 'hidden') this.state = 'retreating';
+  }
+
+  pickRoamWaypoint() {
+    this.roamX = rand(40, LOGICAL_WIDTH - 40);
+    this.roamY = rand(40, LOGICAL_HEIGHT - 40);
+    for (let attempt = 0; attempt < 8; attempt += 1) {
+      const x = rand(40, LOGICAL_WIDTH - 40);
+      const y = rand(40, LOGICAL_HEIGHT - 40);
+      if (Math.hypot(x - this.targetX, y - this.targetY) >= EEL.roamMinDistance) {
+        this.roamX = x;
+        this.roamY = y;
+        return;
+      }
+    }
   }
 
   pickThreat(players) {
@@ -104,25 +126,29 @@ export class Eel extends Entity {
         this.targetX = threat.x;
         this.targetY = threat.y;
       }
-      let dx = this.targetX - this.x;
-      let dy = this.targetY - this.y;
-      let distance = Math.hypot(dx, dy) || 1;
-      let speed = EEL.huntSpeed * speedScale;
       if (threat === null) {
-        speed = EEL.huntSpeed * 0.55 * speedScale;
-        if (distance < EEL.searchRadius) {
-          this.searchPhase += dt * 1.1;
-          dx = this.targetX + Math.cos(this.searchPhase) * EEL.searchRadius * 0.6 - this.x;
-          dy = this.targetY + Math.sin(this.searchPhase * 1.3) * EEL.searchRadius * 0.5 - this.y;
-          distance = Math.hypot(dx, dy) || 1;
-          speed = 50 * speedScale;
+        this.roamTimer -= dt;
+        const roamDistance = Math.hypot(this.roamX - this.x, this.roamY - this.y);
+        if (this.roamTimer <= 0 || roamDistance < 30) {
+          this.roamTimer = rand(EEL.roamIntervalMin, EEL.roamIntervalMax);
+          this.pickRoamWaypoint();
         }
+        const roamX = this.roamX - this.x;
+        const roamY = this.roamY - this.y;
+        const roamLength = Math.hypot(roamX, roamY) || 1;
+        const roamSpeed = EEL.roamSpeed * speedScale;
+        this.x += (roamX / roamLength) * roamSpeed * dt;
+        this.y += (roamY / roamLength) * roamSpeed * dt;
+        this.heading = Math.atan2(roamY, roamX);
       } else {
-        speed *= EEL.aggressiveMultiplier;
+        const dx = threat.x - this.x;
+        const dy = threat.y - this.y;
+        const distance = Math.hypot(dx, dy) || 1;
+        const speed = EEL.huntSpeed * EEL.aggressiveMultiplier * speedScale;
+        this.x += (dx / distance) * speed * dt;
+        this.y += (dy / distance) * speed * dt;
+        this.heading = Math.atan2(dy, dx);
       }
-      this.x += (dx / distance) * speed * dt;
-      this.y += (dy / distance) * speed * dt;
-      this.heading = Math.atan2(dy, dx);
     } else if (this.state === 'retreating') {
       const dx = this.homeX - this.x;
       const dy = this.homeY - this.y;
@@ -161,7 +187,7 @@ export class Eel extends Entity {
       if (this.peekProgress <= 0) return;
       const radius = EEL.radius;
       ctx.save();
-      ctx.strokeStyle = COLORS.eel;
+      ctx.strokeStyle = this.bodyColor;
       ctx.lineWidth = radius * 1.4;
       ctx.lineCap = 'round';
       ctx.beginPath();
@@ -204,19 +230,42 @@ export class Eel extends Entity {
     for (let i = 1; i < count; i += 1) ctx.lineTo(leftEdge[i].x, leftEdge[i].y);
     for (let i = count - 1; i >= 0; i -= 1) ctx.lineTo(rightEdge[i].x, rightEdge[i].y);
     ctx.closePath();
-    ctx.fillStyle = COLORS.eel;
+    ctx.fillStyle = this.bodyColor;
     ctx.fill();
-    ctx.strokeStyle = 'rgba(38, 50, 32, 0.55)';
+    ctx.strokeStyle = this.outlineColor;
     ctx.lineWidth = 1.5;
     ctx.stroke();
+
+    if (this.spots) {
+      ctx.fillStyle = 'rgba(20, 18, 8, 0.85)';
+      for (let i = 1; i < count - 1; i += 2) {
+        const t = 1 - i / (count - 1);
+        const width = EEL.radius * (0.16 + 0.84 * Math.pow(t, 0.8));
+        const point = trail[i];
+        const before = trail[i - 1];
+        const after = trail[i + 1];
+        let tangentX = before.x - after.x;
+        let tangentY = before.y - after.y;
+        const length = Math.hypot(tangentX, tangentY) || 1;
+        tangentX /= length;
+        tangentY /= length;
+        const offset = width * 0.45 * (i % 4 === 1 ? 1 : -1);
+        ctx.beginPath();
+        ctx.arc(point.x - tangentY * offset, point.y + tangentX * offset, Math.max(1.6, width * 0.24), 0, TAU);
+        ctx.fill();
+      }
+    }
 
     ctx.beginPath();
     ctx.moveTo(trail[0].x, trail[0].y);
     for (let i = 1; i < count; i += 1) ctx.lineTo(trail[i].x, trail[i].y);
-    ctx.strokeStyle = 'rgba(143, 174, 118, 0.45)';
+    ctx.save();
+    ctx.globalAlpha = 0.5;
+    ctx.strokeStyle = this.ridgeColor;
     ctx.lineWidth = EEL.radius * 0.45;
     ctx.lineCap = 'round';
     ctx.stroke();
+    ctx.restore();
   }
 
   renderHead(ctx, x, y, heading, jawOpen) {
@@ -234,7 +283,7 @@ export class Eel extends Entity {
     ctx.lineTo(radius * 1.1, radius * 0.55);
     ctx.quadraticCurveTo(-radius * 0.7, radius * 0.95, -radius * 1.7, 0);
     ctx.closePath();
-    ctx.fillStyle = COLORS.eel;
+    ctx.fillStyle = this.bodyColor;
     ctx.fill();
 
     ctx.beginPath();
@@ -261,7 +310,7 @@ export class Eel extends Entity {
       ctx.fill();
       ctx.beginPath();
       ctx.arc(-radius * 0.3, side * radius * 0.34, radius * 0.09, 0, TAU);
-      ctx.fillStyle = '#10233a';
+      ctx.fillStyle = this.eyeColor;
       ctx.fill();
     }
     ctx.restore();

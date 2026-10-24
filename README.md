@@ -41,7 +41,8 @@ scripts/             bundler, minifier, build, dev server, smoke test
 ## Documentation map
 
 Start with the two documents below; everything player-facing is specified in
-`FEATURES.md`, everything technical in `GAME_DESIGN.md`.
+`FEATURES.md`, everything technical in `GAME_DESIGN.md`. The dated feature history lives
+in `CHANGELOG.md`.
 
 ### [FEATURES.md](FEATURES.md) — game requirements
 
@@ -77,10 +78,15 @@ Start with the two documents below; everything player-facing is specified in
 | [§12](GAME_DESIGN.md#12-workflow) | Workflow |
 | [§13](GAME_DESIGN.md#13-documentation-map) | Documentation map |
 
+### [CHANGELOG.md](CHANGELOG.md) — feature history
+
+Dated feature batches, each split into game features and game systems.
+
 Where new information belongs:
 
 - Player-visible behavior, values, and requirements → `FEATURES.md`.
 - Architecture, engine APIs, tooling, and workflow → `GAME_DESIGN.md`.
+- Feature history by date → `CHANGELOG.md`.
 - Tuning values themselves → `src/config.js`, mirrored in `FEATURES.md`.
 
 ## Deployment

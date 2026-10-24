@@ -612,10 +612,13 @@ touches the score.
 | File                  | Covers                                                                              | Update when                    |
 | --------------------- | ----------------------------------------------------------------------------------- | ------------------------------ |
 | `README.md`           | Entry point: quick start, project layout, links to all other docs                   | Commands, structure, or doc layout change |
+| `CHANGELOG.md`        | Dated feature history: game features and game systems per batch                     | A feature batch lands |
 | `FEATURES.md`         | Lore, navigation, controls, entities, scoring, HUD requirements, art/audio direction, backlog | Gameplay behavior or values change |
 | `GAME_DESIGN.md`      | Architecture, engine APIs, build pipeline, workflow                                 | Structure, tooling, or APIs change |
 | `src/config.js`       | The tuning values themselves                                                        | Any tuning change — mirror it in `FEATURES.md` |
 
 Rule of thumb: player-visible behavior and requirements go in `FEATURES.md`; how it is
 built and where the code lives go in `GAME_DESIGN.md`. `README.md` is the entry point
-that maps to everything else; keep its links and commands current.
+that maps to everything else; keep its links and commands current. `CHANGELOG.md`
+records when each feature batch landed, split into game features and game systems; add
+a dated section when a batch is committed.

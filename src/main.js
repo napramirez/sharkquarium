@@ -11,8 +11,12 @@ import { SettingsScene } from './scenes/settings.js';
 import { ShopScene } from './scenes/shop.js';
 import { MinigamesScene } from './scenes/minigames.js';
 import { TrackPlayerScene } from './scenes/tracks.js';
+import { TheatreScene } from './scenes/theatre.js';
+import { TrailerScene } from './scenes/trailer.js';
 import { TagScene } from './scenes/tag.js';
 import { DodgeballScene } from './scenes/dodgeball.js';
+import { LabyrinthScene } from './scenes/labyrinth.js';
+import { AquariumScene } from './scenes/aquarium.js';
 import { PlayScene } from './scenes/play.js';
 import { GameOverScene } from './scenes/gameover.js';
 import { DawnScene } from './scenes/dawn.js';
@@ -56,11 +60,24 @@ game.register('settings', new SettingsScene());
 game.register('shop', new ShopScene());
 game.register('minigames', new MinigamesScene());
 game.register('tracks', new TrackPlayerScene());
+game.register('theatre', new TheatreScene());
+game.register('trailer', new TrailerScene());
 game.register('tag', new TagScene());
 game.register('dodgeball', new DodgeballScene());
+game.register('labyrinth', new LabyrinthScene());
+game.register('aquarium', new AquariumScene());
 game.register('play', new PlayScene());
 game.register('gameover', new GameOverScene());
 game.register('dawn', new DawnScene());
+
+const flushProgress = () => {
+  if (game.scene && game.scene.saveProgress) game.scene.saveProgress();
+};
+window.addEventListener('pagehide', flushProgress);
+window.addEventListener('beforeunload', flushProgress);
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) flushProgress();
+});
 
 game.changeScene('boot');
 game.start();

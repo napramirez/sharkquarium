@@ -1,6 +1,6 @@
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
-import { drawWater, drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
+import { drawWater, drawText, fillRoundRect } from '../engine/render.js';
 import { TRACK_LIBRARY } from '../assets/tracks.js';
 import { COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE } from '../config.js';
 
@@ -16,7 +16,9 @@ export class TrackPlayerScene extends Scene {
         glowColor: COLORS.bubble,
         accentColor: COLORS.accent,
         color: COLORS.text,
-        spacing: 38,
+        spacing: 33,
+        height: 30,
+        fontSize: 18,
         width: 520,
         onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
         onConfirm: (item) => this.choose(item),
@@ -62,30 +64,30 @@ export class TrackPlayerScene extends Scene {
 
   render(ctx) {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);
-    drawText(ctx, 'TRACK PLAYER', LOGICAL_WIDTH / 2, 74, {
-      size: 36,
+    drawText(ctx, 'TRACK PLAYER', LOGICAL_WIDTH / 2, 54, {
+      size: 32,
       color: COLORS.text,
       glow: COLORS.bubble,
       glowBlur: 22,
     });
-    drawText(ctx, 'PLAY ANY THEME FROM ANY TANK', LOGICAL_WIDTH / 2, 106, {
-      size: 13,
+    drawText(ctx, 'PLAY ANY THEME FROM ANY TANK', LOGICAL_WIDTH / 2, 84, {
+      size: 12,
       color: COLORS.foam,
       alpha: 0.8,
     });
 
     const selected = this.menu.selected;
     if (selected && selected.entry) {
-      drawText(ctx, selected.entry.blurb, LOGICAL_WIDTH / 2, 130, {
+      drawText(ctx, selected.entry.blurb, LOGICAL_WIDTH / 2, 106, {
         size: 12,
         color: COLORS.accent,
         alpha: 0.9,
       });
     }
 
-    this.menu.render(ctx, LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.53);
+    this.menu.render(ctx, LOGICAL_WIDTH / 2, 310);
     this.renderNowPlaying(ctx);
-    drawText(ctx, 'ESC — BACK', LOGICAL_WIDTH / 2, LOGICAL_HEIGHT - 26, {
+    drawText(ctx, 'ESC — BACK', LOGICAL_WIDTH / 2, LOGICAL_HEIGHT - 22, {
       size: 12,
       color: COLORS.textDim,
     });
@@ -94,20 +96,19 @@ export class TrackPlayerScene extends Scene {
   renderNowPlaying(ctx) {
     const playing = this.playingEntry();
     if (!playing) {
-      drawText(ctx, 'ENTER — PLAY / STOP      UP/DOWN OR LEFT/RIGHT — SELECT', LOGICAL_WIDTH / 2, 452, {
+      drawText(ctx, 'ENTER — PLAY / STOP      UP/DOWN OR LEFT/RIGHT — SELECT', LOGICAL_WIDTH / 2, 130, {
         size: 12,
         color: COLORS.textDim,
         alpha: 0.8,
       });
       return;
     }
-    fillRoundRect(ctx, 300, 428, 360, 62, 16, 'rgba(10, 39, 64, 0.7)');
-    strokeRoundRect(ctx, 300, 428, 360, 62, 16, 'rgba(255, 209, 102, 0.5)', 1.5);
-    for (let i = 0; i < 9; i += 1) {
-      const height = 7 + (Math.sin(this.time * 7 + i * 0.9) + 1) * 8;
-      fillRoundRect(ctx, 316 + i * 14, 462 - height, 8, height, 3, COLORS.accent);
+    const startX = 268;
+    for (let i = 0; i < 7; i += 1) {
+      const height = 6 + (Math.sin(this.time * 7 + i * 0.9) + 1) * 7;
+      fillRoundRect(ctx, startX + i * 11, 141 - height, 7, height, 2, COLORS.accent);
     }
-    drawText(ctx, `NOW PLAYING — ${playing.label}`, 456, 459, {
+    drawText(ctx, `NOW PLAYING — ${playing.label}`, startX + 94, 134, {
       size: 12,
       color: COLORS.text,
       align: 'left',

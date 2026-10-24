@@ -1,7 +1,7 @@
 import { Entity } from './entity.js';
 import { clamp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, ARCTIC_SHRIMP, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
-import { playerColor } from '../engine/skin.js';
+import { playerColor, shadowEyeColor } from '../engine/skin.js';
 import { drawAccessory } from '../engine/accessory.js';
 
 export class ArcticShrimp extends Entity {
@@ -9,6 +9,8 @@ export class ArcticShrimp extends Entity {
     super({ x, y, radius: ARCTIC_SHRIMP.radius });
     this.controls = options.controls ?? CONTROLS.solo;
     this.pointerSteering = options.pointer ?? true;
+    this.maxX = options.maxX ?? LOGICAL_WIDTH;
+    this.maxSpeed = ARCTIC_SHRIMP.maxSpeed;
     this.heading = 0;
     this.speed = 0;
     this.invulnerable = 0;
@@ -69,7 +71,7 @@ export class ArcticShrimp extends Entity {
       this.vy += (dirY * ARCTIC_SHRIMP.maxSpeed - this.vy) * response;
       this.x += this.vx * dt;
       this.y += this.vy * dt;
-      this.x = clamp(this.x, this.radius, LOGICAL_WIDTH - this.radius);
+      this.x = clamp(this.x, this.radius, this.maxX - this.radius);
       this.y = clamp(this.y, this.radius, LOGICAL_HEIGHT - this.radius);
       this.speed = Math.hypot(this.vx, this.vy);
       if (this.speed > 24) {
@@ -132,7 +134,7 @@ export class ArcticShrimp extends Entity {
 
     ctx.beginPath();
     ctx.arc(radius * 0.55, -radius * 0.2, radius * 0.13, 0, TAU);
-    ctx.fillStyle = '#10233a';
+    ctx.fillStyle = shadowEyeColor('#10233a');
     ctx.fill();
 
     ctx.beginPath();
@@ -140,7 +142,7 @@ export class ArcticShrimp extends Entity {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
     ctx.fill();
 
-    drawAccessory(ctx, radius, this.age);
+    drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
     ctx.restore();
   }
 }

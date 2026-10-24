@@ -4,9 +4,12 @@ import { Bubble } from '../entities/bubble.js';
 import { Shark } from '../entities/shark.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
 import { loadJSON } from '../engine/storage.js';
+import { MENU_TRACK } from '../assets/tracks.js';
 import { rand } from '../engine/math.js';
-import { drawSkinAura, setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
-import { accessoryByKey, setActiveAccessory } from '../engine/accessory.js';
+import { drawSkinAura, setActiveSkin, setEelAura, setSkinClock, skinByKey } from '../engine/skin.js';
+import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
+import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
+import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
 import {
   COINS,
   COINS_KEY,
@@ -38,17 +41,32 @@ export class MenuScene extends Scene {
       ...loadJSON(STATS_KEY, {}),
     };
     this.shop = { owned: ['natural'], skin: 'natural', passes: [], ...loadJSON(SHOP_KEY, {}) };
+    setEelAura((this.shop.passes ?? []).includes('playpass5'));
     this.skin = skinByKey(this.shop.skin);
-    this.accessory = accessoryByKey(this.shop.accessory);
+    this.head = accessoryByKey(this.shop.head);
+    this.back = accessoryByKey(this.shop.back);
+    this.trail = trailByKey(this.shop.trail);
+    this.companion = companionByKey(this.shop.companion);
     this.bubbles = [];
     this.spawnTimer = 0.3;
     this.shark = new Shark(LOGICAL_WIDTH * 0.5, LOGICAL_HEIGHT * 0.72);
+    if (this.game.music && this.game.music.track === null) {
+      this.game.music.play(MENU_TRACK);
+      this.game.music.hold = true;
+    }
     const items = [
       { label: 'START DIVE', action: 'play' },
       { label: 'CHOOSE TANK', action: 'tanks' },
       { label: 'CO-OP DIVE (2P)', action: 'coop' },
     ];
-    if (this.shop.passes.length > 0) items.push({ label: 'MINIGAMES', action: 'minigames' });
+    if (this.shop.passes.includes('playpass1') || this.shop.passes.includes('competitions')) {
+      items.push({ label: 'MINIGAMES', action: 'minigames' });
+    }
+    if (this.shop.passes.includes('playpass3')) items.push({ label: 'PETS TANK', action: 'pets' });
+    if (this.shop.passes.includes('playpass4')) items.push({ label: 'ENDLESS DIVE', action: 'endless' });
+    if (this.shop.passes.includes('playpass9')) {
+      items.push({ label: 'AQUARIUM BUILDER', action: 'aquarium' });
+    }
     items.push({ label: 'SHOP', action: 'shop' });
     items.push({ label: 'SETTINGS', action: 'settings' });
     items.push({ label: 'HOW TO PLAY', action: 'help' });
@@ -56,7 +74,7 @@ export class MenuScene extends Scene {
       glowColor: COLORS.bubble,
       accentColor: COLORS.accent,
       color: COLORS.text,
-      spacing: items.length > 5 ? 34 : 42,
+      spacing: items.length > 8 ? 22 : items.length > 6 ? 30 : items.length > 5 ? 34 : 42,
       onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
       onConfirm: (item) => this.choose(item.action),
     });
@@ -69,6 +87,9 @@ export class MenuScene extends Scene {
     else if (action === 'tanks') this.game.changeScene('tanks');
     else if (action === 'coop') this.game.changeScene('play', { coop: true });
     else if (action === 'minigames') this.game.changeScene('minigames');
+    else if (action === 'pets') this.game.changeScene('play', { tank: 'pets' });
+    else if (action === 'endless') this.game.changeScene('play', { endless: true });
+    else if (action === 'aquarium') this.game.changeScene('aquarium');
     else if (action === 'shop') this.game.changeScene('shop');
     else if (action === 'settings') this.game.changeScene('settings');
     else if (action === 'help') this.showHelp = true;
@@ -114,9 +135,14 @@ export class MenuScene extends Scene {
     for (const bubble of this.bubbles) bubble.render(ctx);
     setActiveSkin(this.skin);
     setSkinClock(this.time);
-    setActiveAccessory(this.accessory);
+    setActiveHeadAccessory(this.head);
+    setActiveBodyAccessory(this.back);
+    setActiveTrail(this.trail);
+    setActiveCompanion(this.companion);
     this.shark.render(ctx);
     drawSkinAura(ctx, this.shark);
+    drawTrail(ctx, this.shark);
+    drawCompanion(ctx, this.shark);
 
     const titleY = LOGICAL_HEIGHT * 0.2 + Math.sin(this.time * 1.6) * 4;
     drawText(ctx, GAME_TITLE, LOGICAL_WIDTH / 2, titleY, {

@@ -2,7 +2,7 @@ import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
 import { drawWater, drawText } from '../engine/render.js';
 import { loadJSON } from '../engine/storage.js';
-import { COLORS, SETTINGS_KEY, WATER_PALETTE, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
+import { COLORS, SETTINGS_KEY, SHOP_KEY, WATER_PALETTE, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
 
 const TANK_OPTIONS = [
   { label: 'REEF TANK', params: {} },
@@ -23,11 +23,20 @@ export class TankSelectScene extends Scene {
     this.menu = this.buildMenu();
   }
 
+  tankOptions() {
+    const shop = loadJSON(SHOP_KEY, {});
+    const options = [...TANK_OPTIONS];
+    if (shop.passes?.includes('playpass3')) {
+      options.splice(options.length - 1, 0, { label: 'PETS TANK', params: { tank: 'pets' } });
+    }
+    return options;
+  }
+
   buildMenu() {
     return new SelectList(
       [
         { label: `CO-OP: ${this.coop ? 'ON (2P)' : 'OFF'}`, action: 'coop', highlight: this.coop },
-        ...TANK_OPTIONS.map((tank) => ({ label: tank.label, action: 'tank', params: tank.params })),
+        ...this.tankOptions().map((tank) => ({ label: tank.label, action: 'tank', params: tank.params })),
         { label: 'BACK', action: 'back' },
       ],
       {

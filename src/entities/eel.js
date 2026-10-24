@@ -25,6 +25,14 @@ export class Eel extends Entity {
     this.roamY = holeY;
     this.roamTimer = 0;
     this.jawOpen = 0;
+    this.biteTimer = 0;
+    this.entryDirX = 0;
+    this.entryDirY = 1;
+    this.enterDistance = 0;
+  }
+
+  bite() {
+    this.biteTimer = EEL.biteDuration;
   }
 
   startPeek() {
@@ -95,17 +103,25 @@ export class Eel extends Entity {
     return threat;
   }
 
-  update(dt, players, speedScale = 1) {
+  update(dt, players, speedScale = 1, nearby = players) {
     super.update(dt);
     const threat = this.pickThreat(players);
+    const proximity = this.pickThreat(nearby);
     this.stateTimer += dt;
-    const jawTarget =
+    let jawTarget =
       this.state === 'hunting' &&
-      threat !== null &&
-      Math.hypot(threat.x - this.x, threat.y - this.y) < EEL.jawOpenRadius
+      proximity !== null &&
+      Math.hypot(proximity.x - this.x, proximity.y - this.y) < EEL.jawOpenRadius
         ? 1
         : 0;
-    this.jawOpen += (jawTarget - this.jawOpen) * (1 - Math.exp(-10 * dt));
+    let jawResponse = 10;
+    if (this.biteTimer > 0) {
+      this.biteTimer = Math.max(0, this.biteTimer - dt);
+      const biteProgress = 1 - this.biteTimer / EEL.biteDuration;
+      jawTarget = biteProgress < 0.3 ? EEL.biteGape : EEL.biteSnap;
+      jawResponse = 26;
+    }
+    this.jawOpen += (jawTarget - this.jawOpen) * (1 - Math.exp(-jawResponse * dt));
     if (this.state === 'hidden') {
       this.x = this.homeX;
       this.y = this.homeY;
@@ -157,6 +173,32 @@ export class Eel extends Entity {
       this.y += (dy / distance) * EEL.returnSpeed * speedScale * dt;
       this.heading = Math.atan2(dy, dx);
       if (distance < EEL.radius) {
+        if (this.trail.length >= 2) {
+          const outX = this.x - this.homeX;
+          const outY = this.y - this.homeY;
+          const outLength = Math.hypot(outX, outY);
+          if (outLength > 0.5) {
+            this.entryDirX = outX / outLength;
+            this.entryDirY = outY / outLength;
+          } else {
+            this.entryDirX = -Math.cos(this.heading);
+            this.entryDirY = -Math.sin(this.heading);
+          }
+          this.enterDistance = 0;
+          this.state = 'entering';
+          this.stateTimer = 0;
+        } else {
+          this.state = 'hidden';
+          this.peekProgress = 0;
+          this.trail.length = 0;
+        }
+      }
+    } else if (this.state === 'entering') {
+      this.enterDistance += EEL.enterSpeed * speedScale * dt;
+      this.x = this.homeX - this.entryDirX * this.enterDistance;
+      this.y = this.homeY - this.entryDirY * this.enterDistance;
+      this.heading = Math.atan2(-this.entryDirY, -this.entryDirX);
+      if (this.enterDistance >= EEL.bodyLength + EEL.radius * 2) {
         this.state = 'hidden';
         this.peekProgress = 0;
         this.trail.length = 0;
@@ -181,10 +223,14 @@ export class Eel extends Entity {
     }
   }
 
+  outsideDistance(point) {
+    return (point.x - this.homeX) * this.entryDirX + (point.y - this.homeY) * this.entryDirY;
+  }
+
   render(ctx) {
     if (this.state === 'hidden') return;
-    if (this.state === 'peeking') {
-      if (this.peekProgress <= 0) return;
+    if (this.state === 'peeking' || (this.state === 'retreating' && this.trail.length < 2)) {
+      if (this.state === 'peeking' && this.peekProgress <= 0) return;
       const radius = EEL.radius;
       ctx.save();
       ctx.strokeStyle = this.bodyColor;
@@ -199,14 +245,17 @@ export class Eel extends Entity {
       return;
     }
     this.renderBody(ctx);
-    if (this.trail.length > 0) {
+    if (this.state !== 'entering' && this.trail.length > 0) {
       const head = this.trail[0];
       this.renderHead(ctx, head.x, head.y, this.heading, this.jawOpen);
     }
   }
 
   renderBody(ctx) {
-    const trail = this.trail;
+    const trail =
+      this.state === 'entering'
+        ? this.trail.filter((point) => this.outsideDistance(point) > 3)
+        : this.trail;
     if (trail.length < 2) return;
     const count = trail.length;
     const leftEdge = [];
@@ -270,49 +319,85 @@ export class Eel extends Entity {
 
   renderHead(ctx, x, y, heading, jawOpen) {
     const radius = EEL.radius;
-    const spread = 0.18 + 0.32 * jawOpen;
+    const jawAngle = 0.06 + jawOpen * 0.38;
+    const hingeY = radius * 0.06;
+    const jawLength = radius * 2.15;
+    const jawTipX = Math.cos(jawAngle) * jawLength;
+    const jawTipY = hingeY + Math.sin(jawAngle) * jawLength;
+
     ctx.save();
     ctx.translate(x, y);
     ctx.rotate(heading);
 
-    ctx.beginPath();
-    ctx.moveTo(-radius * 1.7, 0);
-    ctx.quadraticCurveTo(-radius * 0.7, -radius * 0.95, radius * 1.1, -radius * 0.55);
-    ctx.lineTo(radius * 2.15, -radius * 0.1);
-    ctx.lineTo(radius * 2.15, radius * 0.1);
-    ctx.lineTo(radius * 1.1, radius * 0.55);
-    ctx.quadraticCurveTo(-radius * 0.7, radius * 0.95, -radius * 1.7, 0);
-    ctx.closePath();
-    ctx.fillStyle = this.bodyColor;
-    ctx.fill();
+    ctx.save();
+    ctx.globalAlpha = 0.55;
+    ctx.fillStyle = this.ridgeColor;
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(-radius * 0.5, side * radius * 0.5);
+      ctx.quadraticCurveTo(-radius * 0.5, side * radius * 1.25, -radius * 1.6, side * radius);
+      ctx.quadraticCurveTo(-radius * 1.3, side * radius * 0.6, -radius * 0.5, side * radius * 0.5);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
 
     ctx.beginPath();
-    ctx.moveTo(radius * 2.1, 0);
-    ctx.lineTo(radius * 0.55, -radius * spread);
-    ctx.lineTo(radius * 0.55, radius * spread);
+    ctx.moveTo(radius * 2.28, radius * 0.12);
+    ctx.quadraticCurveTo(radius * 1.5, radius * 0.16, 0, hingeY);
+    ctx.quadraticCurveTo(radius * 1.5, Math.max(radius * 0.16, jawTipY * 0.6), jawTipX, jawTipY);
     ctx.closePath();
     ctx.fillStyle = 'rgba(18, 26, 15, 0.9)';
     ctx.fill();
 
+    ctx.beginPath();
+    ctx.moveTo(-radius, -radius * 0.5);
+    ctx.quadraticCurveTo(radius, -radius * 0.85, radius * 2.32, -radius * 0.22);
+    ctx.quadraticCurveTo(radius * 2.6, 0, radius * 2.28, radius * 0.12);
+    ctx.quadraticCurveTo(radius * 1.4, radius * 0.16, 0, hingeY);
+    ctx.quadraticCurveTo(-radius * 0.7, radius * 0.2, -radius, -radius * 0.5);
+    ctx.closePath();
+    ctx.fillStyle = this.bodyColor;
+    ctx.fill();
+    ctx.strokeStyle = this.outlineColor;
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+
     ctx.fillStyle = '#f4fbff';
-    for (let i = 0; i < 4; i += 1) {
-      const t = i / 3;
-      const toothX = radius * (2 - t * 1.3);
-      const jawY = radius * spread * (0.25 + t * 0.75);
-      this.renderTooth(ctx, toothX, -jawY, 1);
-      this.renderTooth(ctx, toothX, jawY, -1);
+    for (let i = 0; i < 5; i += 1) {
+      const t = i / 4;
+      this.renderTooth(ctx, radius * (2.08 - t * 1.75), radius * (0.1 + t * 0.01), 1);
     }
 
-    for (const side of [-1, 1]) {
-      ctx.beginPath();
-      ctx.arc(-radius * 0.35, side * radius * 0.34, radius * 0.19, 0, TAU);
-      ctx.fillStyle = '#f4fbff';
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(-radius * 0.3, side * radius * 0.34, radius * 0.09, 0, TAU);
-      ctx.fillStyle = this.eyeColor;
-      ctx.fill();
+    ctx.save();
+    ctx.translate(0, hingeY);
+    ctx.rotate(jawAngle);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.quadraticCurveTo(radius * 1.2, -radius * 0.02, radius * 2.15, radius * 0.02);
+    ctx.quadraticCurveTo(radius * 1.7, radius * 0.3, radius * 0.9, radius * 0.34);
+    ctx.quadraticCurveTo(radius * 0.35, radius * 0.36, 0, radius * 0.18);
+    ctx.closePath();
+    ctx.fillStyle = this.bodyColor;
+    ctx.fill();
+    ctx.strokeStyle = this.outlineColor;
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+    ctx.fillStyle = '#f4fbff';
+    for (let i = 0; i < 5; i += 1) {
+      const t = i / 4;
+      this.renderTooth(ctx, radius * (1.96 - t * 1.7), radius * 0.03, -1);
     }
+    ctx.restore();
+
+    ctx.beginPath();
+    ctx.arc(radius * 0.85, -radius * 0.32, radius * 0.24, 0, TAU);
+    ctx.fillStyle = '#f4fbff';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(radius * 0.89, -radius * 0.32, radius * 0.14, 0, TAU);
+    ctx.fillStyle = this.eyeColor;
+    ctx.fill();
     ctx.restore();
   }
 

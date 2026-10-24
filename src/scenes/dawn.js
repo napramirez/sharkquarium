@@ -14,6 +14,8 @@ export class DawnScene extends Scene {
     this.time = 0;
     this.score = params.score ?? 0;
     this.goal = params.goal ?? 0;
+    this.line = params.line ?? null;
+    this.fromTheatre = params.from === 'theatre';
     const audio = this.game.audio;
     audio.tone({ freq: 392, type: 'triangle', duration: 0.3, volume: 0.2 });
     audio.tone({ freq: 523, type: 'triangle', duration: 0.3, volume: 0.2, delay: 0.25 });
@@ -24,7 +26,7 @@ export class DawnScene extends Scene {
   update(dt) {
     this.time += dt;
     if (this.time > 1.5 && this.game.input.wasPressed('confirm')) {
-      this.game.changeScene('menu');
+      this.game.changeScene(this.fromTheatre ? 'theatre' : 'menu');
     }
   }
 
@@ -154,7 +156,9 @@ export class DawnScene extends Scene {
     });
     drawText(
       ctx,
-      `YOU SURFACED ${this.goal} BUBBLES — SCORE ${this.score}`,
+      this.line ?? (this.fromTheatre
+        ? 'A QUIET SUNRISE OVER THE EMPTY HALLS'
+        : `YOU SURFACED ${this.goal} BUBBLES — SCORE ${this.score}`),
       LOGICAL_WIDTH / 2,
       LOGICAL_HEIGHT * 0.84 + 40,
       {
@@ -164,11 +168,17 @@ export class DawnScene extends Scene {
       },
     );
     if (this.time > 3) {
-      drawText(ctx, 'ENTER — BACK TO THE MENU', LOGICAL_WIDTH / 2, LOGICAL_HEIGHT - 20, {
-        size: 13,
-        color: COLORS.textDim,
-        alpha: 0.55 + 0.45 * Math.sin(this.time * 4),
-      });
+      drawText(
+        ctx,
+        this.fromTheatre ? 'ENTER — BACK TO THE THEATRE' : 'ENTER — BACK TO THE MENU',
+        LOGICAL_WIDTH / 2,
+        LOGICAL_HEIGHT - 20,
+        {
+          size: 13,
+          color: COLORS.textDim,
+          alpha: 0.55 + 0.45 * Math.sin(this.time * 4),
+        },
+      );
     }
   }
 }

@@ -3,9 +3,12 @@ import { Bubble } from '../entities/bubble.js';
 import { Shark } from '../entities/shark.js';
 import { drawWater, drawText } from '../engine/render.js';
 import { loadJSON } from '../engine/storage.js';
+import { MENU_TRACK } from '../assets/tracks.js';
 import { clamp, rand } from '../engine/math.js';
-import { drawSkinAura, setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
-import { accessoryByKey, setActiveAccessory } from '../engine/accessory.js';
+import { drawSkinAura, setActiveSkin, setEelAura, setSkinClock, skinByKey } from '../engine/skin.js';
+import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
+import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
+import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
 import {
   GAME_TITLE,
   TAGLINE,
@@ -19,21 +22,30 @@ import {
 const IDLE_INPUT = { isDown: () => false, pointer: { down: false, dragX: 0, dragY: 0 } };
 
 export class IntroScene extends Scene {
-  enter() {
+  enter(params = {}) {
     this.time = 0;
     this.spawnTimer = 0.2;
     this.bubbles = [];
     this.leaving = false;
+    this.fromTheatre = params.from === 'theatre';
     const shop = loadJSON(SHOP_KEY, {});
+    setEelAura((shop.passes ?? []).includes('playpass5'));
     this.skin = skinByKey(shop.skin);
-    this.accessory = accessoryByKey(shop.accessory);
+    this.head = accessoryByKey(shop.head);
+    this.back = accessoryByKey(shop.back);
+    this.trail = trailByKey(shop.trail);
+    this.companion = companionByKey(shop.companion);
     this.shark = new Shark(LOGICAL_WIDTH * 0.5, LOGICAL_HEIGHT * 0.7);
+    if (this.game.music && this.game.music.track === null) {
+      this.game.music.play(MENU_TRACK);
+      this.game.music.hold = true;
+    }
   }
 
   advance() {
     if (this.leaving) return;
     this.leaving = true;
-    this.game.changeScene('menu');
+    this.game.changeScene(this.fromTheatre ? 'theatre' : 'menu');
   }
 
   update(dt) {
@@ -70,9 +82,14 @@ export class IntroScene extends Scene {
     for (const bubble of this.bubbles) bubble.render(ctx);
     setActiveSkin(this.skin);
     setSkinClock(this.time);
-    setActiveAccessory(this.accessory);
+    setActiveHeadAccessory(this.head);
+    setActiveBodyAccessory(this.back);
+    setActiveTrail(this.trail);
+    setActiveCompanion(this.companion);
     this.shark.render(ctx);
     drawSkinAura(ctx, this.shark);
+    drawTrail(ctx, this.shark);
+    drawCompanion(ctx, this.shark);
 
     const dark = clamp(0.8 - this.time * 0.16, 0.16, 0.8);
     ctx.fillStyle = `rgba(4, 16, 29, ${dark.toFixed(3)})`;

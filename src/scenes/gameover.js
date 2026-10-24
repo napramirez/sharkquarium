@@ -13,6 +13,8 @@ export class GameOverScene extends Scene {
     this.newLongestRun = Boolean(params.newLongestRun);
     this.mode = params.params ?? {};
     this.race = params.race ?? null;
+    this.raceWon = Boolean(params.raceWon);
+    this.endless = Boolean(params.endless);
     this.coins = params.coins ?? 0;
     this.time = 0;
     this.menu = new SelectList(
@@ -77,21 +79,46 @@ export class GameOverScene extends Scene {
     fillRoundRect(ctx, panelX, panelY, panelWidth, panelHeight, 26, 'rgba(10, 39, 64, 0.94)');
     strokeRoundRect(ctx, panelX, panelY, panelWidth, panelHeight, 26, 'rgba(207, 239, 255, 0.3)', 2);
 
-    drawText(ctx, this.race ? 'COMPETITION OVER' : "TIME'S UP", centerX, panelY + 54, {
+    drawText(
+      ctx,
+      this.endless ? 'OUT OF LIVES' : this.race ? 'COMPETITION OVER' : "TIME'S UP",
+      centerX,
+      panelY + 54,
+      {
       size: 38,
       color: COLORS.accent,
-      glow: 'rgba(255, 209, 102, 0.55)',
-      glowBlur: 20,
-    });
-    drawText(ctx, this.race ? 'P1 VS P2 — BUBBLES' : 'BUBBLES COLLECTED', centerX, panelY + 108, {
-      size: 13,
-      color: COLORS.textDim,
-    });
-    drawText(ctx, this.race ? `${this.race[0]} — ${this.race[1]}` : `${this.score}`, centerX, panelY + 158, {
-      size: this.race ? 52 : 64,
-      color: COLORS.text,
-    });
-    if (this.race) {
+        glow: 'rgba(255, 209, 102, 0.55)',
+        glowBlur: 20,
+      },
+    );
+    const soloRace = this.race !== null && this.race.length === 1;
+    drawText(
+      ctx,
+      soloRace ? 'SOLO RACE — BUBBLES COLLECTED' : this.race ? 'P1 VS P2 — BUBBLES' : 'BUBBLES COLLECTED',
+      centerX,
+      panelY + 108,
+      {
+        size: 13,
+        color: COLORS.textDim,
+      },
+    );
+    drawText(
+      ctx,
+      soloRace ? `${this.race[0]}` : this.race ? `${this.race[0]} — ${this.race[1]}` : `${this.score}`,
+      centerX,
+      panelY + 158,
+      {
+        size: this.race ? 52 : 64,
+        color: COLORS.text,
+      },
+    );
+    if (soloRace) {
+      drawText(ctx, this.raceWon ? 'TARGET BEATEN!' : 'TARGET MISSED', centerX, panelY + 212, {
+        size: 20,
+        color: this.raceWon ? COLORS.accent : COLORS.textDim,
+        alpha: 0.65 + 0.35 * Math.sin(this.time * 6),
+      });
+    } else if (this.race) {
       const winner =
         this.race[0] === this.race[1]
           ? "IT'S A TIE"

@@ -32,6 +32,11 @@ import { KelpCrab } from '../entities/kelpcrab.js';
 import { KelpForest } from '../entities/kelpforest.js';
 import { Octopus } from '../entities/octopus.js';
 import { Decor } from '../entities/decor.js';
+import { Pet } from '../entities/pet.js';
+import { Snack } from '../entities/snack.js';
+import { Lure } from '../entities/lure.js';
+import { Pufferfish } from '../entities/pufferfish.js';
+import { POINTER_KEY, POINTER_SECONDARY } from '../engine/input.js';
 import { Archway } from '../entities/archway.js';
 import { Ledges } from '../entities/ledges.js';
 import { IceChunk } from '../entities/icechunk.js';
@@ -42,6 +47,12 @@ import { ColorSchool } from '../entities/colorschool.js';
 import { CurrentZone } from '../entities/currentzone.js';
 import { UpdraftZone } from '../entities/updraftzone.js';
 import { Hud, hitPauseButton } from '../ui/hud.js';
+import {
+  PET_DROP,
+  drawPetButtons,
+  hitLureButton,
+  hitSnackButton,
+} from '../ui/petcontrols.js';
 import { drawJoystick, joystickState } from '../engine/joystick.js';
 import { ParticleSystem } from '../engine/particles.js';
 import { circleOverlap } from '../engine/collision.js';
@@ -59,12 +70,15 @@ import {
   DEEPSEA_TRACK,
   KELP_TRACK,
   NAUTILUS_TRACK,
+  PETS_TRACK,
   REEF_TRACK,
   STINGRAY_TRACK,
   TURTLE_TRACK,
 } from '../assets/tracks.js';
-import { drawSkinAura, setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
-import { accessoryByKey, setActiveAccessory } from '../engine/accessory.js';
+import { drawSkinAura, setActiveSkin, setEelAura, setSkinClock, skinByKey } from '../engine/skin.js';
+import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
+import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
+import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
 import { recordMinigame } from '../engine/progress.js';
 import {
@@ -82,6 +96,7 @@ import {
   DEEPSEA_PALETTE,
   DIFFICULTY,
   EEL,
+  EEL_VARIANTS,
   ELECTRIC_EEL,
   COINS,
   COINS_KEY,
@@ -96,6 +111,9 @@ import {
   NAUTILUS,
   NAUTILUS_PALETTE,
   OCTOPUS,
+  PETS,
+  PETS_KEY,
+  PETS_PALETTE,
   PLANKTON,
   REEF_ROCK,
   RACE,
@@ -121,6 +139,7 @@ const TANK_TRACKS = {
   deepsea: DEEPSEA_TRACK,
   arctic: ARCTIC_TRACK,
   kelp: KELP_TRACK,
+  pets: PETS_TRACK,
   jelly: TURTLE_TRACK,
   freshwater: CATFISH_TRACK,
   nautilus: NAUTILUS_TRACK,
@@ -131,13 +150,22 @@ export class PlayScene extends Scene {
     this.params = params;
     this.empty = Boolean(params.empty);
     this.race = Boolean(params.race);
+    this.solo = Boolean(params.solo);
+    this.endless = Boolean(params.endless);
+    this.lives = this.endless ? ROUND.endlessLives : 0;
     this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
-    this.rules = this.race ? DIFFICULTY.normal : DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
+    this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
     this.eelNeed = Math.max(1, Math.round(EEL.bubblesPerHunt * this.rules.chargeScale));
     this.sealNeed = Math.max(1, Math.round(SEAL.chargePlankton * this.rules.chargeScale));
-    this.coop = this.race || Boolean(params.coop);
-    this.skin = skinByKey(loadJSON(SHOP_KEY, {}).skin);
-    this.accessory = accessoryByKey(loadJSON(SHOP_KEY, {}).accessory);
+    this.coop = (this.race && !this.solo) || Boolean(params.coop);
+    const shop = loadJSON(SHOP_KEY, {});
+    setEelAura((shop.passes ?? []).includes('playpass5'));
+    this.skin = skinByKey(shop.skin);
+    this.head = accessoryByKey(shop.head);
+    this.back = accessoryByKey(shop.back);
+    this.trail = trailByKey(shop.trail);
+    this.companion = companionByKey(shop.companion);
+    this.petTrained = shop.passes?.includes('playpass6') ?? false;
     this.tank = params.tank ?? 'reef';
     this.stingrayTank = this.tank === 'stingray';
     this.deepsea = this.tank === 'deepsea';
@@ -146,9 +174,10 @@ export class PlayScene extends Scene {
     this.freshwater = this.tank === 'freshwater';
     this.nautilusTank = this.tank === 'nautilus';
     this.kelp = this.tank === 'kelp';
+    this.petsTank = this.tank === 'pets';
     const carry = params.carry ?? null;
     this.timeLimit = this.race
-      ? RACE.duration
+      ? RACE.duration * this.rules.timeScale
       : this.empty
         ? ROUND.emptyDuration
         : ROUND.duration * this.rules.timeScale;
@@ -162,7 +191,7 @@ export class PlayScene extends Scene {
             ? Stingray
             : this.nautilusTank
               ? Nautilus
-              : this.kelp
+              : this.kelp || this.petsTank
                 ? KelpCrab
                 : Shark;
     const spawns = this.coop
@@ -171,10 +200,12 @@ export class PlayScene extends Scene {
           { x: LOGICAL_WIDTH * 0.58, y: LOGICAL_HEIGHT / 2, controls: CONTROLS.p2, pointer: false },
         ]
       : [{ x: LOGICAL_WIDTH / 2, y: LOGICAL_HEIGHT / 2, controls: CONTROLS.solo, pointer: true }];
-    this.players = spawns.map(
-      (spawn) => new PlayerClass(spawn.x, spawn.y, { controls: spawn.controls, pointer: spawn.pointer }),
-    );
-    this.player = this.players[0];
+    this.players = this.petsTank
+      ? []
+      : spawns.map(
+          (spawn) => new PlayerClass(spawn.x, spawn.y, { controls: spawn.controls, pointer: spawn.pointer }),
+        );
+    this.player = this.players[0] ?? null;
     this.playerBubbles = this.players.map(() => 0);
     this.wasConcealed = this.players.map(() => false);
     if (this.freshwater) {
@@ -236,6 +267,19 @@ export class PlayScene extends Scene {
     this.turtle = this.jellyTank ? this.spawnBoss(Turtle) : null;
     this.octopus = this.kelp ? this.spawnBoss(Octopus) : null;
     this.kelpStalks = this.kelp ? new KelpForest() : null;
+    const petKinds = this.petTrained ? [...PETS.kinds, ...PETS.bonusKinds] : PETS.kinds;
+    this.pets = this.petsTank
+      ? petKinds.map(
+          (kind, index) => new Pet(kind, index, { drainScale: 1 / (this.rules.grace ?? 1) }),
+        )
+      : [];
+    this.food = [];
+    this.lures = [];
+    this.meals = this.petsTank ? loadJSON(PETS_KEY, {}).meals ?? 0 : 0;
+    this.petEnemies = [];
+    this.nextWave = (Math.floor(this.meals / PETS.waveEvery) + 1) * PETS.waveEvery;
+    this.waveTimer = 0;
+    this.dropCooldown = 0;
     this.decor = new Decor(this.tank);
     this.minnows = [];
     this.minnowTimer = rand(2, 4);
@@ -296,7 +340,9 @@ export class PlayScene extends Scene {
     this.teleported = false;
     if (this.game.music) {
       this.game.music.paused = false;
-      if (!this.empty) {
+      if (this.empty) {
+        this.game.music.stop();
+      } else {
         this.game.music.hold = false;
         this.game.music.play(TANK_TRACKS[this.tank] ?? REEF_TRACK);
       }
@@ -335,6 +381,8 @@ export class PlayScene extends Scene {
     const base = {};
     if (this.empty) base.empty = true;
     if (this.race) base.race = true;
+    if (this.solo) base.solo = true;
+    if (this.endless) base.endless = true;
     if (this.coop) base.coop = true;
     if (this.tank !== 'reef') base.tank = this.tank;
     return base;
@@ -397,6 +445,13 @@ export class PlayScene extends Scene {
           : this.nautilusShark.state
         : null,
       depth: this.nautilusTank ? this.difficulty : 0,
+      pets: this.petsTank ? this.pets.length : null,
+      endless: this.endless,
+      lives: this.endless ? this.lives : null,
+      hungry: this.petsTank
+        ? this.pets.filter((pet) => pet.hunger > PETS.hungryThreshold).length
+        : 0,
+      meals: this.petsTank ? this.meals : 0,
       race: this.race ? this.playerBubbles : null,
       sunrise: this.freshwater ? this.difficulty : 0,
       hidden: this.players.every((player) => player.concealed === true),
@@ -491,6 +546,7 @@ export class PlayScene extends Scene {
         this.difficulty,
       );
     }
+    if (this.petsTank) this.updateFeeding(dt);
     for (const school of this.schools) school.update(dt);
     for (const coral of this.corals) coral.update(dt);
     for (const school of this.colorSchools) school.update(dt);
@@ -555,9 +611,21 @@ export class PlayScene extends Scene {
       this.teleport('freshwater');
       return;
     }
-    this.updateTimer(dt);
+    if (this.petsTank && !this.teleported && this.meals >= PETS.goalMeals) {
+      this.teleported = true;
+      this.meals = 0;
+      this.saveProgress();
+      this.game.changeScene('dawn', {
+        ...this.completionPayload(),
+        goal: PETS.goalMeals,
+        line: `YOU FED THE PETS ${PETS.goalMeals} SNACKS — SCORE ${this.score}`,
+      });
+      return;
+    }
+    if (!this.petsTank && !this.endless) this.updateTimer(dt);
     this.flash = Math.max(0, this.flash - dt * 2.5);
     this.shake = Math.max(0, this.shake - dt * 1.8);
+    this.waveTimer = Math.max(0, this.waveTimer - dt);
   }
 
   teleport(targetTank) {
@@ -566,6 +634,7 @@ export class PlayScene extends Scene {
       tank: targetTank,
       payload: {
         coop: this.coop,
+        endless: this.endless,
         carry: {
           score: this.score,
           timeLeft: this.timeLeft,
@@ -724,6 +793,7 @@ export class PlayScene extends Scene {
 
   updateSpawning(dt) {
     if (this.empty) return;
+    if (this.petsTank) return;
     if (this.freshwater) {
       const spawnScale = lerp(1, FRESHWATER.spawnRampFloor, this.difficulty) * this.rules.spawnInterval;
       this.bubbleRowTimer -= dt;
@@ -1026,6 +1096,43 @@ export class PlayScene extends Scene {
     this.separateAnglers();
     if (this.turtle) this.turtle.update(dt, this.players, this.rules.enemySpeed);
     if (this.octopus) this.octopus.update(dt, this.players, this.rules.enemySpeed);
+    for (const pet of this.pets) pet.update(dt, this.food, this.petEnemies, this.pets);
+    this.food = this.food.filter((item) => {
+      item.update(dt);
+      return item.alive && item.y > -40 && item.x > -50 && item.x < LOGICAL_WIDTH + 50;
+    });
+    this.lures = this.lures.filter((lure) => {
+      lure.update(dt);
+      return lure.alive;
+    });
+    this.petEnemies = this.petEnemies.filter((enemy) => {
+      enemy.petLife -= dt;
+      enemy.biteCooldown = Math.max(0, (enemy.biteCooldown ?? 0) - dt);
+      if (!enemy.alive || enemy.petLife <= 0) return false;
+      if (enemy.petKind === 'jelly' || enemy.petKind === 'puffer') enemy.update(dt);
+      else if (enemy.petKind === 'moray') {
+        enemy.update(dt, this.players, this.rules.enemySpeed, this.pets);
+      } else enemy.update(dt, this.players, this.rules.enemySpeed);
+      if (enemy.petKind === 'puffer') {
+        if (enemy.x < enemy.radius) {
+          enemy.x = enemy.radius;
+          enemy.vx = Math.abs(enemy.vx);
+        } else if (enemy.x > LOGICAL_WIDTH - enemy.radius) {
+          enemy.x = LOGICAL_WIDTH - enemy.radius;
+          enemy.vx = -Math.abs(enemy.vx);
+        }
+        if (enemy.y < enemy.radius) {
+          enemy.y = enemy.radius;
+          enemy.vy = Math.abs(enemy.vy);
+        } else if (enemy.y > LOGICAL_HEIGHT - enemy.radius) {
+          enemy.y = LOGICAL_HEIGHT - enemy.radius;
+          enemy.vy = -Math.abs(enemy.vy);
+        }
+      }
+      return enemy.alive;
+    });
+    if (this.lures.length > 0) this.lureEnemies(dt);
+    this.huntPets(dt);
     this.minnows = this.minnows.filter((minnow) => {
       minnow.update(dt);
       if (minnow.completed) {
@@ -1167,29 +1274,49 @@ export class PlayScene extends Scene {
         const player = this.players[index];
         if (player.concealed === true) continue;
         if (!circleOverlap(player, bubble)) continue;
-        bubble.kill();
-        this.bubblesCollected += 1;
-        this.tankBubbles += 1;
         if (this.race) this.playerBubbles[index] += 1;
-        if (this.eels.length > 0) this.eelCharge += 1;
-        this.score += bubble.golden ? GOLDEN.score : ROUND.bubbleScore;
-        this.timeLeft += bubble.golden ? GOLDEN.bonusTime : ROUND.bubbleBonusTime;
-        this.particles.burst(bubble.x, bubble.y, {
-          count: bubble.golden ? 16 : 10,
-          speed: 130,
-          life: 0.55,
-          colors: bubble.golden
-            ? [COLORS.accent, '#fff3c4', '#ffffff']
-            : [COLORS.bubble, COLORS.foam, '#ffffff'],
-          buoyancy: -40,
-        });
-        if (bubble.golden) {
-          this.game.audio.tone({ freq: 620, endFreq: 980, type: 'triangle', duration: 0.12, volume: 0.25 });
-          this.game.audio.tone({ freq: 980, endFreq: 1240, type: 'triangle', duration: 0.14, volume: 0.2, delay: 0.1 });
-        } else {
-          this.game.audio.tone({ freq: 480, endFreq: 900, type: 'triangle', duration: 0.11, volume: 0.25 });
-        }
+        this.collectBubble(bubble);
         break;
+      }
+    }
+    if (this.petsTank) {
+      for (const item of this.food) {
+        if (!item.alive) continue;
+        for (const pet of this.pets) {
+          if (!circleOverlap(pet, item)) continue;
+          item.kill();
+          if (item.snack === true) {
+            this.meals += this.petTrained ? 2 : 1;
+            this.saveProgress();
+            if (this.meals >= this.nextWave) {
+              this.nextWave += PETS.waveEvery;
+              this.spawnWave();
+            }
+          }
+          this.score += 1;
+          pet.hunger = Math.max(0, pet.hunger - PETS.hungerRelief);
+          pet.eating = 0.6;
+          this.particles.burst(item.x, item.y, {
+            count: 8,
+            speed: 110,
+            life: 0.5,
+            colors: [COLORS.danger, COLORS.accent, '#ffffff'],
+            buoyancy: -30,
+          });
+          this.game.audio.tone({ freq: 520, endFreq: 880, type: 'triangle', duration: 0.1, volume: 0.2 });
+          break;
+        }
+      }
+      for (const enemy of this.petEnemies) {
+        if (!enemy.alive) continue;
+        if (enemy.petKind === 'puffer' && enemy.state !== 'fly') continue;
+        for (const player of this.players) {
+          if (player.invulnerable > 0) continue;
+          if (!circleOverlap(player, enemy)) continue;
+          this.bite(player, player.x - enemy.x, player.y - enemy.y, 10, 420, 1.2, [COLORS.danger, COLORS.jelly, '#ffffff'], { freq: 150, endFreq: 70, duration: 0.3, volume: 0.28 });
+          enemy.kill();
+          break;
+        }
       }
     }
     for (const entity of this.bonus) {
@@ -1225,6 +1352,7 @@ export class PlayScene extends Scene {
         player.vy += (dy / length) * ROUND.knockback;
         player.invulnerable = ROUND.invulnerableTime * this.rules.grace;
         this.timeLeft -= ROUND.hazardPenaltyTime * this.rules.penalty;
+        this.loseLife();
         this.flash = 0.6;
         this.shake = 0.5;
         this.particles.burst(player.x, player.y, {
@@ -1242,6 +1370,7 @@ export class PlayScene extends Scene {
       for (const eel of this.eels) {
         if (eel.state !== 'hunting') continue;
         if (!circleOverlap(player, eel)) continue;
+        eel.bite();
         this.bite(player, player.x - eel.x, player.y - eel.y, EEL.penaltyScore, EEL.knockback, EEL.invulnerableTime, [eel.bodyColor, eel.ridgeColor, COLORS.sand], { freq: 120, endFreq: 60, duration: 0.4, volume: 0.3 });
         break;
       }
@@ -1326,6 +1455,194 @@ export class PlayScene extends Scene {
     }
   }
 
+  updateFeeding(dt) {
+    this.dropCooldown = Math.max(0, this.dropCooldown - dt);
+    if (this.dropCooldown > 0) return;
+    const input = this.game.input;
+    const pointer = input.pointer;
+    const x = clamp(pointer.x, 30, LOGICAL_WIDTH - 30);
+    const y = clamp(pointer.y, 40, LOGICAL_HEIGHT - 40);
+    if (input.wasPressed(POINTER_KEY) && hitSnackButton(pointer.x, pointer.y)) {
+      this.dropCooldown = PETS.dropCooldown;
+      this.food.push(new Snack(PET_DROP.x, PET_DROP.y));
+      return;
+    }
+    if (input.wasPressed(POINTER_KEY) && hitLureButton(pointer.x, pointer.y)) {
+      if (this.petEnemies.length > 0) {
+        this.dropCooldown = PETS.dropCooldown;
+        this.lures.push(new Lure(PET_DROP.x, PET_DROP.y));
+      } else {
+        this.game.audio.tone({ freq: 220, endFreq: 160, duration: 0.08, volume: 0.12 });
+      }
+      return;
+    }
+    if (input.wasPressed(POINTER_KEY)) {
+      this.dropCooldown = PETS.dropCooldown;
+      this.food.push(new Bubble(x, y, { rise: PETS.bubbleRise, wobble: 8 }));
+    } else if (input.wasPressed(POINTER_SECONDARY)) {
+      this.dropCooldown = PETS.dropCooldown;
+      if (this.petEnemies.length > 0) this.lures.push(new Lure(x, y));
+      else this.food.push(new Snack(x, y));
+    }
+  }
+
+  lureEnemies(dt) {
+    for (const enemy of this.petEnemies) {
+      if (!enemy.alive) continue;
+      enemy.lured = false;
+      let lure = null;
+      let best = PETS.lureRadius;
+      for (const candidate of this.lures) {
+        if (!candidate.alive) continue;
+        const distance = Math.hypot(candidate.x - enemy.x, candidate.y - enemy.y);
+        if (distance < best) {
+          best = distance;
+          lure = candidate;
+        }
+      }
+      if (!lure) continue;
+      if (best <= enemy.radius + lure.radius) {
+        enemy.kill();
+        lure.kill();
+        this.particles.burst(lure.x, lure.y, {
+          count: 16,
+          speed: 200,
+          life: 0.6,
+          colors: [COLORS.danger, COLORS.accent, '#ffffff'],
+          buoyancy: -20,
+        });
+        this.game.audio.tone({ freq: 660, endFreq: 990, type: 'triangle', duration: 0.18, volume: 0.22 });
+        this.game.audio.tone({ freq: 990, endFreq: 1320, type: 'triangle', duration: 0.22, volume: 0.18, delay: 0.12 });
+        continue;
+      }
+      const dx = lure.x - enemy.x;
+      const dy = lure.y - enemy.y;
+      const length = Math.hypot(dx, dy) || 1;
+      const step = PETS.lurePull * dt;
+      enemy.x += (dx / length) * step;
+      enemy.y += (dy / length) * step;
+      if (enemy.petKind === 'jelly') enemy.baseY += (dy / length) * step;
+      enemy.lured = true;
+    }
+  }
+
+  huntPets(dt) {
+    for (const enemy of this.petEnemies) {
+      if (!enemy.alive || enemy.lured) continue;
+      let pet = null;
+      let best = Infinity;
+      for (const candidate of this.pets) {
+        const distance = Math.hypot(candidate.x - enemy.x, candidate.y - enemy.y);
+        if (distance < best) {
+          best = distance;
+          pet = candidate;
+        }
+      }
+      if (!pet) continue;
+      if (best <= enemy.radius + pet.radius) {
+        if (enemy.biteCooldown > 0) continue;
+        enemy.biteCooldown = PETS.biteCooldown;
+        if (typeof enemy.bite === 'function') enemy.bite();
+        this.meals = Math.max(0, this.meals - Math.max(1, Math.round(PETS.biteLoss * this.rules.penalty)));
+        this.saveProgress();
+        pet.scared = 1.5;
+        this.flash = 0.5;
+        this.particles.burst(pet.x, pet.y, {
+          count: 12,
+          speed: 170,
+          life: 0.55,
+          colors: [COLORS.danger, COLORS.accent, '#ffffff'],
+          buoyancy: -20,
+        });
+        this.game.audio.tone({ freq: 200, endFreq: 90, type: 'sawtooth', duration: 0.28, volume: 0.26 });
+        continue;
+      }
+      const dx = pet.x - enemy.x;
+      const dy = pet.y - enemy.y;
+      const length = Math.hypot(dx, dy) || 1;
+      const step = PETS.enemyChase * this.rules.enemySpeed * dt;
+      enemy.x += (dx / length) * step;
+      enemy.y += (dy / length) * step;
+      if (enemy.petKind === 'jelly') enemy.baseY += (dy / length) * step;
+    }
+  }
+
+  spawnWave() {
+    const pool = ['jelly', 'turtle', 'puffer', 'angler', 'moray'];
+    for (let i = pool.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [pool[i], pool[j]] = [pool[j], pool[i]];
+    }
+    for (const kind of pool.slice(0, PETS.waveSize)) this.spawnPetEnemy(kind);
+    this.waveTimer = 2.6;
+    this.game.audio.tone({ freq: 140, endFreq: 70, type: 'sawtooth', duration: 0.35, volume: 0.28 });
+    this.game.audio.tone({ freq: 110, endFreq: 55, type: 'sawtooth', duration: 0.45, volume: 0.24, delay: 0.15 });
+  }
+
+  spawnPetEnemy(kind = null) {
+    const kinds = ['jelly', 'turtle', 'puffer', 'angler', 'moray'];
+    if (kind === null) kind = kinds[Math.floor(Math.random() * kinds.length)];
+    let enemy;
+    if (kind === 'jelly') {
+      enemy = new Jellyfish(rand(90, LOGICAL_WIDTH - 90), rand(130, LOGICAL_HEIGHT - 130));
+    } else if (kind === 'turtle') {
+      enemy = new Turtle();
+    } else if (kind === 'puffer') {
+      enemy = new Pufferfish();
+    } else if (kind === 'moray') {
+      const moray = new Eel(
+        rand(90, LOGICAL_WIDTH - 90),
+        rand(130, LOGICAL_HEIGHT - 130),
+        Math.floor(rand(0, EEL_VARIANTS.length)),
+      );
+      moray.startHunt(null);
+      enemy = moray;
+    } else {
+      enemy = new Anglerfish();
+    }
+    enemy.petKind = kind;
+    enemy.petLife = kind === 'puffer' ? Number.POSITIVE_INFINITY : PETS.enemyLife;
+    this.petEnemies.push(enemy);
+    this.game.audio.tone({ freq: 180, endFreq: 90, type: 'sawtooth', duration: 0.25, volume: 0.2 });
+  }
+
+  collectBubble(bubble) {
+    bubble.kill();
+    this.bubblesCollected += 1;
+    this.tankBubbles += 1;
+    if (this.eels.length > 0) this.eelCharge += 1;
+    this.score += bubble.golden ? GOLDEN.score : ROUND.bubbleScore;
+    this.timeLeft += bubble.golden ? GOLDEN.bonusTime : ROUND.bubbleBonusTime;
+    this.particles.burst(bubble.x, bubble.y, {
+      count: bubble.golden ? 16 : 10,
+      speed: 130,
+      life: 0.55,
+      colors: bubble.golden
+        ? [COLORS.accent, '#fff3c4', '#ffffff']
+        : [COLORS.bubble, COLORS.foam, '#ffffff'],
+      buoyancy: -40,
+    });
+    if (bubble.golden) {
+      this.game.audio.tone({ freq: 620, endFreq: 980, type: 'triangle', duration: 0.12, volume: 0.25 });
+      this.game.audio.tone({ freq: 980, endFreq: 1240, type: 'triangle', duration: 0.14, volume: 0.2, delay: 0.1 });
+    } else {
+      this.game.audio.tone({ freq: 480, endFreq: 900, type: 'triangle', duration: 0.11, volume: 0.25 });
+    }
+  }
+
+  loseLife() {
+    if (!this.endless || this.teleported) return;
+    this.lives -= 1;
+    if (this.lives <= 0) {
+      this.teleported = true;
+      this.game.changeScene('gameover', {
+        ...this.completionPayload(),
+        endless: true,
+        params: this.replayParams(),
+      });
+    }
+  }
+
   bite(player, dx, dy, penaltyScore, knockback, invulnerableTime, colors, sound) {
     const length = Math.hypot(dx, dy) || 1;
     player.vx += (dx / length) * knockback;
@@ -1342,6 +1659,7 @@ export class PlayScene extends Scene {
       buoyancy: -20,
     });
     this.game.audio.tone({ ...sound, type: 'sawtooth' });
+    this.loseLife();
   }
 
   completionPayload() {
@@ -1379,6 +1697,14 @@ export class PlayScene extends Scene {
     };
   }
 
+  saveProgress() {
+    if (this.petsTank) saveJSON(PETS_KEY, { meals: this.meals });
+  }
+
+  exit() {
+    this.saveProgress();
+  }
+
   updateTimer(dt) {
     const before = Math.ceil(this.timeLeft);
     this.timeLeft -= dt;
@@ -1389,16 +1715,19 @@ export class PlayScene extends Scene {
     if (this.timeLeft <= 0) {
       this.timeLeft = 0;
       let race = null;
+      let raceWon = false;
       let raceReward = 0;
       if (this.race) {
         race = this.playerBubbles.slice();
-        raceReward = recordMinigame(race[0] !== race[1]);
+        raceWon = this.solo ? race[0] >= RACE.soloTarget : race[0] !== race[1];
+        raceReward = recordMinigame(raceWon);
       }
       const payload = this.completionPayload();
       this.game.changeScene('gameover', {
         ...payload,
         coins: payload.coins + raceReward,
         race,
+        raceWon,
         params: this.replayParams(),
       });
     }
@@ -1407,7 +1736,10 @@ export class PlayScene extends Scene {
   render(ctx) {
     setActiveSkin(this.skin);
     setSkinClock(this.time);
-    setActiveAccessory(this.accessory);
+    setActiveHeadAccessory(this.head);
+    setActiveBodyAccessory(this.back);
+    setActiveTrail(this.trail);
+    setActiveCompanion(this.companion);
     drawWater(
       ctx,
       LOGICAL_WIDTH,
@@ -1417,7 +1749,9 @@ export class PlayScene extends Scene {
         ? FRESHWATER_PALETTE
         : this.nautilusTank
           ? NAUTILUS_PALETTE
-          : this.kelp
+          : this.petsTank
+            ? PETS_PALETTE
+            : this.kelp
             ? KELP_PALETTE
             : this.jellyTank
             ? JELLY_PALETTE
@@ -1473,16 +1807,36 @@ export class PlayScene extends Scene {
     for (const squid of this.baitSquids) squid.render(ctx);
     for (const eel of this.dartEels) eel.render(ctx);
     if (this.nautilusShark) this.nautilusShark.render(ctx);
+    for (const enemy of this.petEnemies) enemy.render(ctx);
+    for (const lure of this.lures) lure.render(ctx);
+    for (const item of this.food) item.render(ctx);
+    for (const pet of this.pets) pet.render(ctx);
     for (const player of this.players) {
       player.render(ctx);
       drawSkinAura(ctx, player);
+      drawTrail(ctx, player);
+      drawCompanion(ctx, player);
     }
     this.particles.render(ctx);
     ctx.restore();
 
     this.hud.render(ctx, this.hudState());
-    drawJoystick(ctx, joystickState(this.game.input));
+    if (this.petsTank) {
+      drawPetButtons(ctx, { lureReady: this.petEnemies.length > 0, time: this.time });
+    } else {
+      drawJoystick(ctx, joystickState(this.game.input));
+    }
 
+    if (this.waveTimer > 0 && this.petsTank) {
+      const waveAlpha = Math.min(1, this.waveTimer / 0.5) * (0.65 + 0.35 * Math.sin(this.time * 14));
+      drawText(ctx, `WAVE INCOMING — ${PETS.waveSize} ENEMIES!`, LOGICAL_WIDTH / 2, 150, {
+        size: 32,
+        color: COLORS.danger,
+        glow: COLORS.danger,
+        glowBlur: 22,
+        alpha: waveAlpha,
+      });
+    }
     if (this.flash > 0) {
       ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.45})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);

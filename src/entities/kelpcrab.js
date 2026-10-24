@@ -9,6 +9,8 @@ export class KelpCrab extends Entity {
     super({ x, y, radius: KELP_CRAB.radius });
     this.controls = options.controls ?? CONTROLS.solo;
     this.pointerSteering = options.pointer ?? true;
+    this.maxX = options.maxX ?? LOGICAL_WIDTH;
+    this.maxSpeed = KELP_CRAB.maxSpeed;
     this.heading = 0;
     this.speed = 0;
     this.invulnerable = 0;
@@ -36,7 +38,7 @@ export class KelpCrab extends Entity {
     this.vy = lerp(this.vy, dirY * KELP_CRAB.maxSpeed, response);
     this.x += this.vx * dt;
     this.y += this.vy * dt;
-    this.x = clamp(this.x, this.radius, LOGICAL_WIDTH - this.radius);
+    this.x = clamp(this.x, this.radius, this.maxX - this.radius);
     this.y = clamp(this.y, this.radius, LOGICAL_HEIGHT - this.radius);
     this.speed = Math.hypot(this.vx, this.vy);
     if (this.speed > 24) {
@@ -115,7 +117,7 @@ export class KelpCrab extends Entity {
       ctx.fill();
     }
 
-    drawAccessory(ctx, radius, this.age);
+    drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
     ctx.restore();
   }
 }

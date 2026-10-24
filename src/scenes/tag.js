@@ -4,8 +4,11 @@ import { drawWater, drawText, fillRoundRect, strokeRoundRect } from '../engine/r
 import { clamp, rand, TAU } from '../engine/math.js';
 import { TagSwimmer } from '../entities/tagswimmer.js';
 import { recordMinigame } from '../engine/progress.js';
+import { loadJSON } from '../engine/storage.js';
 import {
   CONTROLS,
+  DIFFICULTY,
+  SETTINGS_KEY,
   TAG,
   COLORS,
   LOGICAL_WIDTH,
@@ -19,9 +22,13 @@ const NAME_KEY = /^(Key[A-Z]|Digit[0-9])$/;
 export class TagScene extends Scene {
   enter(params = {}) {
     this.time = 0;
+    this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
+    this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
+    this.speedScale = this.rules.enemySpeed;
     this.phase = 'names';
+    this.solo = Boolean(params.solo);
     this.activeField = 0;
-    this.inputText = params.names ? params.names.slice() : ['', ''];
+    this.inputText = params.names ? params.names.slice() : this.solo ? [''] : ['', ''];
     this.names = ['P1', 'P2'];
     this.swimmers = [];
     this.taggerIndex = 0;
@@ -70,24 +77,31 @@ export class TagScene extends Scene {
         color: TAG.p1Color,
         cpu: false,
         controls: CONTROLS.p1,
-        x: TAG.worldWidth * 0.35,
-        y: TAG.worldHeight * 0.5,
-      }),
-      new TagSwimmer({
-        name: this.names[1],
-        color: TAG.p2Color,
-        cpu: false,
-        controls: CONTROLS.p2,
-        x: TAG.worldWidth * 0.65,
+        speedScale: this.speedScale,
+        x: TAG.worldWidth * (this.solo ? 0.5 : 0.35),
         y: TAG.worldHeight * 0.5,
       }),
     ];
+    if (!this.solo) {
+      this.swimmers.push(
+        new TagSwimmer({
+          name: this.names[1],
+          color: TAG.p2Color,
+          cpu: false,
+          controls: CONTROLS.p2,
+          speedScale: this.speedScale,
+          x: TAG.worldWidth * 0.65,
+          y: TAG.worldHeight * 0.5,
+        }),
+      );
+    }
     for (let i = 0; i < TAG.cpuCount; i += 1) {
       this.swimmers.push(
         new TagSwimmer({
           name: pool[i] ?? `CPU ${i + 1}`,
           color: colors[i % colors.length],
           cpu: true,
+          speedScale: this.speedScale,
           x: rand(200, TAG.worldWidth - 200),
           y: rand(160, TAG.worldHeight - 160),
         }),
@@ -146,7 +160,7 @@ export class TagScene extends Scene {
       }
     }
     if (input.wasPressed('confirm')) {
-      if (this.activeField === 0) {
+      if (this.activeField === 0 && !this.solo) {
         this.activeField = 1;
         this.game.audio.tone({ freq: 560, duration: 0.06, volume: 0.12 });
       } else {
@@ -225,13 +239,21 @@ export class TagScene extends Scene {
       glow: COLORS.bubble,
       glowBlur: 22,
     });
-    drawText(ctx, '2 PLAYERS + 5 CPU SWIMMERS — ENTER YOUR NAMES', LOGICAL_WIDTH / 2, 138, {
-      size: 13,
-      color: COLORS.foam,
-      alpha: 0.8,
-    });
-    this.renderNameField(ctx, 0, 226, TAG.p1Color, 'P1 NAME');
-    this.renderNameField(ctx, 1, 326, TAG.p2Color, 'P2 NAME');
+    drawText(
+      ctx,
+      this.solo
+        ? '1 PLAYER + 5 CPU SWIMMERS — ENTER YOUR NAME'
+        : '2 PLAYERS + 5 CPU SWIMMERS — ENTER YOUR NAMES',
+      LOGICAL_WIDTH / 2,
+      138,
+      {
+        size: 13,
+        color: COLORS.foam,
+        alpha: 0.8,
+      },
+    );
+    this.renderNameField(ctx, 0, 226, TAG.p1Color, this.solo ? 'YOUR NAME' : 'P1 NAME');
+    if (!this.solo) this.renderNameField(ctx, 1, 326, TAG.p2Color, 'P2 NAME');
     drawText(
       ctx,
       'TYPE LETTERS AND NUMBERS — BACKSPACE — ENTER TO CONTINUE',
@@ -340,14 +362,18 @@ export class TagScene extends Scene {
       color: TAG.p1Color,
       align: 'left',
     });
-    drawText(ctx, `P2 ${this.names[1]}`, 24, LOGICAL_HEIGHT - 28, {
-      size: 12,
-      color: TAG.p2Color,
-      align: 'left',
-    });
+    if (!this.solo) {
+      drawText(ctx, `P2 ${this.names[1]}`, 24, LOGICAL_HEIGHT - 28, {
+        size: 12,
+        color: TAG.p2Color,
+        align: 'left',
+      });
+    }
     drawText(
       ctx,
-      'P1 — WASD      P2 — ARROWS      TOUCH ANOTHER SWIMMER TO PASS THE TAG',
+      this.solo
+        ? 'WASD — MOVE      TOUCH ANOTHER SWIMMER TO PASS THE TAG'
+        : 'P1 — WASD      P2 — ARROWS      TOUCH ANOTHER SWIMMER TO PASS THE TAG',
       LOGICAL_WIDTH / 2,
       LOGICAL_HEIGHT - 22,
       {

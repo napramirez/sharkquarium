@@ -1,7 +1,7 @@
 import { Entity } from './entity.js';
 import { clamp, lerp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, PLAYER, STINGRAY, SAND, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
-import { playerColor } from '../engine/skin.js';
+import { playerColor, shadowEyeColor } from '../engine/skin.js';
 import { drawAccessory } from '../engine/accessory.js';
 
 export class Stingray extends Entity {
@@ -9,10 +9,13 @@ export class Stingray extends Entity {
     super({ x, y, radius: STINGRAY.radius });
     this.controls = options.controls ?? CONTROLS.solo;
     this.pointerSteering = options.pointer ?? true;
+    this.maxX = options.maxX ?? LOGICAL_WIDTH;
+    this.maxSpeed = STINGRAY.maxSpeed;
     this.bodyColor = options.bodyColor ?? COLORS.stingray;
     this.spotColor = options.spotColor ?? 'rgba(70, 62, 50, 0.35)';
     this.eyeColor = options.eyeColor ?? '#10233a';
     this.autoScrollX = options.autoScrollX ?? null;
+    this.burrowEnabled = options.burrow ?? true;
     this.heading = 0;
     this.speed = 0;
     this.invulnerable = 0;
@@ -51,7 +54,7 @@ export class Stingray extends Entity {
     if (this.autoScrollX !== null) horizontal = 0;
     const wantsDown = vertical > 0.5;
     const wantsUp = vertical < -0.5;
-    if (!this.burrowed && wantsDown && this.y > sandTop - 10) {
+    if (this.burrowEnabled && !this.burrowed && wantsDown && this.y > sandTop - 10) {
       this.burrowed = true;
       this.burrowY = Math.min(LOGICAL_HEIGHT - this.radius * 0.4, sandTop + STINGRAY.burrowDepth);
       this.vx = 0;
@@ -64,7 +67,7 @@ export class Stingray extends Entity {
       (burrowTarget - this.burrowProgress) * (1 - Math.exp(-STINGRAY.burrowSpeed * dt));
     if (this.burrowed) {
       this.x += horizontal * STINGRAY.burrowMoveSpeed * dt;
-      this.x = clamp(this.x, this.radius, LOGICAL_WIDTH - this.radius);
+      this.x = clamp(this.x, this.radius, this.maxX - this.radius);
       this.y += (this.burrowY - this.y) * (1 - Math.exp(-STINGRAY.burrowSpeed * dt));
       this.speed = Math.abs(horizontal) * STINGRAY.burrowMoveSpeed;
       if (Math.abs(horizontal) > 0.1) {
@@ -79,7 +82,7 @@ export class Stingray extends Entity {
       this.vy = lerp(this.vy, dirY * STINGRAY.maxSpeed, response);
       this.x += this.vx * dt;
       this.y += this.vy * dt;
-      this.x = clamp(this.x, this.radius, LOGICAL_WIDTH - this.radius);
+      this.x = clamp(this.x, this.radius, this.maxX - this.radius);
       this.y = clamp(this.y, this.radius, LOGICAL_HEIGHT - this.radius);
       this.speed = Math.hypot(this.vx, this.vy);
       if (this.speed > 24) {
@@ -141,7 +144,7 @@ export class Stingray extends Entity {
         ctx.fill();
       }
 
-      ctx.fillStyle = this.eyeColor;
+      ctx.fillStyle = shadowEyeColor(this.eyeColor);
       ctx.beginPath();
       ctx.arc(radius * 0.75, -radius * 0.3, radius * 0.09, 0, TAU);
       ctx.fill();
@@ -149,7 +152,7 @@ export class Stingray extends Entity {
       ctx.arc(radius * 0.75, radius * 0.3, radius * 0.09, 0, TAU);
       ctx.fill();
 
-      drawAccessory(ctx, radius, this.age);
+      drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
       ctx.restore();
     }
     if (this.tangleTimer > 0) {
@@ -177,7 +180,7 @@ export class Stingray extends Entity {
     ctx.fillStyle = COLORS.sandDark;
     ctx.fill();
     ctx.globalAlpha = 1;
-    ctx.fillStyle = this.eyeColor;
+    ctx.fillStyle = shadowEyeColor(this.eyeColor);
     ctx.beginPath();
     ctx.arc(this.x - radius * 0.3, this.y - radius * 0.62, radius * 0.1, 0, TAU);
     ctx.fill();

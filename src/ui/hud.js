@@ -1,4 +1,4 @@
-import { COLORS, EEL, ROUND, SEAL, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
+import { COLORS, EEL, PETS, RACE, ROUND, SEAL, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
 import { clamp } from '../engine/math.js';
 import { drawText, fillRoundRect, strokeRoundRect, fillCircle, strokeCircle } from '../engine/render.js';
 
@@ -79,41 +79,60 @@ export class Hud {
     const barHeight = 14;
     const barX = (LOGICAL_WIDTH - barWidth) / 2;
     const barY = 26;
-    fillRoundRect(ctx, barX, barY, barWidth, barHeight, barHeight / 2, 'rgba(4, 16, 29, 0.6)');
-    if (this.barRatio > 0.01) {
-      ctx.save();
-      ctx.globalAlpha = pulse;
-      fillRoundRect(
-        ctx,
-        barX,
-        barY,
-        Math.max(barHeight, barWidth * this.barRatio),
-        barHeight,
-        barHeight / 2,
-        low ? COLORS.danger : COLORS.accent,
-      );
-      ctx.restore();
+    if (state.endless) {
+      const lives = state.lives ?? 0;
+      for (let i = 0; i < ROUND.endlessLives; i += 1) {
+        fillCircle(
+          ctx,
+          LOGICAL_WIDTH / 2 - (ROUND.endlessLives - 1) * 16 + i * 32,
+          33,
+          11,
+          i < lives ? COLORS.danger : 'rgba(207, 239, 255, 0.15)',
+        );
+      }
+      drawText(ctx, 'LIVES', LOGICAL_WIDTH / 2, 60, {
+        size: 12,
+        color: COLORS.textDim,
+      });
     }
-    drawText(
-      ctx,
-      `TIME ${Math.max(0, Math.ceil(state.timeLeft))}`,
-      LOGICAL_WIDTH / 2,
-      barY + barHeight + 18,
-      {
-        size: 13,
-        color: low ? COLORS.danger : COLORS.textDim,
-      },
-    );
+    const showTimer = state.tank !== 'pets' && !state.endless;
+    if (showTimer) {
+      fillRoundRect(ctx, barX, barY, barWidth, barHeight, barHeight / 2, 'rgba(4, 16, 29, 0.6)');
+      if (this.barRatio > 0.01) {
+        ctx.save();
+        ctx.globalAlpha = pulse;
+        fillRoundRect(
+          ctx,
+          barX,
+          barY,
+          Math.max(barHeight, barWidth * this.barRatio),
+          barHeight,
+          barHeight / 2,
+          low ? COLORS.danger : COLORS.accent,
+        );
+        ctx.restore();
+      }
+      drawText(
+        ctx,
+        `TIME ${Math.max(0, Math.ceil(state.timeLeft))}`,
+        LOGICAL_WIDTH / 2,
+        barY + barHeight + 18,
+        {
+          size: 13,
+          color: low ? COLORS.danger : COLORS.textDim,
+        },
+      );
+    }
     if (state.eel) {
       const labels = {
         hidden: [
-          `EELS — IN THEIR HOLES ${state.eelCharge ?? 0}/${state.eelNeed ?? EEL.bubblesPerHunt}`,
+          `MORAY EELS — IN THEIR HOLES ${state.eelCharge ?? 0}/${state.eelNeed ?? EEL.bubblesPerHunt}`,
           COLORS.textDim,
           0.7,
         ],
-        peek: ['EELS — PEEKING OUT', COLORS.danger, 0.85],
-        hunt: ['EELS — HUNTING', COLORS.danger, 0.65 + 0.35 * Math.sin(this.time * 8)],
-        retreat: ['EELS — RETREATING', COLORS.foam, 0.8],
+        peek: ['MORAY EELS — PEEKING OUT', COLORS.danger, 0.85],
+        hunt: ['MORAY EELS — HUNTING', COLORS.danger, 0.65 + 0.35 * Math.sin(this.time * 8)],
+        retreat: ['MORAY EELS — RETREATING', COLORS.foam, 0.8],
       };
       const [label, color, alpha] = labels[state.eel] ?? labels.hidden;
       drawText(ctx, label, LOGICAL_WIDTH / 2, barY + barHeight + 42, {
@@ -172,6 +191,27 @@ export class Hud {
         alpha,
       });
     }
+    if (state.pets) {
+      const petsY = showTimer ? barY + barHeight + 42 : 36;
+      drawText(
+        ctx,
+        `PETS: ${state.pets} — FED ${state.meals ?? 0}/${PETS.goalMeals}`,
+        LOGICAL_WIDTH / 2,
+        petsY,
+        {
+          size: 12,
+          color: COLORS.foam,
+          alpha: 0.85,
+        },
+      );
+      if ((state.hungry ?? 0) > 0) {
+        drawText(ctx, `HUNGRY: ${state.hungry} — DROP SNACKS!`, LOGICAL_WIDTH / 2, petsY + 20, {
+          size: 12,
+          color: COLORS.accent,
+          alpha: 0.6 + 0.4 * Math.sin(this.time * 6),
+        });
+      }
+    }
     if (state.octopus) {
       const labels = {
         patrol: ['OCTOPUS — PATROLLING', COLORS.textDim, 0.75],
@@ -205,16 +245,29 @@ export class Hud {
       });
     }
     if (state.race) {
-      drawText(ctx, `P1: ${state.race[0]}`, LOGICAL_WIDTH / 2, barY + barHeight + 42, {
-        size: 14,
-        color: COLORS.bubble,
-        alpha: 0.95,
-      });
-      drawText(ctx, `P2: ${state.race[1]}`, LOGICAL_WIDTH / 2, barY + barHeight + 62, {
-        size: 14,
-        color: COLORS.accent,
-        alpha: 0.95,
-      });
+      if (state.race.length === 1) {
+        drawText(ctx, `BUBBLES: ${state.race[0]}`, LOGICAL_WIDTH / 2, barY + barHeight + 42, {
+          size: 14,
+          color: COLORS.bubble,
+          alpha: 0.95,
+        });
+        drawText(ctx, `TARGET: ${RACE.soloTarget}`, LOGICAL_WIDTH / 2, barY + barHeight + 62, {
+          size: 14,
+          color: COLORS.accent,
+          alpha: 0.95,
+        });
+      } else {
+        drawText(ctx, `P1: ${state.race[0]}`, LOGICAL_WIDTH / 2, barY + barHeight + 42, {
+          size: 14,
+          color: COLORS.bubble,
+          alpha: 0.95,
+        });
+        drawText(ctx, `P2: ${state.race[1]}`, LOGICAL_WIDTH / 2, barY + barHeight + 62, {
+          size: 14,
+          color: COLORS.accent,
+          alpha: 0.95,
+        });
+      }
     }
     if (state.nautilus) {
       const progress = Math.round((state.depth ?? 0) * 100);
@@ -252,7 +305,7 @@ export class Hud {
         ctx,
         state.hidden
           ? 'LEFT / RIGHT TO CRAWL — UP TO SURFACE'
-          : 'HOLD DOWN ON THE SAND TO HIDE FROM THE EELS',
+          : 'HOLD DOWN ON THE SAND TO HIDE FROM THE MORAY EELS',
         LOGICAL_WIDTH / 2,
         LOGICAL_HEIGHT - 18,
         {
@@ -305,6 +358,18 @@ export class Hud {
       drawText(
         ctx,
         'DOWN OVER THE SAND DODGES ROCKS — LET PIRANHAS PAST TO STUN THE CATFISH',
+        LOGICAL_WIDTH / 2,
+        LOGICAL_HEIGHT - 18,
+        {
+          size: 12,
+          color: COLORS.textDim,
+          alpha: 0.65,
+        },
+      );
+    } else if (state.tank === 'pets') {
+      drawText(
+        ctx,
+        'LEFT CLICK — BUBBLES      RIGHT CLICK — SNACKS / LURE      OR TAP THE BUTTONS',
         LOGICAL_WIDTH / 2,
         LOGICAL_HEIGHT - 18,
         {

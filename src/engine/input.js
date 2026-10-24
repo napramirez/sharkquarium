@@ -1,5 +1,7 @@
 export const POINTER_KEY = 'PointerPrimary';
 
+export const POINTER_SECONDARY = 'PointerSecondary';
+
 export const DEFAULT_BINDINGS = {
   left: ['ArrowLeft', 'KeyA'],
   right: ['ArrowRight', 'KeyD'],
@@ -24,7 +26,7 @@ export class Input {
     this.down = new Set();
     this.pressed = new Set();
     this.released = new Set();
-    this.pointer = { x: 0, y: 0, down: false, moved: false, originX: 0, originY: 0, dragX: 0, dragY: 0 };
+    this.pointer = { x: 0, y: 0, down: false, moved: false, originX: 0, originY: 0, dragX: 0, dragY: 0, button: 0 };
     this.canvas = null;
     this.viewWidth = 0;
     this.viewHeight = 0;
@@ -35,6 +37,7 @@ export class Input {
     this.handlePointerMove = this.handlePointerMove.bind(this);
     this.handlePointerDown = this.handlePointerDown.bind(this);
     this.handlePointerUp = this.handlePointerUp.bind(this);
+    this.handleContextMenu = this.handleContextMenu.bind(this);
     this.handleBlur = this.handleBlur.bind(this);
 
     window.addEventListener('keydown', this.handleKeyDown);
@@ -50,6 +53,7 @@ export class Input {
     this.viewHeight = viewHeight;
     canvas.addEventListener('pointermove', this.handlePointerMove);
     canvas.addEventListener('pointerdown', this.handlePointerDown);
+    canvas.addEventListener('contextmenu', this.handleContextMenu);
   }
 
   isDown(action) {
@@ -79,6 +83,7 @@ export class Input {
     if (this.canvas) {
       this.canvas.removeEventListener('pointermove', this.handlePointerMove);
       this.canvas.removeEventListener('pointerdown', this.handlePointerDown);
+      this.canvas.removeEventListener('contextmenu', this.handleContextMenu);
     }
   }
 
@@ -101,21 +106,32 @@ export class Input {
 
   handlePointerDown(event) {
     this.updatePointerPosition(event);
-    this.pointer.down = true;
-    this.pointer.originX = this.pointer.x;
-    this.pointer.originY = this.pointer.y;
-    this.pointer.dragX = 0;
-    this.pointer.dragY = 0;
-    this.down.add(POINTER_KEY);
-    this.pressed.add(POINTER_KEY);
+    const code = event.button === 2 ? POINTER_SECONDARY : POINTER_KEY;
+    this.pointer.button = event.button ?? 0;
+    if (code === POINTER_KEY) {
+      this.pointer.down = true;
+      this.pointer.originX = this.pointer.x;
+      this.pointer.originY = this.pointer.y;
+      this.pointer.dragX = 0;
+      this.pointer.dragY = 0;
+    }
+    this.down.add(code);
+    this.pressed.add(code);
+  }
+
+  handleContextMenu(event) {
+    event.preventDefault();
   }
 
   handlePointerUp() {
     this.pointer.down = false;
+    this.pointer.button = 0;
     this.pointer.dragX = 0;
     this.pointer.dragY = 0;
     this.down.delete(POINTER_KEY);
+    this.down.delete(POINTER_SECONDARY);
     this.released.add(POINTER_KEY);
+    this.released.add(POINTER_SECONDARY);
   }
 
   handlePointerMove(event) {
@@ -130,6 +146,7 @@ export class Input {
   handleBlur() {
     this.down.clear();
     this.pointer.down = false;
+    this.pointer.button = 0;
     this.pointer.dragX = 0;
     this.pointer.dragY = 0;
   }

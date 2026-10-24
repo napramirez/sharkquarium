@@ -8,6 +8,7 @@ export class TeleportScene extends Scene {
     this.time = 0;
     this.target = params.tank ?? 'reef';
     this.payload = params.payload ?? {};
+    this.fromTheatre = params.from === 'theatre';
     this.intro = TANK_INTROS[this.target] ?? { label: 'THE TANK', blurb: '' };
     this.bubbles = Array.from({ length: 26 }, () => ({
       x: rand(0, LOGICAL_WIDTH),
@@ -22,6 +23,10 @@ export class TeleportScene extends Scene {
   advance() {
     if (this.leaving) return;
     this.leaving = true;
+    if (this.fromTheatre) {
+      this.game.changeScene('theatre');
+      return;
+    }
     this.game.changeScene('play', { tank: this.target, ...this.payload });
   }
 

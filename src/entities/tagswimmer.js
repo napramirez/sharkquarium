@@ -2,7 +2,7 @@ import { rand, TAU } from '../engine/math.js';
 import { TAG, COLORS } from '../config.js';
 
 export class TagSwimmer {
-  constructor({ name, color, cpu, controls = null, x = 0, y = 0 }) {
+  constructor({ name, color, cpu, controls = null, x = 0, y = 0, speedScale = 1 }) {
     this.name = name;
     this.color = color;
     this.cpu = cpu;
@@ -12,7 +12,7 @@ export class TagSwimmer {
     this.vx = 0;
     this.vy = 0;
     this.radius = TAG.radius;
-    this.speed = cpu ? TAG.cpuSpeed : TAG.playerSpeed;
+    this.speed = (cpu ? TAG.cpuSpeed : TAG.playerSpeed) * speedScale;
     this.tags = 0;
     this.isTagged = false;
     this.facing = 1;
@@ -57,7 +57,7 @@ export class TagSwimmer {
       if (this.target) {
         targetX = this.target.x;
         targetY = this.target.y;
-        speed = this.speed * TAG.taggerBoost;
+        speed = this.speed * TAG.taggerSlow;
       } else {
         targetX = this.x;
         targetY = this.y;
@@ -73,6 +73,7 @@ export class TagSwimmer {
       if (this.y < 130) targetY += 420;
       if (this.y > TAG.worldHeight - 130) targetY -= 420;
     }
+    this.lastSpeed = speed;
     this.steer(targetX, targetY, dt, speed);
     this.integrate(dt);
   }

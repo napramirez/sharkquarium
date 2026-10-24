@@ -37,6 +37,7 @@ export class SettingsScene extends Scene {
         { label: 'VOLUME', action: 'volume' },
         { label: 'SFX', action: 'sfx' },
         { label: 'TRACK PLAYER', action: 'tracks' },
+        { label: 'CUTSCENE THEATRE', action: 'theatre' },
         { label: 'BACK', action: 'back' },
       ],
       {
@@ -96,6 +97,11 @@ export class SettingsScene extends Scene {
     if (item.action === 'tracks') {
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.14, volume: 0.2 });
       this.game.changeScene('tracks');
+      return;
+    }
+    if (item.action === 'theatre') {
+      this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.14, volume: 0.2 });
+      this.game.changeScene('theatre');
       return;
     }
     if (item.action === 'coopTankSelect') {

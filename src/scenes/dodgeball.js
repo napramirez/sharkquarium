@@ -11,15 +11,19 @@ import {
 import { clamp, lerp, rand } from '../engine/math.js';
 import { Shark } from '../entities/shark.js';
 import { Pufferfish } from '../entities/pufferfish.js';
-import { setActiveSkin, setSkinClock, skinByKey, drawSkinAura } from '../engine/skin.js';
-import { setActiveAccessory, accessoryByKey } from '../engine/accessory.js';
+import { setActiveSkin, setEelAura, setSkinClock, skinByKey, drawSkinAura } from '../engine/skin.js';
+import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
+import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
+import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
 import { circleOverlap } from '../engine/collision.js';
 import { ParticleSystem } from '../engine/particles.js';
 import { loadJSON } from '../engine/storage.js';
 import { recordMinigame } from '../engine/progress.js';
 import {
   CONTROLS,
+  DIFFICULTY,
   PUFFER,
+  SETTINGS_KEY,
   SHOP_KEY,
   COLORS,
   LOGICAL_WIDTH,
@@ -28,11 +32,18 @@ import {
 } from '../config.js';
 
 export class DodgeballScene extends Scene {
-  enter() {
+  enter(params = {}) {
     this.time = 0;
+    this.solo = Boolean(params.solo);
+    this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
+    this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
     const shop = loadJSON(SHOP_KEY, {});
+    setEelAura((shop.passes ?? []).includes('playpass5'));
     this.skin = skinByKey(shop.skin);
-    this.accessory = accessoryByKey(shop.accessory);
+    this.head = accessoryByKey(shop.head);
+    this.back = accessoryByKey(shop.back);
+    this.trail = trailByKey(shop.trail);
+    this.companion = companionByKey(shop.companion);
     this.resultsMenu = new SelectList(
       [
         { label: 'PLAY AGAIN', action: 'again' },
@@ -54,25 +65,30 @@ export class DodgeballScene extends Scene {
   resetRound() {
     this.phase = 'play';
     this.elapsed = 0;
-    this.lives = [PUFFER.lives, PUFFER.lives];
-    this.invulnerable = [0, 0];
     this.puffers = [];
     this.spawnTimer = 1.2;
     this.winner = -1;
+    this.won = false;
     this.reward = 0;
     this.flash = 0;
     this.shake = 0;
     this.particles = new ParticleSystem();
     this.players = [
-      new Shark(LOGICAL_WIDTH * 0.35, LOGICAL_HEIGHT * 0.5, {
+      new Shark(LOGICAL_WIDTH * (this.solo ? 0.5 : 0.35), LOGICAL_HEIGHT * 0.5, {
         controls: CONTROLS.p1,
         pointer: true,
       }),
-      new Shark(LOGICAL_WIDTH * 0.65, LOGICAL_HEIGHT * 0.5, {
-        controls: CONTROLS.p2,
-        pointer: false,
-      }),
     ];
+    if (!this.solo) {
+      this.players.push(
+        new Shark(LOGICAL_WIDTH * 0.65, LOGICAL_HEIGHT * 0.5, {
+          controls: CONTROLS.p2,
+          pointer: false,
+        }),
+      );
+    }
+    this.lives = this.players.map(() => PUFFER.lives);
+    this.invulnerable = this.players.map(() => 0);
     this.resultsMenu.reset();
   }
 
@@ -83,8 +99,9 @@ export class DodgeballScene extends Scene {
   }
 
   difficulty() {
-    const ramp = clamp(this.elapsed / PUFFER.rampDuration, 0, 1);
-    const endless = Math.max(0, this.elapsed - PUFFER.rampDuration) / PUFFER.rampDuration;
+    const rampSpan = PUFFER.rampDuration * (this.rules.rampScale ?? 1);
+    const ramp = clamp(this.elapsed / rampSpan, 0, 1);
+    const endless = Math.max(0, this.elapsed - rampSpan) / rampSpan;
     const burst = Math.max(0, (ramp - 0.35) / 0.65);
     const aimed = Math.max(0, (ramp - 0.3) / 0.7);
     return {
@@ -112,7 +129,7 @@ export class DodgeballScene extends Scene {
   spawnPuffer(diff = this.difficulty(), target = null) {
     this.puffers.push(
       new Pufferfish({
-        speedScale: diff.speedScale,
+        speedScale: Math.min(PUFFER.speedCeiling, diff.speedScale * this.rules.enemySpeed),
         chargeScale: diff.chargeScale,
         target,
       }),
@@ -141,8 +158,15 @@ export class DodgeballScene extends Scene {
     this.game.audio.tone({ freq: 140, endFreq: 60, type: 'sawtooth', duration: 0.3, volume: 0.3 });
     if (this.lives[index] <= 0) {
       this.phase = 'results';
-      this.winner = this.lives[0] <= 0 && this.lives[1] <= 0 ? -1 : this.lives[0] <= 0 ? 1 : 0;
-      this.reward = this.winner === -1 ? 0 : recordMinigame(true);
+      if (this.solo) {
+        this.winner = 0;
+        this.won = this.elapsed >= PUFFER.soloSurvive;
+        this.reward = recordMinigame(this.won);
+      } else {
+        this.winner = this.lives[0] <= 0 && this.lives[1] <= 0 ? -1 : this.lives[0] <= 0 ? 1 : 0;
+        this.won = this.winner !== -1;
+        this.reward = this.won ? recordMinigame(true) : 0;
+      }
       this.resultsMenu.reset();
       this.game.audio.tone({ freq: 220, endFreq: 110, type: 'triangle', duration: 0.3, volume: 0.24 });
       this.game.audio.tone({ freq: 165, type: 'triangle', duration: 0.5, volume: 0.24, delay: 0.24 });
@@ -164,7 +188,8 @@ export class DodgeballScene extends Scene {
     const diff = this.difficulty();
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {
-      this.spawnTimer = rand(PUFFER.spawnMin, PUFFER.spawnMax) * diff.spawnScale;
+      this.spawnTimer =
+        rand(PUFFER.spawnMin, PUFFER.spawnMax) * diff.spawnScale * this.rules.spawnInterval;
       if (Math.random() < diff.aimChance) {
         const mark = this.players[Math.floor(Math.random() * this.players.length)];
         this.spawnPuffer(diff, { x: mark.x + rand(-40, 40), y: mark.y + rand(-40, 40) });
@@ -199,7 +224,10 @@ export class DodgeballScene extends Scene {
   render(ctx) {
     setActiveSkin(this.skin);
     setSkinClock(this.time);
-    setActiveAccessory(this.accessory);
+    setActiveHeadAccessory(this.head);
+    setActiveBodyAccessory(this.back);
+    setActiveTrail(this.trail);
+    setActiveCompanion(this.companion);
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);
     ctx.save();
     if (this.shake > 0) {
@@ -209,25 +237,44 @@ export class DodgeballScene extends Scene {
     for (const player of this.players) {
       player.render(ctx);
       drawSkinAura(ctx, player);
+      drawTrail(ctx, player);
+      drawCompanion(ctx, player);
     }
     this.particles.render(ctx);
     ctx.restore();
 
-    this.renderLives(ctx, 0, 34, 36);
-    this.renderLives(ctx, 1, LOGICAL_WIDTH - 34, 36);
-    drawText(ctx, 'P1', 34, 62, {
-      size: 12,
-      color: COLORS.foam,
-      alpha: 0.8,
-    });
-    drawText(ctx, 'P2', LOGICAL_WIDTH - 34, 62, {
-      size: 12,
-      color: COLORS.foam,
-      alpha: 0.8,
-    });
+    if (this.solo) {
+      this.renderLives(ctx, 0, LOGICAL_WIDTH / 2, 36);
+      drawText(
+        ctx,
+        `SURVIVE ${PUFFER.soloSurvive}s — ${Math.floor(this.elapsed)}s`,
+        LOGICAL_WIDTH / 2,
+        62,
+        {
+          size: 12,
+          color: COLORS.foam,
+          alpha: 0.85,
+        },
+      );
+    } else {
+      this.renderLives(ctx, 0, 34, 36);
+      this.renderLives(ctx, 1, LOGICAL_WIDTH - 34, 36);
+      drawText(ctx, 'P1', 34, 62, {
+        size: 12,
+        color: COLORS.foam,
+        alpha: 0.8,
+      });
+      drawText(ctx, 'P2', LOGICAL_WIDTH - 34, 62, {
+        size: 12,
+        color: COLORS.foam,
+        alpha: 0.8,
+      });
+    }
     drawText(
       ctx,
-      'P1 — WASD      P2 — ARROWS      DODGE THE PUFFERFISH — THREE HITS AND YOU ARE OUT',
+      this.solo
+        ? 'WASD — MOVE      DODGE THE PUFFERFISH — THREE HITS AND YOU ARE OUT'
+        : 'P1 — WASD      P2 — ARROWS      DODGE THE PUFFERFISH — THREE HITS AND YOU ARE OUT',
       LOGICAL_WIDTH / 2,
       LOGICAL_HEIGHT - 20,
       {
@@ -275,7 +322,13 @@ export class DodgeballScene extends Scene {
       glow: 'rgba(255, 209, 102, 0.5)',
       glowBlur: 18,
     });
-    const headline = this.winner === -1 ? 'DOUBLE KO' : `P${this.winner + 1} WINS`;
+    const headline = this.solo
+      ? this.won
+        ? 'SURVIVED!'
+        : 'KNOCKED OUT'
+      : this.winner === -1
+        ? 'DOUBLE KO'
+        : `P${this.winner + 1} WINS`;
     drawText(ctx, headline, LOGICAL_WIDTH / 2, 178, {
       size: 22,
       color: COLORS.danger,
@@ -283,7 +336,9 @@ export class DodgeballScene extends Scene {
     });
     drawText(
       ctx,
-      `P1 ${this.lives[0]} ${this.lives[0] === 1 ? 'LIFE' : 'LIVES'} — P2 ${this.lives[1]} ${this.lives[1] === 1 ? 'LIFE' : 'LIVES'}`,
+      this.solo
+        ? `LASTED ${Math.floor(this.elapsed)}s — TARGET ${PUFFER.soloSurvive}s`
+        : `P1 ${this.lives[0]} ${this.lives[0] === 1 ? 'LIFE' : 'LIVES'} — P2 ${this.lives[1]} ${this.lives[1] === 1 ? 'LIFE' : 'LIVES'}`,
       LOGICAL_WIDTH / 2,
       220,
       {

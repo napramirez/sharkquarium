@@ -142,13 +142,70 @@ export const KELP_TRACK = {
   ],
 };
 
+export const PETS_TRACK = {
+  name: 'pets',
+  beat: 60 / 128 / 2,
+  hat: true,
+  bass: [
+    36, 0, 36, 0, 36, 0, 43, 0,
+    41, 0, 41, 0, 41, 0, 45, 0,
+    38, 0, 38, 0, 38, 0, 45, 0,
+    43, 0, 43, 0, 43, 0, 48, 0,
+  ],
+  lead: [
+    72, 0, 76, 0, 79, 0, 84, 0,
+    77, 0, 81, 0, 84, 0, 88, 0,
+    74, 0, 78, 0, 81, 0, 86, 0,
+    79, 0, 83, 0, 86, 0, 91, 0,
+  ],
+};
+
+export const MENU_TRACK = {
+  name: 'menu',
+  beat: 60 / 92 / 2,
+  hat: false,
+  bass: [
+    45, 0, 0, 0, 45, 0, 0, 0,
+    41, 0, 0, 0, 41, 0, 0, 0,
+    48, 0, 0, 0, 48, 0, 0, 0,
+    43, 0, 0, 0, 43, 0, 0, 0,
+  ],
+  lead: [
+    72, 0, 76, 0, 81, 0, 76, 0,
+    77, 0, 81, 0, 84, 0, 81, 0,
+    76, 0, 79, 0, 84, 0, 79, 0,
+    74, 0, 79, 0, 83, 0, 79, 0,
+  ],
+};
+
+export const LABYRINTH_TRACK = {
+  name: 'labyrinth',
+  beat: 60 / 138 / 2,
+  hat: true,
+  bass: [
+    38, 38, 0, 38, 0, 38, 38, 0,
+    37, 37, 0, 37, 0, 37, 37, 0,
+    36, 36, 0, 36, 0, 36, 36, 0,
+    35, 35, 0, 35, 0, 34, 34, 0,
+  ],
+  lead: [
+    0, 75, 0, 0, 74, 0, 69, 0,
+    0, 74, 0, 0, 73, 0, 68, 0,
+    0, 73, 0, 0, 72, 0, 67, 0,
+    0, 71, 0, 0, 70, 0, 65, 0,
+  ],
+};
+
 export const TRACK_LIBRARY = [
+  { key: 'menu', label: 'MENU TRACK', blurb: 'COZY A-MINOR LULLABY — 92 BPM', track: MENU_TRACK },
   { key: 'reef', label: 'REEF TRACK', blurb: 'BRIGHT C-MAJOR SAUNTER — 104 BPM', track: REEF_TRACK },
   { key: 'stingray', label: 'STINGRAY TRACK', blurb: 'WARM D-MINOR SWAY — 112 BPM', track: STINGRAY_TRACK },
   { key: 'deepsea', label: 'DEEP SEA TRACK', blurb: 'SPARSE C-MINOR DRONE — 90 BPM', track: DEEPSEA_TRACK },
   { key: 'arctic', label: 'ARCTIC TRACK', blurb: 'GLASSY F-MAJOR SHIMMER — 120 BPM', track: ARCTIC_TRACK },
   { key: 'kelp', label: 'KELP TRACK', blurb: 'DEEP G-MAJOR GROOVE — 108 BPM', track: KELP_TRACK },
+  { key: 'pets', label: 'PETS TRACK', blurb: 'BOUNCY C-MAJOR PLAY — 128 BPM', track: PETS_TRACK },
   { key: 'jelly', label: 'JELLY TRACK', blurb: 'A-MINOR TURTLE PULSE — 140 BPM', track: TURTLE_TRACK },
   { key: 'freshwater', label: 'FRESHWATER TRACK', blurb: 'D-MINOR CATFISH DRIVE — 150 BPM', track: CATFISH_TRACK },
   { key: 'nautilus', label: 'NAUTILUS TRACK', blurb: 'E-MINOR DESCENT — 96 BPM', track: NAUTILUS_TRACK },
+  { key: 'labyrinth', label: 'LABYRINTH TRACK', blurb: 'MENACING D-MINOR CHASE — 138 BPM', track: LABYRINTH_TRACK },
 ];

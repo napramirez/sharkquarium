@@ -1,7 +1,7 @@
 import { Entity } from './entity.js';
 import { clamp, lerp, TAU } from '../engine/math.js';
-import { CONTROLS, NAUTILUS, PLAYER, LOGICAL_WIDTH, COLORS } from '../config.js';
-import { playerColor } from '../engine/skin.js';
+import { CONTROLS, NAUTILUS, PLAYER, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
+import { playerColor, shadowEyeColor } from '../engine/skin.js';
 import { drawAccessory } from '../engine/accessory.js';
 
 export class Nautilus extends Entity {
@@ -9,6 +9,9 @@ export class Nautilus extends Entity {
     super({ x, y, radius: NAUTILUS.radius });
     this.controls = options.controls ?? CONTROLS.solo;
     this.pointerSteering = options.pointer ?? true;
+    this.maxX = options.maxX ?? LOGICAL_WIDTH;
+    this.maxSpeed = NAUTILUS.maxSpeed;
+    this.freeVertical = options.vertical ?? false;
     this.autoScrollY = y;
     this.facing = 1;
     this.speed = 0;
@@ -23,9 +26,15 @@ export class Nautilus extends Entity {
   update(dt, input) {
     super.update(dt);
     let horizontal = (input.isDown(this.controls.right) ? 1 : 0) - (input.isDown(this.controls.left) ? 1 : 0);
+    let vertical = this.freeVertical
+      ? (input.isDown(this.controls.down) ? 1 : 0) - (input.isDown(this.controls.up) ? 1 : 0)
+      : 0;
     if (this.pointerSteering && input.pointer.down) {
       const drag = Math.hypot(input.pointer.dragX, input.pointer.dragY);
-      if (drag > PLAYER.pointerDeadzone) horizontal = input.pointer.dragX / drag;
+      if (drag > PLAYER.pointerDeadzone) {
+        horizontal = input.pointer.dragX / drag;
+        if (this.freeVertical) vertical = input.pointer.dragY / drag;
+      }
     }
     if (this.tangleTimer > 0) {
       this.tangleTimer -= dt;
@@ -33,11 +42,18 @@ export class Nautilus extends Entity {
     }
     const response = 1 - Math.exp(-NAUTILUS.response * dt);
     this.vx = lerp(this.vx, clamp(horizontal, -1, 1) * NAUTILUS.maxSpeed, response);
-    this.vy = 0;
+    this.vy = this.freeVertical
+      ? lerp(this.vy, clamp(vertical, -1, 1) * NAUTILUS.maxSpeed, response)
+      : 0;
     this.x += this.vx * dt;
-    this.x = clamp(this.x, this.radius, LOGICAL_WIDTH - this.radius);
-    this.y += (this.autoScrollY - this.y) * (1 - Math.exp(-6 * dt));
-    this.speed = Math.abs(this.vx);
+    this.x = clamp(this.x, this.radius, this.maxX - this.radius);
+    if (this.freeVertical) {
+      this.y += this.vy * dt;
+      this.y = clamp(this.y, this.radius, LOGICAL_HEIGHT - this.radius);
+    } else {
+      this.y += (this.autoScrollY - this.y) * (1 - Math.exp(-6 * dt));
+    }
+    this.speed = Math.hypot(this.vx, this.vy);
     if (this.speed > 24) this.facing = this.vx > 0 ? 1 : -1;
     this.invulnerable = Math.max(0, this.invulnerable - dt);
   }
@@ -91,9 +107,9 @@ export class Nautilus extends Entity {
     ctx.fill();
     ctx.beginPath();
     ctx.arc(radius * 0.82, radius * 0.32, radius * 0.13, 0, TAU);
-    ctx.fillStyle = '#10233a';
+    ctx.fillStyle = shadowEyeColor('#10233a');
     ctx.fill();
-    drawAccessory(ctx, radius, this.age);
+    drawAccessory(ctx, radius, this.age, { entity: this, flip: this.facing ?? 1 });
     ctx.restore();
   }
 }

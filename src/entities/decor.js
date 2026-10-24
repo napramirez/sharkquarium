@@ -43,7 +43,7 @@ export class Decor {
         speed: rand(12, 26),
         size: rand(1.2, 2.6),
       }));
-    } else if (tank === 'kelp') {
+    } else if (tank === 'kelp' || tank === 'pets') {
       this.motes = roll(14, () => ({
         x: rand(20, LOGICAL_WIDTH - 20),
         y: rand(0, LOGICAL_HEIGHT),
@@ -216,7 +216,7 @@ export class Decor {
       ctx.globalAlpha = 1;
       return;
     }
-    if (this.tank === 'kelp' || this.tank === 'nautilus') {
+    if (this.tank === 'kelp' || this.tank === 'nautilus' || this.tank === 'pets') {
       for (const mote of this.motes) {
         const y = (mote.y - this.age * mote.speed + LOGICAL_HEIGHT) % LOGICAL_HEIGHT;
         const flicker = 0.4 + 0.35 * Math.sin(this.age * 2 + mote.phase);

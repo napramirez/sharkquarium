@@ -5,7 +5,7 @@ export class AudioBus {
     this.enabled = true;
     this.sfxEnabled = true;
     this.volume = 1;
-    this.baseGain = 0.5;
+    this.baseGain = 0.9;
   }
 
   setVolume(value) {

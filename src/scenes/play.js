@@ -51,7 +51,10 @@ import {
   PET_DROP,
   drawPetButtons,
   hitLureButton,
+  hitMealsButton,
+  hitPhotoButton,
   hitSnackButton,
+  hitToyButton,
 } from '../ui/petcontrols.js';
 import { drawJoystick, joystickState } from '../engine/joystick.js';
 import { ParticleSystem } from '../engine/particles.js';
@@ -62,6 +65,7 @@ import {
   drawText,
   fillCircle,
   fillRoundRect,
+  strokeCircle,
   strokeRoundRect,
 } from '../engine/render.js';
 import {
@@ -75,7 +79,9 @@ import {
   STINGRAY_TRACK,
   TURTLE_TRACK,
 } from '../assets/tracks.js';
-import { drawSkinAura, setActiveSkin, setEelAura, setSkinClock, skinByKey } from '../engine/skin.js';
+import { drawSkinAura, setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
+import { auraForShop, setActiveAura } from '../engine/aura.js';
+import { applyWardrobe } from '../engine/wardrobe.js';
 import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
 import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
 import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
@@ -159,7 +165,8 @@ export class PlayScene extends Scene {
     this.sealNeed = Math.max(1, Math.round(SEAL.chargePlankton * this.rules.chargeScale));
     this.coop = (this.race && !this.solo) || Boolean(params.coop);
     const shop = loadJSON(SHOP_KEY, {});
-    setEelAura((shop.passes ?? []).includes('playpass5'));
+    this.shop = shop;
+    setActiveAura(auraForShop(shop));
     this.skin = skinByKey(shop.skin);
     this.head = accessoryByKey(shop.head);
     this.back = accessoryByKey(shop.back);
@@ -275,7 +282,16 @@ export class PlayScene extends Scene {
       : [];
     this.food = [];
     this.lures = [];
-    this.meals = this.petsTank ? loadJSON(PETS_KEY, {}).meals ?? 0 : 0;
+    const petSave = this.petsTank ? loadJSON(PETS_KEY, {}) : {};
+    this.meals = this.petsTank ? petSave.meals ?? 0 : 0;
+    this.postcards = this.petsTank ? petSave.postcards ?? [] : [];
+    this.postcardTotal = this.petsTank ? petSave.postcardsTotal ?? this.postcards.length : 0;
+    this.postcardTimer = 0;
+    this.petToast = null;
+    this.petToastTimer = 0;
+    this.coinBubbles = [];
+    this.toys = [];
+    this.toyKindIndex = 0;
     this.petEnemies = [];
     this.nextWave = (Math.floor(this.meals / PETS.waveEvery) + 1) * PETS.waveEvery;
     this.waveTimer = 0;
@@ -452,6 +468,7 @@ export class PlayScene extends Scene {
         ? this.pets.filter((pet) => pet.hunger > PETS.hungryThreshold).length
         : 0,
       meals: this.petsTank ? this.meals : 0,
+      postcards: this.petsTank ? this.postcards.length : 0,
       race: this.race ? this.playerBubbles : null,
       sunrise: this.freshwater ? this.difficulty : 0,
       hidden: this.players.every((player) => player.concealed === true),
@@ -546,7 +563,10 @@ export class PlayScene extends Scene {
         this.difficulty,
       );
     }
-    if (this.petsTank) this.updateFeeding(dt);
+    if (this.petsTank) {
+      this.updateFeeding(dt);
+      this.updatePetPlay(dt);
+    }
     for (const school of this.schools) school.update(dt);
     for (const coral of this.corals) coral.update(dt);
     for (const school of this.colorSchools) school.update(dt);
@@ -1294,16 +1314,32 @@ export class PlayScene extends Scene {
             }
           }
           this.score += 1;
-          pet.hunger = Math.max(0, pet.hunger - PETS.hungerRelief);
+          const favorite = item.kind !== undefined && PETS.tastes[pet.kind] === item.kind;
+          pet.hunger = Math.max(
+            0,
+            pet.hunger - (favorite ? PETS.favoriteRelief : PETS.hungerRelief),
+          );
           pet.eating = 0.6;
+          if (favorite) {
+            pet.happy = Math.max(pet.happy, PETS.happyTime);
+            if (Math.random() < PETS.favoriteCoinChance) this.spawnCoinBubble(pet.x, pet.y - 12);
+          }
           this.particles.burst(item.x, item.y, {
-            count: 8,
-            speed: 110,
+            count: favorite ? 12 : 8,
+            speed: favorite ? 150 : 110,
             life: 0.5,
-            colors: [COLORS.danger, COLORS.accent, '#ffffff'],
+            colors: favorite
+              ? [COLORS.accent, COLORS.danger, '#ffffff']
+              : [COLORS.danger, COLORS.accent, '#ffffff'],
             buoyancy: -30,
           });
-          this.game.audio.tone({ freq: 520, endFreq: 880, type: 'triangle', duration: 0.1, volume: 0.2 });
+          this.game.audio.tone({
+            freq: favorite ? 660 : 520,
+            endFreq: favorite ? 1180 : 880,
+            type: 'triangle',
+            duration: 0.1,
+            volume: 0.2,
+          });
           break;
         }
       }
@@ -1476,7 +1512,61 @@ export class PlayScene extends Scene {
       }
       return;
     }
+    if (input.wasPressed(POINTER_KEY) && hitToyButton(pointer.x, pointer.y)) {
+      this.dropCooldown = PETS.dropCooldown;
+      this.spawnToy();
+      return;
+    }
+    if (input.wasPressed(POINTER_KEY) && hitPhotoButton(pointer.x, pointer.y)) {
+      this.dropCooldown = PETS.dropCooldown;
+      this.takePostcard();
+      return;
+    }
+    if (input.wasPressed(POINTER_KEY) && hitMealsButton(pointer.x, pointer.y)) {
+      this.dropCooldown = PETS.dropCooldown;
+      this.buyMealPack();
+      return;
+    }
     if (input.wasPressed(POINTER_KEY)) {
+      const coin = this.coinBubbles.find(
+        (bubble) => Math.hypot(bubble.x - pointer.x, bubble.y - pointer.y) < bubble.radius + 12,
+      );
+      if (coin) {
+        this.dropCooldown = PETS.dropCooldown;
+        this.collectCoin(coin);
+        return;
+      }
+      const pet = this.pets.find(
+        (candidate) =>
+          Math.hypot(candidate.x - pointer.x, candidate.y - pointer.y) < candidate.radius + 22,
+      );
+      if (pet) {
+        this.dropCooldown = PETS.dropCooldown;
+        const result = pet.startTrick();
+        if (result === 'trick') {
+          this.spawnCoinBubble(pet.x, pet.y - 14);
+          this.particles.burst(pet.x, pet.y, {
+            count: 10,
+            speed: 140,
+            life: 0.5,
+            colors: [COLORS.accent, COLORS.danger, '#ffffff'],
+            buoyancy: -40,
+          });
+          this.game.audio.tone({
+            freq: 520,
+            endFreq: 980,
+            type: 'triangle',
+            duration: 0.14,
+            volume: 0.2,
+          });
+        } else if (result === 'wake') {
+          this.setPetToast('PET WOKE UP!');
+          this.game.audio.tone({ freq: 320, endFreq: 620, duration: 0.12, volume: 0.18 });
+        } else {
+          this.game.audio.tone({ freq: 200, endFreq: 150, duration: 0.08, volume: 0.12 });
+        }
+        return;
+      }
       this.dropCooldown = PETS.dropCooldown;
       this.food.push(new Bubble(x, y, { rise: PETS.bubbleRise, wobble: 8 }));
     } else if (input.wasPressed(POINTER_SECONDARY)) {
@@ -1484,6 +1574,215 @@ export class PlayScene extends Scene {
       if (this.petEnemies.length > 0) this.lures.push(new Lure(x, y));
       else this.food.push(new Snack(x, y));
     }
+  }
+
+  setPetToast(text) {
+    this.petToast = text;
+    this.petToastTimer = 1.6;
+  }
+
+  spawnCoinBubble(x, y) {
+    if (this.coinBubbles.length >= PETS.coinBubblesMax) return;
+    this.coinBubbles.push({
+      x,
+      y,
+      radius: 14,
+      phase: Math.random() * Math.PI * 2,
+      life: PETS.coinBubbleLife,
+    });
+  }
+
+  collectCoin(bubble) {
+    bubble.life = 0;
+    const bank = loadJSON(COINS_KEY, COINS.starting) + PETS.coinPerBubble;
+    saveJSON(COINS_KEY, bank);
+    this.setPetToast(`+${PETS.coinPerBubble} SEA COINS`);
+    this.particles.burst(bubble.x, bubble.y, {
+      count: 12,
+      speed: 170,
+      life: 0.55,
+      colors: [COLORS.accent, '#ffffff'],
+      buoyancy: -50,
+    });
+    this.game.audio.tone({ freq: 740, endFreq: 1320, type: 'triangle', duration: 0.14, volume: 0.22 });
+    this.game.audio.tone({ freq: 1180, type: 'triangle', duration: 0.18, volume: 0.16, delay: 0.1 });
+  }
+
+  buyMealPack() {
+    const bank = loadJSON(COINS_KEY, COINS.starting);
+    if (bank < PETS.mealPack.cost) {
+      this.setPetToast(`NEED ${PETS.mealPack.cost} SEA COINS`);
+      this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.2 });
+      return;
+    }
+    saveJSON(COINS_KEY, bank - PETS.mealPack.cost);
+    this.meals += PETS.mealPack.meals;
+    this.nextWave = (Math.floor(this.meals / PETS.waveEvery) + 1) * PETS.waveEvery;
+    this.saveProgress();
+    this.setPetToast(`+${PETS.mealPack.meals} SNACKS`);
+    this.game.audio.tone({ freq: 420, endFreq: 780, type: 'triangle', duration: 0.16, volume: 0.2 });
+    this.game.audio.tone({ freq: 780, type: 'triangle', duration: 0.2, volume: 0.16, delay: 0.12 });
+  }
+
+  takePostcard() {
+    const happy = this.pets.filter((pet) => pet.happy > 0).length;
+    const stamp = this.pets.length > 0 ? this.pets[Math.floor(Math.random() * this.pets.length)].kind : 'shark';
+    this.postcardTotal += 1;
+    this.postcards.push({
+      index: this.postcardTotal,
+      meals: this.meals,
+      pets: this.pets.length,
+      happy,
+      stamp,
+    });
+    if (this.postcards.length > PETS.postcardsMax) this.postcards.shift();
+    this.postcardTimer = 2.8;
+    this.flash = Math.max(this.flash, 0.22);
+    this.saveProgress();
+    this.setPetToast(`POSTCARD ${this.postcardTotal} SAVED`);
+    this.game.audio.tone({ freq: 620, endFreq: 980, type: 'square', duration: 0.08, volume: 0.18 });
+    this.game.audio.tone({ freq: 980, endFreq: 620, type: 'square', duration: 0.08, volume: 0.16, delay: 0.08 });
+  }
+
+  spawnToy() {
+    const kind = PETS.toyKinds[this.toyKindIndex % PETS.toyKinds.length];
+    this.toyKindIndex += 1;
+    if (this.toys.length >= 2) this.toys.shift();
+    this.toys.push({
+      kind,
+      x: PET_DROP.x,
+      y: PET_DROP.y,
+      vx: rand(-120, 120),
+      vy: rand(-120, 120),
+      radius: PETS.toyRadius,
+      life: PETS.toyLife,
+      boop: 0,
+      rotation: 0,
+    });
+    this.setPetToast(`${kind} TOY!`);
+    this.game.audio.tone({ freq: 460, endFreq: 720, type: 'triangle', duration: 0.12, volume: 0.18 });
+  }
+
+  updatePetPlay(dt) {
+    this.petToastTimer = Math.max(0, this.petToastTimer - dt);
+    this.postcardTimer = Math.max(0, this.postcardTimer - dt);
+    for (const coin of this.coinBubbles) {
+      coin.life -= dt;
+      coin.y -= 24 * dt;
+      coin.x += Math.sin(this.time * 2 + coin.phase) * 10 * dt;
+    }
+    this.coinBubbles = this.coinBubbles.filter((coin) => coin.life > 0);
+    for (const toy of this.toys) {
+      toy.life -= dt;
+      toy.boop = Math.max(0, toy.boop - dt);
+      toy.rotation += dt * 3;
+      toy.x += toy.vx * dt;
+      toy.y += toy.vy * dt;
+      toy.vx *= 1 - 1.2 * dt;
+      toy.vy *= 1 - 1.2 * dt;
+      if (toy.x < toy.radius) {
+        toy.x = toy.radius;
+        toy.vx = Math.abs(toy.vx);
+      } else if (toy.x > LOGICAL_WIDTH - toy.radius) {
+        toy.x = LOGICAL_WIDTH - toy.radius;
+        toy.vx = -Math.abs(toy.vx);
+      }
+      if (toy.y < toy.radius) {
+        toy.y = toy.radius;
+        toy.vy = Math.abs(toy.vy);
+      } else if (toy.y > LOGICAL_HEIGHT - toy.radius) {
+        toy.y = LOGICAL_HEIGHT - toy.radius;
+        toy.vy = -Math.abs(toy.vy);
+      }
+      if (toy.boop > 0) continue;
+      for (const pet of this.pets) {
+        const distanceToToy = Math.hypot(pet.x - toy.x, pet.y - toy.y);
+        if (distanceToToy > pet.radius + toy.radius + 10) continue;
+        const dx = toy.x - pet.x;
+        const dy = toy.y - pet.y;
+        const length = Math.hypot(dx, dy) || 1;
+        toy.vx = (dx / length) * PETS.toySpeed;
+        toy.vy = (dy / length) * PETS.toySpeed;
+        toy.boop = 0.3;
+        pet.playful = 1.6;
+        pet.happy = Math.max(pet.happy, 1.2);
+        if (Math.random() < PETS.toyCoinChance) this.spawnCoinBubble(toy.x, toy.y - 8);
+        this.particles.burst(toy.x, toy.y, {
+          count: 6,
+          speed: 120,
+          life: 0.4,
+          colors: [COLORS.accent, COLORS.bubble, '#ffffff'],
+          buoyancy: -30,
+        });
+        this.game.audio.tone({ freq: 560 + Math.random() * 200, duration: 0.06, volume: 0.14 });
+        break;
+      }
+    }
+    this.toys = this.toys.filter((toy) => toy.life > 0);
+  }
+
+  renderToy(ctx, toy) {
+    ctx.save();
+    ctx.translate(toy.x, toy.y);
+    ctx.globalAlpha = Math.min(1, toy.life / 1.5);
+    if (toy.kind === 'BALL') {
+      ctx.rotate(toy.rotation);
+      fillCircle(ctx, 0, 0, toy.radius, COLORS.danger);
+      strokeCircle(ctx, 0, 0, toy.radius, '#ffffff', 2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(-toy.radius, 0);
+      ctx.lineTo(toy.radius, 0);
+      ctx.moveTo(0, -toy.radius);
+      ctx.lineTo(0, toy.radius);
+      ctx.stroke();
+    } else if (toy.kind === 'HOOP') {
+      ctx.rotate(Math.sin(toy.rotation) * 0.2);
+      strokeCircle(ctx, 0, 0, toy.radius, COLORS.accent, 4);
+      strokeCircle(ctx, 0, 0, toy.radius * 0.6, COLORS.bubble, 2);
+    } else {
+      ctx.rotate(Math.sin(this.time * 3 + toy.rotation) * 0.3);
+      ctx.strokeStyle = COLORS.foam;
+      ctx.lineWidth = 3.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-toy.radius, toy.radius);
+      ctx.lineTo(toy.radius * 0.4, -toy.radius * 0.2);
+      ctx.stroke();
+      fillCircle(ctx, toy.radius * 0.6, -toy.radius * 0.6, 5, COLORS.accent);
+    }
+    ctx.restore();
+  }
+
+  renderCoinBubble(ctx, coin) {
+    ctx.save();
+    ctx.globalAlpha = Math.min(1, coin.life / 1.5);
+    fillCircle(ctx, coin.x, coin.y, coin.radius, 'rgba(255, 209, 102, 0.28)');
+    strokeCircle(ctx, coin.x, coin.y, coin.radius, COLORS.accent, 2.5);
+    fillCircle(ctx, coin.x, coin.y, coin.radius * 0.55, COLORS.accent);
+    fillCircle(ctx, coin.x - 3, coin.y - 3, coin.radius * 0.22, '#ffffff');
+    ctx.restore();
+  }
+
+  renderPostcard(ctx) {
+    const card = this.postcards[this.postcards.length - 1];
+    if (!card) return;
+    const alpha = Math.min(1, this.postcardTimer / 0.6);
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(LOGICAL_WIDTH - 200, 142);
+    ctx.rotate(-0.045);
+    fillRoundRect(ctx, -120, -58, 240, 116, 10, 'rgba(240, 235, 220, 0.92)');
+    strokeRoundRect(ctx, -120, -58, 240, 116, 10, 'rgba(60, 50, 40, 0.6)', 2);
+    drawText(ctx, `POSTCARD ${card.index}`, 0, -34, { size: 14, weight: 700, color: '#3a2c20' });
+    drawText(ctx, `FED ${card.meals} SNACKS`, 0, -8, { size: 12, color: '#5a4633' });
+    drawText(ctx, `${card.pets} PETS — ${card.happy} HAPPY`, 0, 12, { size: 12, color: '#5a4633' });
+    drawText(ctx, `STAMP: ${String(card.stamp).toUpperCase()}`, 0, 36, {
+      size: 11,
+      color: '#7a6a58',
+    });
+    ctx.restore();
   }
 
   lureEnemies(dt) {
@@ -1546,6 +1845,8 @@ export class PlayScene extends Scene {
         this.meals = Math.max(0, this.meals - Math.max(1, Math.round(PETS.biteLoss * this.rules.penalty)));
         this.saveProgress();
         pet.scared = 1.5;
+        pet.grumpy = Math.max(pet.grumpy, PETS.grumpyTime);
+        pet.happy = 0;
         this.flash = 0.5;
         this.particles.burst(pet.x, pet.y, {
           count: 12,
@@ -1698,7 +1999,13 @@ export class PlayScene extends Scene {
   }
 
   saveProgress() {
-    if (this.petsTank) saveJSON(PETS_KEY, { meals: this.meals });
+    if (this.petsTank) {
+      saveJSON(PETS_KEY, {
+        meals: this.meals,
+        postcards: this.postcards,
+        postcardsTotal: this.postcardTotal,
+      });
+    }
   }
 
   exit() {
@@ -1811,7 +2118,13 @@ export class PlayScene extends Scene {
     for (const lure of this.lures) lure.render(ctx);
     for (const item of this.food) item.render(ctx);
     for (const pet of this.pets) pet.render(ctx);
-    for (const player of this.players) {
+    if (this.petsTank) {
+      for (const toy of this.toys) this.renderToy(ctx, toy);
+      for (const coin of this.coinBubbles) this.renderCoinBubble(ctx, coin);
+    }
+    for (let index = 0; index < this.players.length; index += 1) {
+      applyWardrobe(this.shop, index);
+      const player = this.players[index];
       player.render(ctx);
       drawSkinAura(ctx, player);
       drawTrail(ctx, player);
@@ -1822,7 +2135,22 @@ export class PlayScene extends Scene {
 
     this.hud.render(ctx, this.hudState());
     if (this.petsTank) {
-      drawPetButtons(ctx, { lureReady: this.petEnemies.length > 0, time: this.time });
+      drawPetButtons(ctx, {
+        lureReady: this.petEnemies.length > 0,
+        time: this.time,
+        coins: loadJSON(COINS_KEY, COINS.starting),
+        mealsCost: PETS.mealPack.cost,
+      });
+      if (this.petToastTimer > 0 && this.petToast) {
+        drawText(ctx, this.petToast, LOGICAL_WIDTH / 2, 196, {
+          size: 16,
+          color: COLORS.accent,
+          glow: 'rgba(255, 209, 102, 0.5)',
+          glowBlur: 12,
+          alpha: Math.min(1, this.petToastTimer),
+        });
+      }
+      if (this.postcardTimer > 0) this.renderPostcard(ctx);
     } else {
       drawJoystick(ctx, joystickState(this.game.input));
     }

@@ -210,6 +210,31 @@ async function main() {
   await tapKey('Escape');
   assert.equal(game.scene.showHelp, false, 'escape should close the how to play overlay');
 
+  await tapKey('ArrowDown');
+  assert.equal(game.scene.menu.items[6].label, 'LORE', 'the lore option should sit below how to play');
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'lore', 'the menu should open the lore codex');
+  assert.equal(game.scene.section.title, 'THE WRECK', 'the codex should open on the wreck');
+  assert.ok(game.scene.section.entries.length >= 4, 'the wreck section should hold its story beats');
+  assert.equal(game.scene.entry.name, 'SHARKQUARIUM', 'the codex should select the first entry');
+  await tapKey('ArrowDown');
+  assert.equal(game.scene.entry.name, 'THE LIGHTS-OUT LAP', 'down should step through entries');
+  await tapKey('ArrowRight');
+  assert.equal(game.scene.section.title, 'THE TANKS', 'right should change sections');
+  assert.equal(game.scene.entry.name, 'REEF TANK', 'a new section should start at its first entry');
+  await tapKey('ArrowRight');
+  assert.equal(game.scene.section.title, 'THE DIVERS', 'right should keep changing sections');
+  await tapKey('ArrowRight');
+  assert.equal(game.scene.section.title, 'THE HAZARDS', 'the codex should list the hazards');
+  await tapKey('ArrowRight');
+  assert.equal(game.scene.section.title, 'THE MINIGAMES', 'the codex should list the minigames');
+  await tapKey('ArrowLeft');
+  assert.equal(game.scene.section.title, 'THE HAZARDS', 'left should step back through sections');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'menu', 'escape should leave the lore codex');
+
   movePointer(480, 293);
   await frames(2);
   assert.equal(game.scene.menu.index, 1, 'pointer hover should select CHOOSE TANK');
@@ -1225,7 +1250,7 @@ async function main() {
 
   game.changeScene('menu');
   await frames(5);
-  assert.equal(game.scene.menu.items.length, 6, 'the menu should offer the six base options');
+  assert.equal(game.scene.menu.items.length, 7, 'the menu should offer the seven base options');
   assert.equal(game.music.track.name, 'menu', 'the menu should restart the menu theme');
 
   await tapKey('ArrowDown');
@@ -1392,14 +1417,16 @@ async function main() {
   await tapKey('Enter');
   await frames(5);
   assert.equal(game.currentSceneName, 'theatre', 'settings should open the theatre');
-  assert.equal(game.scene.menu.items.length, 17, 'the theatre should list every cutscene plus back');
+  assert.equal(game.scene.menu.items.length, 20, 'the theatre should list every cutscene plus back');
   assert.deepEqual(
-    game.scene.menu.items.slice(0, 16).map((item) => item.label),
+    game.scene.menu.items.slice(0, 19).map((item) => item.label),
     [
       'GAME TRAILER',
+      'SHARKQUARIUM: THE MOVIE',
       'ALL-TANK GAMEPLAY',
       'TANK TRAILERS',
       'MINIGAME TRAILERS',
+      'SHOP TRAILER',
       'INTRO SPLASH',
       'DESCENT: REEF',
       'DESCENT: STINGRAY',
@@ -1411,10 +1438,34 @@ async function main() {
       'DESCENT: FRESHWATER',
       'DAWN BREAKS',
       'LABYRINTH TRAILER',
+      'WRECK ARRIVAL',
       'MEGASQUID ENDING',
     ],
     'the theatre should name every cutscene',
   );
+
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.selected.label,
+    'SHARKQUARIUM: THE MOVIE',
+    'the movie should sit under the game trailer',
+  );
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'trailer', 'the theatre should open the movie');
+  assert.equal(game.scene.movie, true, 'the movie should run in movie mode');
+  assert.equal(game.scene.shots.length, 16, 'the movie should cut through every tank and game');
+  assert.equal(game.scene.shots[0].card, true, 'the movie should open on a title card');
+  assert.equal(game.scene.shots[1].tank, 'reef', 'the first tank should lead the tour');
+  assert.equal(game.scene.shots[10].id, 'movie-intermission', 'the tour should break for minigames');
+  assert.equal(game.scene.shots[11].minigame, 'race', 'the minigame half should open on the race');
+  assert.equal(game.scene.shots[15].id, 'movie-finale', 'the movie should end on a finale card');
+  assert.ok(game.scene.performers.length > 0, 'the movie should cast creatures');
+  await frames(240);
+  assert.ok(game.scene.shotIndex >= 1, 'the movie should cut through its tanks');
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'theatre', 'skipping the movie should return to the theatre');
 
   const gameTrailerStats = JSON.parse(storage.get('sharkquarium.stats')).minigames;
   await tapKey('Enter');
@@ -1439,10 +1490,11 @@ async function main() {
   );
 
   await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'ALL-TANK GAMEPLAY',
-    'the theatre should list the all-tank gameplay trailer second',
+    'the theatre should list the all-tank gameplay trailer third',
   );
   const gauntletStats = JSON.parse(storage.get('sharkquarium.stats')).minigames;
   await tapKey('Enter');
@@ -1492,10 +1544,11 @@ async function main() {
 
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'TANK TRAILERS',
-    'the theatre should list the tank trailers third',
+    'the theatre should list the tank trailers fourth',
   );
   await tapKey('Enter');
   await frames(5);
@@ -1544,6 +1597,7 @@ async function main() {
 
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   await tapKey('Enter');
   await frames(5);
   assert.equal(game.scene.page, 'tanks', 'the tank page should reopen on demand');
@@ -1584,10 +1638,11 @@ async function main() {
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'MINIGAME TRAILERS',
-    'the theatre should list the minigame trailers fourth',
+    'the theatre should list the minigame trailers fifth',
   );
   await tapKey('Enter');
   await frames(5);
@@ -1654,10 +1709,59 @@ async function main() {
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].label,
+    'SHOP TRAILER',
+    'the theatre should list the shop trailer sixth',
+  );
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'trailer', 'the theatre should open the shop trailer');
+  assert.equal(game.scene.shopTrailer, true, 'the shop trailer should run in shop mode');
+  assert.equal(game.scene.shots.length, 9, 'the shop trailer should cut through every shop shelf');
+  assert.equal(game.scene.shots[0].card, true, 'the shop trailer should open on a title card');
+  assert.equal(game.scene.shots[4].id, 'shop-trails', 'the shop trailer should show trails and buddies');
+  assert.equal(game.scene.shots[5].id, 'shop-auras', 'the shop trailer should show every aura');
+  assert.equal(game.scene.shots[8].id, 'shop-finale', 'the shop trailer should end on the play card');
+  assert.ok(game.scene.performers.length > 0, 'the shop trailer should cast creatures');
+  let shopTime = 0;
+  for (let index = 0; index < game.scene.shots.length; index += 1) {
+    game.scene.time = shopTime + 0.05;
+    await frames(1);
+    assert.equal(game.scene.shotIndex, index, `the shop trailer should reach shot ${index}`);
+    assert.ok(
+      game.scene.performers.length > 0,
+      `the shop trailer should cast creatures in shot ${index}`,
+    );
+    if (index >= 1 && index <= 5) await frames(50);
+    assert.equal(
+      game.currentSceneName,
+      'trailer',
+      `the shop trailer should survive shot ${index}`,
+    );
+    shopTime += game.scene.shots[index].duration;
+  }
+  assert.ok(game.scene.skinIndex > 0, 'the shop trailer should cycle colors');
+  assert.ok(game.scene.headIndex > 0, 'the shop trailer should cycle head trinkets');
+  assert.ok(game.scene.bodyIndex > 0, 'the shop trailer should cycle body wear');
+  assert.ok(game.scene.trailIndex > 0, 'the shop trailer should cycle trails');
+  assert.ok(game.scene.companionIndex > 0, 'the shop trailer should cycle dive buddies');
+  assert.ok(game.scene.auraIndex > 0, 'the shop trailer should cycle auras');
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'theatre', 'skipping the shop trailer should return to the theatre');
+
+  await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'INTRO SPLASH',
-    'the theatre should list the intro fifth',
+    'the theatre should list the intro seventh',
   );
   await tapKey('Enter');
   await frames(5);
@@ -1667,6 +1771,8 @@ async function main() {
   await frames(5);
   assert.equal(game.currentSceneName, 'theatre', 'the intro should return to the theatre');
 
+  await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
@@ -1686,7 +1792,7 @@ async function main() {
   await frames(5);
   assert.equal(game.currentSceneName, 'theatre', 'a theatre descent should return to the theatre');
 
-  for (let i = 0; i < 13; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 15; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'DAWN BREAKS',
@@ -1700,7 +1806,7 @@ async function main() {
   await frames(5);
   assert.equal(game.currentSceneName, 'theatre', 'the dawn cutscene should return to the theatre');
 
-  for (let i = 0; i < 14; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 16; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'LABYRINTH TRAILER',
@@ -1724,7 +1830,35 @@ async function main() {
     'a theatre trailer should not count as a minigame round',
   );
 
-  for (let i = 0; i < 15; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 17; i += 1) await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].label,
+    'WRECK ARRIVAL',
+    'the theatre should reach the wreck arrival',
+  );
+  const arrivalStats = JSON.parse(storage.get('sharkquarium.stats')).minigames;
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'labyrinth', 'the theatre should open the arrival scene');
+  assert.equal(game.scene.phase, 'arrival', 'the theatre should jump straight to the arrival');
+  assert.equal(game.scene.theatre, true, 'the theatre arrival should remember the theatre');
+  assert.equal(game.scene.arrivalCrew.length, 7, 'the arrival should cast every playable diver');
+  assert.equal(game.scene.arrivalMegasquid.reveal, 0, 'the MEGASQUID should start hidden');
+  await frames(200);
+  assert.ok(
+    game.scene.arrivalMegasquid.reveal > 0,
+    'the MEGASQUID should appear as the divers arrive',
+  );
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'theatre', 'the arrival should return to the theatre');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.stats')).minigames,
+    arrivalStats,
+    'a theatre arrival should not count as a minigame round',
+  );
+
+  for (let i = 0; i < 18; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'MEGASQUID ENDING',
@@ -1888,9 +2022,15 @@ async function main() {
   assert.equal(game.currentSceneName, 'shop', 'the menu should open the shop');
   assert.equal(
     shop.menu.items.length,
-    8,
-    'the shop should list color, creature, head, body, trail, companion, playpass, and back',
+    10,
+    'the shop should list color, creature, head, body, trail, dive buddies, aura, playpass, player, and back',
   );
+  assert.equal(
+    shop.menu.items[5].label,
+    'DIVE BUDDIES',
+    'the buddy row should be named DIVE BUDDIES',
+  );
+  assert.equal(shop.menu.items[8].label, 'PLAYER', 'the player row should be named PLAYER');
   assert.equal(shop.coins, 100, 'the shop should read the banked sea coins');
   assert.equal(shop.skin.key, 'natural', 'the shop should start on the equipped color');
   assert.equal(shop.head.key, 'none', 'no head trinket should be worn by default');
@@ -1904,6 +2044,14 @@ async function main() {
     'the preview list should cover every playable creature, old and new',
   );
   assert.equal(shop.creature.entity.radius, 26, 'the preview shark should match the playable shark');
+  for (const entry of shop.previewCreatures) {
+    const fit = entry.entity.jacketFit;
+    assert.ok(fit, `${entry.key} should tailor the neon jacket to its body`);
+    assert.ok(
+      fit.rx > 0 && fit.ry > 0 && fit.rx < 2 && fit.ry < 2,
+      `${entry.key} should report a sane jacket fit`,
+    );
+  }
   await tapKey('Enter');
   await frames(2);
   assert.equal(shop.shop.skin, 'natural', 'the equipped color should stay without a purchase');
@@ -2036,6 +2184,7 @@ async function main() {
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   await tapKey('Enter');
   await frames(2);
   assert.ok(shop.ownsPass('playpass1'), 'playpass 1 should be bought with sea coins');
@@ -2063,6 +2212,7 @@ async function main() {
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
+  await tapKey('ArrowUp');
   assert.equal(shop.menu.selected.action, 'skin', 'the color row should be selectable again');
   await tapKey('ArrowLeft');
   await tapKey('ArrowLeft');
@@ -2074,6 +2224,7 @@ async function main() {
   assert.equal(shop.coins, 0, 'equipping pass cosmetics should not charge coins');
 
   shop.coins = 1200;
+  await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
@@ -2097,12 +2248,12 @@ async function main() {
   shop.coins = 1200;
   await tapKey('ArrowRight');
   assert.equal(shop.pass.key, 'playpass5', 'the pass browser should reach PLAYPASS 5');
-  assert.equal(shop.auraUpgrade, false, 'the eel aura should start locked');
+  assert.equal(shop.aura.key, 'none', 'the eel aura should start detached');
   await tapKey('Enter');
   await frames(2);
   assert.ok(shop.ownsPass('playpass5'), 'playpass 5 should be bought with sea coins');
   assert.equal(shop.coins, 0, 'playpass 5 should cost the same');
-  assert.equal(shop.auraUpgrade, true, 'playpass 5 should unlock the eel auras');
+  assert.ok(shop.ownsOption('aura', 'eelaura'), 'playpass 5 should grant the eel aura');
   for (const key of [
     'plushshark',
     'plushstingray',
@@ -2125,6 +2276,7 @@ async function main() {
     plushGuard += 1;
   }
   assert.equal(shop.back.key, 'plushshark', 'the plushies should be browsable');
+  await tapKey('ArrowUp');
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
@@ -2164,6 +2316,7 @@ async function main() {
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   shop.coins = 1200;
   await tapKey('ArrowRight');
   assert.equal(shop.pass.key, 'playpass6', 'the pass browser should reach PLAYPASS 6');
@@ -2184,6 +2337,7 @@ async function main() {
   }
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
+  await tapKey('ArrowUp');
   assert.equal(shop.menu.selected.action, 'trail', 'the trail row should be selectable');
   let trailGuard = 0;
   while (shop.trail.key !== 'bubblestream' && trailGuard < 12) {
@@ -2199,6 +2353,7 @@ async function main() {
     'bubblestream',
     'the equipped trail should persist',
   );
+  await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   shop.coins = 1200;
@@ -2229,6 +2384,7 @@ async function main() {
     'minivolt',
     'minipiranha',
     'minipuffer',
+    'megasquid',
   ]) {
     assert.ok(shop.ownsCompanion(key), `playpass 8 should unlock ${key}`);
   }
@@ -2236,6 +2392,7 @@ async function main() {
     shop.cycleOption('companion', 1);
     await frames(2);
   }
+  await tapKey('ArrowUp');
   await tapKey('ArrowUp');
   assert.equal(shop.menu.selected.action, 'companion', 'the companion row should be selectable');
   let palGuard = 0;
@@ -2247,13 +2404,125 @@ async function main() {
   await tapKey('Enter');
   await frames(10);
   assert.equal(shop.shop.companion, 'bubblepal', 'the bubble pal should equip for free');
+  assert.equal(shop.status, 'DIVE BUDDY PICKED — P1', 'a buddy should be picked, not worn');
   assert.equal(
     JSON.parse(storage.get('sharkquarium.shop')).companion,
     'bubblepal',
     'the equipped companion should persist',
   );
+  for (const key of [
+    'minishark',
+    'ministingray',
+    'minisquid',
+    'minishrimp',
+    'minicrab',
+    'tinyjelly',
+    'mininautilus',
+    'babymoray',
+    'mindarteel',
+    'minivolt',
+    'minipuffer',
+    'megasquid',
+  ]) {
+    shop.shop.companion = key;
+    await frames(2);
+  }
+  shop.shop.companion = 'bubblepal';
   await tapKey('ArrowDown');
-  assert.equal(shop.menu.selected.action, 'pass', 'the pass row should return after the companion');
+  assert.equal(shop.menu.selected.action, 'aura', 'the aura row should sit after the companion');
+  let auraGuard = 0;
+  while (shop.aura.key !== 'eelaura' && auraGuard < 8) {
+    shop.cycleOption('aura', 1);
+    auraGuard += 1;
+  }
+  assert.equal(shop.aura.key, 'eelaura', 'the eel aura should be browsable');
+  await tapKey('Enter');
+  await frames(10);
+  assert.equal(shop.shop.aura, 'eelaura', 'the eel aura should attach for free');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.shop')).aura,
+    'eelaura',
+    'the attached aura should persist',
+  );
+  for (const [key, label, cost] of [
+    ['bubbleaura', 'BUBBLE AURA', 180],
+    ['neonaura', 'NEON AURA', 200],
+    ['stingrayaura', 'STINGRAY AURA', 220],
+    ['tridentaura', 'TRIDENT AURA', 240],
+    ['karambitaura', 'KARAMBIT AURA', 260],
+    ['sharkaura', 'SHARK AURA', 280],
+    ['swordaura', 'SWORD AURA', 300],
+    ['octopusaura', 'OCTOPUS AURA', 320],
+  ]) {
+    shop.coins = 400;
+    await tapKey('ArrowRight');
+    assert.equal(shop.aura.key, key, `the aura browser should reach ${label}`);
+    await tapKey('Enter');
+    await frames(2);
+    assert.equal(shop.shop.aura, key, `${label} should equip on purchase`);
+    assert.equal(shop.coins, 400 - cost, `${label} should cost its price`);
+    assert.ok(
+      JSON.parse(storage.get('sharkquarium.shop')).auras.includes(key),
+      `${label} should persist in the collection`,
+    );
+  }
+  await tapKey('ArrowRight');
+  assert.equal(shop.aura.key, 'none', 'the aura browser should reach NONE');
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(shop.shop.aura, 'none', 'the eel aura should detach again');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.shop')).aura,
+    'none',
+    'the detached aura should persist',
+  );
+  await tapKey('ArrowDown');
+  assert.equal(shop.menu.selected.action, 'pass', 'the pass row should return after the aura');
+  await tapKey('ArrowDown');
+  assert.equal(shop.menu.selected.action, 'player', 'the player row should follow the pass row');
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(shop.playerIndex, 1, 'the player row should switch to P2');
+  assert.equal(shop.status, 'DRESSING P2', 'the shop should announce the active player');
+  for (let i = 0; i < 8; i += 1) await tapKey('ArrowUp');
+  assert.equal(shop.menu.selected.action, 'skin', 'the color row should be reachable while dressing P2');
+  let redGuard = 0;
+  while (shop.skin.key !== 'red' && redGuard < 20) {
+    shop.cycle(1);
+    redGuard += 1;
+  }
+  assert.equal(shop.skin.key, 'red', 'the P2 browser should reach RED');
+  shop.coins = 500;
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(shop.shop.skin2, 'red', 'P2 should buy and wear their own color');
+  assert.equal(shop.shop.skin, 'monsoon', 'P1 should keep their color while P2 dresses');
+  assert.equal(shop.coins, 410, 'the red should cost its price');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.shop')).skin2,
+    'red',
+    'the P2 color should persist',
+  );
+  for (let i = 0; i < 8; i += 1) await tapKey('ArrowDown');
+  assert.equal(shop.menu.selected.action, 'player', 'the player row should be reachable again');
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(shop.playerIndex, 0, 'the player row should switch back to P1');
+  for (let i = 0; i < 8; i += 1) await tapKey('ArrowUp');
+  assert.equal(shop.menu.selected.action, 'skin', 'the P1 color row should return');
+  let sunsetGuard = 0;
+  while (shop.skin.key !== 'sunset' && sunsetGuard < 20) {
+    shop.cycle(1);
+    sunsetGuard += 1;
+  }
+  assert.equal(shop.skin.key, 'sunset', 'the P1 browser should reach SUNSET ORANGE');
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(shop.shop.skin, 'sunset', 'P1 should wear their own color');
+  assert.equal(shop.shop.skin2, 'red', 'P2 should keep their color');
+  assert.equal(shop.coins, 260, 'the sunset orange should cost its price');
+  for (let i = 0; i < 7; i += 1) await tapKey('ArrowDown');
+  assert.equal(shop.menu.selected.action, 'pass', 'the pass row should be reachable again');
   shop.coins = 1200;
   await tapKey('ArrowRight');
   assert.equal(shop.pass.key, 'playpass9', 'the pass browser should reach PLAYPASS 9');
@@ -2299,7 +2568,7 @@ async function main() {
 
   game.changeScene('menu');
   await frames(5);
-  assert.equal(game.scene.menu.items.length, 10, 'the passes should fill the menu');
+  assert.equal(game.scene.menu.items.length, 11, 'the passes should fill the menu');
   assert.equal(game.scene.menu.items[3].label, 'MINIGAMES', 'minigames should sit below co-op');
   assert.equal(game.scene.menu.items[4].label, 'PETS TANK', 'the pets tank should sit below minigames');
   assert.equal(game.scene.menu.items[5].label, 'ENDLESS DIVE', 'endless dive should sit below the pets tank');
@@ -2308,7 +2577,7 @@ async function main() {
     'AQUARIUM BUILDER',
     'the aquarium builder should sit below endless dive',
   );
-  assert.equal(game.scene.shop.skin, 'monsoon', 'the menu should use the equipped color');
+  assert.equal(game.scene.shop.skin, 'sunset', 'the menu should use the equipped color');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
@@ -2369,10 +2638,131 @@ async function main() {
   await frames(5);
   assert.equal(
     game.scene.menu.items.length,
-    9,
+    18,
     'the pass should unlock every minigame plus back',
   );
   assert.equal(game.scene.menu.items[2].label, 'TAG (2P + 5 CPU)', 'tag should be the third entry');
+  storage.set('sharkquarium.coins', '500');
+  game.changeScene('minigames');
+  await frames(5);
+  const paid = game.scene;
+  assert.equal(paid.coins, 500, 'the minigames menu should read the coin bank');
+  assert.equal(
+    paid.menu.items.filter((item) => item.feeKey).length,
+    9,
+    'nine paid entries should charge a ticket',
+  );
+  paid.coins = 0;
+  paid.menu.setIndex(paid.menu.items.findIndex((item) => item.action === 'pufferball'));
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.currentSceneName, 'minigames', 'an empty bank should block entry');
+  assert.match(String(paid.status), /NEED 25 SEA COINS/, 'the menu should quote the ticket');
+  paid.coins = 500;
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'pufferball', 'the paid game should open');
+  assert.equal(game.scene.solo, false, 'PUFFER BALL (2P) should start in versus mode');
+  assert.equal(game.scene.players.length, 2, 'both divers should take the arena');
+  await frames(30);
+  assert.ok(game.scene.ball.x > 0, 'the puffer ball should be live');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'minigames', 'puffer ball should quit to the menu');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.coins')),
+    475,
+    'entering should charge the ticket',
+  );
+  assert.equal(game.scene.coins, 475, 'the ticket should stay spent after exiting');
+  game.scene.menu.setIndex(game.scene.menu.items.findIndex((item) => item.action === 'pufferballSolo'));
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'pufferball', 're-entering should pay a fresh ticket');
+  assert.equal(game.scene.solo, true, 'the solo entry should face the CPU');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.coins')),
+    450,
+    'exiting and re-entering should charge again',
+  );
+  assert.ok(game.scene.cpu, 'the solo puffer ball should field a CPU chaser');
+  game.scene.ball.x = 620;
+  game.scene.ball.y = 270;
+  game.scene.ball.vx = 0;
+  game.scene.ball.vy = 0;
+  await frames(150);
+  assert.ok(game.scene.cpu.x < 672, 'the CPU chaser should close on the ball');
+  assert.ok(
+    game.scene.ball.x < 600,
+    'the CPU should bump the ball toward the goal it attacks',
+  );
+  await tapKey('Escape');
+  await frames(5);
+  for (const [action, sceneName, check] of [
+    ['roundup', 'roundup', (scene) => scene.schools.length === 3],
+    ['jelly', 'jellyascent', (scene) => scene.rings.length === 22],
+    ['stealthSolo', 'stealth', (scene) => scene.seals.length === 3],
+    ['trench', 'trench', (scene) => scene.hits === 0 && scene.players.length === 1],
+    ['cleanupSolo', 'cleanup', (scene) => scene.debris.length === 6],
+  ]) {
+    const menu = game.scene;
+    menu.coins = 500;
+    menu.menu.setIndex(menu.menu.items.findIndex((item) => item.action === action));
+    await tapKey('Enter');
+    await frames(5);
+    assert.equal(game.currentSceneName, sceneName, `${action} should open from the menu`);
+    assert.ok(check(game.scene), `${action} should build its round`);
+    await frames(20);
+    await tapKey('Escape');
+    await frames(5);
+    assert.equal(game.currentSceneName, 'minigames', `${action} should quit to the menu`);
+  }
+  game.changeScene('cleanup', { solo: true });
+  await frames(5);
+  assert.equal(game.currentSceneName, 'cleanup', 'cleanup should reopen for the clock check');
+  game.scene.elapsed = 600;
+  await frames(3);
+  assert.equal(game.currentSceneName, 'cleanup', 'reef cleanup should run with no clock at all');
+  const cleanup = game.scene;
+  const cleanupHole = cleanup.holes[0];
+  assert.equal(
+    cleanupHole.palette.body,
+    '#7a5c3e',
+    'the first cleanup moray should wear the stingray tank brown',
+  );
+  assert.equal(
+    cleanup.holes[1].palette.body,
+    '#98854a',
+    'the second cleanup moray should wear the stingray tank olive',
+  );
+  assert.equal(
+    cleanup.holes[2].palette.body,
+    '#d9b93f',
+    'the third cleanup moray should wear the stingray tank spotted yellow',
+  );
+  cleanupHole.timer = 0;
+  await frames(2);
+  assert.equal(cleanupHole.state, 'peek', 'cleanup morays should peek smoothly before biting');
+  await frames(20);
+  assert.ok(cleanupHole.rise > 8, 'the cleanup moray should rise out of its hole');
+  while (cleanupHole.state === 'peek') await frames(1);
+  assert.equal(cleanupHole.state, 'bite', 'the peek should flow into the bite');
+  cleanup.stun[0] = 0;
+  cleanup.players[0].x = cleanupHole.x;
+  cleanup.players[0].y = 400;
+  cleanup.players[0].vx = 0;
+  cleanup.players[0].vy = 0;
+  cleanup.players[0].invulnerable = 0;
+  await frames(6);
+  assert.ok(cleanup.stun[0] > 0, 'the cleanup moray bite should stun a diver over its hole');
+  await frames(20);
+  assert.equal(cleanupHole.state, 'retreat', 'the bite should flow into the retreat');
+  await frames(60);
+  assert.ok(cleanupHole.rise < 4, 'the cleanup moray should retreat smoothly into its hole');
+  await tapKey('Escape');
+  await frames(5);
+  game.changeScene('minigames');
+  await frames(5);
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('Enter');
@@ -2833,7 +3223,27 @@ async function main() {
   assert.equal(labyrinth.creatureKey2, 'shark', 'P2 should cycle back to the shark');
   await tapKey('Enter');
   await frames(5);
-  assert.equal(labyrinth.phase, 'play', 'confirming the diver should start the run');
+  assert.equal(
+    labyrinth.phase,
+    'arrival',
+    'confirming the diver should arrive at the wreck first',
+  );
+  assert.equal(labyrinth.arrivalCrew.length, 7, 'the arrival should cast every playable diver');
+  assert.equal(
+    labyrinth.arrivalCrew[0].entity.constructor.name,
+    'Shark',
+    'the arrival should lead with the shark',
+  );
+  assert.equal(labyrinth.arrivalMegasquid.reveal, 0, 'the MEGASQUID should start hidden');
+  const arrivalStartX = labyrinth.arrivalCrew[0].entity.x;
+  await frames(90);
+  assert.ok(
+    labyrinth.arrivalCrew[0].entity.x > arrivalStartX,
+    'the divers should swim toward the wreck',
+  );
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(labyrinth.phase, 'play', 'skipping the arrival should start the run');
   assert.equal(labyrinth.players.length, 2, 'two players should run the wreck');
   assert.equal(
     labyrinth.players[0].constructor.name,
@@ -2845,7 +3255,7 @@ async function main() {
     'Shark',
     'P2 should spawn their chosen creature',
   );
-  assert.deepEqual(labyrinth.grabs, [6, 6], 'each player should get six grabs');
+  assert.deepEqual(labyrinth.grabs, [7, 7], 'each player should get seven grabs');
   assert.deepEqual(labyrinth.checkpointIndex, [0, 0], 'both players should start on section one');
   assert.ok(labyrinth.worldLength > 5000, 'the labyrinth should span many screens');
   assert.equal(labyrinth.tentacles.length, 7, 'the tentacle pack should fill the wreck');
@@ -2876,7 +3286,7 @@ async function main() {
   assert.equal(labyrinth.checkpointIndex[0], 1, 'passing a section start should arm its checkpoint');
   assert.equal(labyrinth.checkpoints[1].active, true, 'the checkpoint should light up');
   assert.ok(
-    labyrinth.wallX <= labyrinth.checkpoints[1].x - 300,
+    labyrinth.wallX <= labyrinth.checkpoints[1].x - 360,
     'a checkpoint should drive the tentacle wall back',
   );
   assert.equal(labyrinth.cracks.length, 10, 'the wreck floor should crack in every section');
@@ -2884,9 +3294,10 @@ async function main() {
   assert.equal(labyrinth.ceilings.length, 10, 'the ceiling should creak in every section');
   assert.equal(
     labyrinth.ambushes.length,
-    labyrinth.cracks.length + labyrinth.wallBursts.length,
-    'both ambush kinds should share the update list',
+    labyrinth.cracks.length + labyrinth.wallBursts.length + labyrinth.ceilingBursts.length,
+    'all ambush kinds should share the update list',
   );
+  assert.ok(labyrinth.ceilingBursts.length >= 1, 'some tentacles should hide in the ceiling');
   assert.ok(labyrinth.grabPickups.length >= 3, 'grab chances should start in a clump');
   assert.equal(
     new Set(labyrinth.grabPickups.map((pickup) => pickup.clump)).size,
@@ -2931,8 +3342,8 @@ async function main() {
     await frames(2);
   }
   assert.ok(
-    new Set(labyrinth.grabPickups.map((item) => item.clump)).size <= 3,
-    'only a few clumps should float at once',
+    new Set(labyrinth.grabPickups.map((item) => item.clump)).size <= 4,
+    'four clumps at most should float at once',
   );
   assert.ok(
     labyrinth.grabPickups.length >= 6,
@@ -2964,11 +3375,14 @@ async function main() {
 
   const crack = labyrinth.cracks[0];
   assert.equal(crack.arms.length, 3, 'ground cracks should hide a bunch of tentacles');
+  assert.equal(crack.arms[0].club, false, 'floor cracks should keep the plain tips');
+  assert.equal(crack.arms[0].rope, false, 'floor cracks should keep the octopus arms');
   for (const ambush of labyrinth.ambushes) {
     ambush.state = 'idle';
     ambush.timer = 999;
     for (const arm of ambush.arms) {
       arm.burstTimer = 0;
+      arm.burstDelay = 0;
       arm.reach = 0;
     }
   }
@@ -2978,6 +3392,15 @@ async function main() {
     ceiling.chunk = null;
   }
   crack.timer = 0;
+  labyrinth.wallDelay = 999;
+  labyrinth.grabbed[0] = null;
+  labyrinth.out[0] = false;
+  labyrinth.stunned[0] = 0;
+  labyrinth.grabbed[1] = null;
+  labyrinth.out[1] = false;
+  labyrinth.players[1].x = 20;
+  labyrinth.players[1].y = 270;
+  labyrinth.players[1].invulnerable = 999;
   labyrinth.grabs[0] = 6;
   runner.invulnerable = 0;
   runner.vx = 0;
@@ -2986,15 +3409,43 @@ async function main() {
   runner.y = 480;
   await frames(3);
   assert.equal(crack.state, 'warn', 'cracked ground should warn before bursting');
-  await frames(42);
-  assert.equal(crack.state, 'burst', 'the crack should burst tentacles upward');
-  assert.ok(
-    crack.arms.every((arm) => arm.reach > 0.2),
-    'every hidden tentacle should rise out of the ground',
+  while (crack.state === 'warn') await frames(1);
+  const lead = crack.arms[1];
+  assert.equal(lead.burstDelay, 0, 'the middle tentacle should erupt immediately');
+  assert.ok(crack.arms[0].burstDelay > 0, 'the next tentacle should be queued');
+  assert.ok(crack.arms[2].burstDelay > 0, 'the last tentacle should be queued');
+  await frames(2);
+  assert.ok(lead.reach > 0.2, 'the middle hidden tentacle should spear out first');
+  assert.ok(labyrinth.breachChunks.length > 0, 'spearing through should fling breach chunks');
+  while (lead.burstAge < 0.24 && crack.state === 'burst') await frames(1);
+  assert.ok(crack.arms[0].reach > 0.2, 'the next tentacle should erupt a beat later');
+  assert.ok(labyrinth.shake > 0, 'every tentacle burst should shake the screen');
+  assert.equal(crack.arms[2].reach, 0, 'the last tentacle should still be queued');
+  assert.equal(
+    lead.curlGrow,
+    0,
+    'the early spears should hold straight until the synchronized curl',
   );
-  await frames(20);
-  assert.equal(labyrinth.grabs[0], 5, 'a burst tentacle should grab the swimmer over it');
+  while (lead.burstAge < 0.8 && crack.state === 'burst') await frames(1);
+  assert.equal(
+    lead.curlGrow,
+    0,
+    'the straight lance should hold longer before every tip hooks',
+  );
+  assert.equal(lead.reach, 1, 'the lance should stay fully extended through its hold');
+  while (lead.curlGrow < 0.3 && crack.state === 'burst') await frames(1);
+  assert.ok(
+    crack.arms.every((arm) => arm.reach > 0.9),
+    'the whole ripple should be out',
+  );
+  assert.ok(
+    crack.arms.every((arm) => arm.curlGrow > 0.15),
+    'every tip should curl together',
+  );
+  assert.equal(labyrinth.grabs[0], 5, 'the synchronized curls should grab the swimmer');
   assert.ok(labyrinth.grabbed[0], 'the crack grab should hold the swimmer');
+  runner.x = crack.x;
+  runner.y = 120;
   await frames(60);
   assert.equal(labyrinth.grabbed[0], null, 'the crack grab should release');
   labyrinth.grabs[0] = 6;
@@ -3006,6 +3457,7 @@ async function main() {
     ambush.timer = 999;
     for (const arm of ambush.arms) {
       arm.burstTimer = 0;
+      arm.burstDelay = 0;
       arm.reach = 0;
     }
   }
@@ -3023,17 +3475,155 @@ async function main() {
   await frames(40);
   assert.equal(wallBurst.state, 'burst', 'wall tentacles should burst sideways');
   assert.ok(wallBurst.arms[0].reach > 0.2, 'the wall burst should extend into the corridor');
-  const grip = wallBurst.arms[0].pointAt(0.15);
-  runner.x = grip.x;
-  runner.y = grip.y;
+  labyrinth.grabbed[0] = null;
+  labyrinth.out[0] = false;
   runner.invulnerable = 0;
-  await frames(2);
+  for (let i = 0; i < 24 && labyrinth.grabs[0] === 6; i += 1) {
+    const point = wallBurst.arms[0].pointAt(0.15);
+    runner.x = point.x;
+    runner.y = point.y;
+    await frames(1);
+  }
   assert.equal(labyrinth.grabs[0], 5, 'a wall burst should grab the swimmer in its path');
   assert.ok(labyrinth.grabbed[0], 'the wall burst grab should hold the swimmer');
   await frames(70);
   assert.equal(labyrinth.grabbed[0], null, 'the wall burst grab should release');
   labyrinth.grabs[0] = 6;
   runner.invulnerable = 0;
+
+  const ceilingBurst = labyrinth.ceilingBursts[0];
+  assert.equal(
+    ceilingBurst.arms[0].club,
+    true,
+    'ceiling spears should wear the squid feeding club',
+  );
+  assert.equal(ceilingBurst.arms[0].rope, true, 'the ceiling spear should be a thin squid rope');
+  assert.ok(
+    ceilingBurst.arms[0].widthAt(0) < labyrinth.cracks[0].arms[0].widthAt(0),
+    'the feeding tentacle should be thinner than the octopus arms',
+  );
+  for (const ambush of labyrinth.ambushes) {
+    ambush.state = 'idle';
+    ambush.timer = 999;
+    for (const arm of ambush.arms) {
+      arm.burstTimer = 0;
+      arm.burstDelay = 0;
+      arm.reach = 0;
+    }
+  }
+  for (const spot of labyrinth.ceilings) {
+    spot.state = 'idle';
+    spot.timer = 999;
+    spot.chunk = null;
+  }
+  ceilingBurst.timer = 0;
+  runner.x = ceilingBurst.x;
+  runner.y = ceilingBurst.y + 120;
+  runner.vx = 0;
+  runner.vy = 0;
+  runner.invulnerable = 0;
+  await frames(3);
+  assert.equal(ceilingBurst.state, 'warn', 'ceiling tentacles should warn before bursting');
+  while (ceilingBurst.state === 'warn') await frames(1);
+  await frames(8);
+  assert.ok(ceilingBurst.arms[0].reach > 0.2, 'the ceiling spear should snap down');
+  assert.equal(labyrinth.grabbed[0], null, 'the lance phase should not grab');
+  assert.equal(labyrinth.grabs[0], 6, 'a touch during the lance should not cost a grab');
+  while (ceilingBurst.arms[0].curlGrow < 0.2 && ceilingBurst.state === 'burst') {
+    await frames(1);
+  }
+  await frames(2);
+  assert.equal(labyrinth.grabs[0], 5, 'a ceiling burst should grab the swimmer under it');
+  assert.ok(labyrinth.grabbed[0], 'the ceiling grab should hold the swimmer');
+  runner.y = 60;
+  await frames(70);
+  assert.equal(labyrinth.grabbed[0], null, 'the ceiling grab should release');
+  labyrinth.grabs[0] = 6;
+  runner.invulnerable = 0;
+
+  ceilingBurst.state = 'idle';
+  ceilingBurst.timer = 0;
+  for (const arm of ceilingBurst.arms) {
+    arm.burstTimer = 0;
+    arm.burstDelay = 0;
+    arm.reach = 0;
+  }
+  runner.x = ceilingBurst.x;
+  runner.y = 430;
+  runner.vx = 0;
+  runner.vy = 0;
+  runner.invulnerable = 0;
+  await frames(3);
+  assert.equal(
+    ceilingBurst.state,
+    'warn',
+    'ceiling tentacles should still warn for a diver at the wreck deck',
+  );
+  while (ceilingBurst.state === 'warn') await frames(1);
+  await frames(8);
+  assert.ok(
+    ceilingBurst.arms[0].reach > 0.9,
+    'the ceiling spear should thrust straight at the diver',
+  );
+  const deckDistance = Math.hypot(runner.x - ceilingBurst.x, runner.y - ceilingBurst.y);
+  assert.ok(
+    Math.abs(ceilingBurst.arms[0].stretch - Math.min(deckDistance, 401)) < 40 &&
+      ceilingBurst.arms[0].stretch > 260,
+    'the ceiling spear should stretch down to the deck diver',
+  );
+  await frames(30);
+  assert.equal(ceilingBurst.arms[0].curlGrow, 0, 'the feeding lance should hold rigid');
+  assert.equal(labyrinth.grabbed[0], null, 'the lance should not grab the deck diver');
+  assert.equal(labyrinth.grabs[0], 6, 'the lance touch should not cost a grab');
+  while (ceilingBurst.arms[0].curlGrow < 0.2 && ceilingBurst.state === 'burst') {
+    await frames(1);
+  }
+  await frames(2);
+  assert.equal(labyrinth.grabs[0], 5, 'a diver at the bottom should be grabbed by the ceiling spear');
+  await frames(70);
+  assert.equal(labyrinth.grabbed[0], null, 'the deck-level ceiling grab should release');
+  labyrinth.grabs[0] = 6;
+  runner.invulnerable = 0;
+
+  ceilingBurst.state = 'idle';
+  ceilingBurst.timer = 0;
+  for (const arm of ceilingBurst.arms) {
+    arm.burstTimer = 0;
+    arm.burstDelay = 0;
+    arm.reach = 0;
+  }
+  runner.x = ceilingBurst.x + 40;
+  runner.y = 430;
+  runner.vx = 0;
+  runner.vy = 0;
+  runner.invulnerable = 0;
+  labyrinth.wallDelay = 4;
+  labyrinth.wallX = -600;
+  await frames(3);
+  assert.equal(
+    ceilingBurst.state,
+    'warn',
+    'ceiling tentacles should trigger even for a diver out of reach',
+  );
+  while (ceilingBurst.state === 'warn') await frames(1);
+  await frames(8);
+  runner.x = ceilingBurst.x + 400;
+  runner.y = 430;
+  await frames(10);
+  const farDistance = Math.hypot(runner.x - ceilingBurst.x, runner.y - ceilingBurst.y);
+  assert.ok(farDistance > 480, 'the far diver should sit past the spear length');
+  assert.ok(
+    ceilingBurst.arms[0].stretch <= 401 && ceilingBurst.arms[0].stretch < farDistance,
+    'the ceiling spear should stop at full stretch for an out-of-reach diver',
+  );
+  await frames(80);
+  labyrinth.grabbed[0] = null;
+  labyrinth.out[0] = false;
+  labyrinth.stunned[0] = 0;
+  labyrinth.grabs[0] = 6;
+  runner.invulnerable = 0;
+  runner.x = 90;
+  runner.y = 270;
 
   const ceiling = labyrinth.ceilings[0];
   for (const spot of labyrinth.ceilings) {
@@ -3046,6 +3636,7 @@ async function main() {
     ambush.timer = 999;
     for (const arm of ambush.arms) {
       arm.burstTimer = 0;
+      arm.burstDelay = 0;
       arm.reach = 0;
     }
   }
@@ -3071,6 +3662,7 @@ async function main() {
   assert.equal(labyrinth.stunned[0], 0, 'the stagger should wear off');
   labyrinth.stunned[0] = 0;
   runner.invulnerable = 0;
+  labyrinth.wallDelay = 0;
 
   assert.equal(labyrinth.supports.length, 5, 'every section should be braced by a cracked support');
   assert.ok(labyrinth.corals.length >= 8, 'broken corals should litter the wreck');
@@ -3079,6 +3671,7 @@ async function main() {
   assert.ok(labyrinth.schools.length > 0, 'schools of fish should dart through the wreck');
 
   const support = labyrinth.supports[0];
+  support.x = 520;
   labyrinth.grabbed[1] = null;
   labyrinth.out[1] = false;
   labyrinth.grabs[1] = 6;
@@ -3094,6 +3687,7 @@ async function main() {
     ambush.timer = 999;
     for (const arm of ambush.arms) {
       arm.burstTimer = 0;
+      arm.burstDelay = 0;
       arm.reach = 0;
     }
   }
@@ -3105,20 +3699,45 @@ async function main() {
   runner.vy = 0;
   await frames(2);
   assert.equal(support.broken, false, 'a slow nudge should not break a support');
+  const restartX = -350;
+  runner.invulnerable = 999;
+  labyrinth.wallX = 1400;
   runner.x = support.x - 58;
   runner.vx = 430;
   await frames(2);
   assert.equal(support.broken, true, 'ramming a cracked support should break it');
   assert.ok(labyrinth.wallStun > 0, 'the collapse should stun the tentacle wall');
   assert.ok(
-    labyrinth.wallX < support.x - 900,
-    'the collapse should shove the tentacle wall further back',
+    Math.abs(labyrinth.wallX - restartX) < 0.001,
+    'the collapse should restart the tangle at the start of the part',
   );
+  support.broken = false;
+  labyrinth.wallX = restartX - 200;
+  labyrinth.wallStun = 999;
+  runner.x = support.x - 58;
+  runner.vx = 430;
+  await frames(2);
+  assert.ok(
+    labyrinth.wallX <= restartX - 200 + 0.001,
+    'the collapse should never teleport the tangle forward',
+  );
+  const savedRules = labyrinth.rules;
+  labyrinth.rules = { ...savedRules, enemySpeed: 2.4 };
+  support.broken = false;
+  labyrinth.wallX = 1400;
+  labyrinth.wallStun = 0;
+  runner.x = support.x - 58;
+  runner.vx = 430;
+  await frames(2);
+  assert.ok(
+    Math.abs(labyrinth.wallX - restartX) < 0.001,
+    'apocalyptic speed should not weaken the support teleport',
+  );
+  labyrinth.rules = savedRules;
   const heldWallX = labyrinth.wallX;
   runner.x = support.x - 300;
   runner.vx = 0;
   runner.vy = 0;
-  runner.invulnerable = 999;
   await frames(30);
   assert.ok(labyrinth.wallX <= heldWallX + 0.001, 'the stunned wall should hold its ground');
   await frames(180);
@@ -3174,7 +3793,7 @@ async function main() {
   await frames(5);
   assert.equal(labyrinth.phase, 'play', 'play again should restart the wreck');
   assert.equal(labyrinth.part, 1, 'play again should restart at part one');
-  assert.deepEqual(labyrinth.grabs, [6, 6], 'play again should restore six grabs each');
+  assert.deepEqual(labyrinth.grabs, [7, 7], 'play again should restore seven grabs each');
   assert.equal(labyrinth.escaped[0], false, 'play again should reset the escape flags');
 
   labyrinth.players.forEach((player) => {
@@ -3249,9 +3868,12 @@ async function main() {
   );
   await tapKey('Enter');
   await frames(5);
+  assert.equal(resumed.phase, 'arrival', 'the saved run should arrive at the wreck first');
+  await tapKey('Enter');
+  await frames(5);
   assert.equal(resumed.phase, 'play', 'starting the saved run should dive straight in');
   assert.equal(resumed.part, 3, 'the run should resume at the saved part');
-  assert.equal(resumed.sectionCount, 6, 'the resumed part should use its own course');
+  assert.equal(resumed.sectionCount, 5, 'the resumed part should use its own course');
   assert.equal(resumed.players[0].constructor.name, 'KelpCrab', 'the saved creature should dive');
   assert.equal(resumed.players[1].constructor.name, 'Shark', 'P2 should dive their own pick');
   assert.match(String(resumed.banner), /RESUMING PART 3/, 'the banner should announce the resume');
@@ -3319,6 +3941,9 @@ async function main() {
   );
   await tapKey('Enter');
   await frames(5);
+  assert.equal(soloLabyrinth.phase, 'arrival', 'the solo run should arrive at the wreck first');
+  await tapKey('Enter');
+  await frames(5);
   assert.equal(soloLabyrinth.phase, 'play', 'diving should start the solo run');
   assert.equal(
     soloLabyrinth.players[0].constructor.name,
@@ -3337,26 +3962,29 @@ async function main() {
   releaseKey('KeyS');
   assert.ok(diver.y > labyrinthUpY, 'the labyrinth nautilus should swim back down');
   assert.equal(soloLabyrinth.players.length, 1, 'solo labyrinth should field one diver');
-  assert.deepEqual(soloLabyrinth.grabs, [6], 'solo labyrinth should track one grab pool');
+  assert.deepEqual(soloLabyrinth.grabs, [7], 'solo labyrinth should track one grab pool');
   assert.equal(soloLabyrinth.part, 1, 'solo labyrinth should start at part one');
   soloLabyrinth.players[0].invulnerable = 0;
   soloLabyrinth.players[0].x = soloLabyrinth.exitX;
   await frames(2);
   assert.equal(soloLabyrinth.part, 2, 'a solo escape should open the next part');
   assert.equal(soloLabyrinth.phase, 'play', 'part two should start immediately');
-  assert.deepEqual(soloLabyrinth.grabs, [6], 'a new part should refill the grabs');
+  assert.deepEqual(soloLabyrinth.grabs, [7], 'a new part should refill the grabs');
   assert.ok(soloLabyrinth.players[0].x < 200, 'part two should respawn the diver at the entrance');
 
   soloLabyrinth.part = 3;
   soloLabyrinth.buildCourse();
-  assert.equal(soloLabyrinth.sectionCount, 6, 'part three should add an extra section');
+  assert.equal(soloLabyrinth.sectionCount, 5, 'the early parts should keep the base course');
+  soloLabyrinth.part = 4;
+  soloLabyrinth.buildCourse();
+  assert.equal(soloLabyrinth.sectionCount, 6, 'part four should add an extra section');
   soloLabyrinth.part = 7;
   soloLabyrinth.buildCourse();
-  assert.equal(soloLabyrinth.sectionCount, 8, 'part seven should be the longest wreck');
+  assert.equal(soloLabyrinth.sectionCount, 7, 'part seven should be the longest wreck');
   soloLabyrinth.setupPart();
-  assert.equal(soloLabyrinth.tentacles.length, 9, 'later parts should add grabbing arms');
-  assert.equal(soloLabyrinth.cracksPerSection, 5, 'later parts should seed more floor ambushes');
-  assert.equal(soloLabyrinth.wallBurstsPerSection, 4, 'later parts should seed more wall ambushes');
+  assert.equal(soloLabyrinth.tentacles.length, 8, 'later parts should add grabbing arms');
+  assert.equal(soloLabyrinth.cracksPerSection, 4, 'later parts should seed more floor ambushes');
+  assert.equal(soloLabyrinth.wallBurstsPerSection, 3, 'later parts should seed more wall ambushes');
   assert.ok(soloLabyrinth.tunnelMargin > 26, 'later parts should offer fewer tunnels');
   assert.ok(
     soloLabyrinth.cracks[0].warn < 0.55,
@@ -3405,9 +4033,12 @@ async function main() {
   );
   await tapKey('Enter');
   await frames(5);
+  assert.equal(chosen.phase, 'arrival', 'a picker run should arrive at the wreck first');
+  await tapKey('Enter');
+  await frames(5);
   assert.equal(chosen.phase, 'play', 'a hand-picked part should start live');
   assert.equal(chosen.part, 5, 'the run should begin on the chosen part');
-  assert.equal(chosen.sectionCount, 7, 'the chosen part should build its own course');
+  assert.equal(chosen.sectionCount, 6, 'the chosen part should build its own course');
   assert.doesNotMatch(
     String(chosen.banner),
     /RESUMING/,
@@ -3433,6 +4064,9 @@ async function main() {
   assert.equal(capped.creatureKey, 'jellyfish', 'the picker should reach the slowest diver');
   await tapKey('Enter');
   await frames(5);
+  assert.equal(capped.phase, 'arrival', 'the last part should arrive at the wreck first');
+  await tapKey('Enter');
+  await frames(5);
   assert.equal(capped.players[0].constructor.name, 'MoonJelly', 'the jelly should dive');
   assert.equal(capped.part, 7, 'the last part should be live');
   assert.equal(capped.players[0].maxSpeed, 350, 'the jelly should report its swim speed');
@@ -3456,6 +4090,9 @@ async function main() {
   assert.equal(ray.creatureKey, 'stingray', 'the picker should reach the stingray');
   await tapKey('Enter');
   await frames(5);
+  assert.equal(ray.phase, 'arrival', 'the stingray run should arrive at the wreck first');
+  await tapKey('Enter');
+  await frames(5);
   assert.equal(ray.players[0].constructor.name, 'Stingray', 'the stingray should dive');
   const rayPlayer = ray.players[0];
   const rayStartY = rayPlayer.y;
@@ -3475,7 +4112,7 @@ async function main() {
 
   game.changeScene('menu');
   await frames(5);
-  assert.equal(game.scene.menu.items.length, 10, 'the passes should fill the menu entries');
+  assert.equal(game.scene.menu.items.length, 11, 'the passes should fill the menu entries');
   assert.equal(
     game.scene.menu.items[4].label,
     'PETS TANK',
@@ -3532,6 +4169,8 @@ async function main() {
   );
   await frames(12);
   pets.food.length = 0;
+  pets.petEnemies.length = 0;
+  pets.nextWave = pets.meals + 1000;
   canvasPointerDownSecondary(480, 320);
   await frames(2);
   canvasPointerUp();
@@ -3637,6 +4276,132 @@ async function main() {
   pets.lures.length = 0;
   pets.petEnemies.length = 0;
 
+  const trickPet = pets.pets[0];
+  trickPet.x = 300;
+  trickPet.y = 300;
+  trickPet.waypointX = 300;
+  trickPet.waypointY = 300;
+  trickPet.roamTimer = 999;
+  trickPet.trickCooldown = 0;
+  trickPet.scared = 0;
+  trickPet.sleepy = 0;
+  trickPet.trick = null;
+  pets.coinBubbles.length = 0;
+  pets.toys.length = 0;
+  pets.food.length = 0;
+  pets.nextWave = pets.meals + 1000;
+  pets.dropCooldown = 0;
+  canvasPointerDown(300, 300);
+  await frames(2);
+  canvasPointerUp();
+  assert.ok(trickPet.trick, 'clicking a pet should start a trick');
+  assert.ok(trickPet.happy > 0, 'a trick should make the pet happy');
+  assert.equal(pets.coinBubbles.length, 1, 'a trick should drop a coin bubble');
+  await frames(60);
+  assert.equal(trickPet.trick, null, 'the trick should end');
+
+  storage.set('sharkquarium.coins', '100');
+  const coinBubble = pets.coinBubbles[0];
+  coinBubble.x = 400;
+  coinBubble.y = 300;
+  pets.dropCooldown = 0;
+  canvasPointerDown(400, 300);
+  await frames(2);
+  canvasPointerUp();
+  assert.equal(pets.coinBubbles.length, 0, 'clicking a coin bubble should collect it');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.coins')),
+    105,
+    'a coin bubble should pay sea coins',
+  );
+
+  const sleepyPet = pets.pets[1];
+  sleepyPet.x = 200;
+  sleepyPet.y = 200;
+  sleepyPet.sleepy = 2;
+  sleepyPet.trick = null;
+  sleepyPet.trickCooldown = 0;
+  sleepyPet.scared = 0;
+  pets.dropCooldown = 0;
+  canvasPointerDown(200, 200);
+  await frames(2);
+  canvasPointerUp();
+  assert.equal(sleepyPet.sleepy, 0, 'clicking a sleepy pet should wake it');
+  assert.equal(sleepyPet.trick, null, 'a waking pet should not do a trick');
+
+  const tastePet = pets.pets[0];
+  tastePet.hunger = 1;
+  tastePet.sleepy = 0;
+  tastePet.happy = 0;
+  pets.food.length = 0;
+  pets.petEnemies.length = 0;
+  pets.lures.length = 0;
+  pets.nextWave = pets.meals + 1000;
+  pets.dropCooldown = 0;
+  canvasPointerDownSecondary(480, 320);
+  await frames(2);
+  canvasPointerUp();
+  const tasteSnack = pets.food.find((item) => item.kind !== undefined);
+  assert.ok(tasteSnack, 'the taste test needs a critter');
+  tasteSnack.kind = 'MINNOW';
+  tastePet.x = 480;
+  tastePet.y = 320;
+  tastePet.waypointX = 480;
+  tastePet.waypointY = 320;
+  tastePet.meal = null;
+  tasteSnack.x = 480;
+  tasteSnack.y = 320;
+  tasteSnack.hover = 320;
+  await frames(2);
+  assert.ok(tastePet.hunger < 0.01, 'a favorite critter should fill the pet completely');
+  assert.ok(tastePet.happy > 0, 'a favorite critter should make the pet happy');
+
+  pets.dropCooldown = 0;
+  canvasPointerDown(726, 432);
+  await frames(2);
+  canvasPointerUp();
+  assert.equal(pets.toys.length, 1, 'the toy button should drop a toy');
+  const toy = pets.toys[0];
+  toy.x = 400;
+  toy.y = 300;
+  toy.vx = 0;
+  toy.vy = 0;
+  toy.boop = 0;
+  const toyPet = pets.pets[2];
+  toyPet.x = 400;
+  toyPet.y = 300;
+  toyPet.waypointX = 400;
+  toyPet.waypointY = 300;
+  toyPet.playful = 0;
+  await frames(2);
+  assert.ok(toyPet.playful > 0, 'bumping a toy should make the pet playful');
+
+  storage.set('sharkquarium.pets', JSON.stringify({ meals: pets.meals }));
+  pets.dropCooldown = 0;
+  canvasPointerDown(818, 432);
+  await frames(2);
+  canvasPointerUp();
+  assert.equal(pets.postcards.length, 1, 'the photo button should save a postcard');
+  assert.ok(pets.postcardTimer > 0, 'saving a postcard should show the card');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.pets')).postcards.length,
+    1,
+    'postcards should persist',
+  );
+
+  storage.set('sharkquarium.coins', '100');
+  const mealsBeforePack = pets.meals;
+  pets.dropCooldown = 0;
+  canvasPointerDown(910, 432);
+  await frames(2);
+  canvasPointerUp();
+  assert.equal(pets.meals, mealsBeforePack + 250, 'the meals button should add a meal pack');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.coins')),
+    75,
+    'a meal pack should cost sea coins',
+  );
+
   const swarmPet = feedingPet;
   for (const pet of pets.pets) {
     if (pet === swarmPet) continue;
@@ -3659,6 +4424,11 @@ async function main() {
   swarmPet.vx = 0;
   swarmPet.vy = 0;
   swarmPet.hunger = 1;
+  swarmPet.sleepy = 0;
+  swarmPet.trick = null;
+  swarmPet.scared = 0;
+  pets.petEnemies.length = 0;
+  pets.nextWave = pets.meals + 1000;
   await frames(12);
   pets.food.length = 0;
   canvasPointerDownSecondary(480, 160);
@@ -3696,6 +4466,8 @@ async function main() {
   firstPet.vx = 0;
   firstPet.vy = 0;
   firstPet.meal = null;
+  firstPet.sleepy = 0;
+  firstPet.trick = null;
   secondPet.x = 300;
   secondPet.y = 300;
   secondPet.waypointX = 400;
@@ -3704,6 +4476,8 @@ async function main() {
   secondPet.vx = 0;
   secondPet.vy = 0;
   secondPet.meal = null;
+  secondPet.sleepy = 0;
+  secondPet.trick = null;
   pets.food.length = 0;
   pets.petEnemies.length = 0;
   await frames(90);
@@ -3758,6 +4532,8 @@ async function main() {
   morayPrey.meal = null;
   morayPrey.vx = 0;
   morayPrey.vy = 0;
+  morayPrey.sleepy = 0;
+  morayPrey.trick = null;
   morayEnemy.x = morayPrey.x + 90;
   morayEnemy.y = morayPrey.y;
   await frames(4);
@@ -3868,6 +4644,8 @@ async function main() {
   wallPet.meal = null;
   wallPet.hunger = 0;
   wallPet.scared = 0;
+  wallPet.sleepy = 0;
+  wallPet.trick = null;
   wallPet.speed = 75;
   wallPet.vx = 0;
   wallPet.vy = 0;
@@ -4005,7 +4783,15 @@ async function main() {
   assert.equal(game.currentSceneName, 'aquarium', 'the menu should open the aquarium builder');
   assert.deepEqual(
     aquarium.menu.items.map((item) => item.label),
-    ['DIVE AS: SHARK', 'CHILL MODE: OFF', 'ITEM', 'UNDO', 'CLEAR ALL', 'BACK'],
+    [
+      'DIVE AS: SHARK',
+      'CHILL MODE: OFF',
+      'ITEM',
+      'UNDO',
+      'CLEAR ALL',
+      'LABYRINTH MODE: OFF',
+      'BACK',
+    ],
     'the builder should list its controls',
   );
   assert.equal(aquarium.itemKind, 'CORAL', 'the builder should start on coral');
@@ -4059,6 +4845,121 @@ async function main() {
     0,
     'clearing should persist',
   );
+  await tapKey('ArrowDown');
+  assert.equal(
+    aquarium.menu.selected.action,
+    'labyrinth',
+    'the labyrinth row should sit under clear all',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(aquarium.labyrinthOn, true, 'the labyrinth mode should turn on');
+  assert.ok(aquarium.labyrinth, 'labyrinth mode should build a wreck course');
+  assert.ok(aquarium.labyrinth.walls.length >= 6, 'the course should raise gates and stubs');
+  assert.ok(aquarium.labyrinth.supports.length >= 1, 'the course should brace itself with supports');
+  assert.equal(aquarium.menu.items[5].label, 'LABYRINTH MODE: ON', 'the row should show the state');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.aquarium')).labyrinth.on,
+    true,
+    'the labyrinth mode should persist',
+  );
+  assert.equal(aquarium.palette().length, 31, 'wreck pieces should join the palette with the mode');
+  const savedItemIndex = aquarium.itemIndex;
+  const crackIndex = aquarium.palette().findIndex((entry) => entry.key === 'LAB:CRACK');
+  aquarium.itemIndex = crackIndex;
+  assert.equal(aquarium.itemLabel, 'TENTACLE CRACK', 'the palette should offer tentacle bursters');
+  canvasPointerDown(700, 460);
+  await frames(2);
+  canvasPointerUp();
+  assert.ok(
+    aquarium.items.some((item) => item.entry.kind === 'LAB:CRACK'),
+    'the tentacle crack should place in the tank',
+  );
+  aquarium.itemIndex = aquarium.palette().findIndex((entry) => entry.key === 'LAB:WALL');
+  canvasPointerDown(420, 250);
+  await frames(2);
+  canvasPointerUp();
+  assert.ok(
+    aquarium.items.some((item) => item.entry.kind === 'LAB:WALL'),
+    'the wreck wall should place in the tank',
+  );
+  aquarium.itemIndex = aquarium.palette().findIndex((entry) => entry.key === 'LAB:BEAM');
+  assert.equal(aquarium.itemLabel, 'TENTACLE BEAM', 'the palette should offer ceiling bursters');
+  canvasPointerDown(860, 130);
+  await frames(2);
+  canvasPointerUp();
+  assert.ok(
+    aquarium.items.some((item) => item.entry.kind === 'LAB:BEAM'),
+    'the tentacle beam should place in the tank',
+  );
+  aquarium.startDive();
+  await frames(3);
+  assert.equal(aquarium.phase, 'dive', 'the hand-built labyrinth should be divable');
+  const burster = aquarium.items.find((item) => item.entry.kind === 'LAB:CRACK').entity;
+  burster.timer = 0;
+  aquarium.divePlayer.x = burster.x;
+  aquarium.divePlayer.y = burster.y - 90;
+  aquarium.divePlayer.vx = 0;
+  aquarium.divePlayer.vy = 0;
+  await frames(70);
+  assert.ok(
+    burster.arms.every((arm) => arm.reach > 0.2),
+    'the placed crack should burst its whole tentacle ripple',
+  );
+  assert.ok(aquarium.breachChunks.length > 0, 'the burster should fling breach chunks');
+  const bursterGrip = burster.arms[0].pointAt(0.1);
+  aquarium.divePlayer.x = bursterGrip.x;
+  aquarium.divePlayer.y = bursterGrip.y;
+  aquarium.divePlayer.invulnerable = 0;
+  await frames(30);
+  assert.ok(aquarium.divePlayer.invulnerable > 0, 'a burster should knock the diver back');
+
+  const beam = aquarium.items.find((item) => item.entry.kind === 'LAB:BEAM').entity;
+  assert.equal(beam.arms[0].club, true, 'the ceiling beam should wear the squid feeding club');
+  assert.equal(beam.arms[0].rope, true, 'the ceiling beam should be a thin squid rope');
+  beam.state = 'idle';
+  beam.timer = 0;
+  for (const arm of beam.arms) {
+    arm.burstTimer = 0;
+    arm.burstDelay = 0;
+    arm.reach = 0;
+  }
+  aquarium.divePlayer.x = beam.x;
+  aquarium.divePlayer.y = 430;
+  aquarium.divePlayer.vx = 0;
+  aquarium.divePlayer.vy = 0;
+  await frames(8);
+  assert.equal(beam.state, 'warn', 'the ceiling beam should still warn from the tank floor');
+  while (beam.state === 'warn') await frames(1);
+  await frames(8);
+  assert.ok(beam.arms[0].reach > 0.9, 'the ceiling beam should thrust straight at the diver');
+  const beamDistance = Math.hypot(
+    aquarium.divePlayer.x - beam.x,
+    aquarium.divePlayer.y - beam.y,
+  );
+  assert.ok(
+    Math.abs(beam.arms[0].stretch - Math.min(beamDistance, 401)) < 40 &&
+      beam.arms[0].stretch > 300,
+    'the ceiling beam should stretch toward the diver at the tank floor',
+  );
+  await frames(20);
+  assert.equal(beam.arms[0].curlGrow, 0, 'the beam lance should hold rigid before hooking');
+  await frames(60);
+  assert.ok(beam.arms[0].curlGrow > 0.2, 'the ceiling beam should hook at the bottom');
+  await tapKey('Escape');
+  await frames(3);
+  assert.equal(aquarium.phase, 'build', 'escaping the hand-built labyrinth should surface');
+  aquarium.itemIndex = savedItemIndex;
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(aquarium.labyrinthOn, false, 'the labyrinth mode should turn back off');
+  assert.equal(aquarium.labyrinth, null, 'turning it off should clear the course');
+  assert.equal(aquarium.palette().length, 22, 'the wreck pieces should leave with the mode');
+  await tapKey('ArrowUp');
+  assert.equal(aquarium.menu.selected.action, 'clear', 'clear all should sit above the maze row');
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(aquarium.items.length, 0, 'clearing after the maze test should empty the tank');
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
   assert.equal(aquarium.menu.selected.action, 'item', 'the item row should stay reachable');
@@ -4224,6 +5125,40 @@ async function main() {
   assert.equal(game.scene.pets.length, 1, 'the saved pets should reload');
   assert.equal(game.scene.enemyEntities.length, 1, 'the saved enemies should reload');
   assert.equal(game.scene.chill, false, 'a missing chill flag should default to off');
+  await tapKey('Escape');
+  await frames(5);
+
+  storage.set(
+    'sharkquarium.aquarium',
+    JSON.stringify({ items: [], labyrinth: { on: true, seed: 7 } }),
+  );
+  game.changeScene('aquarium');
+  await frames(5);
+  const mazeTank = game.scene;
+  assert.equal(mazeTank.labyrinthOn, true, 'a saved labyrinth mode should reload');
+  assert.ok(mazeTank.labyrinth.walls.length >= 6, 'the saved maze should rebuild its course');
+  assert.equal(mazeTank.menu.items[5].label, 'LABYRINTH MODE: ON', 'the reloaded row should follow');
+  await tapKey('Enter');
+  await frames(3);
+  assert.equal(mazeTank.phase, 'dive', 'the maze tank should be divable');
+  const hanging = mazeTank.labyrinth.walls
+    .filter((wall) => wall.y <= 0)
+    .sort((a, b) => b.w - a.w)[0];
+  const mazeDiver = mazeTank.divePlayer;
+  mazeDiver.x = hanging.x + hanging.w / 2;
+  mazeDiver.y = hanging.y + hanging.h + 60;
+  mazeDiver.vx = 0;
+  mazeDiver.vy = 0;
+  pressKey('ArrowUp');
+  await frames(40);
+  releaseKey('ArrowUp');
+  assert.ok(
+    mazeDiver.y > hanging.y + hanging.h,
+    'maze walls should block the diver from passing',
+  );
+  await tapKey('Escape');
+  await frames(3);
+  assert.equal(mazeTank.phase, 'build', 'escape should surface from the maze dive');
   await tapKey('Escape');
   await frames(5);
 

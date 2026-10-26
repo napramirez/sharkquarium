@@ -30,7 +30,7 @@ index.html           dev entry that loads the ES modules
 styles/main.css      page shell styles
 src/engine/          reusable engine (loop, scenes, input, audio, rendering, UI widgets)
 src/ui/              game HUD
-src/scenes/          boot, intro, menu, tank select, settings, shop, minigames, tag, dodgeball, labyrinth, track player, cutscene theatre, game trailer, aquarium builder and dive, play, game over, descent, dawn cutscene
+src/scenes/          boot, intro, menu, tank select, settings, shop, minigames, tag, dodgeball, labyrinth, puffer ball, school roundup, stealth dive, trench dive, jelly ascent, reef cleanup, track player, cutscene theatre, game trailer, movie and shop trailers, lore codex, aquarium builder and dive, play, game over, descent, dawn cutscene
 src/entities/        each tank's player creatures, hazards, and collectibles
 src/config.js        all game tuning and palette
 src/assets/          image manifest (data URIs) + tank music tracks
@@ -125,22 +125,29 @@ playpasses), the minigames
 menu, the two-player competition race and its 1P target chase, the tag minigame with
 named players, CPU
 swimmers, random CPU targeting, and tag-separation pushes, solo tag and solo dodgeball
-survival, difficulty-scaled minigame rules, the nine playpasses with their
+survival, difficulty-scaled minigame rules, the six paid arcade games (puffer ball
+against the CPU, school roundup, stealth dive, trench dive, jelly ascent, and the
+no-clock reef cleanup whose morays peek, bite, and retreat), the nine playpasses with their
 pass-granted cosmetics (ragdoll plushies, the RGB neon jacket, eel aura rings, five swim
-trails, twenty companion pals covering every playable creature and enemy, and dual
-head/body trinket slots), the playerless pets tank with its snack-feeding (clicks and on-screen buttons),
-despawn lures, saved progress, and
+trails, twenty-one companion pals covering every playable creature and enemy —
+including the MINI MEGASQUID — and dual
+head/body trinket slots), the 2P wardrobe with its PLAYER row and per-player buddy,
+trail, and aura slots, the lore codex with its five sections, the playerless pets tank
+with its snack-feeding (clicks and on-screen buttons),
+despawn lures, saved progress, pet tricks, toys, postcards, and meal packs, and
 cross-level enemy waves (jellyfish, turtle, pufferfish, anglerfish, and morays) that bite the pets and drain the tally, minigame
 coin rewards and win counters, pufferfish dodgeball with
 its three lives, no timer, and endless escalation, the labyrinth escape with its
-checkpoint masts, the part and per-player diver pickers, the GAME TRAILER, the all-tank gameplay gauntlet, the nested tank and minigame cut-downs, the LABYRINTH TRAILER, the joystick steering, tentacle wall and grabber lunges, its seven-part descent,
-cracked-ground bursts, wall ambushes, ceiling chunks, the watching
+checkpoint masts, the part and per-player diver pickers, the WRECK ARRIVAL cutscene, the GAME TRAILER, the all-tank gameplay gauntlet, the SHARKQUARIUM: THE MOVIE and SHOP TRAILER reels, the nested tank and minigame cut-downs, the LABYRINTH TRAILER, the joystick steering, tentacle wall and grabber lunges, its seven-part descent,
+cracked-ground bursts, wall ambushes, ceiling feeding spears, ceiling chunks, the watching
 squid, grab respawns, the moray tail-slide retreat, the grab-clump spawner, the slowest-diver wall cap, the stingray's disabled deck burrow, saved-part resume, the MEGASQUID ending, dread theme, and
 co-op/solo
 results, the kelp forest tank with its crab
 player and octopus boss, the per-tank themed backdrops, the track player with every level theme
 (including tracks held across scenes), the endless dive with its lives carry and
-out-of-lives panel, the aquarium builder with its full palette, dive mode, chill toggle, and saved
+out-of-lives panel, the aquarium builder with its full palette, dive mode, chill toggle,
+LABYRINTH MODE with its seeded wreck course and hand-placed wall, support, and tentacle
+burster pieces, and saved
 layouts, and co-op
 two-creature control — so code and build regressions surface immediately. The artifact
 is a single HTML file with no external requests and can be opened from `file://`.

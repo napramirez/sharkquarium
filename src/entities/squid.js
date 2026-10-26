@@ -19,6 +19,7 @@ export class Squid extends Entity {
     this.hideX = x;
     this.hideY = y;
     this.armPhase = 0;
+    this.jacketFit = { x: -0.7, y: 0, rx: 0.9, ry: 0.72 };
   }
 
   get concealed() {
@@ -85,54 +86,57 @@ export class Squid extends Entity {
       ctx.scale(scale, scale);
     }
     ctx.rotate(this.heading);
-
-    ctx.beginPath();
-    ctx.moveTo(radius * 1.1, 0);
-    ctx.quadraticCurveTo(radius * 0.8, -radius * 0.95, -radius * 0.6, -radius * 0.8);
-    ctx.quadraticCurveTo(-radius * 1.9, -radius * 0.45, -radius * 2.1, 0);
-    ctx.quadraticCurveTo(-radius * 1.9, radius * 0.45, -radius * 0.6, radius * 0.8);
-    ctx.quadraticCurveTo(radius * 0.8, radius * 0.95, radius * 1.1, 0);
-    ctx.closePath();
-    ctx.fillStyle = playerColor('body', COLORS.squid);
-    ctx.fill();
-
-    ctx.fillStyle = 'rgba(122, 62, 74, 0.4)';
-    ctx.beginPath();
-    ctx.ellipse(-radius * 0.9, -radius * 0.5, radius * 0.5, radius * 0.22, -0.5, 0, TAU);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(-radius * 0.9, radius * 0.5, radius * 0.5, radius * 0.22, 0.5, 0, TAU);
-    ctx.fill();
-
-    ctx.strokeStyle = playerColor('accent', COLORS.squid);
-    ctx.lineWidth = 2.4;
-    ctx.lineCap = 'round';
-    for (let i = 0; i < 4; i += 1) {
-      const spread = (i - 1.5) * 0.32;
-      const wave = Math.sin(this.armPhase + i * 1.4) * radius * 0.28;
-      ctx.beginPath();
-      ctx.moveTo(radius * 0.85, spread * radius * 0.6);
-      ctx.quadraticCurveTo(
-        radius * 1.7,
-        spread * radius + wave * 0.5,
-        radius * 2.5,
-        spread * radius * 1.4 + wave,
-      );
-      ctx.stroke();
-    }
-
-    for (const side of [-1, 1]) {
-      ctx.beginPath();
-      ctx.arc(radius * 0.45, side * radius * 0.42, radius * 0.25, 0, TAU);
-      ctx.fillStyle = '#f4fbff';
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(radius * 0.55, side * radius * 0.42, radius * 0.13, 0, TAU);
-      ctx.fillStyle = '#10233a';
-      ctx.fill();
-    }
-
+    drawSquidBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
     ctx.restore();
+  }
+}
+
+export function drawSquidBody(ctx, radius, pose) {
+  const armPhase = pose.armPhase ?? 0;
+  ctx.beginPath();
+  ctx.moveTo(radius * 1.1, 0);
+  ctx.quadraticCurveTo(radius * 0.8, -radius * 0.95, -radius * 0.6, -radius * 0.8);
+  ctx.quadraticCurveTo(-radius * 1.9, -radius * 0.45, -radius * 2.1, 0);
+  ctx.quadraticCurveTo(-radius * 1.9, radius * 0.45, -radius * 0.6, radius * 0.8);
+  ctx.quadraticCurveTo(radius * 0.8, radius * 0.95, radius * 1.1, 0);
+  ctx.closePath();
+  ctx.fillStyle = playerColor('body', COLORS.squid);
+  ctx.fill();
+
+  ctx.fillStyle = 'rgba(122, 62, 74, 0.4)';
+  ctx.beginPath();
+  ctx.ellipse(-radius * 0.9, -radius * 0.5, radius * 0.5, radius * 0.22, -0.5, 0, TAU);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.ellipse(-radius * 0.9, radius * 0.5, radius * 0.5, radius * 0.22, 0.5, 0, TAU);
+  ctx.fill();
+
+  ctx.strokeStyle = playerColor('accent', COLORS.squid);
+  ctx.lineWidth = radius * 0.11;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 4; i += 1) {
+    const spread = (i - 1.5) * 0.32;
+    const wave = Math.sin(armPhase + i * 1.4) * radius * 0.28;
+    ctx.beginPath();
+    ctx.moveTo(radius * 0.85, spread * radius * 0.6);
+    ctx.quadraticCurveTo(
+      radius * 1.7,
+      spread * radius + wave * 0.5,
+      radius * 2.5,
+      spread * radius * 1.4 + wave,
+    );
+    ctx.stroke();
+  }
+
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.arc(radius * 0.45, side * radius * 0.42, radius * 0.25, 0, TAU);
+    ctx.fillStyle = '#f4fbff';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(radius * 0.55, side * radius * 0.42, radius * 0.13, 0, TAU);
+    ctx.fillStyle = '#10233a';
+    ctx.fill();
   }
 }

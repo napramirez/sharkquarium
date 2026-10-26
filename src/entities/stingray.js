@@ -24,6 +24,7 @@ export class Stingray extends Entity {
     this.burrowY = 0;
     this.tailPhase = 0;
     this.tangleTimer = 0;
+    this.jacketFit = { x: -0.05, y: 0, rx: 0.72, ry: 0.72 };
   }
 
   get concealed() {
@@ -107,51 +108,7 @@ export class Stingray extends Entity {
       ctx.translate(this.x, this.y);
       if (flash) ctx.globalAlpha = 0.4;
       ctx.rotate(this.heading);
-
-      ctx.strokeStyle = this.bodyColor;
-      ctx.lineWidth = 2.5;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      ctx.moveTo(-radius * 0.8, 0);
-      ctx.quadraticCurveTo(
-        -radius * 1.8,
-        Math.sin(this.tailPhase) * radius * 0.5,
-        -radius * 2.6,
-        Math.sin(this.tailPhase + 1.1) * radius * 0.35,
-      );
-      ctx.stroke();
-
-      ctx.beginPath();
-      ctx.moveTo(radius * 1.3, 0);
-      ctx.quadraticCurveTo(radius * 0.4, -radius * 1.5, -radius * 0.7, -radius * 1.1);
-      ctx.quadraticCurveTo(-radius * 1.0, -radius * 0.3, -radius * 0.9, 0);
-      ctx.quadraticCurveTo(-radius * 1.0, radius * 0.3, -radius * 0.7, radius * 1.1);
-      ctx.quadraticCurveTo(radius * 0.4, radius * 1.5, radius * 1.3, 0);
-      ctx.closePath();
-      ctx.fillStyle = playerColor('body', this.bodyColor);
-      ctx.fill();
-
-      ctx.fillStyle = playerColor('accent', this.spotColor);
-      for (let i = 0; i < 4; i += 1) {
-        ctx.beginPath();
-        ctx.arc(
-          -radius * 0.5 + i * radius * 0.4,
-          (i % 2 === 0 ? -1 : 1) * radius * 0.28,
-          radius * 0.11,
-          0,
-          TAU,
-        );
-        ctx.fill();
-      }
-
-      ctx.fillStyle = shadowEyeColor(this.eyeColor);
-      ctx.beginPath();
-      ctx.arc(radius * 0.75, -radius * 0.3, radius * 0.09, 0, TAU);
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(radius * 0.75, radius * 0.3, radius * 0.09, 0, TAU);
-      ctx.fill();
-
+      drawStingrayBody(ctx, radius, this);
       drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
       ctx.restore();
     }
@@ -189,4 +146,52 @@ export class Stingray extends Entity {
     ctx.fill();
     ctx.restore();
   }
+}
+
+export function drawStingrayBody(ctx, radius, pose) {
+  const bodyColor = pose.bodyColor ?? COLORS.stingray;
+  const tailPhase = pose.tailPhase ?? 0;
+  ctx.strokeStyle = bodyColor;
+  ctx.lineWidth = radius * 0.11;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-radius * 0.8, 0);
+  ctx.quadraticCurveTo(
+    -radius * 1.8,
+    Math.sin(tailPhase) * radius * 0.5,
+    -radius * 2.6,
+    Math.sin(tailPhase + 1.1) * radius * 0.35,
+  );
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(radius * 1.3, 0);
+  ctx.quadraticCurveTo(radius * 0.4, -radius * 1.5, -radius * 0.7, -radius * 1.1);
+  ctx.quadraticCurveTo(-radius * 1.0, -radius * 0.3, -radius * 0.9, 0);
+  ctx.quadraticCurveTo(-radius * 1.0, radius * 0.3, -radius * 0.7, radius * 1.1);
+  ctx.quadraticCurveTo(radius * 0.4, radius * 1.5, radius * 1.3, 0);
+  ctx.closePath();
+  ctx.fillStyle = playerColor('body', bodyColor);
+  ctx.fill();
+
+  ctx.fillStyle = playerColor('accent', pose.spotColor ?? 'rgba(70, 62, 50, 0.35)');
+  for (let i = 0; i < 4; i += 1) {
+    ctx.beginPath();
+    ctx.arc(
+      -radius * 0.5 + i * radius * 0.4,
+      (i % 2 === 0 ? -1 : 1) * radius * 0.28,
+      radius * 0.11,
+      0,
+      TAU,
+    );
+    ctx.fill();
+  }
+
+  ctx.fillStyle = shadowEyeColor(pose.eyeColor ?? '#10233a');
+  ctx.beginPath();
+  ctx.arc(radius * 0.75, -radius * 0.3, radius * 0.09, 0, TAU);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(radius * 0.75, radius * 0.3, radius * 0.09, 0, TAU);
+  ctx.fill();
 }

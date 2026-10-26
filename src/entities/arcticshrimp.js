@@ -19,6 +19,7 @@ export class ArcticShrimp extends Entity {
     this.offsetY = 0;
     this.exitCooldown = 0;
     this.armPhase = 0;
+    this.jacketFit = { x: 0, y: 0, rx: 0.42, ry: 0.32 };
   }
 
   get concealed() {
@@ -89,60 +90,63 @@ export class ArcticShrimp extends Entity {
     ctx.translate(this.x, this.y);
     if (flash) ctx.globalAlpha = 0.4;
     ctx.rotate(this.heading);
-
-    const flick = Math.sin(this.armPhase * 1.5) * 0.3;
-    ctx.save();
-    ctx.translate(-radius * 0.9, 0);
-    ctx.rotate(flick);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-radius * 0.7, -radius * 0.5);
-    ctx.lineTo(-radius * 0.9, 0);
-    ctx.lineTo(-radius * 0.7, radius * 0.5);
-    ctx.closePath();
-    ctx.fillStyle = playerColor('accent', COLORS.arcticshrimp);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.beginPath();
-    ctx.moveTo(radius * 0.9, 0);
-    ctx.quadraticCurveTo(radius * 0.2, -radius * 0.62, -radius * 0.5, -radius * 0.2);
-    ctx.quadraticCurveTo(-radius * 0.8, 0, -radius * 0.5, radius * 0.2);
-    ctx.quadraticCurveTo(radius * 0.2, radius * 0.62, radius * 0.9, 0);
-    ctx.closePath();
-    ctx.fillStyle = playerColor('body', COLORS.arcticshrimp);
-    ctx.fill();
-
-    ctx.strokeStyle = 'rgba(70, 78, 86, 0.5)';
-    ctx.lineWidth = 1;
-    for (let i = 0; i < 3; i += 1) {
-      const x = -radius * 0.2 + i * radius * 0.32;
-      ctx.beginPath();
-      ctx.moveTo(x, -radius * 0.42);
-      ctx.quadraticCurveTo(x + radius * 0.1, 0, x, radius * 0.42);
-      ctx.stroke();
-    }
-
-    ctx.strokeStyle = 'rgba(210, 218, 224, 0.85)';
-    ctx.lineWidth = 1.2;
-    ctx.beginPath();
-    ctx.moveTo(radius * 0.8, -radius * 0.15);
-    ctx.quadraticCurveTo(radius * 1.5, -radius * 0.5, radius * 1.9, -radius * 0.25);
-    ctx.moveTo(radius * 0.8, radius * 0.15);
-    ctx.quadraticCurveTo(radius * 1.5, radius * 0.5, radius * 1.9, radius * 0.25);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.arc(radius * 0.55, -radius * 0.2, radius * 0.13, 0, TAU);
-    ctx.fillStyle = shadowEyeColor('#10233a');
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(-radius * 0.1, -radius * 0.28, radius * 0.12, 0, TAU);
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-    ctx.fill();
-
+    drawArcticShrimpBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
     ctx.restore();
   }
+}
+
+export function drawArcticShrimpBody(ctx, radius, pose) {
+  const armPhase = pose.armPhase ?? 0;
+  const flick = Math.sin(armPhase * 1.5) * 0.3;
+  ctx.save();
+  ctx.translate(-radius * 0.9, 0);
+  ctx.rotate(flick);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(-radius * 0.7, -radius * 0.5);
+  ctx.lineTo(-radius * 0.9, 0);
+  ctx.lineTo(-radius * 0.7, radius * 0.5);
+  ctx.closePath();
+  ctx.fillStyle = playerColor('accent', COLORS.arcticshrimp);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.moveTo(radius * 0.9, 0);
+  ctx.quadraticCurveTo(radius * 0.2, -radius * 0.62, -radius * 0.5, -radius * 0.2);
+  ctx.quadraticCurveTo(-radius * 0.8, 0, -radius * 0.5, radius * 0.2);
+  ctx.quadraticCurveTo(radius * 0.2, radius * 0.62, radius * 0.9, 0);
+  ctx.closePath();
+  ctx.fillStyle = playerColor('body', COLORS.arcticshrimp);
+  ctx.fill();
+
+  ctx.strokeStyle = 'rgba(70, 78, 86, 0.5)';
+  ctx.lineWidth = radius * 0.045;
+  for (let i = 0; i < 3; i += 1) {
+    const x = -radius * 0.2 + i * radius * 0.32;
+    ctx.beginPath();
+    ctx.moveTo(x, -radius * 0.42);
+    ctx.quadraticCurveTo(x + radius * 0.1, 0, x, radius * 0.42);
+    ctx.stroke();
+  }
+
+  ctx.strokeStyle = 'rgba(210, 218, 224, 0.85)';
+  ctx.lineWidth = radius * 0.055;
+  ctx.beginPath();
+  ctx.moveTo(radius * 0.8, -radius * 0.15);
+  ctx.quadraticCurveTo(radius * 1.5, -radius * 0.5, radius * 1.9, -radius * 0.25);
+  ctx.moveTo(radius * 0.8, radius * 0.15);
+  ctx.quadraticCurveTo(radius * 1.5, radius * 0.5, radius * 1.9, radius * 0.25);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.arc(radius * 0.55, -radius * 0.2, radius * 0.13, 0, TAU);
+  ctx.fillStyle = shadowEyeColor('#10233a');
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(-radius * 0.1, -radius * 0.28, radius * 0.12, 0, TAU);
+  ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
+  ctx.fill();
 }

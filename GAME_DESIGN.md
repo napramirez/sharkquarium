@@ -22,9 +22,13 @@ Engine modules: `game.js` (fixed-timestep loop, scene registry, DPR-aware resize
 `scene.js` (base class), `input.js` (action bindings and pointer state), `audio.js`
 (WebAudio synth bus), `music.js` (step-sequenced tank themes), `render.js` (draw
 helpers), `selectlist.js` (navigable list widget), `joystick.js` (on-screen thumbstick),
+`minigame.js` (the shared minigame scene scaffold with fees-agnostic results plumbing),
 `skin.js` (shop color catalog and player recoloring), `accessory.js` (shop trinkets
 rendered onto the creatures, routed through `plushie.js` for the ragdoll plushie pack),
-`trail.js` (per-entity swim wakes) and `companion.js` (per-entity follower pals),
+`trail.js` (per-entity swim wakes), `companion.js` (per-entity follower pals),
+`aura.js` (per-entity orbiting rings — creature, weapon, neon, and bubble auras) and
+`wardrobe.js` (`applyWardrobe(shop, player)` switches every cosmetic module to P1's or
+P2's saved set for co-op rendering),
 `progress.js` (minigame rewards and counters), `math.js`, `collision.js` (circle
 overlap), `particles.js`, `assets.js` (image loader), `storage.js` (safe localStorage
 JSON).
@@ -58,18 +62,26 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   aquarium window, and ENTER returns to the menu.
 - `ShopScene` (`shop`) sells character colors, coin trinkets, and nine playpasses
   (1200 each, browsed with Left/Right). Its menu rows are COLOR, CREATURE, HEAD, BODY,
-  TRAIL, COMPANION, PLAYPASS, and BACK: HEAD/BODY split `ACCESSORIES` by their `slot`
-  tag into two independent equip slots (a hat combines with a plushie), while TRAIL and
-  COMPANION browse `TRAILS`/`COMPANIONS`. Pass 1 unlocks minigames, pass 2 grants the
+  TRAIL, DIVE BUDDIES, AURA, PLAYPASS, PLAYER, and BACK: HEAD/BODY split `ACCESSORIES` by their
+  `slot` tag into two independent equip slots (a hat combines with a plushie), while
+  TRAIL, DIVE BUDDIES, and AURA browse `TRAILS`/`COMPANIONS`/`AURAS`. The PLAYER row
+  switches the wardrobe between P1 and P2: every equip applies to the active player's
+  `*2` slot pair (`skin2`, `head2`, `back2`, `trail2`, `companion2`, `aura2`, each
+  defaulting to its P1 value on old saves) while purchases stay shared, so one diver can
+  wear SUNSET ORANGE while the other wears RED and both sets follow them into co-op
+  scenes. Pass 1 unlocks
+  minigames, pass 2 grants the
   pass-exclusive MONSOON/EMBER colors and PIRATE HAT/PROPELLER CAP trinkets (ownership
   checks union `passGranted()` over `PASSES`, so granted items equip for free and cannot
   be coin-bought), pass 3 unlocks the pets tank, pass 4 unlocks the endless dive, pass 5
-  grants the cosmetics bundle — eleven ragdoll plushies, the hue-cycling NEON JACKET,
-  and the SHADOW/RAINBOW eel auras (`setEelAura()` feeds `skin.js` from the pass list on
-  every scene enter and on purchase) — pass 6
+  grants the cosmetics bundle — eleven ragdoll plushies, the hue-cycling NEON JACKET
+  tailored to each wearer through a per-entity `jacketFit` metric, and the removable
+  EEL AURA trinket (`auraForShop()` feeds `skin.js` from the shop's `aura` key,
+  defaulting legacy session saves that own pass 5 to the attached ring) — pass 6
   unlocks the rare pets and trained fetching, pass 7 grants the five TRAILS, pass 8
-  grants the twenty COMPANIONS (the five favourites plus mini versions of every playable
-  creature and every enemy), and pass 9 unlocks the aquarium builder.
+  grants the twenty-one DIVE BUDDIES (the five favourites plus mini versions of every playable
+  creature and every enemy, and the MINI MEGASQUID boss buddy), and pass 9 unlocks the
+  aquarium builder.
   `drawAccessory(ctx, radius, time, frame)` now carries an optional render frame
   (`{ entity, heading, flip }`) so `plushie.js` can read each wearer's velocity: every
   plushie keeps its appendage chains in a `WeakMap` of spring/damper joints
@@ -77,11 +89,19 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   entity's rotated or mirrored render space), straighten under speed, and sway at rest,
   with per-creature specs for the seven divers, the moray, and the three rare pets.
   `trail.js` samples each swimmer's recent positions in a per-entity `WeakMap` and draws
-  the five wakes; `companion.js` eases a floating pal behind the entity along its
-  velocity or heading. It previews each of the seven
+  the five wakes; `companion.js` eases a floating dive buddy behind the entity along its
+  velocity or heading, and the seven buddies that mirror the playable creatures redraw
+  them through the divers' own exported `drawSharkBody`/`drawStingrayBody`/`drawSquidBody`/
+  `drawArcticShrimpBody`/`drawKelpCrabBody`/`drawMoonJellyBody`/`drawNautilusBody`
+  helpers at buddy scale, so they inherit every silhouette and the equipped color, while
+  `drawMorayBody`, `drawDartEel`, and `drawElectricEel` do the same for the moray, dart
+  eel, and volt eel buddies, and the MINI MEGASQUID redraws the labyrinth boss through
+  the shared `drawMegasquid`/`drawMegasquidEye` helpers from
+  `src/entities/megasquid.js` (periodic blinks, the eye tracking forward). It
+  previews each of the seven
   playable creatures in the selected
-  color (wearing both equipped slots, the equipped trail, and the companion), and persists
-  `{ owned, skin, passes, accessories, trails, companions, head, back, trail, companion }`
+  color (wearing the active player's equipped slots, trail, buddy, and aura), and persists
+  `{ owned, skin, skin2, passes, accessories, trails, companions, auras, head, head2, back, back2, trail, trail2, companion, companion2, aura, aura2 }`
   under `SHOP_KEY` (legacy `accessory` saves migrate into their slot on entry) and the
   bank under
   `COINS_KEY`. `MinigamesScene` (`minigames`) lists the unlocked playpass content and
@@ -103,6 +123,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `playerColor(slot, fallback)`, so specials like SHADOW (pulsing red accents, plus
   white dot eyes on the shrimp, stingray, and nautilus via `shadowEyeColor()`) and
   RAINBOW (hue cycling) work across every creature.
+- `LoreScene` (`lore`, opened from the menu's LORE row) is the codex: it reads the
+  `LORE` catalog — THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, and THE MINIGAMES,
+  forty-four named entries in all — and renders Left/Right section tabs, an Up/Down
+  entry list with a centered window and `n/m` counters, and the wrapped story text in a
+  side panel.
 - `TrackPlayerScene` (`tracks`, opened from SETTINGS) lists `TRACK_LIBRARY` from
   `src/assets/tracks.js` and plays or stops any tank theme through the shared
   `MusicPlayer`; playing sets `music.hold`, so the chosen theme keeps playing after the
@@ -111,15 +136,18 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   game trailer, the
   intro splash, the eight `TANK_INTROS` descents, the dawn cutscene, the labyrinth
   trailer, and the labyrinth
-  finale — and launches each with a `from: 'theatre'` param (`{ trailer: true }` or
-  `{ ending: true }` for the labyrinth) so `IntroScene`, `TeleportScene`, `DawnScene`, and the labyrinth's trailer/ending
+  finale — and launches each with a `from: 'theatre'` param (`{ trailer: true }`,
+  `{ arrival: true }`, or
+  `{ ending: true }` for the labyrinth) so `IntroScene`, `TeleportScene`, `DawnScene`, and the labyrinth's trailer/arrival/ending
   phases all return to the theatre instead of their normal destinations, with no minigame
-  rewards recorded. An `ALL-TANK GAMEPLAY` row launches the gauntlet trailer directly, and
+  rewards recorded. An `ALL-TANK GAMEPLAY` row launches the gauntlet trailer directly, a
+  `SHOP TRAILER` row runs the trailer in shop mode (`{ shop: true }`), a
+  `WRECK ARRIVAL` row replays the labyrinth's arrival cutscene, and
   the `TANK TRAILERS` and `MINIGAME TRAILERS` rows swap the list for nested pages
   (`createMenu('main' | 'tanks' | 'minigames')`) of `TANK_TRAILER_LIST` /
   `MINIGAME_TRAILER_LIST` rows — launched as `trailer` with `{ tank }` or `{ minigame }` —
   with `BACK`/Esc stepping out to the cutscene list while the main page keeps its denser
-  layout for seventeen rows.
+  layout for nineteen rows.
 - `TrailerScene` (`trailer`, the game trailer) is a self-contained nine-shot montage:
   `SHOTS` pairs a duration, title card, and palette per shot (`title`, `reef`, `deep`,
   `arctic`, `bosses`, `minigames`, `dress`, `labyrinth`, `finale`), `buildShot()` casts
@@ -143,6 +171,44 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   nine 3.4 s gameplay shots (one per tank in chain order, alternating feature and threat
   casts through `buildTankShot(view, shot.tank)`), and a finale card; `isCard()` keeps
   those gameplay shots out of the card styling so the cut plays as continuous footage.
+  `enter({ movie: true })` runs **SHARKQUARIUM: THE MOVIE**, the longest cut in the
+  theatre: `movieShots()` books a title card, the same nine tank gameplay shots, an
+  INTERMISSION card, one gameplay shot per minigame (setting `this.minigameId` per shot
+  so `buildMinigameShot(view)` casts it), and a THE END card — sixteen shots in one
+  ~55 s feature. The movie branch of `applyShot()` routes each shot to its builder
+  (`shot.tank` / `shot.minigame` / the card's ambient `game` build), `isCard()` treats
+  only flagged cards as cards so the footage plays continuously, and the overlay header
+  reads `SHARKQUARIUM — THE MOVIE`. `enter({ shop: true })` runs the **SHOP TRAILER**:
+  `shopShots()` books a title card, five dress-up shelves (colors, head trinkets, body
+  wear, trails and dive buddies, auras), and three closing cards (sea coins, playpasses,
+  dress-up-then-dive); the shop branch of `update()` cycles the trailer's live cosmetics
+  (`skinByKey` / `accessoryByKey` on the color, head, and body shelves and
+  `trailByKey` / `companionByKey` / `auraByKey` on the trail and aura shelves),
+  `buildShopShot()` lines the seven creatures up mid-water, `render()` feeds the actives
+  to `drawSkinAura` / `drawTrail` / `drawCompanion` for every performer, and the overlay
+  header reads `SHARKQUARIUM — SHOP TRAILER`.
+- Six paid arcade games share `MinigameScene` (`src/engine/minigame.js`), which owns the
+  enter/reset/results scaffolding, the standard PLAY AGAIN / MINIGAMES menu, per-player
+  wardrobes via `applyWardrobe`, and `finish(won)` (which pays through `recordMinigame`):
+  `PufferballScene` (`pufferball`) is first-to-three puffer volleyball against P2 or a
+  CPU chaser; `RoundupScene` (`roundup`, solo) herds three fleeing sardine schools into
+  the left net before the clock; `StealthScene` (`stealth`, solo shrimp or co-op with a
+  kelp crab) sneaks past three patrolling seals with vision cones and rock cover,
+  respawning at checkpoints on three spot-outs; `TrenchScene` (`trench`, solo) is a
+  60-second descent through scrolling ice barriers, gold pearls, currents, and dark
+  bands with three hits; `JellyAscentScene` (`jellyascent`, solo) pulse-bounces a moon
+  jelly up a scrolling shaft of ring gaps and updrafts; and `CleanupScene` (`cleanup`,
+  solo or co-op) nudges floating wreckage into the recycle net while three moray holes
+  lunge, its HUD keeping the `RECYCLED n/target` counter and running with no clock at
+  all — the round ends on the recycled target. Each hole runs a smooth
+  `peek`/`bite`/`retreat` cycle: `rise` and `jaw` ease toward per-phase targets
+  (`peekHeight`/`biteHeight`, `peekTime`/`biteTime`/`retreatTime`, with `biteEase` for
+  the fast strike), the long body glides out of the hole behind the head — a
+  `paintMorayTrail` ribbon whose span grows with `rise`, clipped at the floor lip — and
+  every hole wears the stingray tank's `EEL_VARIANTS` by index (brown, olive, spotted
+  yellow). Fees live in `MINIGAME_FEES` (25–45 coins) and are charged by
+  `MinigamesScene.choose()` on every entry from the menu; `PLAY AGAIN` after a round
+  stays inside the paid session.
 - `DodgeballScene` (`dodgeball`) is the third minigame: two shark players with three
   lives each dodge `Pufferfish` that telegraph at an arena edge (charge state with an
   inflation grow and warning ring) before flying across on wobbling lines. Hits pop the
@@ -163,7 +229,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   separate `P1 CREATURE`/`P2 CREATURE` rows (actions `creature1`/`creature2`) with one
   preview each, so both divers pick independently. `saveProgress()` stores the progress
   part and both picks under `LABYRINTH_KEY` (`{ part, creature, creature2 }`); confirming
-  calls `resetRound()`, which builds the course and
+  hands off to `startArrival()`, the skippable `LABYRINTH.arrivalDuration` opening
+  cutscene: it builds the course, swims all seven `DIVE_CREATURES` in from off-screen
+  (`arrivalCrew`, staggered speeds and lanes, a small recoil once the boss shows), then
+  rises the MEGASQUID (`arrivalMegasquid`, `reveal` ramping over 1.1 s from
+  `LABYRINTH.arrivalReveal`) before calling `resetRound()` — which builds the course and
   spawns each player's picked class (`maxX: worldLength` bounds on all seven). A start
   matching the saved part shows the `RESUMING` banner; a hand-picked one does not.
   `finish()` clears the save on a full escape and otherwise stores the highest part
@@ -185,7 +255,15 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   reads as continuous octopus arms; the seven gameplay grabbers ride in the same tangle
   and lunge when the nearest live player is within `grabRange`. Every arm renders as a
   tapered octopus arm with a shaded top, two staggered rows of suckers on its underside,
-  and a tip that curls harder as it reaches (`curlStart`/`curlBase`/`curlGrab`). For
+  and a tip that curls harder as it reaches (`curlStart`/`curlBase`/`curlGrab`); ceiling
+  arms wear the squid's feeding club (`club: true`), replacing the round tip cap with a
+  dark-rimmed diamond pad studded with rows of pale suckers
+  (`renderClub`),
+  and switch to the squid-rope profile (`rope: true`): a thin, near-uniform `ropeWidth`
+  ribbon whose sucker rows scale up (`renderSuction` floors the dots at 2.2/1.7 px so
+  they stay legible on the slim arm), all in the MEGASQUID's deeper palette
+  (`tentacleDark` body, `tentacleDeep` rim, `tentacle` ridge).
+  For
   performance each arm caches one spine frame per render and draws it as two ribbon
   fills, one ridge stroke, and two batched sucker paths, and the scene culls wall and
   crack arms as soon as they leave the screen. During play the HUD draws the shared
@@ -199,8 +277,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   player escaped; the round ends when nobody is still playing, and `recordMinigame(won)`
   pays the bonus only when every player escaped, and a full escape enters
   `phase: 'ending'`: `startEnding()` plays a skippable `LABYRINTH.endingDuration` cutscene
-  where the wreck's squid becomes the MEGASQUID (`drawSquid` at scale 1.75, shared with
-  the background watcher via `drawSquid`/`drawSquidEye`), tangled beams and tumbling
+  where the wreck's squid becomes the MEGASQUID (`drawSquid` at scale 1.75, delegating
+  to the shared `drawMegasquid`/`drawMegasquidEye` from `src/entities/megasquid.js` along
+  with the background watcher, the arrival cutscene, and the MINI MEGASQUID buddy — all
+  now drawn fully opaque, `alpha` only fading the arrival reveal),
+  tangled beams and tumbling
   debris fall with it, and all seven `DIVE_CREATURES` instances (`escapees`) swim clear;
   scripted impact/crumble/surface events fire bursts and tones, and Enter/Esc jumps
   ahead to the results panel. The run is a seven-part gauntlet:
@@ -212,24 +293,51 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `partCrackStep`, extra wall ambushes every `partWallBurstStep`, the tunnel margin grows
   `partTunnelMargin` per part (fewer shortcuts), and the wall speed gains `partSpeedRamp`
   per part under a cap that itself rises `partCeilingRamp` — then the cap is further
-  pinned to `wallPlayerRatio` (72%) of the slowest player's `maxSpeed` (every player
+  pinned to `wallPlayerRatio` (66%) of the slowest player's `maxSpeed` (every player
   class reports its `maxSpeed`), stored as `this.wallCeiling` so slower creatures like
   the moon jelly can never be outrun. The picker builds the stingray with `burrow: false`
   (`Stingray` accepts a `burrow` option), so it cannot bury itself in the wreck deck and
-  skip the wall with its 130 px/s crawl; supports break at `supportRamSpeed` (190 px/s).
+  skip the wall with its 130 px/s crawl; supports break at `supportRamSpeed` (190 px/s)
+  — `breakSupport()` restarts the wall at `-wallStart`, the part's spawn position, never
+  moved forward, a flat reposition that no difficulty's `enemySpeed` can shrink.
   `setupPart()` adds an arm
   every `partGrabberStep`, shortens every ambush and ceiling warn window and cooldown by
   `partWarnScale`/`partCooldownScale` per part, and scales chunk fall speed by
   `partFallRamp`. PLAY AGAIN rebuilds part one on a fresh course.
   `crackSpots` mark cracked floor mounds (kept clear of floor-reaching
   walls) and `wallBurstSpots` mark wall faces (picked from `gateSpans` so bursts avoid
-  tunnel openings); each runs one shared warn/burst/cooldown state machine
-  (`updateAmbush`) — a live player within the ambush's trigger (x only for mounds, x and
-  y for wall faces) makes it glow for its warn time, then the mound's `arms` (one arm per
+  tunnel openings), while `ceilingBurstSpots` (kept 120 px clear of walls, supports,
+  ceiling beams, and floor cracks) mark ceiling planks hiding a single arm that bursts
+  downward at `angle: PI/2`, out-reaching every other ambush (`ceilingBurstLengthScale`
+  1.25 against the 0.9 of mounds and wall faces)
+  (`ceilingBurstsPerSection`, growing every
+  `partCeilingBurstStep` parts); each runs one shared warn/burst/cooldown state machine
+  (`updateAmbush`) — a live player within the ambush's trigger (x only for mounds and
+  ceiling planks, x and y for wall faces) makes it glow for its warn time, then the mound's `arms` (one arm per
   `crackArms`, fanned with anchor offsets and spread angles) or the wall's single arm
-  erupts in burst mode (mounds upward at `angle: -PI/2`, walls sideways at 0/PI) and
-  grabs through samples of its lower and outer arm (`burstDuration`/`burstGrabAfter` are
-  shared). `ceilingSpots` mark cracked ceiling beams: `updateCeiling()` warns when a live
+  erupts in burst mode (mounds upward at `angle: -PI/2`, walls sideways at 0/PI):
+  `burstStaggered()` ripples the mound's arms middle-outward a small `burstStagger`
+  (0.18 s) apart through `burstDelay`, and each arm snaps out in `burstThrustTime`
+  (0.1 s) — a perfect spear with no wave and no curl (`straight`, `curlGrow` 0), sold by
+  the dust-ring breach flash, `BreachChunk` planks (spinning five-sided debris flung
+  outward with gravity and a short fade) and an eruption tone plus screen-shake kick
+  (pitched per arm) from `updateAmbushArm` at each emergence. Then every tip curls together:
+  `burstStaggered()` computes one shared curl moment
+  ((n−1)·`burstStagger` + `burstThrustTime`) and each arm's `curlThreshold` counts back
+  from it, so the ripple holds rigid until the last spear lands, then every lance stays
+  straight `burstLance` (0.45 s) longer; `curlGrow` ramps the tip
+  curl in over `burstCurlTime` and the grab window opens at `burstGrabAfter` curl
+  progress (sampling the straight base through the curled tip), before retracting at
+  `curlThreshold` + `burstLance` + `burstHold`. Ceiling planks set
+  `aim: true`: `aimAmbushArm()` leans the arm at the nearest live diver (clamped to
+  `ceilingBurstAim` off straight down) and caps its length at the diver's distance via
+  `Tentacle.stretch`, so the spear points and stretches after them frame by frame — out
+  to its full length when the diver is beyond reach, and no further — and an aimed arm
+  also grabs off its straight base tip without waiting for the curl gate. After a `burstHold` of
+  grab time the arm retracts over `burstRetract` and the ambush cools down. The pack arms
+  keep their usual writhe (`straight` stays 0) and grab through samples of their lower
+  and outer arm (`burstDuration` is shared).
+  `ceilingSpots` mark cracked ceiling beams: `updateCeiling()` warns when a live
   player is directly beneath (`ceilingTriggerX`), then drops a `CeilingChunk` under
   gravity — a hit calls `stagger()`, knocking the player around and freezing control for
   `ceilingStun` seconds while the wall keeps coming. `updatePickups()` then keeps a fresh
@@ -273,9 +381,43 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   real diver list as `Eel.update`'s fourth `nearby` argument, so their jaws still gape
   when the diver is close even though chill mode passes no chase targets, and a moray
   bump calls `Eel.bite()` — the same chomp (`biteGape` flare, `biteSnap` clamp) a
-  stingray-tank bite plays. Esc surfaces to
+  stingray-tank bite plays. `LABYRINTH MODE: ON/OFF` (persisted beside the items) builds
+  a seeded wreck course from `AQUARIUM.labyrinth` via `buildLabyrinth(seed)` — four gate
+  walls alternating hanging/floor with `laneGap` lanes (60% of tall spans carve a
+  `tunnelHeight` hull tunnel into two pieces), three alternating stubs, two hanging
+  cracked supports, three floor crack mounds, and two ceiling beams, laid out past the
+  palette. In `DIVE AS` the diver resolves against the wall rects and support columns
+  (`resolveCircleRect`) while the decor stays cosmetic to the residents; toggling on
+  rolls a fresh seed and saves it, so the layout survives reloads. With the mode on,
+  `palette()` appends `AQUARIUM.labyrinthKinds`, so the nine wreck pieces can be placed
+  by hand as ordinary items: `LabPiece` (`src/entities/labpiece.js`) builds wall/stub/
+  support/holed rects from the click point (walls hang or rise as long as the click, holed
+  walls carve a tunnel) and renders the wreck planks, while `LabBurster`
+  (`src/entities/labburster.js`) is a warn/burst/cooldown ambush owned by the scene:
+  `updateBurster()` warns near a live diver, `burstBurster()` ripples its `Tentacle` arms
+  middle-first with the shared curl moment (reusing `LABYRINTH.burstStagger`/
+  `burstThrustTime`) and flings `BreachChunk`s, the curled tips knock the diver back
+  through `bump()`, and the per-arm eruption tones and screen shake match the labyrinth.
+  The ceiling beam fires at any depth (a beam's `triggerY` is null, so a diver directly
+  under it always wakes it), aims and stretches at the diver with the labyrinth's
+  `ceilingBurstAim`/`stretch` math, and out-reaches the floor crack
+  (`bursterBeamLengthScale`).
+  Bursters arm only in `DIVE AS` and never in CHILL mode; placed pieces collide in the
+  dive via their rects. Esc surfaces to
   the workshop; a second Esc leaves for the menu. Pet residents are seeded with
-  `drainScale: 0` so they never go hungry in the workshop.
+  `drainScale: 0` so they never go hungry in the workshop. In the pets tank the pointer
+  is also a play tool: clicking a pet calls `Pet.startTrick()` (a SPIN or ROLL with a hop
+  and a `trickCooldown`; it returns `'wake'` for a dozing pet, `null` when scared or
+  cooling down) and a successful trick pushes a coin bubble; clicking a coin bubble pays
+  `PETS.coinPerBubble` straight into `COINS_KEY`, and the `TOY` button spawns a bouncing
+  toy (`PETS.toyKinds`, 12 s life, two at once) that pets boop into flight for a
+  `playful` mood; the `PHOTO` button pushes a postcard (`{ index, meals, pets, happy,
+  stamp }`, capped at `postcardsMax` and persisted beside `meals` under `PETS_KEY`) and
+  the `MEALS` button buys `PETS.mealPack` (250 snacks for 25 coins) while jumping
+  `nextWave` past the purchase so packs never spawn waves. Moods render as emotes from
+  `Pet.renderMood` (heart, angry brows, `Z`s, sparkles) and tastes live in
+  `PETS.tastes`, filling a favorite critter to full hunger instead of
+  `hungerRelief`.
 - The pets tank is a PlayScene variant (`this.petsTank`) with **no player entities**
   (`this.players = []`): the standard spawners are off and feeding comes from pointer
   input — `POINTER_KEY` drops a rising `Bubble` snack, and `POINTER_SECONDARY` (right
@@ -561,11 +703,14 @@ APOCALYPTIC WIPEOUT), and
 volume slider with persistence, co-op two-creature control, the empty tank clock
 reaching game over, and the game over menu — failing on any runtime error. It also
 covers the shop (coin banking with difficulty scaling, failed and successful purchases,
-the SHADOW/RAINBOW specials persisting with the pass-gated eel aura rings, the ragdoll
-plushie pack and RGB neon jacket, HEAD/BODY slot trinkets with legacy accessory
-migration, the five trails and twenty companions, buying/wearing/removal per slot, and all
-three
-playpasses with their pass-granted cosmetics), the pets tank (playerless left/right-click
+the SHADOW/RAINBOW specials with the attachable and removable aura rings, the ragdoll
+plushie pack and the per-creature RGB neon jacket, HEAD/BODY slot trinkets with legacy
+accessory
+migration, the five trails, twenty-one companions, and the nine-aura slot, buying/wearing/removal
+per slot, and all three
+playpasses with their pass-granted cosmetics), the six paid arcade games (tickets charged
+on every entry, refused when the purse is short, and kept out of the free games), the
+pets tank (playerless left/right-click
 feeding with clicks and the on-screen snack/lure buttons, pet seeking and eating, the
 scared-timer fade, hunger drains with hungry swarming, difficulty-scaled
 enemy hunts and bite losses, three-enemy snack-milestone waves (including moray-eel

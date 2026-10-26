@@ -35,6 +35,12 @@ const CUTSCENES = [
     params: { trailer: true },
   },
   {
+    label: 'WRECK ARRIVAL',
+    blurb: 'THE SEVEN DIVERS REACH THE SUNKEN LINER — AND THE MEGASQUID',
+    scene: 'labyrinth',
+    params: { arrival: true },
+  },
+  {
     label: 'MEGASQUID ENDING',
     blurb: 'THE LABYRINTH FINALE — ESCAPE ALL SEVEN PARTS',
     scene: 'labyrinth',
@@ -45,6 +51,16 @@ const CUTSCENES = [
 const GAUNTLET_ROW = {
   label: 'ALL-TANK GAMEPLAY',
   blurb: 'NINE TANKS, ONE CONTINUOUS RUN — THE WHOLE GAUNTLET IN MOTION',
+};
+
+const MOVIE_ROW = {
+  label: 'SHARKQUARIUM: THE MOVIE',
+  blurb: 'EVERY TANK AND EVERY MINIGAME — ONE LONG FEATURE',
+};
+
+const SHOP_ROW = {
+  label: 'SHOP TRAILER',
+  blurb: 'COLORS, TRINKETS, TRAILS, BUDDIES, AND AURAS — DRESS-UP IN MOTION',
 };
 
 const TANKS_ROW = {
@@ -111,6 +127,12 @@ export class TheatreScene extends Scene {
         entry,
       })),
       {
+        label: MOVIE_ROW.label,
+        blurb: MOVIE_ROW.blurb,
+        action: 'play',
+        entry: { scene: 'trailer', params: { movie: true }, blurb: MOVIE_ROW.blurb },
+      },
+      {
         label: GAUNTLET_ROW.label,
         blurb: GAUNTLET_ROW.blurb,
         action: 'play',
@@ -118,6 +140,12 @@ export class TheatreScene extends Scene {
       },
       { label: TANKS_ROW.label, blurb: TANKS_ROW.blurb, action: 'tanks' },
       { label: MINIGAMES_ROW.label, blurb: MINIGAMES_ROW.blurb, action: 'minigames' },
+      {
+        label: SHOP_ROW.label,
+        blurb: SHOP_ROW.blurb,
+        action: 'play',
+        entry: { scene: 'trailer', params: { shop: true }, blurb: SHOP_ROW.blurb },
+      },
       ...CUTSCENES.slice(1).map((entry) => ({
         label: entry.label,
         blurb: entry.blurb,

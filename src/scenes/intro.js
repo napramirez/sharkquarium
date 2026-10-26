@@ -5,7 +5,8 @@ import { drawWater, drawText } from '../engine/render.js';
 import { loadJSON } from '../engine/storage.js';
 import { MENU_TRACK } from '../assets/tracks.js';
 import { clamp, rand } from '../engine/math.js';
-import { drawSkinAura, setActiveSkin, setEelAura, setSkinClock, skinByKey } from '../engine/skin.js';
+import { drawSkinAura, setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
+import { auraForShop, setActiveAura } from '../engine/aura.js';
 import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
 import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
 import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
@@ -29,7 +30,7 @@ export class IntroScene extends Scene {
     this.leaving = false;
     this.fromTheatre = params.from === 'theatre';
     const shop = loadJSON(SHOP_KEY, {});
-    setEelAura((shop.passes ?? []).includes('playpass5'));
+    setActiveAura(auraForShop(shop));
     this.skin = skinByKey(shop.skin);
     this.head = accessoryByKey(shop.head);
     this.back = accessoryByKey(shop.back);

@@ -17,6 +17,7 @@ export class Nautilus extends Entity {
     this.speed = 0;
     this.invulnerable = 0;
     this.tangleTimer = 0;
+    this.jacketFit = { x: -0.2, y: 0, rx: 0.85, ry: 0.8 };
   }
 
   tangle(duration) {
@@ -65,51 +66,55 @@ export class Nautilus extends Entity {
     ctx.translate(this.x, this.y + Math.sin(this.age * 3) * 1.5);
     ctx.scale(this.facing, 1);
     if (flash) ctx.globalAlpha = 0.4;
-
-    ctx.strokeStyle = playerColor('belly', COLORS.nautilusSkin);
-    ctx.lineWidth = 3;
-    ctx.lineCap = 'round';
-    for (let i = 0; i < 5; i += 1) {
-      const baseX = -radius * 0.62 + i * radius * 0.3;
-      const sway = Math.sin(this.age * 5 + i) * 3;
-      ctx.beginPath();
-      ctx.moveTo(baseX, radius * 0.4);
-      ctx.quadraticCurveTo(baseX + sway, radius * 1.05, baseX + sway * 1.7, radius * 1.55);
-      ctx.stroke();
-    }
-
-    ctx.beginPath();
-    ctx.arc(0, 0, radius * 1.1, 0, TAU);
-    ctx.fillStyle = playerColor('body', COLORS.nautilusShell);
-    ctx.fill();
-    ctx.strokeStyle = playerColor('accent', COLORS.nautilusShellDark);
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
-
-    ctx.beginPath();
-    const spin = Math.sin(this.age * 1.6) * 0.3;
-    for (let i = 0; i < 26; i += 1) {
-      const t = i / 25;
-      const angle = t * TAU * 2.2 + spin;
-      const r = radius * 0.95 * (1 - t * 0.82);
-      const px = Math.cos(angle) * r;
-      const py = Math.sin(angle) * r * 0.9;
-      if (i === 0) ctx.moveTo(px, py);
-      else ctx.lineTo(px, py);
-    }
-    ctx.strokeStyle = playerColor('accent', COLORS.nautilusShellDark);
-    ctx.lineWidth = 1.8;
-    ctx.stroke();
-
-    ctx.fillStyle = playerColor('belly', COLORS.nautilusSkin);
-    ctx.beginPath();
-    ctx.ellipse(radius * 0.72, radius * 0.36, radius * 0.42, radius * 0.26, 0.4, 0, TAU);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(radius * 0.82, radius * 0.32, radius * 0.13, 0, TAU);
-    ctx.fillStyle = shadowEyeColor('#10233a');
-    ctx.fill();
+    drawNautilusBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, flip: this.facing ?? 1 });
     ctx.restore();
   }
+}
+
+export function drawNautilusBody(ctx, radius, pose) {
+  const age = pose.age ?? 0;
+  ctx.strokeStyle = playerColor('belly', COLORS.nautilusSkin);
+  ctx.lineWidth = radius * 0.125;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 5; i += 1) {
+    const baseX = -radius * 0.62 + i * radius * 0.3;
+    const sway = Math.sin(age * 5 + i) * radius * 0.125;
+    ctx.beginPath();
+    ctx.moveTo(baseX, radius * 0.4);
+    ctx.quadraticCurveTo(baseX + sway, radius * 1.05, baseX + sway * 1.7, radius * 1.55);
+    ctx.stroke();
+  }
+
+  ctx.beginPath();
+  ctx.arc(0, 0, radius * 1.1, 0, TAU);
+  ctx.fillStyle = playerColor('body', COLORS.nautilusShell);
+  ctx.fill();
+  ctx.strokeStyle = playerColor('accent', COLORS.nautilusShellDark);
+  ctx.lineWidth = radius * 0.104;
+  ctx.stroke();
+
+  ctx.beginPath();
+  const spin = Math.sin(age * 1.6) * 0.3;
+  for (let i = 0; i < 26; i += 1) {
+    const t = i / 25;
+    const angle = t * TAU * 2.2 + spin;
+    const r = radius * 0.95 * (1 - t * 0.82);
+    const px = Math.cos(angle) * r;
+    const py = Math.sin(angle) * r * 0.9;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.strokeStyle = playerColor('accent', COLORS.nautilusShellDark);
+  ctx.lineWidth = radius * 0.075;
+  ctx.stroke();
+
+  ctx.fillStyle = playerColor('belly', COLORS.nautilusSkin);
+  ctx.beginPath();
+  ctx.ellipse(radius * 0.72, radius * 0.36, radius * 0.42, radius * 0.26, 0.4, 0, TAU);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(radius * 0.82, radius * 0.32, radius * 0.13, 0, TAU);
+  ctx.fillStyle = shadowEyeColor('#10233a');
+  ctx.fill();
 }

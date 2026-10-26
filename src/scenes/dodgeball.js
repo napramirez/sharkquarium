@@ -11,7 +11,9 @@ import {
 import { clamp, lerp, rand } from '../engine/math.js';
 import { Shark } from '../entities/shark.js';
 import { Pufferfish } from '../entities/pufferfish.js';
-import { setActiveSkin, setEelAura, setSkinClock, skinByKey, drawSkinAura } from '../engine/skin.js';
+import { setActiveSkin, setSkinClock, skinByKey, drawSkinAura } from '../engine/skin.js';
+import { auraForShop, setActiveAura } from '../engine/aura.js';
+import { applyWardrobe } from '../engine/wardrobe.js';
 import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
 import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
 import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
@@ -38,7 +40,8 @@ export class DodgeballScene extends Scene {
     this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
     this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
     const shop = loadJSON(SHOP_KEY, {});
-    setEelAura((shop.passes ?? []).includes('playpass5'));
+    this.shop = shop;
+    setActiveAura(auraForShop(shop));
     this.skin = skinByKey(shop.skin);
     this.head = accessoryByKey(shop.head);
     this.back = accessoryByKey(shop.back);
@@ -234,7 +237,9 @@ export class DodgeballScene extends Scene {
       ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
     }
     for (const puffer of this.puffers) puffer.render(ctx);
-    for (const player of this.players) {
+    for (let index = 0; index < this.players.length; index += 1) {
+      applyWardrobe(this.shop, index);
+      const player = this.players[index];
       player.render(ctx);
       drawSkinAura(ctx, player);
       drawTrail(ctx, player);

@@ -22,13 +22,48 @@ export class Pet extends Entity {
     this.vx = 0;
     this.vy = 0;
     this.hunger = 0;
+    this.happy = 0;
+    this.grumpy = 0;
+    this.sleepy = 0;
+    this.playful = 0;
+    this.trick = null;
+    this.trickCooldown = 0;
     this.drainScale = options.drainScale ?? 1;
+  }
+
+  get mood() {
+    if (this.scared > 0) return 'scared';
+    if (this.grumpy > 0) return 'grumpy';
+    if (this.playful > 0) return 'playful';
+    if (this.happy > 0) return 'happy';
+    if (this.sleepy > 0) return 'sleepy';
+    if (this.hunger > PETS.hungryThreshold) return 'hungry';
+    return 'calm';
+  }
+
+  startTrick() {
+    if (this.trick || this.trickCooldown > 0 || this.scared > 0) return null;
+    if (this.sleepy > 0) {
+      this.sleepy = 0;
+      this.happy = Math.max(this.happy, 1.2);
+      return 'wake';
+    }
+    this.trick = {
+      type: Math.random() < 0.5 ? 'SPIN' : 'ROLL',
+      timer: PETS.trickDuration,
+      spin: 0,
+    };
+    this.trickCooldown = PETS.trickCooldown;
+    this.happy = Math.max(this.happy, PETS.happyTime);
+    this.eating = Math.max(this.eating, 0.5);
+    return 'trick';
   }
 
   pickWaypoint() {
     this.waypointX = rand(90, LOGICAL_WIDTH - 90);
     this.waypointY = rand(110, LOGICAL_HEIGHT - 110);
     this.roamTimer = rand(2.2, 5);
+    if (Math.random() < PETS.sleepyChance) this.sleepy = PETS.sleepyTime;
   }
 
   update(dt, food, enemies, others = []) {
@@ -36,7 +71,53 @@ export class Pet extends Entity {
     this.roamTimer -= dt;
     this.scared = Math.max(0, this.scared - dt);
     this.eating = Math.max(0, this.eating - dt);
+    this.happy = Math.max(0, this.happy - dt);
+    this.grumpy = Math.max(0, this.grumpy - dt);
+    this.playful = Math.max(0, this.playful - dt);
+    this.trickCooldown = Math.max(0, this.trickCooldown - dt);
     this.hunger = Math.min(1, this.hunger + PETS.hungerDrain * this.drainScale * dt);
+    if (this.trick) {
+      this.trick.timer -= dt;
+      this.trick.spin += dt * (this.trick.type === 'ROLL' ? 13 : 9);
+      if (this.trick.timer <= 0) this.trick = null;
+      return;
+    }
+    if (this.sleepy > 0) {
+      const wakeRadius =
+        this.hunger > PETS.hungryThreshold ? PETS.hungrySeekRadius : 120;
+      for (const item of food) {
+        if (Math.hypot(item.x - this.x, item.y - this.y) < wakeRadius) {
+          this.sleepy = 0;
+          this.happy = Math.max(this.happy, 1);
+          break;
+        }
+      }
+      if (this.sleepy > 0) {
+        this.sleepy = Math.max(0, this.sleepy - dt);
+        let pushX = 0;
+        let pushY = 0;
+        for (const other of others) {
+          if (other === this) continue;
+          const dx = this.x - other.x;
+          const dy = this.y - other.y;
+          const distance = Math.hypot(dx, dy) || 1;
+          if (distance < PETS.separation) {
+            const push = (PETS.separation - distance) / PETS.separation;
+            pushX += (dx / distance) * push * 110;
+            pushY += (dy / distance) * push * 110;
+          }
+        }
+        this.vx = (this.vx + pushX) * Math.max(0, 1 - 3 * dt);
+        this.vy = (this.vy + pushY) * Math.max(0, 1 - 3 * dt);
+        if (this.x < PETS.wallMargin) this.vx += PETS.wallPush * 0.6 * dt;
+        else if (this.x > LOGICAL_WIDTH - PETS.wallMargin) this.vx -= PETS.wallPush * 0.6 * dt;
+        if (this.y < PETS.wallMargin) this.vy += PETS.wallPush * 0.6 * dt;
+        else if (this.y > LOGICAL_HEIGHT - PETS.wallMargin) this.vy -= PETS.wallPush * 0.6 * dt;
+        this.x = clamp(this.x + this.vx * dt, this.radius, LOGICAL_WIDTH - this.radius);
+        this.y = clamp(this.y + this.vy * dt, this.radius, LOGICAL_HEIGHT - this.radius);
+        return;
+      }
+    }
     const hungry = this.hunger > PETS.hungryThreshold;
 
     let threat = null;
@@ -148,6 +229,13 @@ export class Pet extends Entity {
       ctx.fill();
       ctx.globalAlpha = 1;
     }
+    ctx.save();
+    if (this.trick) {
+      if (this.trick.type === 'ROLL') {
+        ctx.translate(0, -Math.abs(Math.sin(this.trick.spin)) * radius * 0.8);
+      }
+      ctx.rotate(this.trick.spin);
+    }
     ctx.scale(this.facing, 1);
     if (this.scared > 0) ctx.globalAlpha = 0.85;
     if (this.kind === 'shark') this.renderShark(ctx, radius);
@@ -170,6 +258,78 @@ export class Pet extends Entity {
       ctx.fill();
     }
     ctx.restore();
+    if (this.hunger <= PETS.hungryThreshold) this.renderMood(ctx, radius);
+    ctx.restore();
+  }
+
+  renderMood(ctx, radius) {
+    const top = -radius * 2.5;
+    if (this.happy > 0) {
+      const pulse = 0.7 + 0.3 * Math.sin(this.age * 7);
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, this.happy) * pulse;
+      ctx.fillStyle = COLORS.danger;
+      ctx.beginPath();
+      ctx.arc(radius * 0.42, top, radius * 0.34, 0, TAU);
+      ctx.arc(radius * 1.1, top, radius * 0.34, 0, TAU);
+      ctx.moveTo(radius * 0.03, top + radius * 0.3);
+      ctx.lineTo(radius * 1.5, top + radius * 0.3);
+      ctx.lineTo(radius * 0.76, top + radius * 1.1);
+      ctx.closePath();
+      ctx.fill();
+      ctx.restore();
+    } else if (this.grumpy > 0) {
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, this.grumpy);
+      ctx.strokeStyle = COLORS.danger;
+      ctx.lineWidth = 2.4;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-radius * 0.6, top + radius * 0.3);
+      ctx.lineTo(-radius * 0.05, top + radius * 0.75);
+      ctx.moveTo(radius * 0.6, top + radius * 0.3);
+      ctx.lineTo(radius * 0.05, top + radius * 0.75);
+      ctx.moveTo(-radius * 0.5, top - radius * 0.1);
+      ctx.lineTo(-radius * 0.1, top + radius * 0.25);
+      ctx.moveTo(radius * 0.5, top - radius * 0.1);
+      ctx.lineTo(radius * 0.1, top + radius * 0.25);
+      ctx.stroke();
+      ctx.restore();
+    } else if (this.sleepy > 0) {
+      const drift = Math.sin(this.age * 1.6) * radius * 0.2;
+      ctx.save();
+      ctx.globalAlpha = 0.5 + 0.35 * Math.sin(this.age * 2.5);
+      ctx.strokeStyle = COLORS.foam;
+      ctx.lineWidth = 2.4;
+      ctx.lineCap = 'round';
+      for (let i = 0; i < 2; i += 1) {
+        const size = radius * (0.62 - i * 0.18);
+        const x = radius * (0.5 + i * 0.72) + drift;
+        const y = top + i * radius * 0.6;
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        ctx.lineTo(x + size, y);
+        ctx.lineTo(x, y + size);
+        ctx.lineTo(x + size, y + size);
+        ctx.stroke();
+      }
+      ctx.restore();
+    } else if (this.playful > 0) {
+      const pulse = 0.6 + 0.4 * Math.sin(this.age * 9);
+      ctx.save();
+      ctx.globalAlpha = Math.min(1, this.playful) * pulse;
+      ctx.strokeStyle = COLORS.accent;
+      ctx.lineWidth = 2.2;
+      ctx.lineCap = 'round';
+      for (let i = 0; i < 4; i += 1) {
+        const angle = (i / 4) * TAU + this.age;
+        ctx.beginPath();
+        ctx.moveTo(Math.cos(angle) * radius * 0.3, top + Math.sin(angle) * radius * 0.3);
+        ctx.lineTo(Math.cos(angle) * radius * 0.95, top + Math.sin(angle) * radius * 0.95);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
   }
 
   renderShark(ctx, r) {

@@ -170,6 +170,7 @@ export const PASSES = [
       'plushghostjelly',
       'neonjacket',
     ],
+    auras: ['eelaura'],
   },
   {
     key: 'playpass6',
@@ -193,7 +194,7 @@ export const PASSES = [
     key: 'playpass8',
     label: 'PLAYPASS 8',
     cost: 1200,
-    grants: 'COMPANIONS — TWENTY FLOATING PALS',
+    grants: 'COMPANIONS — TWENTY-ONE FLOATING PALS',
     skins: [],
     accessories: [],
     trails: [],
@@ -218,6 +219,7 @@ export const PASSES = [
       'minivolt',
       'minipiranha',
       'minipuffer',
+      'megasquid',
     ],
   },
   {
@@ -260,6 +262,19 @@ export const ACCESSORIES = [
   { key: 'stingrayhat', label: 'STINGRAY HAT', cost: 160, slot: 'head' },
 ];
 
+export const AURAS = [
+  { key: 'none', label: 'NONE', cost: 0 },
+  { key: 'eelaura', label: 'EEL AURA', cost: 0, passOnly: true },
+  { key: 'bubbleaura', label: 'BUBBLE AURA', cost: 180 },
+  { key: 'neonaura', label: 'NEON AURA', cost: 200 },
+  { key: 'stingrayaura', label: 'STINGRAY AURA', cost: 220 },
+  { key: 'tridentaura', label: 'TRIDENT AURA', cost: 240 },
+  { key: 'karambitaura', label: 'KARAMBIT AURA', cost: 260 },
+  { key: 'sharkaura', label: 'SHARK AURA', cost: 280 },
+  { key: 'swordaura', label: 'SWORD AURA', cost: 300 },
+  { key: 'octopusaura', label: 'OCTOPUS AURA', cost: 320 },
+];
+
 export const TRAILS = [
   { key: 'none', label: 'NONE', cost: 0 },
   { key: 'bubblestream', label: 'BUBBLE STREAM', cost: 0, passOnly: true },
@@ -291,6 +306,7 @@ export const COMPANIONS = [
   { key: 'minivolt', label: 'MINI VOLT EEL', cost: 0, passOnly: true },
   { key: 'minipiranha', label: 'MINI PIRANHA', cost: 0, passOnly: true },
   { key: 'minipuffer', label: 'MINI PUFFER', cost: 0, passOnly: true },
+  { key: 'megasquid', label: 'MINI MEGASQUID', cost: 0, passOnly: true },
 ];
 
 export const TANK_INTROS = {
@@ -308,6 +324,301 @@ export const RACE = {
   duration: 30,
   soloTarget: 12,
 };
+
+export const MINIGAME_FEES = {
+  pufferball: 25,
+  roundup: 30,
+  jelly: 30,
+  stealth: 35,
+  cleanup: 40,
+  trench: 45,
+};
+
+export const PUFFERBALL = {
+  goals: 3,
+  ballRadius: 16,
+  ballSpeed: 260,
+  kick: 240,
+  goalHalf: 40,
+  goalDepth: 58,
+  goalBar: 10,
+  serveDelay: 1.1,
+  cpuSpeed: 0.8,
+};
+
+export const ROUNDUP = {
+  duration: 45,
+  schools: 3,
+  target: 4,
+  members: 12,
+  fleeRadius: 200,
+  fleeSpeed: 150,
+  driftSpeed: 42,
+  netX: 118,
+  netHalf: 158,
+  stun: 1.1,
+  slowScale: 1.25,
+};
+
+export const STEALTH = {
+  width: 2380,
+  lives: 3,
+  sealCount: 3,
+  sealSpeed: 96,
+  visionRange: 220,
+  visionHalf: 0.5,
+  detectRate: 1.3,
+  coolRate: 0.85,
+  exitX: 2300,
+  coverWidth: 68,
+};
+
+export const TRENCH = {
+  duration: 60,
+  hits: 3,
+  scrollBase: 175,
+  scrollRamp: 95,
+  goalDepth: 900,
+  iceMin: 0.9,
+  iceMax: 1.7,
+  pearlChance: 0.55,
+  currentWidth: 190,
+  currentPush: 130,
+  hitStun: 0.9,
+};
+
+export const JELLY_ASCENT = {
+  rings: 22,
+  sinks: 3,
+  gravity: 430,
+  pulse: 330,
+  cooldown: 0.26,
+  drift: 210,
+  ringSpacing: 148,
+  ringGap: 104,
+  scrollSpeed: 27,
+  updraftPush: 240,
+};
+
+export const CLEANUP = {
+  target: 8,
+  debris: 6,
+  push: 250,
+  morays: 3,
+  lungeEvery: 2.4,
+  lungeReach: 120,
+  stun: 1.2,
+  chuteX: 120,
+  chuteHalf: 130,
+  peekTime: 0.5,
+  biteTime: 0.35,
+  retreatTime: 0.55,
+  peekHeight: 22,
+  biteHeight: 36,
+  riseEase: 7,
+  biteEase: 14,
+  retreatEase: 6,
+};
+
+export const LORE = [
+  {
+    title: 'THE WRECK',
+    entries: [
+      {
+        name: 'SHARKQUARIUM',
+        text: 'The aquarium has closed for the night. The last visitors are gone, the hall lights dim, and the tanks settle into their quiet blue dark — while a young resident shark sneaks one last lap before lights-out.',
+      },
+      {
+        name: 'THE LIGHTS-OUT LAP',
+        text: 'Bubbles are stray air puffs from the filter pumps: pop one and the night stretches a moment longer. Jellyfish are grumpy drifters — brush one and it stings, knocks you back, and costs time. When the clock hits zero, the lights go out.',
+      },
+      {
+        name: 'SEA COINS',
+        text: 'Every finished dive pays sea coins, and harder difficulties pay more. The shop trades them for character colors, trinkets, trails, companions, auras, and playpasses that open the minigames and the special tanks. Paid minigames charge a ticket at the door, every time.',
+      },
+      {
+        name: 'THE MEGASQUID',
+        text: 'Behind the sunken liner — the wreck the divers escape in the labyrinth — a colossal squid hangs in the dark, one glowing yellow eye tracking the nearest swimmer. Clear all seven parts and it tangles in the collapsing wreck and sinks into the trench.',
+      },
+    ],
+  },
+  {
+    title: 'THE TANKS',
+    entries: [
+      {
+        name: 'REEF TANK',
+        text: 'Where every dive begins: swaying corals, a boulder in each corner, bright schools drifting as scenery, and a current and updraft to ride. Sixty points teleports the lap onward.',
+      },
+      {
+        name: 'STINGRAY TANK',
+        text: 'A sand-floored arena under a rock archway where a pack of five moray eels lurks, peeking from their holes before they swarm out to hunt. The resident stingray could bury itself in the sand; the visiting divers cannot.',
+      },
+      {
+        name: 'DEEP SEA TANK',
+        text: 'A lightless arena of two stone ledges full of hiding holes, roaming anglerfish with glowing lures, and crabs raining from the surface.',
+      },
+      {
+        name: 'ARCTIC TANK',
+        text: 'Grey water under a pale sky: a shrimp rides plankton and hides inside sardine schools while two ice-perched seals watch from above, waking when enough plankton drifts past.',
+      },
+      {
+        name: 'KELP FOREST TANK',
+        text: 'A rust-red crab scuttles among swaying kelp under the octopus boss. Dodge its lunges and ram its head to stun it and shake bubbles loose.',
+      },
+      {
+        name: 'JELLY TANK',
+        text: 'A drifting moon jelly tangles minnows for points while a turtle miniboss charges in straight lines — ram its head to stun it and scatter the shoal.',
+      },
+      {
+        name: 'NAUTILUS TANK',
+        text: 'The chase turns vertical: a nautilus sinks past whale skeletons and darting eels while a chaser shark stalks from above, eating the bait squids the nautilus dodges.',
+      },
+      {
+        name: 'FRESHWATER TANK',
+        text: 'A scrolling river where a freshwater stingray outruns a giant catfish through logs, rocks, plants, and piranha schools — with sparking electric eels joining late.',
+      },
+      {
+        name: 'PETS TANK',
+        text: 'The playerless tank. No clock and no diver: just snack and lure buttons, hungry swarms, a glowing golden bubble-fish, and cross-level enemy waves led by morays.',
+      },
+    ],
+  },
+  {
+    title: 'THE DIVERS',
+    entries: [
+      {
+        name: 'SHARK',
+        text: 'The night\u2019s lap-runner: fast, balanced, at home in every tank. Steers with WASD, a drag anywhere on the glass, or the on-screen joystick.',
+      },
+      {
+        name: 'STINGRAY',
+        text: 'A sand-glider built to bury itself — though the labyrinth\u2019s wreck deck refuses to hide it. Banks on its wings and picks up speed on the bottom.',
+      },
+      {
+        name: 'SQUID',
+        text: 'The deep-sea hider: quick darts, an ink-dark mantle, and a knack for the pockets in the stone ledges when the anglerfish come.',
+      },
+      {
+        name: 'ARCTIC SHRIMP',
+        text: 'Small and cold-blooded. Slips inside sardine schools and lets the crowd hide it from the seals and anything else that hunts by eye.',
+      },
+      {
+        name: 'KELP CRAB',
+        text: 'A scuttling rust-red bruiser that cuts through the kelp, rams the octopus boss head-on, and holds its ground while everyone else swims.',
+      },
+      {
+        name: 'MOON JELLY',
+        text: 'Slow, soft, and stinging to touch. It drifts where it wants, pulses through the darkest water, and leaves a sting for anything that chases it.',
+      },
+      {
+        name: 'NAUTILUS',
+        text: 'A spiral-shelled drifter that swims freely up and down, sinking past whale bones while the bait squids take the shark\u2019s attention.',
+      },
+    ],
+  },
+  {
+    title: 'THE HAZARDS',
+    entries: [
+      {
+        name: 'JELLYFISH',
+        text: 'Grumpy night drifters. Brushing one stings, knocks you back, and costs three seconds off the clock.',
+      },
+      {
+        name: 'MORAY EEL PACK',
+        text: 'Five holes under the stingray tank\u2019s rock archway. Each eel peeks before it swarms out to hunt, its jaws gaping near prey before the chomp.',
+      },
+      {
+        name: 'ANGLERFISH',
+        text: 'Lightless roamers with a glowing lure. Catch one\u2019s attention in the deep sea and it can pin a diver against the ledges and drag them into the dark.',
+      },
+      {
+        name: 'SEALS',
+        text: 'Two ice-perched watchers in the arctic tank. They charge the water and bite, and they wake after enough plankton drifts past.',
+      },
+      {
+        name: 'TURTLE',
+        text: 'The Jelly Tank miniboss: charges in straight lines and scatters minnows. Ram its head to stun it and shake the shoal loose.',
+      },
+      {
+        name: 'CATFISH',
+        text: 'The river\u2019s chaser: a giant freshwater catfish that bites and slows a fleeing stingray, and it never stops coming.',
+      },
+      {
+        name: 'ELECTRIC EELS',
+        text: 'Freshwater late arrivals trailing crackling fields. One touch and a diver is knocked back to the beginning of the stretch.',
+      },
+      {
+        name: 'OCTOPUS',
+        text: 'The kelp forest\u2019s boss: long lunging arms that must be dodged, a stunnable head, and a hunger for crabs.',
+      },
+      {
+        name: 'CHASER SHARK',
+        text: 'The nautilus tank\u2019s stalker, hunting from above. It eats the squids the nautilus dodges — and will happily take the nautilus too.',
+      },
+      {
+        name: 'DART EELS',
+        text: 'Ribbon-bodied eels that dart across the deep, quick as thrown spears and just as sharp about winning a race.',
+      },
+      {
+        name: 'BAIT SQUIDS',
+        text: 'Lures tethered near the nautilus\u2019s path. Swim into one and it drags its catch to the chaser shark above.',
+      },
+      {
+        name: 'PUFFERFISH',
+        text: 'Prickly and short-tempered. Provoke one and it inflates, then ricochets around its arena until it pops.',
+      },
+      {
+        name: 'MINNOWS',
+        text: 'Silver sparks of the jelly tank. Swim through a whole tangle of them for points — the turtle guarding them is the trouble.',
+      },
+    ],
+  },
+  {
+    title: 'THE MINIGAMES',
+    entries: [
+      {
+        name: 'BUBBLE RACE',
+        text: 'Lap the arena to grab bubbles — two players against each other, or a solo chase against a CPU. First to the target count takes the win.',
+      },
+      {
+        name: 'TAG',
+        text: 'Six swimmers, one tag. Touch passes it on, and the last name still it when the clock runs out loses. The screen flashes the new tagger\u2019s name.',
+      },
+      {
+        name: 'PUFFERFISH DODGEBALL',
+        text: 'Three lives, no clock: weave through charging puffers and survive the arena. A hit costs a life and knocks the swimmer across the tank.',
+      },
+      {
+        name: 'LABYRINTH',
+        text: 'A seven-part shipwreck escape for one or two divers. Ram cracked supports to drop the ceiling on the tangle, duck the floor and wall ambushes, arm the checkpoints, and outrun the tentacles to the exit.',
+      },
+      {
+        name: 'PUFFER BALL',
+        text: 'Arcade volleyball with a spiked seed: bump the puffer into the far goal, first to three. Two players or one against a CPU chaser. Costs 25 sea coins at the door.',
+      },
+      {
+        name: 'SCHOOL ROUNDUP',
+        text: 'The reef has scattered and it is your job to fix it: herd three fleeing sardine schools into the net before the clock runs out. Costs 30 sea coins at the door.',
+      },
+      {
+        name: 'JELLY ASCENT',
+        text: 'Pulse a moon jelly up a scrolling shaft, threading each ring gap and riding the updrafts. Three sinks and the climb is over. Costs 30 sea coins at the door.',
+      },
+      {
+        name: 'STEALTH DIVE',
+        text: 'Sneak a shrimp (or a shrimp and a crab together) past three patrolling seals, hiding behind rock cover from their vision cones. Three spot-outs and you are caught. Costs 35 sea coins at the door.',
+      },
+      {
+        name: 'REEF CLEANUP',
+        text: 'Nudge floating wreckage into the recycle net while three moray holes lunge from the floor. Two divers clean faster. Costs 40 sea coins at the door.',
+      },
+      {
+        name: 'TRENCH DIVE',
+        text: 'A sixty-second descent through ice barriers, gold pearls, shifting currents, and bands of black water. Three crunches and the trench keeps you. Costs 45 sea coins at the door.',
+      },
+    ],
+  },
+];
 
 export const AQUARIUM = {
   kinds: [
@@ -333,6 +644,39 @@ export const AQUARIUM = {
     { key: 'ENEMY:seal', label: 'SEAL' },
     { key: 'ARCHWAY', label: 'EEL ARCHWAY' },
     { key: 'LEDGES', label: 'ANGLER LEDGES' },
+  ],
+  labyrinth: {
+    gates: 4,
+    gateX: 330,
+    gatePitch: 170,
+    gateWidth: 90,
+    laneGap: 170,
+    tunnelHeight: 110,
+    stubWidth: 70,
+    stubHeight: 90,
+    supportSpots: [465, 805],
+    supportWidth: 54,
+    supportHeight: 350,
+    crackSpots: [480, 650, 880],
+    beamSpots: [560, 720],
+    bursterTriggerX: 210,
+    bursterTriggerY: 170,
+    bursterWarn: 0.5,
+    bursterCooldown: 4,
+    bursterLengthScale: 0.9,
+    bursterBeamLengthScale: 1.25,
+    bursterArms: 3,
+  },
+  labyrinthKinds: [
+    { key: 'LAB:WALL', label: 'WRECK WALL' },
+    { key: 'LAB:WALL-UP', label: 'RISING WALL' },
+    { key: 'LAB:HOLED', label: 'HOLED WALL' },
+    { key: 'LAB:HOLED-UP', label: 'HOLED RISING WALL' },
+    { key: 'LAB:STUB', label: 'CEILING STUB' },
+    { key: 'LAB:STUB-UP', label: 'FLOOR STUB' },
+    { key: 'LAB:SUPPORT', label: 'CRACKED SUPPORT' },
+    { key: 'LAB:CRACK', label: 'TENTACLE CRACK' },
+    { key: 'LAB:BEAM', label: 'TENTACLE BEAM' },
   ],
 };
 
@@ -367,16 +711,16 @@ export const PUFFER = {
 
 export const LABYRINTH = {
   parts: 7,
-  partSpeedRamp: 0.12,
-  partCeilingRamp: 0.05,
-  partGrabberStep: 3,
-  partWarnScale: 0.95,
-  partCooldownScale: 0.95,
-  partFallRamp: 0.1,
-  partTunnelMargin: 14,
-  partSectionStep: 2,
-  partCrackStep: 2,
-  partWallBurstStep: 3,
+  partSpeedRamp: 0.07,
+  partCeilingRamp: 0.03,
+  partGrabberStep: 4,
+  partWarnScale: 0.97,
+  partCooldownScale: 0.97,
+  partFallRamp: 0.05,
+  partTunnelMargin: 9,
+  partSectionStep: 3,
+  partCrackStep: 3,
+  partWallBurstStep: 4,
   sections: 5,
   sectionLength: 1500,
   startPadding: 700,
@@ -392,14 +736,14 @@ export const LABYRINTH = {
   slotSwing: 90,
   wallStart: 350,
   wallDelay: 4,
-  wallSpeed: 120,
-  wallRamp: 1.8,
+  wallSpeed: 100,
+  wallRamp: 1.55,
   speedCeiling: 300,
-  wallPlayerRatio: 0.72,
-  mercyPush: 300,
+  wallPlayerRatio: 0.66,
+  mercyPush: 360,
   darkFade: 460,
   spawnX: 90,
-  grabs: 6,
+  grabs: 7,
   grabHold: 0.9,
   grabRadius: 22,
   grabberCount: 7,
@@ -414,6 +758,7 @@ export const LABYRINTH = {
   respawnOffset: 40,
   respawnInvulnerable: 2,
   tentacleWidth: 26,
+  ropeWidth: 9,
   waveFreq: 6,
   waveAmp: 26,
   curlStart: 0.68,
@@ -439,6 +784,14 @@ export const LABYRINTH = {
   wallBurstWarn: 0.5,
   wallBurstCooldown: 3.4,
   wallBurstLengthScale: 0.9,
+  ceilingBurstsPerSection: 1,
+  partCeilingBurstStep: 4,
+  ceilingBurstTriggerX: 210,
+  ceilingBurstWarn: 0.5,
+  ceilingBurstCooldown: 3.6,
+  ceilingBurstLengthScale: 1.25,
+  ceilingBurstAim: 1.1,
+  ceilingBurstLance: 0.9,
   ceilingsPerSection: 2,
   ceilingTriggerX: 46,
   ceilingWarn: 0.5,
@@ -453,10 +806,9 @@ export const LABYRINTH = {
   supportWidth: 54,
   supportRamSpeed: 190,
   supportStun: 2.6,
-  supportPush: 280,
   supportHintRange: 420,
-  grabPickupInterval: 4.2,
-  grabPickupActive: 3,
+  grabPickupInterval: 3.5,
+  grabPickupActive: 4,
   grabPickupClumpMin: 3,
   grabPickupClumpMax: 5,
   grabPickupClumpSpread: 34,
@@ -471,8 +823,18 @@ export const LABYRINTH = {
   schoolSpeedMax: 880,
   schoolFish: 9,
   endingDuration: 7.6,
+  arrivalDuration: 6.4,
+  arrivalReveal: 2.8,
   burstDuration: 1.7,
-  burstGrabAfter: 0.35,
+  burstGrabAfter: 0.15,
+  burstStagger: 0.18,
+  burstThrustTime: 0.1,
+  burstLance: 0.45,
+  burstCurlTime: 0.14,
+  burstHold: 0.8,
+  burstRetract: 0.45,
+  breachChunks: 6,
+  breachGravity: 520,
   squidFollow: 0.5,
   squidParallax: 0.22,
   squidBlinkMin: 4,
@@ -511,6 +873,37 @@ export const PETS = {
   lureRadius: 320,
   lurePull: 150,
   lureLife: 6,
+  trickCooldown: 4,
+  trickDuration: 0.8,
+  happyTime: 3,
+  grumpyTime: 2.5,
+  sleepyChance: 0.22,
+  sleepyTime: 3.5,
+  favoriteRelief: 1,
+  favoriteCoinChance: 0.5,
+  toyCoinChance: 0.25,
+  tastes: {
+    shark: 'MINNOW',
+    stingray: 'CRAB',
+    squid: 'ANGELFISH',
+    arcticshrimp: 'PLANKTON',
+    kelpcrab: 'KELP POD',
+    jellyfish: 'PLANKTON',
+    nautilus: 'SHRIMP',
+    moray: 'MINNOW',
+    goldfish: 'PLANKTON',
+    babyshark: 'MINNOW',
+    ghostjelly: 'PLANKTON',
+  },
+  toyKinds: ['BALL', 'HOOP', 'WAND'],
+  toyLife: 12,
+  toySpeed: 200,
+  toyRadius: 12,
+  coinBubblesMax: 6,
+  coinBubbleLife: 9,
+  coinPerBubble: 5,
+  mealPack: { cost: 25, meals: 250 },
+  postcardsMax: 12,
 };
 
 export const PETS_PALETTE = {
@@ -693,6 +1086,7 @@ export const COLORS = {
   nautilusSkin: '#c98d6b',
   tentacle: '#c8455a',
   tentacleDark: '#7e2436',
+  tentacleDeep: '#521522',
   tentaclePale: '#ff9aa8',
   wreckWood: '#5a4633',
   wreckWoodDark: '#3a2c20',

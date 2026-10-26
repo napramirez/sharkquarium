@@ -18,10 +18,14 @@ import { MoonJelly } from '../entities/moonjelly.js';
 import { Nautilus } from '../entities/nautilus.js';
 import { Tentacle } from '../entities/tentacle.js';
 import { CeilingChunk } from '../entities/ceilingchunk.js';
+import { BreachChunk } from '../entities/breachchunk.js';
+import { drawMegasquid, drawMegasquidEye } from '../entities/megasquid.js';
 import { resolveCircleRect } from '../engine/collision.js';
 import { drawJoystick, joystickState } from '../engine/joystick.js';
 import { ParticleSystem } from '../engine/particles.js';
-import { setActiveSkin, setEelAura, setSkinClock, skinByKey, drawSkinAura } from '../engine/skin.js';
+import { setActiveSkin, setSkinClock, skinByKey, drawSkinAura } from '../engine/skin.js';
+import { auraForShop, setActiveAura } from '../engine/aura.js';
+import { applyWardrobe } from '../engine/wardrobe.js';
 import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
 import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
 import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
@@ -74,7 +78,8 @@ export class LabyrinthScene extends Scene {
     this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
     this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
     const shop = loadJSON(SHOP_KEY, {});
-    setEelAura((shop.passes ?? []).includes('playpass5'));
+    this.shop = shop;
+    setActiveAura(auraForShop(shop));
     this.skin = skinByKey(shop.skin);
     this.head = accessoryByKey(shop.head);
     this.back = accessoryByKey(shop.back);
@@ -95,7 +100,7 @@ export class LabyrinthScene extends Scene {
       this.game.music.play(LABYRINTH_TRACK);
       this.game.music.hold = false;
     }
-    this.theatre = Boolean(params.ending || params.trailer);
+    this.theatre = Boolean(params.ending || params.trailer || params.arrival);
     this.resultsMenu = new SelectList(
       [
         { label: 'PLAY AGAIN', action: 'again' },
@@ -119,6 +124,8 @@ export class LabyrinthScene extends Scene {
       if (params.trailer) {
         this.resetRound();
         this.startTrailer();
+      } else if (params.arrival) {
+        this.startArrival();
       } else {
         this.buildCourse();
         this.startEnding();
@@ -221,7 +228,7 @@ export class LabyrinthScene extends Scene {
     }
     this.game.audio.tone({ freq: 400, endFreq: 760, type: 'triangle', duration: 0.18, volume: 0.2 });
     this.saveProgress();
-    this.resetRound();
+    this.startArrival();
   }
 
   exit() {
@@ -595,6 +602,53 @@ export class LabyrinthScene extends Scene {
       ],
     }));
     this.ambushes = [...this.cracks, ...this.wallBursts];
+    this.ceilingBurstSpots = [];
+    for (let section = 0; section < this.sectionCount; section += 1) {
+      const start = LABYRINTH.startPadding + section * LABYRINTH.sectionLength;
+      const count =
+        LABYRINTH.ceilingBurstsPerSection +
+        Math.floor((this.part - 1) / LABYRINTH.partCeilingBurstStep);
+      for (let index = 0; index < count; index += 1) {
+        let x = start + rand(180, LABYRINTH.sectionLength - 180);
+        for (let attempt = 0; attempt < 16; attempt += 1) {
+          const candidate = start + rand(180, LABYRINTH.sectionLength - 180);
+          const clear =
+            this.walls.every((wall) => candidate < wall.x - 130 || candidate > wall.x + wall.w + 130) &&
+            this.supportSpots.every((support) => Math.abs(candidate - support) > 120) &&
+            this.ceilingSpots.every((spot) => Math.abs(candidate - spot) > 120) &&
+            this.crackSpots.every((spot) => Math.abs(candidate - spot) > 120);
+          if (clear) {
+            x = candidate;
+            break;
+          }
+        }
+        this.ceilingBurstSpots.push(x);
+      }
+    }
+    this.ceilingBursts = this.ceilingBurstSpots.map((x, index) => ({
+      x,
+      y: 30,
+      angle: Math.PI / 2,
+      aim: true,
+      state: 'idle',
+      timer: rand(0.5, 2),
+      triggerX: LABYRINTH.ceilingBurstTriggerX,
+      triggerY: null,
+      warn: LABYRINTH.ceilingBurstWarn * warnScale,
+      cooldown: LABYRINTH.ceilingBurstCooldown * cooldownScale,
+      arms: [
+        new Tentacle(30, index * 10 + 5, {
+          burst: true,
+          angle: Math.PI / 2,
+          lengthScale: LABYRINTH.ceilingBurstLengthScale,
+          widthScale: LABYRINTH.crackWidthScale,
+          club: true,
+          rope: true,
+          lance: LABYRINTH.ceilingBurstLance,
+        }),
+      ],
+    }));
+    this.ambushes = [...this.cracks, ...this.wallBursts, ...this.ceilingBursts];
     this.ceilings = this.ceilingSpots.map((x) => ({
       x,
       state: 'idle',
@@ -621,6 +675,7 @@ export class LabyrinthScene extends Scene {
     this.grabPickupTimer = LABYRINTH.grabPickupInterval * 0.6;
     this.popups = [];
     this.collapseChunks = [];
+    this.breachChunks = [];
     this.wallStun = 0;
     this.schools = [];
     this.schoolTimer = rand(LABYRINTH.schoolMin, LABYRINTH.schoolMax);
@@ -828,6 +883,42 @@ export class LabyrinthScene extends Scene {
     this.particles = new ParticleSystem();
   }
 
+  startArrival() {
+    this.part = this.startPart ?? 1;
+    this.phase = 'arrival';
+    this.arrivalTimer = 0;
+    this.arrivalEvents = new Set();
+    this.buildCourse();
+    this.cameraX = 0;
+    this.arrivalCrew = DIVE_CREATURES.map((creature, index) => {
+      const entity = new creature.type(0, 0, {
+        controls: CONTROLS.solo,
+        pointer: false,
+        ...creature.options,
+      });
+      return {
+        entity,
+        startX: -260 - index * 140,
+        travel: 0,
+        speed: rand(560, 720),
+        target: 130 + index * 60,
+        lane: 120 + index * 52 + rand(-8, 8),
+        recoil: 58 + index * 9,
+        phase: rand(0, TAU),
+      };
+    });
+    this.arrivalMegasquid = {
+      x: LABYRINTH.startPadding + 320,
+      reveal: 0,
+      gaze: null,
+      blink: 0,
+      blinkHold: 0,
+      blinkTimer: rand(LABYRINTH.squidBlinkMin, LABYRINTH.squidBlinkMax),
+    };
+    this.particles = new ParticleSystem();
+    this.game.audio.tone({ freq: 70, endFreq: 45, type: 'sawtooth', duration: 1.4, volume: 0.2 });
+  }
+
   startTrailer() {
     this.phase = 'trailer';
     this.wallDelay = 0;
@@ -884,10 +975,11 @@ export class LabyrinthScene extends Scene {
     } else if (shot.view === 'ambush') {
       const crack = this.cracks[0];
       this.wallX = (crack?.x ?? 900) - 900;
-      if (crack) for (const arm of crack.arms) arm.burst();
+      if (crack) this.burstStaggered(crack);
       for (const burst of this.wallBursts.slice(0, 2)) {
-        for (const arm of burst.arms) arm.burst();
+        this.burstStaggered(burst);
       }
+      if (this.ceilingBursts[0]) this.burstStaggered(this.ceilingBursts[0]);
       const ceiling = this.ceilings[0];
       if (ceiling) ceiling.chunk = new CeilingChunk(ceiling.x, 30, 1);
       this.shake = 1;
@@ -979,7 +1071,7 @@ export class LabyrinthScene extends Scene {
     for (const arm of this.packArms) arm.update(dt, this.wallX, null);
     for (const tentacle of this.tentacles) tentacle.update(dt, this.wallX, lead);
     for (const ambush of this.ambushes) {
-      for (const arm of ambush.arms) arm.update(dt, ambush.x, null);
+      for (const arm of ambush.arms) this.updateAmbushArm(arm, ambush.x, dt);
     }
     for (const ceiling of this.ceilings) {
       if (ceiling.chunk) ceiling.chunk.update(dt);
@@ -1046,6 +1138,68 @@ export class LabyrinthScene extends Scene {
     }
   }
 
+  updateArrival(dt, input) {
+    this.arrivalTimer += dt;
+    const t = this.arrivalTimer;
+    this.shake = Math.max(0, this.shake - dt * 0.9);
+    const squid = this.arrivalMegasquid;
+    squid.reveal = clamp((t - LABYRINTH.arrivalReveal) / 1.1, 0, 1);
+    for (const member of this.arrivalCrew) {
+      member.travel = Math.min(member.travel + member.speed * dt, member.target - member.startX);
+      const arrived = member.travel >= member.target - member.startX;
+      const recoil = arrived ? clamp((t - LABYRINTH.arrivalReveal - 1) / 1.4, 0, 1) : 0;
+      member.entity.update(dt, IDLE_INPUT);
+      member.entity.x = member.startX + member.travel - recoil * member.recoil;
+      member.entity.y = member.lane + Math.sin(this.time * 1.9 + member.phase) * 10 - recoil * 16;
+    }
+    let gazeX = 0;
+    let gazeY = 0;
+    for (const member of this.arrivalCrew) {
+      gazeX += member.entity.x;
+      gazeY += member.entity.y;
+    }
+    squid.gaze = { x: gazeX / this.arrivalCrew.length, y: gazeY / this.arrivalCrew.length };
+    if (squid.reveal > 0) {
+      squid.blinkTimer -= dt;
+      if (squid.blinkHold > 0) {
+        squid.blinkHold = Math.max(0, squid.blinkHold - dt);
+      } else if (squid.blinkTimer <= 0) {
+        squid.blinkTimer = rand(LABYRINTH.squidBlinkMin, LABYRINTH.squidBlinkMax);
+        squid.blinkHold = 0.2;
+      }
+      squid.blink = squid.blinkHold > 0 ? Math.sin(Math.PI * (1 - squid.blinkHold / 0.2)) : 0;
+    }
+    if (t > LABYRINTH.arrivalReveal && !this.arrivalEvents.has('appear')) {
+      this.arrivalEvents.add('appear');
+      this.shake = 0.9;
+      const px = LOGICAL_WIDTH / 2 + (squid.x - LOGICAL_WIDTH / 2) * LABYRINTH.squidParallax;
+      this.particles.burst(px, LOGICAL_HEIGHT * 0.3, {
+        count: 30,
+        speed: 150,
+        life: 1.5,
+        colors: [COLORS.tentacleDark, COLORS.wreckWoodDark],
+        buoyancy: -24,
+      });
+      this.game.audio.tone({ freq: 55, endFreq: 28, type: 'sawtooth', duration: 1.2, volume: 0.34 });
+      this.game.audio.tone({
+        freq: 92,
+        endFreq: 44,
+        type: 'square',
+        duration: 0.5,
+        volume: 0.2,
+        delay: 0.3,
+      });
+    }
+    this.particles.update(dt);
+    if (input.wasPressed('confirm') || t >= LABYRINTH.arrivalDuration) {
+      if (this.theatre) {
+        this.game.changeScene('theatre');
+        return;
+      }
+      this.resetRound();
+    }
+  }
+
   updateCamera(dt) {
     let focus = this.players.filter((_, index) => !this.out[index] && !this.escaped[index]);
     if (focus.length === 0) focus = this.players.filter((_, index) => !this.out[index]);
@@ -1061,8 +1215,80 @@ export class LabyrinthScene extends Scene {
     this.cameraX = lerp(this.cameraX, target, 1 - Math.exp(-5 * dt));
   }
 
+  burstStaggered(ambush) {
+    const order = ambush.arms
+      .map((arm, index) => index)
+      .sort((a, b) => Math.abs(a - (ambush.arms.length - 1) / 2) - Math.abs(b - (ambush.arms.length - 1) / 2) || a - b);
+    const sharedCurl =
+      (order.length - 1) * LABYRINTH.burstStagger + LABYRINTH.burstThrustTime;
+    order.forEach((index, slot) => {
+      const delay = slot * LABYRINTH.burstStagger;
+      ambush.arms[index].burst(delay, sharedCurl - delay);
+    });
+  }
+
+  nearestTarget(ambush, targets) {
+    let target = null;
+    let best = Infinity;
+    for (const player of targets) {
+      const distance = Math.hypot(player.x - ambush.x, player.y - ambush.y);
+      if (distance < best) {
+        best = distance;
+        target = player;
+      }
+    }
+    return target;
+  }
+
+  aimAmbushArm(ambush, arm, target) {
+    const stretching =
+      ambush.state === 'warn' || (arm.burstTimer > 0 && arm.burstAge < arm.retractAge);
+    if (!stretching) return;
+    const dx = target.x - arm.x;
+    const dy = target.y - arm.y;
+    const distance = Math.hypot(dx, dy) || 1;
+    const down = Math.PI / 2;
+    const lean = clamp(
+      Math.atan2(dy, dx) - down,
+      -LABYRINTH.ceilingBurstAim,
+      LABYRINTH.ceilingBurstAim,
+    );
+    arm.angle = down + lean;
+    arm.stretch = Math.min(
+      distance,
+      (LABYRINTH.grabberLength + LABYRINTH.grabberReach) * arm.lengthScale,
+    );
+  }
+
+  updateAmbushArm(arm, anchorX, dt) {
+    arm.update(dt, anchorX, null);
+    if (arm.burstTimer > 0 && !arm.erupted) {
+      arm.erupted = true;
+      this.shake = Math.max(this.shake, 0.22);
+      this.game.audio.tone({
+        freq: 240 + (arm.index % 3) * 60,
+        endFreq: 80,
+        type: 'sawtooth',
+        duration: 0.16,
+        volume: 0.18,
+      });
+      this.game.audio.tone({
+        freq: 90,
+        endFreq: 45,
+        type: 'square',
+        duration: 0.22,
+        volume: 0.16,
+        delay: 0.02,
+      });
+    }
+  }
+
   updateAmbush(ambush, dt, targets) {
-    for (const arm of ambush.arms) arm.update(dt, ambush.x, null);
+    const aimTarget = ambush.aim ? this.nearestTarget(ambush, targets) : null;
+    for (const arm of ambush.arms) {
+      this.updateAmbushArm(arm, ambush.x, dt);
+      if (aimTarget) this.aimAmbushArm(ambush, arm, aimTarget);
+    }
     let near = false;
     for (const player of targets) {
       if (Math.abs(player.x - ambush.x) >= ambush.triggerX) continue;
@@ -1089,8 +1315,20 @@ export class LabyrinthScene extends Scene {
       ambush.timer -= dt;
       if (ambush.timer <= 0) {
         ambush.state = 'burst';
-        for (const arm of ambush.arms) arm.burst();
+        this.burstStaggered(ambush);
         this.shake = Math.max(this.shake, 0.3);
+        const originY =
+          ambush.y === null ? LOGICAL_HEIGHT - LABYRINTH.floorHeight + 20 : ambush.y;
+        const baseAngle = ambush.y === null ? -Math.PI / 2 : ambush.angle;
+        for (let index = 0; index < LABYRINTH.breachChunks; index += 1) {
+          this.breachChunks.push(
+            new BreachChunk(ambush.x + rand(-16, 16), originY + rand(-8, 8), {
+              angle: baseAngle + rand(-0.9, 0.9),
+              speed: rand(150, 300),
+              lift: Math.sin(baseAngle) * 70,
+            }),
+          );
+        }
         this.particles.burst(
           ambush.x,
           ambush.y === null ? LOGICAL_HEIGHT - LABYRINTH.floorHeight + 20 : ambush.y,
@@ -1112,7 +1350,11 @@ export class LabyrinthScene extends Scene {
       }
       return;
     }
-    if (ambush.arms.every((arm) => arm.burstTimer <= 0 && arm.reach <= 0.02)) {
+    if (
+      ambush.arms.every(
+        (arm) => arm.burstDelay <= 0 && arm.burstTimer <= 0 && arm.reach <= 0.02,
+      )
+    ) {
       ambush.state = 'idle';
       ambush.timer = ambush.cooldown;
     }
@@ -1312,7 +1554,7 @@ export class LabyrinthScene extends Scene {
   breakSupport(support) {
     if (support.broken) return;
     support.broken = true;
-    this.wallX -= LABYRINTH.supportPush;
+    this.wallX = Math.min(this.wallX, -LABYRINTH.wallStart);
     this.wallStun = Math.max(this.wallStun, LABYRINTH.supportStun);
     this.shake = Math.max(this.shake, 0.7);
     this.flash = Math.max(this.flash, 0.45);
@@ -1431,6 +1673,10 @@ export class LabyrinthScene extends Scene {
       for (const preview of this.previews) preview.update(dt, IDLE_INPUT);
       return;
     }
+    if (this.phase === 'arrival') {
+      this.updateArrival(dt, input);
+      return;
+    }
     if (this.phase === 'ending') {
       this.updateEnding(dt, input);
       return;
@@ -1474,6 +1720,8 @@ export class LabyrinthScene extends Scene {
     this.updatePickups(dt);
     for (const chunk of this.collapseChunks) chunk.update(dt);
     this.collapseChunks = this.collapseChunks.filter((chunk) => chunk.alive);
+    for (const chunk of this.breachChunks) chunk.update(dt);
+    this.breachChunks = this.breachChunks.filter((chunk) => chunk.alive);
     for (const arm of this.packArms) arm.update(dt, this.wallX, null);
     const targets = this.liveTargets();
     for (const tentacle of this.tentacles) {
@@ -1569,7 +1817,9 @@ export class LabyrinthScene extends Scene {
         for (const ambush of this.ambushes) {
           let grabbing = false;
           for (const arm of ambush.arms) {
-            if (arm.reach < LABYRINTH.burstGrabAfter) continue;
+            if (arm.reach < 1 || arm.curlGrow < LABYRINTH.burstGrabAfter) {
+              continue;
+            }
             for (const t of [0.1, 0.25, 0.45, 0.65, 0.85, 1]) {
               const point = arm.pointAt(t);
               if (
@@ -1578,6 +1828,15 @@ export class LabyrinthScene extends Scene {
               ) {
                 grabbing = true;
                 break;
+              }
+            }
+            if (!grabbing && ambush.aim) {
+              const tip = arm.basePointAt(1);
+              if (
+                Math.hypot(player.x - tip.x, player.y - tip.y) <
+                player.radius + LABYRINTH.grabRadius
+              ) {
+                grabbing = true;
               }
             }
             if (grabbing) break;
@@ -1609,6 +1868,10 @@ export class LabyrinthScene extends Scene {
       this.renderSelect(ctx);
       return;
     }
+    if (this.phase === 'arrival') {
+      this.renderArrival(ctx);
+      return;
+    }
     if (this.phase === 'ending') {
       this.renderEnding(ctx);
       return;
@@ -1637,6 +1900,7 @@ export class LabyrinthScene extends Scene {
     this.renderSupports(ctx);
     this.renderWallSeams(ctx);
     this.renderCeilingSeams(ctx);
+    this.renderCeilingBursts(ctx);
     this.renderTentacleWall(ctx);
     ctx.save();
     ctx.translate(-this.cameraX, 0);
@@ -1659,13 +1923,22 @@ export class LabyrinthScene extends Scene {
         if (arm.reach > 0.03) arm.render(ctx);
       }
     }
+    for (const burst of this.ceilingBursts) {
+      if (burst.x < burstMin || burst.x > burstMax) continue;
+      for (const arm of burst.arms) {
+        if (arm.reach > 0.03) arm.render(ctx);
+      }
+    }
     for (const ceiling of this.ceilings) {
       if (ceiling.chunk) ceiling.chunk.render(ctx);
     }
     for (const chunk of this.collapseChunks) chunk.render(ctx);
+    for (const chunk of this.breachChunks) chunk.render(ctx);
     this.renderSchools(ctx);
     this.renderPickups(ctx);
-    for (const player of this.players) {
+    for (let index = 0; index < this.players.length; index += 1) {
+      applyWardrobe(this.shop, index);
+      const player = this.players[index];
       player.render(ctx);
       drawSkinAura(ctx, player);
       drawTrail(ctx, player);
@@ -1741,6 +2014,7 @@ export class LabyrinthScene extends Scene {
     this.renderSupports(ctx);
     this.renderWallSeams(ctx);
     this.renderCeilingSeams(ctx);
+    this.renderCeilingBursts(ctx);
     this.renderTentacleWall(ctx);
     ctx.save();
     ctx.translate(-this.cameraX, 0);
@@ -1751,6 +2025,11 @@ export class LabyrinthScene extends Scene {
       }
     }
     for (const burst of this.wallBursts) {
+      for (const arm of burst.arms) {
+        if (arm.reach > 0.03) arm.render(ctx);
+      }
+    }
+    for (const burst of this.ceilingBursts) {
       for (const arm of burst.arms) {
         if (arm.reach > 0.03) arm.render(ctx);
       }
@@ -1803,6 +2082,83 @@ export class LabyrinthScene extends Scene {
       size: 12,
       color: COLORS.textDim,
       alpha: 0.7,
+    });
+  }
+
+  renderArrival(ctx) {
+    drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, {
+      top: '#10242e',
+      bottom: '#03070c',
+      ray: 'rgba(190, 230, 255, 0.06)',
+    });
+    ctx.save();
+    if (this.shake > 0) {
+      ctx.translate(rand(-1, 1) * 8 * this.shake, rand(-1, 1) * 8 * this.shake);
+    }
+    const squid = this.arrivalMegasquid;
+    if (squid.reveal > 0) {
+      const px = LOGICAL_WIDTH / 2 + (squid.x - LOGICAL_WIDTH / 2) * LABYRINTH.squidParallax;
+      const py = LOGICAL_HEIGHT * 0.34 + (1 - squid.reveal) * 150;
+      const scale = 0.72 + squid.reveal * 0.6;
+      this.drawSquid(ctx, px, py, scale, 0.5 + squid.reveal * 0.7, squid.reveal);
+      const eyeX = px + 42 * scale;
+      const eyeY = py + 56 * scale;
+      let dirX = 0;
+      let dirY = 1;
+      if (squid.gaze) {
+        const gx = squid.gaze.x - eyeX;
+        const gy = squid.gaze.y - eyeY;
+        const length = Math.hypot(gx, gy) || 1;
+        dirX = gx / length;
+        dirY = gy / length;
+      }
+      this.drawSquidEye(ctx, eyeX, eyeY, squid.blink, dirX, dirY, squid.reveal);
+    }
+    this.renderHull(ctx);
+    this.renderFloor(ctx);
+    this.renderCorals(ctx);
+    this.renderDebris(ctx);
+    for (const wall of this.walls) this.renderWall(ctx, wall);
+    for (const tunnel of this.tunnels) this.renderTunnel(ctx, tunnel);
+    for (const member of this.arrivalCrew) member.entity.render(ctx);
+    this.particles.render(ctx);
+    ctx.restore();
+
+    const t = this.arrivalTimer;
+    drawText(ctx, 'LABYRINTH', LOGICAL_WIDTH / 2, 52, {
+      size: 26,
+      color: COLORS.text,
+      glow: COLORS.bubble,
+      glowBlur: 18,
+      alpha: 0.9,
+    });
+    const card =
+      t < LABYRINTH.arrivalReveal
+        ? 'THE SEVEN DIVERS REACH THE SUNKEN LINER'
+        : t < 5
+          ? 'THE MEGASQUID'
+          : 'DIVE — THE TENTACLES ARE COMING';
+    drawText(ctx, card, LOGICAL_WIDTH / 2, 96, {
+      size: 22,
+      color: t < LABYRINTH.arrivalReveal ? COLORS.bubble : COLORS.accent,
+      glow:
+        t < LABYRINTH.arrivalReveal ? 'rgba(207, 239, 255, 0.5)' : 'rgba(255, 209, 102, 0.5)',
+      glowBlur: 18,
+      alpha: 0.9,
+    });
+    if (t >= 5) {
+      drawText(
+        ctx,
+        'SHARK · STINGRAY · SQUID · SHRIMP · CRAB · JELLY · NAUTILUS',
+        LOGICAL_WIDTH / 2,
+        128,
+        { size: 11, color: COLORS.textDim, alpha: 0.8 },
+      );
+    }
+    drawText(ctx, 'ENTER — SKIP', LOGICAL_WIDTH / 2, LOGICAL_HEIGHT - 24, {
+      size: 12,
+      color: COLORS.textDim,
+      alpha: 0.75,
     });
   }
 
@@ -1987,123 +2343,11 @@ export class LabyrinthScene extends Scene {
   }
 
   drawSquid(ctx, px, py, scale, flail = 1, alpha = 1) {
-    const s = scale;
-    ctx.save();
-    ctx.lineCap = 'round';
-    ctx.globalAlpha = 0.5 * alpha;
-    ctx.strokeStyle = COLORS.tentacleDark;
-    for (let i = 0; i < 8; i += 1) {
-      const side = i - 3.5;
-      const startX = px + side * 24 * s;
-      const startY = py + 96 * s;
-      ctx.lineWidth = (24 - Math.abs(side) * 3.5) * s;
-      ctx.beginPath();
-      ctx.moveTo(startX, startY);
-      for (let k = 1; k <= 7; k += 1) {
-        const t = k / 7;
-        ctx.lineTo(
-          startX +
-            side * t * 130 * s +
-            Math.sin(this.time * 0.55 * flail + i * 1.3 + t * 3.6) * (12 + t * 34) * s,
-          startY + t * (220 + Math.abs(side) * 26) * s,
-        );
-      }
-      ctx.stroke();
-    }
-    for (const side of [-1.4, 1.4]) {
-      const startX = px + side * 24 * s;
-      const startY = py + 96 * s;
-      ctx.lineWidth = 15 * s;
-      ctx.beginPath();
-      ctx.moveTo(startX, startY);
-      for (let k = 1; k <= 8; k += 1) {
-        const t = k / 8;
-        ctx.lineTo(
-          startX +
-            side * t * 190 * s +
-            Math.sin(this.time * 0.4 * flail + side * 1.1 + t * 3.2) * (16 + t * 54) * s,
-          startY + t * 480 * s,
-        );
-      }
-      ctx.stroke();
-      ctx.beginPath();
-      ctx.ellipse(
-        startX +
-          side * 190 * s +
-          Math.sin(this.time * 0.4 * flail + side * 1.1 + 3.2) * 70 * s,
-        startY + 480 * s,
-        15 * s,
-        34 * s,
-        side * 0.3,
-        0,
-        TAU,
-      );
-      ctx.fillStyle = COLORS.tentacleDark;
-      ctx.fill();
-    }
-
-    ctx.globalAlpha = 0.62 * alpha;
-    ctx.fillStyle = COLORS.tentacleDark;
-    for (const side of [-1, 1]) {
-      ctx.beginPath();
-      ctx.moveTo(px + side * 18 * s, py - 130 * s);
-      ctx.quadraticCurveTo(px + side * 156 * s, py - 248 * s, px + side * 176 * s, py - 158 * s);
-      ctx.quadraticCurveTo(px + side * 96 * s, py - 116 * s, px + side * 18 * s, py - 130 * s);
-      ctx.closePath();
-      ctx.fill();
-    }
-    ctx.beginPath();
-    ctx.moveTo(px, py - 258 * s);
-    ctx.quadraticCurveTo(px + 110 * s, py - 130 * s, px + 98 * s, py + 28 * s);
-    ctx.quadraticCurveTo(px + 62 * s, py + 66 * s, px, py + 70 * s);
-    ctx.quadraticCurveTo(px - 62 * s, py + 66 * s, px - 98 * s, py + 28 * s);
-    ctx.quadraticCurveTo(px - 110 * s, py - 130 * s, px, py - 258 * s);
-    ctx.closePath();
-    ctx.fill();
-    ctx.beginPath();
-    ctx.ellipse(px, py + 64 * s, 80 * s, 54 * s, 0, 0, TAU);
-    ctx.fill();
-
-    ctx.globalAlpha = 0.28 * alpha;
-    ctx.strokeStyle = COLORS.tentacle;
-    ctx.lineWidth = 3 * s;
-    ctx.beginPath();
-    ctx.moveTo(px, py - 258 * s);
-    ctx.quadraticCurveTo(px + 110 * s, py - 130 * s, px + 98 * s, py + 28 * s);
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.moveTo(px, py - 258 * s);
-    ctx.quadraticCurveTo(px - 110 * s, py - 130 * s, px - 98 * s, py + 28 * s);
-    ctx.stroke();
-    ctx.restore();
+    drawMegasquid(ctx, px, py, scale, this.time, flail, alpha);
   }
 
   drawSquidEye(ctx, eyeX, eyeY, blink, dirX, dirY, alpha = 1) {
-    ctx.save();
-    const halo = ctx.createRadialGradient(eyeX, eyeY, 4, eyeX, eyeY, 150);
-    halo.addColorStop(0, `rgba(255, 214, 102, ${0.5 * (1 - blink * 0.85) * alpha})`);
-    halo.addColorStop(1, 'rgba(255, 214, 102, 0)');
-    ctx.fillStyle = halo;
-    ctx.fillRect(eyeX - 150, eyeY - 150, 300, 300);
-    ctx.globalAlpha = alpha;
-    ctx.fillStyle = 'rgba(255, 226, 150, 0.92)';
-    ctx.beginPath();
-    ctx.ellipse(eyeX, eyeY, 38, 34 * (1 - blink), 0, 0, TAU);
-    ctx.fill();
-    ctx.fillStyle = '#1b1204';
-    ctx.beginPath();
-    ctx.ellipse(eyeX + dirX * 13, eyeY + dirY * 11, 16, 15 * (1 - blink), 0, 0, TAU);
-    ctx.fill();
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
-    ctx.beginPath();
-    ctx.ellipse(eyeX + dirX * 13 - 6, eyeY + dirY * 11 - 6, 4, 4 * (1 - blink), 0, 0, TAU);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(190, 130, 20, 0.8)';
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.ellipse(eyeX, eyeY, 26, 23 * (1 - blink), 0, 0, TAU);
-    ctx.stroke();
-    ctx.restore();
+    drawMegasquidEye(ctx, eyeX, eyeY, blink, dirX, dirY, alpha);
   }
 
   renderHull(ctx) {
@@ -2210,7 +2454,40 @@ export class LabyrinthScene extends Scene {
         );
         ctx.stroke();
       }
+      if (crack.state === 'burst') {
+        const arm = crack.arms[0];
+        const progress = arm ? arm.burstAge / 0.34 : 1;
+        if (progress < 1) {
+          this.renderBreach(ctx, sx, baseY, 1 - progress, -Math.PI / 2);
+        }
+      }
     }
+  }
+
+  renderBreach(ctx, x, y, alpha, angle) {
+    if (alpha <= 0.02) return;
+    const spread = 1 - alpha;
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(angle);
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = COLORS.wreckWood;
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 7; i += 1) {
+      const ray = -1.5 + (i / 6) * 3;
+      const length = 18 + spread * 40;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(ray) * 8, Math.sin(ray) * 8);
+      ctx.lineTo(Math.cos(ray) * length, Math.sin(ray) * length);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = `rgba(210, 190, 160, ${0.6 * alpha})`;
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, 12 + spread * 46, 0, TAU);
+    ctx.stroke();
+    ctx.restore();
   }
 
   renderCorals(ctx) {
@@ -2582,6 +2859,62 @@ export class LabyrinthScene extends Scene {
         ctx.strokeStyle = `rgba(200, 69, 90, ${0.4 + pulse * 0.3})`;
         ctx.lineWidth = 3;
         ctx.stroke();
+      }
+      if (burst.state === 'burst') {
+        const arm = burst.arms[0];
+        const progress = arm ? arm.burstAge / 0.34 : 1;
+        if (progress < 1) {
+          this.renderBreach(ctx, sx + facing * 10, burst.y, 1 - progress, burst.angle);
+        }
+      }
+    }
+  }
+
+  renderCeilingBursts(ctx) {
+    for (const burst of this.ceilingBursts) {
+      const sx = burst.x - this.cameraX;
+      if (sx < -80 || sx > LOGICAL_WIDTH + 80) continue;
+      const alerted = burst.state !== 'idle';
+      const pulse = alerted ? 0.55 + 0.45 * Math.sin(this.time * 10) : 0;
+      if (alerted) {
+        const glow = ctx.createRadialGradient(sx, 26, 4, sx, 26, 120);
+        glow.addColorStop(0, `rgba(200, 69, 90, ${0.22 + pulse * 0.22})`);
+        glow.addColorStop(1, 'rgba(200, 69, 90, 0)');
+        ctx.fillStyle = glow;
+        ctx.fillRect(sx - 120, 0, 240, 160);
+        ctx.fillStyle = `rgba(210, 190, 160, ${0.3 + pulse * 0.3})`;
+        for (let mote = 0; mote < 3; mote += 1) {
+          const fall = (this.time * 130 + mote * 84) % 260;
+          ctx.fillRect(sx - 24 + mote * 22, 24 + fall, 3, 3);
+        }
+      }
+      ctx.strokeStyle = alerted
+        ? `rgba(220, 96, 118, ${0.5 + pulse * 0.4})`
+        : 'rgba(12, 8, 6, 0.9)';
+      ctx.lineWidth = alerted ? 3 : 2.5;
+      for (let i = 0; i < 3; i += 1) {
+        const offset = (i - 1) * 30;
+        ctx.beginPath();
+        ctx.moveTo(sx + offset, 8);
+        ctx.lineTo(sx + offset + Math.sin(burst.x * 0.3 + i * 2.1) * 7, 32 + i * 6);
+        ctx.lineTo(sx + offset + 10, 50 + i * 8);
+        ctx.stroke();
+      }
+      if (burst.state === 'burst' || burst.arms[0].reach > 0.03) {
+        ctx.fillStyle = '#05070a';
+        ctx.beginPath();
+        ctx.ellipse(sx, 18, 30, 18, 0, 0, TAU);
+        ctx.fill();
+        ctx.strokeStyle = `rgba(200, 69, 90, ${0.4 + pulse * 0.3})`;
+        ctx.lineWidth = 3;
+        ctx.stroke();
+      }
+      if (burst.state === 'burst') {
+        const arm = burst.arms[0];
+        const progress = arm ? arm.burstAge / 0.34 : 1;
+        if (progress < 1) {
+          this.renderBreach(ctx, sx, 22, 1 - progress, Math.PI / 2);
+        }
       }
     }
   }

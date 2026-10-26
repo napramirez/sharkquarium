@@ -15,6 +15,7 @@ export class MoonJelly extends Entity {
     this.speed = 0;
     this.invulnerable = 0;
     this.pulsePhase = rand(0, TAU);
+    this.jacketFit = { x: 0, y: -0.32, rx: 0.72, ry: 0.58 };
   }
 
   update(dt, input) {
@@ -55,39 +56,44 @@ export class MoonJelly extends Entity {
     ctx.translate(this.x, this.y);
     if (flash) ctx.globalAlpha = 0.4;
     ctx.rotate(clamp(this.vx / MOONJELLY.maxSpeed, -1, 1) * 0.2);
-
-    ctx.strokeStyle = 'rgba(255, 143, 163, 0.8)';
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    for (let i = 0; i < 5; i += 1) {
-      const offset = (i - 2) * 8;
-      const wobble = Math.sin(this.age * 3 + i * 1.3) * 5;
-      ctx.beginPath();
-      ctx.moveTo(offset * 0.5, radius * 0.35);
-      ctx.quadraticCurveTo(offset + wobble, radius * 1.3, offset * 1.2 + wobble, radius * 2);
-      ctx.stroke();
-    }
-
-    ctx.beginPath();
-    ctx.moveTo(-radius * pulse, radius * 0.2);
-    ctx.quadraticCurveTo(-radius * 1.2 * pulse, -radius * pulse, 0, -radius * 1.1 * pulse);
-    ctx.quadraticCurveTo(radius * 1.2 * pulse, -radius * pulse, radius * pulse, radius * 0.2);
-    ctx.quadraticCurveTo(radius * 0.5 * pulse, radius * 0.5, 0, radius * 0.2);
-    ctx.quadraticCurveTo(-radius * 0.5 * pulse, radius * 0.5, -radius * pulse, radius * 0.2);
-    ctx.closePath();
-    ctx.fillStyle = playerColor('body', 'rgba(255, 143, 163, 0.55)');
-    ctx.fill();
-    ctx.strokeStyle = playerColor('accent', COLORS.jelly);
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    ctx.globalAlpha = 0.4;
-    ctx.beginPath();
-    ctx.ellipse(-radius * 0.3, -radius * 0.32, radius * 0.4, radius * 0.28, -0.4, 0, TAU);
-    ctx.fillStyle = '#ffffff';
-    ctx.fill();
-
+    drawMoonJellyBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
     ctx.restore();
   }
+}
+
+export function drawMoonJellyBody(ctx, radius, pose) {
+  const age = pose.age ?? 0;
+  const pulse = 1 + Math.sin(pose.pulsePhase ?? 0) * 0.08;
+  ctx.strokeStyle = 'rgba(255, 143, 163, 0.8)';
+  ctx.lineWidth = radius * 0.09;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 5; i += 1) {
+    const offset = (i - 2) * radius * 0.36;
+    const wobble = Math.sin(age * 3 + i * 1.3) * radius * 0.23;
+    ctx.beginPath();
+    ctx.moveTo(offset * 0.5, radius * 0.35);
+    ctx.quadraticCurveTo(offset + wobble, radius * 1.3, offset * 1.2 + wobble, radius * 2);
+    ctx.stroke();
+  }
+
+  ctx.beginPath();
+  ctx.moveTo(-radius * pulse, radius * 0.2);
+  ctx.quadraticCurveTo(-radius * 1.2 * pulse, -radius * pulse, 0, -radius * 1.1 * pulse);
+  ctx.quadraticCurveTo(radius * 1.2 * pulse, -radius * pulse, radius * pulse, radius * 0.2);
+  ctx.quadraticCurveTo(radius * 0.5 * pulse, radius * 0.5, 0, radius * 0.2);
+  ctx.quadraticCurveTo(-radius * 0.5 * pulse, radius * 0.5, -radius * pulse, radius * 0.2);
+  ctx.closePath();
+  ctx.fillStyle = playerColor('body', 'rgba(255, 143, 163, 0.55)');
+  ctx.fill();
+  ctx.strokeStyle = playerColor('accent', COLORS.jelly);
+  ctx.lineWidth = radius * 0.07;
+  ctx.stroke();
+
+  ctx.globalAlpha = 0.4;
+  ctx.beginPath();
+  ctx.ellipse(-radius * 0.3, -radius * 0.32, radius * 0.4, radius * 0.28, -0.4, 0, TAU);
+  ctx.fillStyle = '#ffffff';
+  ctx.fill();
+  ctx.globalAlpha = 1;
 }

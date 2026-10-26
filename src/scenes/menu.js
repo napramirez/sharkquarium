@@ -6,7 +6,8 @@ import { drawWater, drawText, fillRoundRect, strokeRoundRect } from '../engine/r
 import { loadJSON } from '../engine/storage.js';
 import { MENU_TRACK } from '../assets/tracks.js';
 import { rand } from '../engine/math.js';
-import { drawSkinAura, setActiveSkin, setEelAura, setSkinClock, skinByKey } from '../engine/skin.js';
+import { drawSkinAura, setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
+import { auraForShop, setActiveAura } from '../engine/aura.js';
 import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
 import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
 import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
@@ -41,7 +42,7 @@ export class MenuScene extends Scene {
       ...loadJSON(STATS_KEY, {}),
     };
     this.shop = { owned: ['natural'], skin: 'natural', passes: [], ...loadJSON(SHOP_KEY, {}) };
-    setEelAura((this.shop.passes ?? []).includes('playpass5'));
+    setActiveAura(auraForShop(this.shop));
     this.skin = skinByKey(this.shop.skin);
     this.head = accessoryByKey(this.shop.head);
     this.back = accessoryByKey(this.shop.back);
@@ -70,6 +71,7 @@ export class MenuScene extends Scene {
     items.push({ label: 'SHOP', action: 'shop' });
     items.push({ label: 'SETTINGS', action: 'settings' });
     items.push({ label: 'HOW TO PLAY', action: 'help' });
+    items.push({ label: 'LORE', action: 'lore' });
     this.menu = new SelectList(items, {
       glowColor: COLORS.bubble,
       accentColor: COLORS.accent,
@@ -93,6 +95,7 @@ export class MenuScene extends Scene {
     else if (action === 'shop') this.game.changeScene('shop');
     else if (action === 'settings') this.game.changeScene('settings');
     else if (action === 'help') this.showHelp = true;
+    else if (action === 'lore') this.game.changeScene('lore');
   }
 
   update(dt) {

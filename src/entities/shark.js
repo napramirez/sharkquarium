@@ -14,6 +14,7 @@ export class Shark extends Entity {
     this.heading = 0;
     this.speed = 0;
     this.invulnerable = 0;
+    this.jacketFit = { x: -0.5, y: 0.02, rx: 1.1, ry: 0.78 };
   }
 
   update(dt, input) {
@@ -52,57 +53,59 @@ export class Shark extends Entity {
     ctx.translate(this.x, this.y);
     if (flash) ctx.globalAlpha = 0.4;
     ctx.rotate(this.heading);
-
-    const wiggle = Math.sin(this.age * (4 + this.speed * 0.02)) * 0.38;
-    ctx.save();
-    ctx.translate(-radius * 1.55, 0);
-    ctx.rotate(wiggle);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-radius * 0.9, -radius * 0.62);
-    ctx.lineTo(-radius * 0.55, 0);
-    ctx.lineTo(-radius * 0.9, radius * 0.62);
-    ctx.closePath();
-    ctx.fillStyle = playerColor('accent', COLORS.sharkFin);
-    ctx.fill();
-    ctx.restore();
-
-    ctx.beginPath();
-    ctx.ellipse(0, 0, radius * 1.7, radius * 0.85, 0, 0, TAU);
-    ctx.fillStyle = playerColor('body', COLORS.shark);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.ellipse(0, radius * 0.22, radius * 1.25, radius * 0.42, 0, 0, TAU);
-    ctx.fillStyle = playerColor('belly', COLORS.sharkBelly);
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(-radius * 0.1, -radius * 0.72);
-    ctx.lineTo(radius * 0.28, -radius * 1.5);
-    ctx.lineTo(radius * 0.62, -radius * 0.58);
-    ctx.closePath();
-    ctx.fillStyle = COLORS.sharkFin;
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(radius * 0.08, radius * 0.5);
-    ctx.lineTo(radius * 0.3, radius * 1.3);
-    ctx.lineTo(radius * 0.82, radius * 0.55);
-    ctx.closePath();
-    ctx.fillStyle = COLORS.sharkFin;
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.arc(radius * 0.98, -radius * 0.22, radius * 0.17, 0, TAU);
-    ctx.fillStyle = '#f4fbff';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(radius * 1.04, -radius * 0.22, radius * 0.08, 0, TAU);
-    ctx.fillStyle = '#10233a';
-    ctx.fill();
-
+    drawSharkBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
     ctx.restore();
   }
+}
+
+export function drawSharkBody(ctx, radius, pose) {
+  const wiggle = Math.sin(pose.age * (4 + (pose.speed ?? 0) * 0.02)) * 0.38;
+  ctx.save();
+  ctx.translate(-radius * 1.55, 0);
+  ctx.rotate(wiggle);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.lineTo(-radius * 0.9, -radius * 0.62);
+  ctx.lineTo(-radius * 0.55, 0);
+  ctx.lineTo(-radius * 0.9, radius * 0.62);
+  ctx.closePath();
+  ctx.fillStyle = playerColor('accent', COLORS.sharkFin);
+  ctx.fill();
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.ellipse(0, 0, radius * 1.7, radius * 0.85, 0, 0, TAU);
+  ctx.fillStyle = playerColor('body', COLORS.shark);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.ellipse(0, radius * 0.22, radius * 1.25, radius * 0.42, 0, 0, TAU);
+  ctx.fillStyle = playerColor('belly', COLORS.sharkBelly);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(-radius * 0.1, -radius * 0.72);
+  ctx.lineTo(radius * 0.28, -radius * 1.5);
+  ctx.lineTo(radius * 0.62, -radius * 0.58);
+  ctx.closePath();
+  ctx.fillStyle = COLORS.sharkFin;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(radius * 0.08, radius * 0.5);
+  ctx.lineTo(radius * 0.3, radius * 1.3);
+  ctx.lineTo(radius * 0.82, radius * 0.55);
+  ctx.closePath();
+  ctx.fillStyle = COLORS.sharkFin;
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.arc(radius * 0.98, -radius * 0.22, radius * 0.17, 0, TAU);
+  ctx.fillStyle = '#f4fbff';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(radius * 1.04, -radius * 0.22, radius * 0.08, 0, TAU);
+  ctx.fillStyle = '#10233a';
+  ctx.fill();
 }

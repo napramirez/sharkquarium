@@ -2,7 +2,15 @@ import { Scene } from '../engine/scene.js';
 import { drawWater, drawText } from '../engine/render.js';
 import { clamp, rand, TAU } from '../engine/math.js';
 import { loadJSON } from '../engine/storage.js';
-import { setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
+import { drawSkinAura, setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
+import { auraByKey, auraCatalog, setActiveAura } from '../engine/aura.js';
+import { drawTrail, setActiveTrail, trailByKey, trailCatalog } from '../engine/trail.js';
+import {
+  companionByKey,
+  companionCatalog,
+  drawCompanion,
+  setActiveCompanion,
+} from '../engine/companion.js';
 import {
   accessoryByKey,
   accessorySlotCatalog,
@@ -221,27 +229,42 @@ export class TrailerScene extends Scene {
     this.schools = [];
     this.bubbleSpawn = 0.4;
     this.gauntlet = Boolean(params.gauntlet);
+    this.movie = Boolean(params.movie);
+    this.shopTrailer = Boolean(params.shop);
     this.tankId = TANK_ORDER.includes(params.tank) ? params.tank : null;
     this.minigameId = MINIGAME_ORDER.includes(params.minigame) ? params.minigame : null;
-    this.shots = this.gauntlet
-      ? this.gauntletShots()
-      : this.tankId
-        ? this.tankShots()
-        : this.minigameId
-          ? this.minigameShots()
-          : SHOTS;
+    this.shots = this.shopTrailer
+      ? this.shopShots()
+      : this.movie
+        ? this.movieShots()
+        : this.gauntlet
+          ? this.gauntletShots()
+          : this.tankId
+            ? this.tankShots()
+            : this.minigameId
+              ? this.minigameShots()
+              : SHOTS;
     this.total = this.shots.reduce((sum, shot) => sum + shot.duration, 0);
     const shop = loadJSON(SHOP_KEY, {});
     this.baseSkin = skinByKey(shop.skin);
     this.baseHead = accessoryByKey(shop.head);
     this.baseBody = accessoryByKey(shop.back);
+    this.baseTrail = trailByKey(shop.trail);
+    this.baseCompanion = companionByKey(shop.companion);
+    this.baseAura = auraByKey(shop.aura);
     this.activeSkin = this.baseSkin;
     this.activeHead = this.baseHead;
     this.activeBody = this.baseBody;
+    this.activeTrail = this.baseTrail;
+    this.activeCompanion = this.baseCompanion;
+    this.activeAura = this.baseAura;
     this.dressTimer = 0;
     this.skinIndex = 0;
     this.headIndex = 0;
     this.bodyIndex = 0;
+    this.trailIndex = 0;
+    this.companionIndex = 0;
+    this.auraIndex = 0;
     this.applyShot(0);
   }
 
@@ -277,6 +300,87 @@ export class TrailerScene extends Scene {
     );
   }
 
+  shopShots() {
+    return [
+      {
+        id: 'shop-title',
+        duration: 3.2,
+        title: 'THE SHOP',
+        sub: 'SEA COINS — COLORS, TRINKETS, TRAILS, BUDDIES, AND AURAS',
+        palette: 'pets',
+        card: true,
+        game: 'title',
+      },
+      {
+        id: 'shop-colors',
+        duration: 4.2,
+        title: 'THIRTEEN COLORS',
+        sub: 'PINK, RED, GOLD… AND THE SHADOW / RAINBOW SPECIALS',
+        palette: 'pets',
+        view: 1,
+      },
+      {
+        id: 'shop-head',
+        duration: 3.6,
+        title: 'HEAD TRINKETS',
+        sub: 'TOP HATS, HORNS, SNORKELS, AND THE STINGRAY HAT',
+        palette: 'pets',
+        view: 1,
+      },
+      {
+        id: 'shop-body',
+        duration: 3.6,
+        title: 'BODY WEAR',
+        sub: 'PLUSHIES, WINGS, THE NEON JACKET, AND THE EEL SCARF',
+        palette: 'pets',
+        view: 1,
+      },
+      {
+        id: 'shop-trails',
+        duration: 3.6,
+        title: 'TRAILS AND DIVE BUDDIES',
+        sub: 'FIVE SWIM WAKES — TWENTY-ONE FLOATING PALS',
+        palette: 'pets',
+        view: 1,
+      },
+      {
+        id: 'shop-auras',
+        duration: 3.6,
+        title: 'EEL AURAS',
+        sub: 'NINE ORBITING RINGS — EELS, NEON, KARAMBITS, AND SWORDS',
+        palette: 'pets',
+        view: 1,
+      },
+      {
+        id: 'shop-coins',
+        duration: 3.2,
+        title: 'SEA COINS PAY FOR EVERYTHING',
+        sub: 'DIVE, WIN MINIGAMES, AND SPEND IT ALL AT THE SHOP',
+        palette: 'pets',
+        card: true,
+        game: 'finale',
+      },
+      {
+        id: 'shop-pass',
+        duration: 3.4,
+        title: 'NINE PLAYPASSES',
+        sub: 'MINIGAMES, SPECIAL TANKS, AND EVERY COSMETIC BUNDLE',
+        palette: 'reef',
+        card: true,
+        game: 'title',
+      },
+      {
+        id: 'shop-finale',
+        duration: 3.8,
+        title: 'DRESS UP, THEN DIVE',
+        sub: `${GAME_TITLE} — PLAY NOW, 2P OR SOLO`,
+        palette: 'pets',
+        card: true,
+        game: 'finale',
+      },
+    ];
+  }
+
   gauntletShots() {
     const shots = [
       {
@@ -309,9 +413,67 @@ export class TrailerScene extends Scene {
     return shots;
   }
 
+  movieShots() {
+    const shots = [
+      {
+        id: 'movie-title',
+        duration: 3.8,
+        title: GAME_TITLE,
+        sub: 'THE MOVIE — EVERY TANK AND EVERY MINIGAME',
+        palette: 'reef',
+        card: true,
+        game: 'title',
+      },
+    ];
+    TANK_ORDER.forEach((tank, index) => {
+      const intro = TANK_INTROS[tank] ?? { label: 'PETS TANK', blurb: 'FEED THE SEA CREATURES' };
+      shots.push({
+        id: `movie-tank-${tank}`,
+        duration: 3.4,
+        title: intro.label,
+        sub: TANK_INFO[tank].sub,
+        palette: tank,
+        view: index % 2 === 0 ? 1 : 2,
+        tank,
+      });
+    });
+    shots.push({
+      id: 'movie-intermission',
+      duration: 3,
+      title: 'INTERMISSION',
+      sub: 'NEXT — THE MINIGAMES: RACE, TAG, DODGEBALL, AND LABYRINTH',
+      palette: 'reef',
+      card: true,
+      game: 'minigames',
+    });
+    MINIGAME_ORDER.forEach((minigame) => {
+      const info = MINIGAME_INFO[minigame];
+      shots.push({
+        id: `movie-minigame-${minigame}`,
+        duration: 3.4,
+        title: info.label,
+        sub: info.title,
+        palette: info.palette,
+        view: 1,
+        minigame,
+      });
+    });
+    shots.push({
+      id: 'movie-finale',
+      duration: 4.2,
+      title: 'THE END',
+      sub: `${GAME_TITLE} — PLAY NOW, 2P OR SOLO`,
+      palette: 'reef',
+      card: true,
+      game: 'finale',
+    });
+    return shots;
+  }
+
   isCard(shot) {
+    if (shot.card) return true;
     if (shot.id === 'title' || shot.id === 'finale') return true;
-    if (this.gauntlet) return false;
+    if (this.gauntlet || this.movie || this.shopTrailer) return false;
     return shot.view === 0 || shot.view === 2;
   }
 
@@ -915,6 +1077,23 @@ export class TrailerScene extends Scene {
     }
   }
 
+  buildShopShot(shot) {
+    if (shot.card) {
+      this.buildGameShot(shot.game ?? 'title');
+      this.dressTimer = 0;
+      return;
+    }
+    for (let index = 0; index < 5; index += 1) {
+      this.scenery.push(new Coral(rand(70, LOGICAL_WIDTH - 70), index % 3));
+    }
+    this.schools.push(new ColorSchool());
+    const crew = [Shark, Stingray, Squid, ArcticShrimp, KelpCrab, MoonJelly, Nautilus];
+    crew.forEach((EntityClass, index) => {
+      this.addCrew(EntityClass, 130 + index * 116, 150 + (index % 4) * 92, 0, 12);
+    });
+    this.dressTimer = 0;
+  }
+
   applyShot(index) {
     const shot = this.shots[index];
     this.shotIndex = index;
@@ -929,13 +1108,24 @@ export class TrailerScene extends Scene {
     this.activeSkin = this.baseSkin;
     this.activeHead = this.baseHead;
     this.activeBody = this.baseBody;
+    this.activeTrail = this.baseTrail;
+    this.activeCompanion = this.baseCompanion;
+    this.activeAura = this.baseAura;
     this.game.audio.tone({ freq: 70, endFreq: 40, type: 'sawtooth', duration: 0.45, volume: 0.28 });
     if (this.isCard(shot)) {
       this.game.audio.tone({ freq: 392, type: 'triangle', duration: 0.3, volume: 0.2 });
       this.game.audio.tone({ freq: 523, type: 'triangle', duration: 0.3, volume: 0.2, delay: 0.22 });
       this.game.audio.tone({ freq: 784, type: 'triangle', duration: 0.5, volume: 0.2, delay: 0.44 });
     }
-    if (this.gauntlet) {
+    if (this.shopTrailer) {
+      this.buildShopShot(shot);
+    } else if (this.movie) {
+      if (shot.tank) this.buildTankShot(shot.view, shot.tank);
+      else if (shot.minigame) {
+        this.minigameId = shot.minigame;
+        this.buildMinigameShot(shot.view);
+      } else this.buildGameShot(shot.game ?? shot.id);
+    } else if (this.gauntlet) {
       if (shot.tank) this.buildTankShot(shot.view, shot.tank);
       else this.buildGameShot(shot.id);
     } else if (this.tankId) this.buildTankShot(shot.view);
@@ -996,6 +1186,36 @@ export class TrailerScene extends Scene {
         this.game.audio.tone({ freq: 520, endFreq: 780, duration: 0.08, volume: 0.12 });
       }
     }
+    if (this.shopTrailer && !this.isCard(shot)) {
+      this.dressTimer -= dt;
+      if (this.dressTimer <= 0) {
+        this.dressTimer = 0.7;
+        if (shot.id === 'shop-colors') {
+          this.skinIndex = (this.skinIndex + 1) % SKINS.length;
+          this.activeSkin = skinByKey(SKINS[this.skinIndex].key);
+        } else if (shot.id === 'shop-head') {
+          const heads = accessorySlotCatalog('head');
+          this.headIndex = (this.headIndex + 1) % heads.length;
+          this.activeHead = accessoryByKey(heads[this.headIndex].key);
+        } else if (shot.id === 'shop-body') {
+          const bodies = accessorySlotCatalog('body');
+          this.bodyIndex = (this.bodyIndex + 1) % bodies.length;
+          this.activeBody = accessoryByKey(bodies[this.bodyIndex].key);
+        } else if (shot.id === 'shop-trails') {
+          const trails = trailCatalog();
+          this.trailIndex = (this.trailIndex + 1) % trails.length;
+          this.activeTrail = trailByKey(trails[this.trailIndex].key);
+          const companions = companionCatalog();
+          this.companionIndex = (this.companionIndex + 1) % companions.length;
+          this.activeCompanion = companionByKey(companions[this.companionIndex].key);
+        } else if (shot.id === 'shop-auras') {
+          const auras = auraCatalog();
+          this.auraIndex = (this.auraIndex + 1) % auras.length;
+          this.activeAura = auraByKey(auras[this.auraIndex].key);
+        }
+        this.game.audio.tone({ freq: 520, endFreq: 780, duration: 0.08, volume: 0.12 });
+      }
+    }
     if (input.wasPressed('confirm') || this.time >= this.total) {
       this.game.changeScene('theatre');
     }
@@ -1008,6 +1228,9 @@ export class TrailerScene extends Scene {
     setSkinClock(this.time);
     setActiveHeadAccessory(this.activeHead);
     setActiveBodyAccessory(this.activeBody);
+    setActiveTrail(this.activeTrail);
+    setActiveCompanion(this.activeCompanion);
+    setActiveAura(this.activeAura);
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, PALETTES[shot.palette]);
     ctx.save();
     ctx.translate(LOGICAL_WIDTH / 2, LOGICAL_HEIGHT / 2);
@@ -1019,7 +1242,14 @@ export class TrailerScene extends Scene {
     for (const piece of this.scenery) piece.render(ctx);
     for (const bubble of this.bubbles) bubble.render(ctx);
     for (const school of this.schools) school.render(ctx);
-    for (const performer of this.performers) performer.entity.render(ctx);
+    for (const performer of this.performers) {
+      performer.entity.render(ctx);
+      if (this.shopTrailer) {
+        drawSkinAura(ctx, performer.entity);
+        drawTrail(ctx, performer.entity);
+        drawCompanion(ctx, performer.entity);
+      }
+    }
     ctx.restore();
     this.renderOverlay(ctx, shot);
   }
@@ -1034,12 +1264,22 @@ export class TrailerScene extends Scene {
     ctx.fillStyle = '#000000';
     ctx.fillRect(0, 0, LOGICAL_WIDTH, 46);
     ctx.fillRect(0, LOGICAL_HEIGHT - 46, LOGICAL_WIDTH, 46);
-    drawText(ctx, 'SHARKQUARIUM — TRAILER', 18, 24, {
-      size: 11,
-      color: COLORS.textDim,
-      alpha: 0.6,
-      align: 'left',
-    });
+    drawText(
+      ctx,
+      this.movie
+        ? 'SHARKQUARIUM — THE MOVIE'
+        : this.shopTrailer
+          ? 'SHARKQUARIUM — SHOP TRAILER'
+          : 'SHARKQUARIUM — TRAILER',
+      18,
+      24,
+      {
+        size: 11,
+        color: COLORS.textDim,
+        alpha: 0.6,
+        align: 'left',
+      },
+    );
     drawText(ctx, shot.title, LOGICAL_WIDTH / 2, titleY, {
       size: final ? 46 : 30,
       color: COLORS.text,

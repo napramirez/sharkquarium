@@ -28,51 +28,52 @@ export function setActiveBodyAccessory(accessory) {
   activeBody = accessory && accessory.key !== 'none' ? accessory : NONE;
 }
 
-function drawNeonJacket(ctx, r, time) {
+function drawNeonJacket(ctx, rx, ry, time) {
+  const w = (rx + ry) / 2;
   const hue = (time * 130) % 360;
   const hue2 = (hue + 90) % 360;
   ctx.fillStyle = '#151a2b';
   ctx.beginPath();
-  ctx.moveTo(-r * 0.9, -r * 0.35);
-  ctx.quadraticCurveTo(0, -r * 0.92, r * 0.9, -r * 0.35);
-  ctx.quadraticCurveTo(r * 0.78, r * 0.95, 0, r * 1.08);
-  ctx.quadraticCurveTo(-r * 0.78, r * 0.95, -r * 0.9, -r * 0.35);
+  ctx.moveTo(-rx * 0.9, -ry * 0.35);
+  ctx.quadraticCurveTo(0, -ry * 0.92, rx * 0.9, -ry * 0.35);
+  ctx.quadraticCurveTo(rx * 0.78, ry * 0.95, 0, ry * 1.08);
+  ctx.quadraticCurveTo(-rx * 0.78, ry * 0.95, -rx * 0.9, -ry * 0.35);
   ctx.closePath();
   ctx.fill();
   ctx.strokeStyle = 'rgba(10, 12, 24, 0.75)';
-  ctx.lineWidth = r * 0.1;
+  ctx.lineWidth = w * 0.1;
   ctx.stroke();
   ctx.lineCap = 'round';
   ctx.strokeStyle = `hsla(${hue}, 100%, 62%, 0.35)`;
-  ctx.lineWidth = r * 0.26;
+  ctx.lineWidth = w * 0.26;
   ctx.beginPath();
-  ctx.moveTo(-r * 0.62, -r * 0.42);
-  ctx.quadraticCurveTo(0, -r * 0.8, r * 0.62, -r * 0.42);
+  ctx.moveTo(-rx * 0.62, -ry * 0.42);
+  ctx.quadraticCurveTo(0, -ry * 0.8, rx * 0.62, -ry * 0.42);
   ctx.stroke();
   ctx.strokeStyle = `hsl(${hue}, 100%, 66%)`;
-  ctx.lineWidth = r * 0.13;
+  ctx.lineWidth = w * 0.13;
   ctx.stroke();
   ctx.strokeStyle = `hsl(${hue2}, 100%, 70%)`;
-  ctx.lineWidth = r * 0.1;
+  ctx.lineWidth = w * 0.1;
   ctx.beginPath();
-  ctx.moveTo(0, -r * 0.5);
-  ctx.lineTo(0, r * 0.9);
+  ctx.moveTo(0, -ry * 0.5);
+  ctx.lineTo(0, ry * 0.9);
   ctx.stroke();
   ctx.strokeStyle = `hsla(${hue2}, 100%, 60%, 0.35)`;
-  ctx.lineWidth = r * 0.24;
+  ctx.lineWidth = w * 0.24;
   ctx.beginPath();
-  ctx.moveTo(-r * 0.6, r * 0.8);
-  ctx.quadraticCurveTo(0, r * 1.06, r * 0.6, r * 0.8);
+  ctx.moveTo(-rx * 0.6, ry * 0.8);
+  ctx.quadraticCurveTo(0, ry * 1.06, rx * 0.6, ry * 0.8);
   ctx.stroke();
   ctx.strokeStyle = `hsl(${hue2}, 100%, 68%)`;
-  ctx.lineWidth = r * 0.12;
+  ctx.lineWidth = w * 0.12;
   ctx.stroke();
   for (const side of [-1, 1]) {
     ctx.strokeStyle = `hsl(${(hue + side * 55 + 360) % 360}, 100%, 72%)`;
-    ctx.lineWidth = r * 0.07;
+    ctx.lineWidth = w * 0.07;
     ctx.beginPath();
-    ctx.moveTo(side * r * 0.5, -r * 0.1);
-    ctx.lineTo(side * r * 0.72, r * 0.22);
+    ctx.moveTo(side * rx * 0.5, -ry * 0.1);
+    ctx.lineTo(side * rx * 0.72, ry * 0.22);
     ctx.stroke();
   }
 }
@@ -232,9 +233,10 @@ function renderAccessory(ctx, key, r, time, frame) {
     return;
   }
   if (key === 'neonjacket') {
+    const fit = frame.entity?.jacketFit ?? { x: -0.5, y: 0.02, rx: 1.1, ry: 0.78 };
     ctx.save();
-    ctx.translate(-r * 0.78, r * 0.08);
-    drawNeonJacket(ctx, r, time);
+    ctx.translate(r * fit.x, r * fit.y);
+    drawNeonJacket(ctx, r * fit.rx, r * fit.ry, time);
     ctx.restore();
     return;
   }

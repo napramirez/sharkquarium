@@ -211,6 +211,19 @@ export class Hud {
           alpha: 0.6 + 0.4 * Math.sin(this.time * 6),
         });
       }
+      if ((state.postcards ?? 0) > 0) {
+        drawText(
+          ctx,
+          `POSTCARDS SAVED: ${state.postcards} — PHOTO SNAPS THE MOMENT`,
+          LOGICAL_WIDTH / 2,
+          petsY + ((state.hungry ?? 0) > 0 ? 40 : 20),
+          {
+            size: 11,
+            color: COLORS.foam,
+            alpha: 0.7,
+          },
+        );
+      }
     }
     if (state.octopus) {
       const labels = {

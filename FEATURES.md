@@ -108,17 +108,26 @@ Requirements:
   cards that tour every tank, the minibosses, the minigames, the shop (cycling colors and
   trinkets live), the pets tank, the aquarium builder, and the labyrinth — plus an
   **ALL-TANK GAMEPLAY** trailer that runs the whole gauntlet in one continuous cut (a
-  title card, one live gameplay shot per tank in chain order, and a closing card), a
+  title card, one live gameplay shot per tank in chain order, and a closing card), the
+  longest cut — **SHARKQUARIUM: THE MOVIE** — which strings the nine tank gameplay shots
+  and all four minigame sets together between an INTERMISSION card and a THE END card
+  (sixteen shots, around 55 seconds), a
   nested **TANK TRAILERS** page with a three-shot quick cut for each of the nine tanks
   (reef, stingray, deep sea, arctic, kelp, jelly, nautilus, freshwater, and pets), each
   cast from that tank's real roster and bathed in its palette, and a nested
   **MINIGAME TRAILERS** page with a three-shot cut-down for competitions, tag,
-  pufferfish dodgeball, and labyrinth.
+  pufferfish dodgeball, and labyrinth. A **SHOP TRAILER** stages the shop itself in
+  motion: nine shots that cycle the thirteen colors, head and body trinkets, the five
+  trails and twenty-one dive buddies, and the nine auras live across a seven-creature
+  lineup, bracketed by sea-coin, playpass, and play-now cards. A **WRECK ARRIVAL**
+  reel plays the labyrinth's opening: the seven divers swim in to the sunken liner and
+  the MEGASQUID rises out of the dark behind it.
 - SHOP (always on the menu) sells character colors, accessories, and the playpasses:
   `Left`/`Right` browses the color and pass catalogs, and `Enter` buys with enough sea
   coins.
 - MINIGAMES appears on the menu once PLAYPASS 1 is owned; it hosts the local races,
-  tag, dodgeball, and labyrinth games (§10).
+  tag, dodgeball, labyrinth, puffer ball, roundup, stealth, jelly, cleanup, and trench
+  games (§10). The six arcade games charge sea-coin tickets at the door.
 - PETS TANK appears on the menu — and in the tank select — once PLAYPASS 3 is owned: the
   special-play tank where you feed the sea creatures (§5.40).
 - ENDLESS DIVE appears with PLAYPASS 4: the full gauntlet opens from the menu with **no
@@ -129,7 +138,25 @@ Requirements:
   coral, rock, weed, ice floes, sardine schools, all eight pets, seven enemies (jellyfish,
   turtle, pufferfish, anglerfish, dart eel, moray eel, seal), and two habitats (eel
   archway, angler ledges); clicking the tank places as many as you like, `UNDO` removes the last one, and
-  `CLEAR ALL` empties it. `DIVE AS` picks one of seven playable creatures (shark,
+  `CLEAR ALL` empties it. `LABYRINTH MODE: ON/OFF` raises the wreck's furniture in your
+  tank — four gate walls with lane gaps and hull tunnels, alternating stubs, two hanging
+  cracked supports, floor crack mounds, and creaking ceiling beams — placed clear of the
+  palette, regenerated from a saved seed, and solid in `DIVE AS` (the diver collides with
+  the gates and supports and threads the tunnels; the maze is cosmetic to the residents).
+  The mode also **adds nine wreck pieces to the palette** so the player builds their own
+  labyrinth by hand: WRECK WALL (a hanging wall as long as you click), RISING WALL (from
+  the floor up), HOLED WALL / HOLED RISING WALL (with a swimmable tunnel hole where you
+  click), CEILING STUB and FLOOR STUB, a CRACKED SUPPORT, and two **tentacle bursters** —
+  TENTACLE CRACK (a floor mound) and TENTACLE BEAM (a ceiling seam). Placed walls and
+  supports are solid in `DIVE AS`; a burster glows when the diver comes near, breaks open
+  in a spray of dust and spinning planking, and spears its tentacles out straight — the
+  ripple mid-arm first, a small beat apart — then every tip curls at once: a hook that
+  knocks the diver back and leaves the crack on its cooldown. The TENTACLE BEAM fires off
+  a diver anywhere in the water column, stretches longer than the crack — a thin
+  club-tipped squid feeding rope with a pale diamond at the end — and leans after
+  the diver until it runs out of reach. Bursters only arm in
+  `DIVE AS`, and never in CHILL mode.
+  `DIVE AS` picks one of seven playable creatures (shark,
   stingray, squid, shrimp, crab, jelly, nautilus) and Enter dives in — `WASD`, arrows, or
   drag to swim (the nautilus can swim up and down here, unlike its tank); a bump with a
   resident only knocks the diver back, and Esc surfaces to
@@ -142,16 +169,18 @@ Requirements:
 | Boot          | —                                    | Loads the asset manifest, then hands off to the intro splash          |
 | Intro splash  | —                                    | Story cards over the ambient shark; ENTER or a click begins, auto-advances after 8 s |
 | Descent       | —                                    | One per tank teleport: the tank name and tagline rise through streaking bubbles; ENTER skips, auto-advances after 1.7 s |
-| Main menu     | START DIVE, CHOOSE TANK, CO-OP DIVE (2P), MINIGAMES (with playpass 1), PETS TANK (with playpass 3), ENDLESS DIVE (with playpass 4), AQUARIUM BUILDER (with playpass 9), SHOP, SETTINGS, HOW TO PLAY | Story blurb, best score, and sea-coin balance above the list; HOW TO PLAY opens an overlay closed with Enter or Esc |
+| Main menu     | START DIVE, CHOOSE TANK, CO-OP DIVE (2P), MINIGAMES (with playpass 1), PETS TANK (with playpass 3), ENDLESS DIVE (with playpass 4), AQUARIUM BUILDER (with playpass 9), SHOP, SETTINGS, HOW TO PLAY, LORE | Story blurb, best score, and sea-coin balance above the list; HOW TO PLAY opens an overlay closed with Enter or Esc |
+| LORE          | THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MINIGAMES       | The story codex: every character, level, and mode name with its lore; Left/Right switches sections, Up/Down steps entries (with an n/m counter), and Esc returns to the menu |
 | Shop          | COLOR picker, PLAYPASS, BACK         | Left/Right browses the color catalog; Enter buys/equips with sea coins; the playpass adds MINIGAMES to the menu |
-| Minigames     | COMPETITIONS (2P RACE), RACE (1P), TAG (2P + 5 CPU), TAG SOLO (1P + 5 CPU), PUFFERFISH DODGEBALL (2P), DODGEBALL SOLO (1P), LABYRINTH (2P), LABYRINTH SOLO (1P), BACK | Listed when the competitions playpass is owned; every game has a singleplayer variant beside its two-player mode |
+| Minigames     | COMPETITIONS (2P RACE), RACE (1P), TAG (2P + 5 CPU), TAG SOLO (1P + 5 CPU), PUFFERFISH DODGEBALL (2P), DODGEBALL SOLO (1P), LABYRINTH (2P), LABYRINTH SOLO (1P), PUFFER BALL (2P), PUFFER BALL VS CPU (1P), SCHOOL ROUNDUP (1P), JELLY ASCENT (1P), STEALTH DIVE (2P), STEALTH DIVE SOLO (1P), REEF CLEANUP (2P), REEF CLEANUP SOLO (1P), TRENCH DIVE (1P), BACK | Listed when the competitions playpass is owned; every game has a singleplayer variant beside its two-player mode. The six arcade games charge a sea-coin ticket on every entry from this menu (the bank and each price are shown); the free games never charge |
 | Tank select   | CO-OP: OFF/ON, REEF TANK, STINGRAY TANK, DEEP SEA TANK, ARCTIC TANK, KELP FOREST TANK, JELLY TANK, NAUTILUS TANK, FRESHWATER TANK, PETS TANK (with playpass 3), EMPTY TANK, BACK | ESC or BACK returns to the menu; choosing a tank starts it immediately |
 | Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, TRACK PLAYER, CUTSCENE THEATRE, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD/APOCALYPTIC WIPEOUT (Left/Right or click), adjusts master volume plus SFX, and opens the track player or the cutscene theatre; preferences persist |
 | Track player  | MENU TRACK, REEF TRACK, STINGRAY TRACK, DEEP SEA TRACK, ARCTIC TRACK, KELP TRACK, PETS TRACK, JELLY TRACK, FRESHWATER TRACK, NAUTILUS TRACK, LABYRINTH TRACK, BACK | Plays or stops any level theme through the shared sequencer; the selected track shows its mood and BPM, the playing one shows a live equalizer; ESC returns to settings and the chosen track keeps playing |
-| Cutscene theatre | GAME TRAILER, ALL-TANK GAMEPLAY, TANK TRAILERS, MINIGAME TRAILERS, INTRO SPLASH, DESCENT: REEF, DESCENT: STINGRAY, DESCENT: DEEP SEA, DESCENT: ARCTIC, DESCENT: KELP FOREST, DESCENT: JELLY, DESCENT: NAUTILUS, DESCENT: FRESHWATER, DAWN BREAKS, LABYRINTH TRAILER, MEGASQUID ENDING, BACK | Replays any cutscene on demand without reaching it in play; each cutscene returns to the theatre when skipped or finished; ALL-TANK GAMEPLAY cuts the whole gauntlet into one run, TANK TRAILERS opens a nested nine-tank page of three-shot cut-downs, and MINIGAME TRAILERS does the same for race, tag, dodgeball, and labyrinth |
+| Cutscene theatre | GAME TRAILER, SHARKQUARIUM: THE MOVIE, ALL-TANK GAMEPLAY, TANK TRAILERS, MINIGAME TRAILERS, SHOP TRAILER, INTRO SPLASH, DESCENT: REEF, DESCENT: STINGRAY, DESCENT: DEEP SEA, DESCENT: ARCTIC, DESCENT: KELP FOREST, DESCENT: JELLY, DESCENT: NAUTILUS, DESCENT: FRESHWATER, DAWN BREAKS, LABYRINTH TRAILER, WRECK ARRIVAL, MEGASQUID ENDING, BACK | Replays any cutscene on demand without reaching it in play; each cutscene returns to the theatre when skipped or finished; SHARKQUARIUM: THE MOVIE is the longest cut — every tank and minigame in one ~55 s feature — ALL-TANK GAMEPLAY cuts the whole gauntlet into one run, TANK TRAILERS opens a nested nine-tank page of three-shot cut-downs, MINIGAME TRAILERS does the same for race, tag, dodgeball, and labyrinth, SHOP TRAILER tours the shop shelves with live-cycling colors, trinkets, trails, buddies, and auras, and WRECK ARRIVAL stages the divers' arrival before the MEGASQUID appears on cue |
 | Dawn cutscene | —                                    | Plays when the freshwater goal is met; ENTER returns to the menu |
+| Labyrinth arrival | —                                 | Plays once after the labyrinth picker and replays from the theatre: all seven playable creatures swim in to the sunken liner, then the MEGASQUID rises out of the dark and its glowing yellow eye locks onto them; ENTER skips straight into the part |
 | Labyrinth ending | —                                 | Plays after escaping all seven labyrinth parts: the MEGASQUID tangles in the wreck and sinks into the trench as the seven creatures escape; ENTER skips to the results |
-| Aquarium builder | DIVE AS (character), CHILL MODE, ITEM, UNDO, CLEAR ALL, BACK | Left/Right cycles the dive character on the DIVE AS row or the palette on the ITEM row; clicking the tank places the current item with no cap (habitats are single-instance); Enter on DIVE AS dives as the chosen creature (Esc surfaces); CHILL MODE turns residents peaceful and persists; every change saves immediately |
+| Aquarium builder | DIVE AS (character), CHILL MODE, ITEM, UNDO, CLEAR ALL, LABYRINTH MODE, BACK | Left/Right cycles the dive character on the DIVE AS row or the palette on the ITEM row; clicking the tank places the current item with no cap (habitats are single-instance); Enter on DIVE AS dives as the chosen creature (Esc surfaces); CHILL MODE turns residents peaceful and persists; LABYRINTH MODE raises a seeded wreck course (gates, tunnels, stubs, supports, cracks, beams) that blocks the diver in DIVE AS, and adds nine hand-placed wreck pieces to the palette — walls, stubs, supports, and two tentacle bursters that spear out and knock the diver back; every change saves immediately |
 | Play          | —                                    | HUD visible; Esc opens the pause overlay                              |
 | Pause overlay | RESUME, RESTART, QUIT TO MENU        | Gameplay state stays intact; Esc also resumes; RESTART keeps the mode |
 | Game over     | PLAY AGAIN, MENU                     | Elastic panel; PLAY AGAIN preserves the previous mode (empty or full) |
@@ -169,6 +198,7 @@ Requirements:
 | Feed (critter) | right click (Pets Tank) — becomes a despawn lure while an enemy is loose |
 | Snack button | `SNACK` button, bottom-right (Pets Tank) — drops a critter mid-tank |
 | Lure button | `LURE` button, bottom-right (Pets Tank) — lights up while enemies are loose |
+| Pet buttons | `TOY` / `PHOTO` / `MEALS 25` buttons above the snack row (Pets Tank) — drop a bouncing toy, save a postcard, or buy a 250-snack meal pack |
 | Hide in sand | hold `Down` / `S` (or drag down) over the sand to bury; `Up` (or drag up) to surface (Stingray Tank) |
 | Hide in hole | hold `Down` / `S` (or drag down) by a stone-ledge hole to tuck in; release to swim out (Deep Sea Tank) |
 | Crawl        | `Left` / `Right` while buried in the sand (Stingray Tank) |
@@ -664,6 +694,32 @@ target the nearest visible player.
   score each), but **only critters count as snacks** — bubbles are play-food and never
   advance the goal. The HUD counts `PETS: 8 — FED n/10000`, and the tally resets to zero
   once the goal is met, ready for the next helping.
+- Moods and tastes: every pet carries a mood — calm, hungry, sleepy (it dozes at its
+  waypoint with drifting `Z`s until food lands nearby), happy, playful, grumpy (after an
+  enemy bite), or scared — shown as an emote above it. Each kind has a favorite critter
+  (`PETS.tastes`: the shark loves MINNOW, the crab KELP POD, the jelly PLANKTON, and so
+  on); eating its favorite fills the belly completely instead of 60%, pops a heart, and
+  has a 50% chance of shedding a golden coin bubble. Heart, angry-brow, `Z`, and sparkle
+  emotes render above the pet, with the hungry `!` keeping its usual spot.
+- Tricks: clicking a pet makes it perform — it spins or rolls with a hop while hearts
+  pop, then rests for a 4 s cooldown. A successful trick always sheds a **coin bubble**;
+  clicking a sleepy pet wakes it instead, pets that are scared or mid-trick refuse (a
+  soft blip), and a grumpy or scared pet never performs. Coin bubbles rise and wobble
+  for 9 s (six at most) and pay **5 sea coins** when clicked, so the tank feeds the shop
+  economy right back.
+- Toys: the **TOY** button (or key row) drops a BALL, HOOP, or WAND into the tank;
+  toys bounce off the walls, drift for 12 s, and a pet that bumps one sets it flying
+  with a sparkle — the pet turns playful, gets a little happier, and has a 25% chance
+  of shedding a coin bubble. Two toys can be out at once.
+- Postcards: the **PHOTO** button snaps the moment — it saves a postcard card
+  (`POSTCARD n`, the fed tally, pet and happy counts, and a random pet stamp) and holds
+  the card up in the corner for a few seconds with a flash and shutter blips. The last
+  twelve postcards persist under `sharkquarium.pets` beside the meals, and the HUD keeps
+  a `POSTCARDS SAVED: n` line.
+- Meal packs: the **MEALS** button buys 250 snacks for **25 sea coins** (the button dims
+  when the bank is short and toasts the price). Pack snacks never spawn enemy waves —
+  the next-wave threshold simply jumps ahead — so they are pure catch-up help, and they
+  still count toward the 10,000-snack goal.
 - Hunger: every pet gets hungry slowly — a full belly takes about 55 s to empty on
   NORMAL, with the hungry `!` appearing at 60% after roughly 33 s — shown as a pulsing
   gold `!` bubble above it and a `HUNGRY: n — DROP SNACKS!` line on the HUD. **Hungry
@@ -691,7 +747,8 @@ target the nearest visible player.
   hidden, nothing ticks, and the tank never times out.
 - Goal: feeding **10,000 snacks** completes the special play in the dawn cutscene,
   announced as `YOU FED THE PETS 10000 SNACKS — SCORE n`. Feeding progress persists
-  under `sharkquarium.pets`: every snack eaten saves immediately, leaving the tank saves
+  under `sharkquarium.pets` (the meals tally plus up to twelve saved postcards): every
+  snack eaten saves immediately, leaving the tank saves
   again, and closing or backgrounding the game flushes it too (`pagehide` /
   `beforeunload` / hidden tab), so the tally always survives a restart.
 - Look: soft teal water (`PETS_PALETTE`: `#2f6f7a` → `#123a40`) with drifting motes.
@@ -816,6 +873,8 @@ target the nearest visible player.
 - Pufferfish Dodgeball: three mini puffer icons per player in the top corners (filled
   while alive, dimmed when lost) and **no timer bar** — the panel only ends on a
   knockout.
+- Reef Cleanup: **no timer at all** — the `RECYCLED n/8` counter is the whole score
+  line and the round only ends when the target is recycled.
 - ENDLESS DIVE: three `LIVES` pips in the top-centre instead of the time bar; the
   results panel reads `OUT OF LIVES` when the last hit lands.
 - Shop: the coin balance, the browsable color-and-creature panel — every playable
@@ -1010,9 +1069,15 @@ players start with a 500-coin welcome bank (`COINS.starting`), the game over pan
 the payout, and the menu shows the balance.
 
 The SHOP (always on the menu) persists under `sharkquarium.shop` as
-`{ owned, skin, passes, accessories, trails, companions, head, back, trail, companion }`
+`{ owned, skin, skin2, passes, accessories, trails, companions, auras, head, head2, back, back2, trail, trail2, companion, companion2, aura, aura2 }`
 (a legacy single `accessory` equips into its slot on first load):
 
+- PLAYER — the wardrobe is per diver. The PLAYER row switches between P1 and P2, and
+  every COLOR, HEAD, BODY, TRAIL, DIVE BUDDIES, and AURA pick afterward applies to the
+  active player only — one diver can wear SUNSET ORANGE while the other wears RED.
+  Purchases stay shared: one unlock dresses both. The second set lives in the `*2` keys,
+  defaults to matching P1 on old saves, and follows P2 into every co-op dive, race,
+  dodgeball match, and labyrinth run (solo dives always use the P1 set).
 - COLOR — thirteen character colors. NATURAL is free; the accessory-priced PINK 60,
   RED 90, GRAY 120, and SUNSET ORANGE 150 open the catalog; then LAGOON 200, CORAL 450,
   MIDNIGHT 900, GOLD 1400; the pass-exclusive MONSOON and EMBER arrive with PLAYPASS 2;
@@ -1035,8 +1100,9 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   trinket, or wears an owned one for free (NONE takes it off). Looks: a black top
   hat with a red band, a striped pink party cone with a gold pompom, dark sunglasses
   with a white outline and glints, a red bow tie, a scalloped cream shell breastplate,
-  a gold crown, a dark back-worn jacket with RGB neon collar/zip/hem glow that leaves
-  every creature's eyes clear, a leather eye patch
+  a gold crown, a dark back-worn jacket with RGB neon collar/zip/hem glow, tailored per
+  creature to hug every body — shark, stingray, squid, shrimp, crab, jelly, nautilus —
+  while leaving its eyes clear, a leather eye patch
   with a strap, a snorkel mask with a tinted lens and an orange tube, red curved devil
   horns, a coiled moray eel scarf with a yellow eye, feathered wings that flap harder
   with speed, a perching stingray hat with spots, button eyes, and a swaying tail plume,
@@ -1049,29 +1115,50 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   jagged lightning) and **RAINBOW RIBBON** (a hue-cycling tapered ribbon). Each wake
   samples the swimmer's recent world positions, so it curls through every turn, and
   draws behind the creature in every tank, minigame, the menu, and the shop preview.
-- COMPANION — a third equip slot, browsed on the COMPANION row with its PLAYPASS 8
-  catalog of **twenty floating pals**: the five favourites (BUBBLE PAL, BABY MORAY,
+- DIVE BUDDIES — an equip slot, browsed on the DIVE BUDDIES row with its PLAYPASS 8
+  catalog of **twenty-one floating buddies**: the five favourites (BUBBLE PAL, BABY MORAY,
   LANTERN FISH, TINY JELLY, MINI CRAB), mini versions of every playable creature
   (MINI SHARK, MINI STINGRAY, MINI SQUID, MINI SHRIMP, MINI NAUTILUS — the crab, jelly,
-  and moray join via MINI CRAB, TINY JELLY, and BABY MORAY), and mini versions of every
+  and moray join via MINI CRAB, TINY JELLY, and BABY MORAY), mini versions of every
   enemy (MINI ANGLER with its glowing lure, MINI SEAL with whiskers, MINI OCTOPUS with
   wavy arms and angry brows, MINI TURTLE with paddling flippers, MINI CHASER with a red
   eye and jagged teeth, MINI DART EEL, MINI CATFISH with swaying barbels, MINI VOLT EEL
-  with crackling sparks, MINI PIRANHA, and the inflating MINI PUFFER). The pal eases
+  with crackling sparks, MINI PIRANHA, and the inflating MINI PUFFER), and the **MINI
+  MEGASQUID** — the labyrinth's boss shrunk to buddy size, arms and tentacles waving,
+  a periodically blinking glowing yellow eye, and drawn through the same megasquid
+  shapes as the cutscene — solid and opaque like the boss. The buddy eases
   along behind the creature, bobbing higher when idle, and follows through every scene
-  the diver appears in.
+  the diver appears in; the seven buddies that mirror the playable creatures wear their
+  exact silhouettes and colors — shark, stingray, squid, shrimp, crab, jelly, and
+  nautilus alike — down to the stingray's waving tail, wing curve, spots, and side eyes,
+  and the BABY MORAY, MINI DART EEL, and MINI VOLT EEL redraw the tank eels through the
+  same shared renderers: the moray's jaws, teeth, ridge, and olive palette, the dart
+  eel's ribbon body and head fins, and the volt eel's crackling field, fins, and sparks.
+  Because they are living pets, the shop asks you to pick a buddy (`ENTER — PICK`,
+  `DIVE BUDDY PICKED`) rather than wear one.
+- AURA — a separate equip slot for full-body rings, browsed on the AURA row: the
+  PLAYPASS 5 **EEL AURA** sends three morays orbiting the diver, and eight coin auras
+  join it — **BUBBLE AURA** 180 (a ring of rising bubbles), **NEON AURA** 200 (glowing
+  streaks), **STINGRAY AURA** 220 (three mini stingrays), **TRIDENT AURA** 240 (three
+  pronged spears), **KARAMBIT AURA** 260 (three curved claws), **SHARK AURA** 280 (three mini
+  sharks), **SWORD AURA** 300 (three blades), and **OCTOPUS AURA** 320 (three curling
+  suckered arms). Every aura is fully removable and attachable — NONE takes the ring off
+  and Enter wears it again for free. The rings keep their own palettes and hue-cycle
+  with RAINBOW — except the KARAMBIT AURA, whose blades and loop take the diver's
+  equipped color (the handle stays black) — and they show in every tank, minigame, the
+  menu, and the shop preview.
 - Payout bonus — the equipped color raises dive payouts by `1 + cost / 8000`: the
   accessory-priced colors add +1–2%, LAGOON +3%, CORAL +6%, MIDNIGHT +11%, GOLD +18%,
   and SHADOW and RAINBOW +31%. It stacks on top of the difficulty scale, so bought
   colors pay more even on EASY. The shop shows each color's bonus (`DIVE PAYOUT +n%`).
 - SHADOW is near-black with pulsing red fins and a pulsing red aura ring. The shrimp,
   stingray, and nautilus switch their dot eyes to white in this color so they stay
-  visible against the dark body. With PLAYPASS
-  5 owned, three dark morays with pulsing red eyes and ridge glow orbit the diver as an
-  eel aura ring on top of it.
+  visible against the dark body. The
+  EEL AURA trinket adds three dark morays with pulsing red eyes and ridge glow orbiting
+  the diver on top of it.
 - RAINBOW cycles body, accent, and belly through hues over time and draws rotating
-  rainbow aura rings. With PLAYPASS 5 owned, three hue-cycling morays orbit the diver as
-  an eel aura ring.
+  rainbow aura rings. The EEL AURA trinket adds three hue-cycling morays orbiting the
+  diver.
 - Colors recolor the player creature in every tank and the menu shark: body, accent
   (fins/spots/shell), and belly slots map onto each creature's palette.
 - PLAYPASSES — every pass costs 1200 sea coins, browsed with `Left`/`Right` and bought
@@ -1084,16 +1171,17 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
     and they equip for free).
   - PLAYPASS 3 unlocks special play: the PETS TANK menu entry and tank-select option.
   - PLAYPASS 4 unlocks ENDLESS DIVE: the gauntlet with no clock and three lives.
-  - PLAYPASS 5 unlocks a cosmetics bundle: eleven ragdoll plushies, the RGB NEON JACKET
-    trinket, and the SHADOW/RAINBOW eel auras. Pass items cannot be bought with coins —
+  - PLAYPASS 5 unlocks a cosmetics bundle: eleven ragdoll plushies, the per-creature RGB
+    NEON JACKET trinket, and the removable EEL AURA trinket (blood-red, hue-cycling with
+    RAINBOW). Pass items cannot be bought with coins —
     owning the pass owns them (the shop labels them `INCLUDED WITH PLAYPASS 5`, and they
     equip for free).
   - PLAYPASS 6 unlocks PET PLAY: three rare pets (golden bubble-fish, baby shark, ghost
     jelly) and trained fetching — every snack a pet eats counts twice.
   - PLAYPASS 7 unlocks TRAILS: the five swim wakes browsed on the shop's TRAIL row.
-  - PLAYPASS 8 unlocks COMPANIONS: the twenty floating pals browsed on the shop's
-    COMPANION row, covering the five favourites plus mini versions of every playable
-    creature and every enemy.
+  - PLAYPASS 8 unlocks DIVE BUDDIES: the twenty-one floating buddies browsed on the shop's
+    DIVE BUDDIES row, covering the five favourites plus mini versions of every playable
+    creature (wearing the playable shape and color) and every enemy.
   - PLAYPASS 9 unlocks the AQUARIUM BUILDER: decorate your own tank with decor, pets,
     enemies, and habitats, then dive in as any of the seven playable creatures. The
     layout is kept between visits and placements are unlimited.
@@ -1145,33 +1233,40 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   playable creatures (shark, stingray, squid, shrimp, crab, jelly,
   nautilus) with a live preview. Solo gets one `CREATURE` row; co-op gives P1 and P2
   their own rows and previews, so each diver picks independently. Both picks are saved
-  separately under `sharkquarium.labyrinth`, and Enter dives in. The CUTSCENE THEATRE
-  can also play a **LABYRINTH TRAILER**: a letterboxed cinematic montage — seven
+  separately under `sharkquarium.labyrinth`, and Enter plays a skippable **arrival
+  cutscene** — all seven creatures swim in to the sunken liner as a group, then the
+  MEGASQUID rises out of the dark behind the wreck with its glowing yellow eye tracking
+  them, and the chase begins. The CUTSCENE THEATRE
+  can also replay the arrival on demand, or play a **LABYRINTH TRAILER**: a letterboxed cinematic montage — seven
   scripted shots with hard cuts, camera push-ins, screen flashes, and title cards (`THE
   WRECK AWAITS`, `ONE TANGLE OF TENTACLES`, `RAM THE CRACKED SUPPORTS`, `DUCK THE
   AMBUSHES`, `ARM THE CHECKPOINTS`, `OUTRUN THE TANGLE`, and the `LABYRINTH` title
   card) — that pitches the mode without playing a single part. The nautilus swims
   freely up, down, left, and right here, and the stingray **cannot bury itself in the
   wreck's deck** (there is no sand), so no diver gets a hidden-gear speed quirk. The
-  tentacle tangle is also capped at `wallPlayerRatio` (72%) of the slowest diver's swim
+  tentacle tangle is also capped at `wallPlayerRatio` (66%) of the slowest diver's swim
   speed on top of the per-part cap, so no creature can be outrun by it on any part or
   difficulty, and cracked supports give way to a 190 px/s ram (well under every diver's
-  top speed) with a flashing `RAM IT!` hint when a diver comes close. **Grab-chance
+  top speed) with a flashing `RAM IT!` hint when a diver comes close — the collapse
+  restarts the tentacle tangle at the start of the part, never forward and just as far
+  on APOCALYPTIC WIPEOUT as on EASY. **Grab-chance
   bubbles** float through every part in **clumps of three to five**: a fresh clump is
-  seeded ahead of the pack about every four seconds (three clumps at most at once), and
+  seeded ahead of the pack about every three and a half seconds (four clumps at most at
+  once), and
   each bubble grabbed grants +1 grab with a `+1 GRAB` popup — there is no ceiling on
   the count, so parts 1
   through 7 always keep a supply of second chances. The chase itself is a little calmer
-  now, too: the tangle advances at 120 px/s and its arms wave more slowly. Dying on
+  now, too: the tangle advances at 100 px/s and its arms wave more slowly. Dying on
   a part
   after the first saves the part reached, so the next visit resumes there; escaping all
   seven clears the save. Escaping a part drops the divers at the entrance of the
-  next stretch, and every part escalates: an extra section every two parts, an extra
-  grabbing arm every three, the tentacle tangle gaining `partSpeedRamp` per part with its
+  next stretch, and every part escalates: an extra section every three parts, an extra
+  grabbing arm every four, the tentacle tangle gaining `partSpeedRamp` per part with its
   speed cap rising `partCeilingRamp`, ambush and ceiling warning windows and cooldowns
-  shrinking 5% per part, ceiling chunks falling faster, extra cracked mounds every two
-  parts, extra wall ambushes every three, and fewer tunnels to hide in (the tunnel margin
-  grows `partTunnelMargin` per part) — with fresh grab points at every part. A tangle of
+  shrinking 3% per part, ceiling chunks falling a little faster, extra cracked mounds
+  every three parts, extra wall ambushes every four, and fewer tunnels to hide in (the
+  tunnel margin grows `partTunnelMargin` per part) — with fresh grab points at every
+  part. A tangle of
   giant red octopus tentacles chases from
   behind, accelerating through the course and scaling with the difficulty's enemy speed
   under a 300 px/s ceiling, with everything it has swallowed fading to pitch black; seven
@@ -1187,8 +1282,8 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   **on-screen joystick** — P1 steers with `WASD`, a drag anywhere, or the joystick, and P2
   with the arrow keys.
   Every section starts with a checkpoint mast: touching it lights the lantern, arms the
-  respawn, and drives the tentacle wall back 300 px. A wall or tentacle contact costs one
-  of a player's **six grabs**: they are held for 0.9 s, then respawn at their last
+  respawn, and drives the tentacle wall back 360 px. A wall or tentacle contact costs one
+  of a player's **seven grabs**: they are held for 0.9 s, then respawn at their last
   checkpoint with 2 s of invulnerability, and running out of grabs means the tentacles
   drag them under — **that ends the run for everyone**. Escaping every player is what
   opens the next part, and clearing the seventh with nobody caught wins the bonus — which
@@ -1197,21 +1292,64 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   nautilus) race clear, with the wreck's planks tumbling after it. ENTER skips straight to
   the results. The floor is scarred with
   cracked mounds and the wooden gates hide their own ambushes: come close and the spot
-  glows red for half a second before tentacles erupt — a whole bunch thrashing up out of
-  a floor crack, or a single arm lancing sideways out of the planking — grabbing anyone
-  in their path. The ruined ceiling joins in too: stand directly under a creaking beam
+  glows red for half a second before tentacles erupt — a whole bunch spearing straight up
+  out of a floor crack in a spray of dust and spinning planks, each tentacle cracking
+  through a beat behind the last with its own thwip and thud, holding the rigid lance a
+  beat longer, before every tip curls at
+  once to grab, or a single arm
+  lancing sideways out of the planking — and, deeper in, arms spearing straight DOWN from
+  the ceiling planks — the MEGASQUID's own feeding tentacles in the boss's deep red:
+  thin rope-width tentacles with their own sucker rows, each ending in a big diamond
+  feeding pad studded with
+  suckers, longer than
+  every other ambush, triggered the moment a diver is
+  under the seam no matter how deep they hug the deck, stretching down or diagonally
+  toward them and tracking them until they pass out of its reach, holding rigid like a
+  spear — a long lance beat — with chunks of wood flying off the breach and only curling
+  at the end — grabbing
+  anyone it touches. The ruined ceiling joins in too: stand directly under a creaking beam
   and it glows, sheds dust, then drops a spinning hunk of planking that staggers whoever
   it lands on for a second, leaving them drifting while the tangle closes in. Behind the
   whole wreck a colossal squid
-  hangs in the dark, its single glowing yellow eye tracking the nearest swimmer and
+  hangs in the dark in the same deep red as its feeding tentacles — solid, not a ghost —
+  its single glowing yellow eye tracking the nearest swimmer and
   blinking now and then. The results panel lists each
   player's fate and offers PLAY AGAIN or MINIGAMES.
+
+The six arcade games (tickets in the payouts note below):
+
+- PUFFER BALL — puffer volleyball: bump the spiked seed through the tiny slot in the far
+  goal wall, first to three. Both goals are walled pockets with front frames — only the
+  glowing slot scores — and the CPU chaser steers smoothly and re-angles its approach
+  when the ball is pinned in a corner or jammed between both players, backing off and
+  circling to a fresh push angle.
+- SCHOOL ROUNDUP — herd three fleeing sardine schools into the left net in 45 seconds
+  while drifting jellyfish sting any diver that brushes them.
+- JELLY ASCENT — pulse a moon jelly up a scrolling shaft, threading 22 ring gaps and
+  riding updrafts; three sinks and the climb is over.
+- STEALTH DIVE — sneak a shrimp (solo) or a shrimp and a kelp crab (co-op) past three
+  patrolling seals with vision cones, using rock cover and checkpoint respawns; three
+  spot-outs and the dive is caught.
+- REEF CLEANUP — nudge floating wreckage into the left recycle net while three moray
+  holes (the stingray tank's brown, olive, and spotted-yellow morays) smoothly peek
+  their long bodies out, bite, and retreat from the floor; there is **no clock at all**
+  — the HUD counts `RECYCLED n/8` and the round ends when the target is recycled.
+- TRENCH DIVE — a 60-second descent through scrolling ice barriers, gold pearls, pushing
+  currents, and bands of black water; three crunches and the trench keeps you.
 
 Minigames pay sea coins — 30 for finishing plus a 60-coin win bonus (the race isn't a
 tie or beats its solo target, a CPU is still it in tag, dodgeball isn't a double KO,
 solo dodgeball survives its 45-second target, or labyrinth escapes all seven parts) — and count in
 `sharkquarium.stats` as `minigames` / `minigameWins`, shown on the menu as
 `w/t MINIGAMES WON`. They never touch the best score or the dive stats.
+
+The six arcade games charge a ticket at the door: **PUFFER BALL 25, SCHOOL ROUNDUP 30,
+JELLY ASCENT 30, STEALTH DIVE 35, REEF CLEANUP 40, TRENCH DIVE 45** sea coins
+(`MINIGAME_FEES`). The ticket is charged by the MINIGAMES menu on **every entry** — exit
+to the menu and entering again pays again; `PLAY AGAIN` after a round stays inside the
+paid session. The menu shows the bank, each price (red when unaffordable), and quotes the
+ticket when the purse is short. Every paid game still pays the standard finish and win
+coins, so a win nets more than the ticket cost.
 
 ## 11. Backlog
 

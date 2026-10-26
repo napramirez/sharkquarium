@@ -256,159 +256,194 @@ export class Eel extends Entity {
       this.state === 'entering'
         ? this.trail.filter((point) => this.outsideDistance(point) > 3)
         : this.trail;
-    if (trail.length < 2) return;
-    const count = trail.length;
-    const leftEdge = [];
-    const rightEdge = [];
-    for (let i = 0; i < count; i += 1) {
+    paintMorayTrail(ctx, EEL.radius, trail, this);
+  }
+
+  renderHead(ctx, x, y, heading, jawOpen) {
+    drawMorayHead(ctx, x, y, heading, EEL.radius, this, jawOpen);
+  }
+}
+
+export function paintMorayTrail(ctx, radius, trail, palette) {
+  if (trail.length < 2) return;
+  const count = trail.length;
+  const leftEdge = [];
+  const rightEdge = [];
+  for (let i = 0; i < count; i += 1) {
+    const point = trail[i];
+    const before = trail[Math.max(0, i - 1)];
+    const after = trail[Math.min(count - 1, i + 1)];
+    let tangentX = before.x - after.x;
+    let tangentY = before.y - after.y;
+    const length = Math.hypot(tangentX, tangentY) || 1;
+    tangentX /= length;
+    tangentY /= length;
+    const t = 1 - i / (count - 1);
+    const width = radius * (0.16 + 0.84 * Math.pow(t, 0.8));
+    leftEdge.push({ x: point.x - tangentY * width, y: point.y + tangentX * width });
+    rightEdge.push({ x: point.x + tangentY * width, y: point.y - tangentX * width });
+  }
+  ctx.beginPath();
+  ctx.moveTo(leftEdge[0].x, leftEdge[0].y);
+  for (let i = 1; i < count; i += 1) ctx.lineTo(leftEdge[i].x, leftEdge[i].y);
+  for (let i = count - 1; i >= 0; i -= 1) ctx.lineTo(rightEdge[i].x, rightEdge[i].y);
+  ctx.closePath();
+  ctx.fillStyle = palette.bodyColor;
+  ctx.fill();
+  ctx.strokeStyle = palette.outlineColor;
+  ctx.lineWidth = radius * 0.094;
+  ctx.stroke();
+
+  if (palette.spots) {
+    ctx.fillStyle = 'rgba(20, 18, 8, 0.85)';
+    for (let i = 1; i < count - 1; i += 2) {
+      const t = 1 - i / (count - 1);
+      const width = radius * (0.16 + 0.84 * Math.pow(t, 0.8));
       const point = trail[i];
-      const before = trail[Math.max(0, i - 1)];
-      const after = trail[Math.min(count - 1, i + 1)];
+      const before = trail[i - 1];
+      const after = trail[i + 1];
       let tangentX = before.x - after.x;
       let tangentY = before.y - after.y;
       const length = Math.hypot(tangentX, tangentY) || 1;
       tangentX /= length;
       tangentY /= length;
-      const t = 1 - i / (count - 1);
-      const width = EEL.radius * (0.16 + 0.84 * Math.pow(t, 0.8));
-      leftEdge.push({ x: point.x - tangentY * width, y: point.y + tangentX * width });
-      rightEdge.push({ x: point.x + tangentY * width, y: point.y - tangentX * width });
-    }
-    ctx.beginPath();
-    ctx.moveTo(leftEdge[0].x, leftEdge[0].y);
-    for (let i = 1; i < count; i += 1) ctx.lineTo(leftEdge[i].x, leftEdge[i].y);
-    for (let i = count - 1; i >= 0; i -= 1) ctx.lineTo(rightEdge[i].x, rightEdge[i].y);
-    ctx.closePath();
-    ctx.fillStyle = this.bodyColor;
-    ctx.fill();
-    ctx.strokeStyle = this.outlineColor;
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    if (this.spots) {
-      ctx.fillStyle = 'rgba(20, 18, 8, 0.85)';
-      for (let i = 1; i < count - 1; i += 2) {
-        const t = 1 - i / (count - 1);
-        const width = EEL.radius * (0.16 + 0.84 * Math.pow(t, 0.8));
-        const point = trail[i];
-        const before = trail[i - 1];
-        const after = trail[i + 1];
-        let tangentX = before.x - after.x;
-        let tangentY = before.y - after.y;
-        const length = Math.hypot(tangentX, tangentY) || 1;
-        tangentX /= length;
-        tangentY /= length;
-        const offset = width * 0.45 * (i % 4 === 1 ? 1 : -1);
-        ctx.beginPath();
-        ctx.arc(point.x - tangentY * offset, point.y + tangentX * offset, Math.max(1.6, width * 0.24), 0, TAU);
-        ctx.fill();
-      }
-    }
-
-    ctx.beginPath();
-    ctx.moveTo(trail[0].x, trail[0].y);
-    for (let i = 1; i < count; i += 1) ctx.lineTo(trail[i].x, trail[i].y);
-    ctx.save();
-    ctx.globalAlpha = 0.5;
-    ctx.strokeStyle = this.ridgeColor;
-    ctx.lineWidth = EEL.radius * 0.45;
-    ctx.lineCap = 'round';
-    ctx.stroke();
-    ctx.restore();
-  }
-
-  renderHead(ctx, x, y, heading, jawOpen) {
-    const radius = EEL.radius;
-    const jawAngle = 0.06 + jawOpen * 0.38;
-    const hingeY = radius * 0.06;
-    const jawLength = radius * 2.15;
-    const jawTipX = Math.cos(jawAngle) * jawLength;
-    const jawTipY = hingeY + Math.sin(jawAngle) * jawLength;
-
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(heading);
-
-    ctx.save();
-    ctx.globalAlpha = 0.55;
-    ctx.fillStyle = this.ridgeColor;
-    for (const side of [-1, 1]) {
+      const offset = width * 0.45 * (i % 4 === 1 ? 1 : -1);
       ctx.beginPath();
-      ctx.moveTo(-radius * 0.5, side * radius * 0.5);
-      ctx.quadraticCurveTo(-radius * 0.5, side * radius * 1.25, -radius * 1.6, side * radius);
-      ctx.quadraticCurveTo(-radius * 1.3, side * radius * 0.6, -radius * 0.5, side * radius * 0.5);
-      ctx.closePath();
+      ctx.arc(point.x - tangentY * offset, point.y + tangentX * offset, Math.max(1.6, width * 0.24), 0, TAU);
       ctx.fill();
     }
-    ctx.restore();
-
-    ctx.beginPath();
-    ctx.moveTo(radius * 2.28, radius * 0.12);
-    ctx.quadraticCurveTo(radius * 1.5, radius * 0.16, 0, hingeY);
-    ctx.quadraticCurveTo(radius * 1.5, Math.max(radius * 0.16, jawTipY * 0.6), jawTipX, jawTipY);
-    ctx.closePath();
-    ctx.fillStyle = 'rgba(18, 26, 15, 0.9)';
-    ctx.fill();
-
-    ctx.beginPath();
-    ctx.moveTo(-radius, -radius * 0.5);
-    ctx.quadraticCurveTo(radius, -radius * 0.85, radius * 2.32, -radius * 0.22);
-    ctx.quadraticCurveTo(radius * 2.6, 0, radius * 2.28, radius * 0.12);
-    ctx.quadraticCurveTo(radius * 1.4, radius * 0.16, 0, hingeY);
-    ctx.quadraticCurveTo(-radius * 0.7, radius * 0.2, -radius, -radius * 0.5);
-    ctx.closePath();
-    ctx.fillStyle = this.bodyColor;
-    ctx.fill();
-    ctx.strokeStyle = this.outlineColor;
-    ctx.lineWidth = 1.4;
-    ctx.stroke();
-
-    ctx.fillStyle = '#f4fbff';
-    for (let i = 0; i < 5; i += 1) {
-      const t = i / 4;
-      this.renderTooth(ctx, radius * (2.08 - t * 1.75), radius * (0.1 + t * 0.01), 1);
-    }
-
-    ctx.save();
-    ctx.translate(0, hingeY);
-    ctx.rotate(jawAngle);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.quadraticCurveTo(radius * 1.2, -radius * 0.02, radius * 2.15, radius * 0.02);
-    ctx.quadraticCurveTo(radius * 1.7, radius * 0.3, radius * 0.9, radius * 0.34);
-    ctx.quadraticCurveTo(radius * 0.35, radius * 0.36, 0, radius * 0.18);
-    ctx.closePath();
-    ctx.fillStyle = this.bodyColor;
-    ctx.fill();
-    ctx.strokeStyle = this.outlineColor;
-    ctx.lineWidth = 1.2;
-    ctx.stroke();
-    ctx.fillStyle = '#f4fbff';
-    for (let i = 0; i < 5; i += 1) {
-      const t = i / 4;
-      this.renderTooth(ctx, radius * (1.96 - t * 1.7), radius * 0.03, -1);
-    }
-    ctx.restore();
-
-    ctx.beginPath();
-    ctx.arc(radius * 0.85, -radius * 0.32, radius * 0.24, 0, TAU);
-    ctx.fillStyle = '#f4fbff';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(radius * 0.89, -radius * 0.32, radius * 0.14, 0, TAU);
-    ctx.fillStyle = this.eyeColor;
-    ctx.fill();
-    ctx.restore();
   }
 
-  renderTooth(ctx, x, y, direction) {
-    const halfWidth = 1.2;
-    const length = 4.5;
+  ctx.beginPath();
+  ctx.moveTo(trail[0].x, trail[0].y);
+  for (let i = 1; i < count; i += 1) ctx.lineTo(trail[i].x, trail[i].y);
+  ctx.save();
+  ctx.globalAlpha = 0.5;
+  ctx.strokeStyle = palette.ridgeColor;
+  ctx.lineWidth = radius * 0.45;
+  ctx.lineCap = 'round';
+  ctx.stroke();
+  ctx.restore();
+}
+
+export function drawMorayBody(ctx, radius, pose, palette = EEL_VARIANTS[0]) {
+  const age = pose.age ?? 0;
+  const phase = pose.phase ?? 0;
+  const count = 12;
+  const span = radius * 6.75;
+  const trail = [];
+  for (let i = 0; i < count; i += 1) {
+    const t = i / (count - 1);
+    trail.push({
+      x: radius * 1.2 - t * span,
+      y: Math.sin(age * 6 + phase - i * 0.55) * radius * (0.12 + t * 0.5),
+    });
+  }
+  paintMorayTrail(ctx, radius, trail, palette);
+  const before = trail[0];
+  const after = trail[1];
+  const heading = Math.atan2(before.y - after.y, before.x - after.x);
+  drawMorayHead(
+    ctx,
+    before.x,
+    before.y,
+    heading,
+    radius,
+    palette,
+    0.12 + 0.1 * Math.sin(age * 3 + phase),
+  );
+}
+
+function drawMorayTooth(ctx, radius, x, y, direction) {
+  const halfWidth = radius * 0.075;
+  const length = radius * 0.28;
+  ctx.beginPath();
+  ctx.moveTo(x - halfWidth, y);
+  ctx.lineTo(x + halfWidth, y);
+  ctx.lineTo(x, y + direction * length);
+  ctx.closePath();
+  ctx.fill();
+}
+
+export function drawMorayHead(ctx, x, y, heading, radius, palette, jawOpen) {
+  const jawAngle = 0.06 + jawOpen * 0.38;
+  const hingeY = radius * 0.06;
+  const jawLength = radius * 2.15;
+  const jawTipX = Math.cos(jawAngle) * jawLength;
+  const jawTipY = hingeY + Math.sin(jawAngle) * jawLength;
+
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(heading);
+
+  ctx.save();
+  ctx.globalAlpha = 0.55;
+  ctx.fillStyle = palette.ridgeColor;
+  for (const side of [-1, 1]) {
     ctx.beginPath();
-    ctx.moveTo(x - halfWidth, y);
-    ctx.lineTo(x + halfWidth, y);
-    ctx.lineTo(x, y + direction * length);
+    ctx.moveTo(-radius * 0.5, side * radius * 0.5);
+    ctx.quadraticCurveTo(-radius * 0.5, side * radius * 1.25, -radius * 1.6, side * radius);
+    ctx.quadraticCurveTo(-radius * 1.3, side * radius * 0.6, -radius * 0.5, side * radius * 0.5);
     ctx.closePath();
     ctx.fill();
   }
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.moveTo(radius * 2.28, radius * 0.12);
+  ctx.quadraticCurveTo(radius * 1.5, radius * 0.16, 0, hingeY);
+  ctx.quadraticCurveTo(radius * 1.5, Math.max(radius * 0.16, jawTipY * 0.6), jawTipX, jawTipY);
+  ctx.closePath();
+  ctx.fillStyle = 'rgba(18, 26, 15, 0.9)';
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(-radius, -radius * 0.5);
+  ctx.quadraticCurveTo(radius, -radius * 0.85, radius * 2.32, -radius * 0.22);
+  ctx.quadraticCurveTo(radius * 2.6, 0, radius * 2.28, radius * 0.12);
+  ctx.quadraticCurveTo(radius * 1.4, radius * 0.16, 0, hingeY);
+  ctx.quadraticCurveTo(-radius * 0.7, radius * 0.2, -radius, -radius * 0.5);
+  ctx.closePath();
+  ctx.fillStyle = palette.bodyColor;
+  ctx.fill();
+  ctx.strokeStyle = palette.outlineColor;
+  ctx.lineWidth = radius * 0.088;
+  ctx.stroke();
+
+  ctx.fillStyle = '#f4fbff';
+  for (let i = 0; i < 5; i += 1) {
+    const t = i / 4;
+    drawMorayTooth(ctx, radius, radius * (2.08 - t * 1.75), radius * (0.1 + t * 0.01), 1);
+  }
+
+  ctx.save();
+  ctx.translate(0, hingeY);
+  ctx.rotate(jawAngle);
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.quadraticCurveTo(radius * 1.2, -radius * 0.02, radius * 2.15, radius * 0.02);
+  ctx.quadraticCurveTo(radius * 1.7, radius * 0.3, radius * 0.9, radius * 0.34);
+  ctx.quadraticCurveTo(radius * 0.35, radius * 0.36, 0, radius * 0.18);
+  ctx.closePath();
+  ctx.fillStyle = palette.bodyColor;
+  ctx.fill();
+  ctx.strokeStyle = palette.outlineColor;
+  ctx.lineWidth = radius * 0.075;
+  ctx.stroke();
+  ctx.fillStyle = '#f4fbff';
+  for (let i = 0; i < 5; i += 1) {
+    const t = i / 4;
+    drawMorayTooth(ctx, radius, radius * (1.96 - t * 1.7), radius * 0.03, -1);
+  }
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.arc(radius * 0.85, -radius * 0.32, radius * 0.24, 0, TAU);
+  ctx.fillStyle = '#f4fbff';
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(radius * 0.89, -radius * 0.32, radius * 0.14, 0, TAU);
+  ctx.fillStyle = palette.eyeColor;
+  ctx.fill();
+  ctx.restore();
 }

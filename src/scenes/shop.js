@@ -9,7 +9,8 @@ import { KelpCrab } from '../entities/kelpcrab.js';
 import { MoonJelly } from '../entities/moonjelly.js';
 import { Nautilus } from '../entities/nautilus.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
-import { drawSkinAura, eelAuraEnabled, setActiveSkin, setEelAura, setSkinClock, skinCatalog } from '../engine/skin.js';
+import { drawSkinAura, setActiveSkin, setSkinClock, skinCatalog } from '../engine/skin.js';
+import { auraByKey, auraCatalog, auraForShop, setActiveAura } from '../engine/aura.js';
 import {
   accessoryByKey,
   accessorySlotCatalog,
@@ -76,8 +77,16 @@ const SLOTS = {
     index: 'companionIndex',
     list: 'companions',
     catalog: companionCatalog,
-    title: 'COMPANION',
-    noun: 'COMPANION',
+    title: 'DIVE BUDDIES',
+    noun: 'DIVE BUDDY',
+  },
+  aura: {
+    field: 'aura',
+    index: 'auraIndex',
+    list: 'auras',
+    catalog: auraCatalog,
+    title: 'AURA',
+    noun: 'AURA',
   },
 };
 
@@ -96,6 +105,7 @@ export class ShopScene extends Scene {
       accessories: ['none'],
       trails: ['none'],
       companions: ['none'],
+      auras: ['none'],
       ...raw,
       head,
       back,
@@ -103,14 +113,18 @@ export class ShopScene extends Scene {
       companion: raw.companion ?? 'none',
     };
     delete this.shop.accessory;
-    setEelAura(this.shop.passes.includes('playpass5'));
-    this.auraUpgrade = eelAuraEnabled();
+    this.shop.aura = auraForShop(raw).key;
+    for (const key of ['skin', 'head', 'back', 'trail', 'companion', 'aura']) {
+      this.shop[`${key}2`] = raw[`${key}2`] ?? this.shop[key];
+    }
+    this.playerIndex = 0;
     this.skinIndex = this.indexFor(skinCatalog, this.shop.skin);
     this.passIndex = 0;
     this.headIndex = this.indexFor(SLOTS.head.catalog, this.shop.head);
     this.backIndex = this.indexFor(SLOTS.body.catalog, this.shop.back);
     this.trailIndex = this.indexFor(trailCatalog, this.shop.trail);
     this.companionIndex = this.indexFor(companionCatalog, this.shop.companion);
+    this.auraIndex = this.indexFor(SLOTS.aura.catalog, this.shop.aura);
     this.creatureIndex = 0;
     this.previewCreatures = CREATURES.map((entry) => ({ ...entry, entity: entry.create() }));
     this.status = null;
@@ -122,15 +136,17 @@ export class ShopScene extends Scene {
         { label: 'HEAD', action: 'head' },
         { label: 'BODY', action: 'body' },
         { label: 'TRAIL', action: 'trail' },
-        { label: 'COMPANION', action: 'companion' },
+        { label: 'DIVE BUDDIES', action: 'companion' },
+        { label: 'AURA', action: 'aura' },
         { label: 'PLAYPASS', action: 'pass' },
+        { label: 'PLAYER', action: 'player' },
         { label: 'BACK', action: 'back' },
       ],
       {
         glowColor: COLORS.bubble,
         accentColor: COLORS.accent,
         color: COLORS.text,
-        spacing: 40,
+        spacing: 30,
         fontSize: 20,
         width: 520,
         onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
@@ -142,6 +158,31 @@ export class ShopScene extends Scene {
 
   indexFor(catalog, key) {
     return Math.max(0, catalog().findIndex((entry) => entry.key === key));
+  }
+
+  fieldOf(option) {
+    return this.playerIndex === 1 ? `${option.field}2` : option.field;
+  }
+
+  skinField() {
+    return this.playerIndex === 1 ? 'skin2' : 'skin';
+  }
+
+  syncIndices() {
+    const pair = this.playerIndex === 1 ? '2' : '';
+    this.skinIndex = this.indexFor(skinCatalog, this.shop[`skin${pair}`]);
+    this.headIndex = this.indexFor(SLOTS.head.catalog, this.shop[`head${pair}`]);
+    this.backIndex = this.indexFor(SLOTS.body.catalog, this.shop[`back${pair}`]);
+    this.trailIndex = this.indexFor(trailCatalog, this.shop[`trail${pair}`]);
+    this.companionIndex = this.indexFor(companionCatalog, this.shop[`companion${pair}`]);
+    this.auraIndex = this.indexFor(SLOTS.aura.catalog, this.shop[`aura${pair}`]);
+  }
+
+  togglePlayer() {
+    this.playerIndex = this.playerIndex === 0 ? 1 : 0;
+    this.syncIndices();
+    this.setStatus(`DRESSING P${this.playerIndex + 1}`);
+    this.game.audio.tone({ freq: 520 + this.playerIndex * 140, duration: 0.08, volume: 0.16 });
   }
 
   get skin() {
@@ -168,6 +209,10 @@ export class ShopScene extends Scene {
     return companionCatalog()[this.companionIndex];
   }
 
+  get aura() {
+    return SLOTS.aura.catalog()[this.auraIndex];
+  }
+
   get pass() {
     return PASSES[this.passIndex];
   }
@@ -176,7 +221,8 @@ export class ShopScene extends Scene {
     if (kind === 'head') return this.head;
     if (kind === 'body') return this.back;
     if (kind === 'trail') return this.trail;
-    return this.companion;
+    if (kind === 'companion') return this.companion;
+    return this.aura;
   }
 
   ownsPass(key) {
@@ -210,6 +256,14 @@ export class ShopScene extends Scene {
 
   ownsTrail(key) {
     return this.ownsOption('trail', key);
+  }
+
+  wornLabel(kind) {
+    return kind === 'companion' ? 'PICKED' : 'WORN';
+  }
+
+  wearAction(kind) {
+    return kind === 'companion' ? 'PICK' : 'WEAR';
   }
 
   ownsCompanion(key) {
@@ -262,10 +316,12 @@ export class ShopScene extends Scene {
   }
 
   applyEquipped() {
-    setActiveHeadAccessory(accessoryByKey(this.shop.head));
-    setActiveBodyAccessory(accessoryByKey(this.shop.back));
-    setActiveTrail(trailByKey(this.shop.trail));
-    setActiveCompanion(companionByKey(this.shop.companion));
+    const pair = this.playerIndex === 1 ? '2' : '';
+    setActiveHeadAccessory(accessoryByKey(this.shop[`head${pair}`]));
+    setActiveBodyAccessory(accessoryByKey(this.shop[`back${pair}`]));
+    setActiveTrail(trailByKey(this.shop[`trail${pair}`]));
+    setActiveCompanion(companionByKey(this.shop[`companion${pair}`]));
+    setActiveAura(auraByKey(this.shop[`aura${pair}`]));
   }
 
   buyOrEquipOption(kind) {
@@ -279,13 +335,13 @@ export class ShopScene extends Scene {
       return;
     }
     if (owns) {
-      if (this.shop[option.field] === item.key) {
-        this.setStatus(item.key === 'none' ? `${option.noun} ALREADY OFF` : 'ALREADY WORN');
+      if (this.shop[this.fieldOf(option)] === item.key) {
+        this.setStatus(item.key === 'none' ? `${option.noun} ALREADY OFF` : `ALREADY ${this.wornLabel(kind)}`);
         return;
       }
-      this.shop[option.field] = item.key;
+      this.shop[this.fieldOf(option)] = item.key;
       this.save();
-      this.setStatus(item.key === 'none' ? `${option.noun} REMOVED` : `${option.noun} WORN`);
+      this.setStatus(`${option.noun} ${this.wornLabel(kind)} — P${this.playerIndex + 1}`);
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.14, volume: 0.2 });
       return;
     }
@@ -296,9 +352,9 @@ export class ShopScene extends Scene {
     }
     this.coins -= item.cost;
     if (!this.shop[option.list].includes(item.key)) this.shop[option.list].push(item.key);
-    this.shop[option.field] = item.key;
+    this.shop[this.fieldOf(option)] = item.key;
     this.save();
-    this.setStatus(`${option.noun} UNLOCKED AND WORN`);
+    this.setStatus(`${option.noun} UNLOCKED AND WORN — P${this.playerIndex + 1}`);
     this.game.audio.tone({ freq: 520, endFreq: 880, type: 'triangle', duration: 0.14, volume: 0.22 });
     this.game.audio.tone({ freq: 880, endFreq: 1320, type: 'triangle', duration: 0.2, volume: 0.18, delay: 0.12 });
   }
@@ -312,13 +368,13 @@ export class ShopScene extends Scene {
       return;
     }
     if (this.owns(skin.key)) {
-      if (this.shop.skin === skin.key) {
+      if (this.shop[this.skinField()] === skin.key) {
         this.setStatus('ALREADY EQUIPPED');
         return;
       }
-      this.shop.skin = skin.key;
+      this.shop[this.skinField()] = skin.key;
       this.save();
-      this.setStatus('COLOR EQUIPPED');
+      this.setStatus(`COLOR EQUIPPED — P${this.playerIndex + 1}`);
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.14, volume: 0.2 });
       return;
     }
@@ -329,9 +385,9 @@ export class ShopScene extends Scene {
     }
     this.coins -= skin.cost;
     this.shop.owned.push(skin.key);
-    this.shop.skin = skin.key;
+    this.shop[this.skinField()] = skin.key;
     this.save();
-    this.setStatus('COLOR UNLOCKED AND EQUIPPED');
+    this.setStatus(`COLOR UNLOCKED AND EQUIPPED — P${this.playerIndex + 1}`);
     this.game.audio.tone({ freq: 520, endFreq: 880, type: 'triangle', duration: 0.14, volume: 0.22 });
     this.game.audio.tone({ freq: 880, endFreq: 1320, type: 'triangle', duration: 0.2, volume: 0.18, delay: 0.12 });
   }
@@ -346,7 +402,7 @@ export class ShopScene extends Scene {
       playpass5: 'PLUSHIE PACK UNLOCKED',
       playpass6: 'PET PLAY UNLOCKED',
       playpass7: 'TRAILS UNLOCKED',
-      playpass8: 'COMPANIONS UNLOCKED',
+      playpass8: 'DIVE BUDDIES UNLOCKED',
       playpass9: 'AQUARIUM BUILDER UNLOCKED',
     };
     if (this.ownsPass(pass.key)) {
@@ -360,8 +416,6 @@ export class ShopScene extends Scene {
     }
     this.coins -= pass.cost;
     this.shop.passes.push(pass.key);
-    setEelAura(this.shop.passes.includes('playpass5'));
-    this.auraUpgrade = eelAuraEnabled();
     this.save();
     this.setStatus(`${pass.label} BOUGHT — ${unlocks[pass.key] ?? 'UNLOCKED'}`);
     this.game.audio.tone({ freq: 523, type: 'triangle', duration: 0.18, volume: 0.22 });
@@ -381,6 +435,10 @@ export class ShopScene extends Scene {
     }
     if (item.action === 'creature') {
       this.setStatus('LEFT/RIGHT — BROWSE CREATURES');
+      return;
+    }
+    if (item.action === 'player') {
+      this.togglePlayer();
       return;
     }
     if (SLOTS[item.action]) {
@@ -416,12 +474,19 @@ export class ShopScene extends Scene {
       if (input.wasPressed('left')) this.cyclePass(-1);
       if (input.wasPressed('right')) this.cyclePass(1);
     }
+    if (
+      selected &&
+      selected.action === 'player' &&
+      (input.wasPressed('left') || input.wasPressed('right'))
+    ) {
+      this.togglePlayer();
+    }
     this.menu.update(dt, input);
   }
 
   skinStatus(skin) {
     const pass = this.grantingPass('skins', skin.key);
-    if (this.shop.skin === skin.key) return 'EQUIPPED';
+    if (this.shop[this.skinField()] === skin.key) return 'EQUIPPED';
     if (this.owns(skin.key)) {
       return pass ? `INCLUDED WITH ${pass.label} — ENTER TO EQUIP` : 'OWNED — ENTER TO EQUIP';
     }
@@ -432,11 +497,13 @@ export class ShopScene extends Scene {
   optionStatus(kind, item) {
     const option = SLOTS[kind];
     const pass = this.grantingPass(option.list, item.key);
-    if (this.shop[option.field] === item.key) {
-      return item.key === 'none' ? `NO ${option.noun} WORN` : 'WORN';
+    if (this.shop[this.fieldOf(option)] === item.key) {
+      return item.key === 'none' ? `NO ${option.noun} ${this.wornLabel(kind)}` : this.wornLabel(kind);
     }
     if (this.ownsOption(kind, item.key)) {
-      return pass ? `INCLUDED WITH ${pass.label} — ENTER TO WEAR` : 'OWNED — ENTER TO WEAR';
+      return pass
+        ? `INCLUDED WITH ${pass.label} — ENTER TO ${this.wearAction(kind)}`
+        : `OWNED — ENTER TO ${this.wearAction(kind)}`;
     }
     if (item.passOnly) return `${pass ? pass.label : 'PLAYPASS'} EXCLUSIVE`;
     return `${item.cost} SEA COINS — ENTER TO BUY`;
@@ -469,7 +536,7 @@ export class ShopScene extends Scene {
       ctx,
       'EARN SEA COINS BY COMPLETING DIVES — HARDER DIFFICULTY PAYS MORE',
       480,
-      156,
+      150,
       {
         size: 12,
         color: COLORS.foam,
@@ -482,6 +549,8 @@ export class ShopScene extends Scene {
     const selected = this.menu.selected;
     if (selected && selected.action === 'pass') {
       this.renderPassStatus(ctx);
+    } else if (selected && selected.action === 'player') {
+      this.renderPlayerStatus(ctx);
     } else if (selected && SLOTS[selected.action]) {
       this.renderOptionStatus(ctx, selected.action);
     } else {
@@ -512,14 +581,17 @@ export class ShopScene extends Scene {
     const top = 306 - ((rows - 1) * this.menu.spacing) / 2;
     const bonus = this.payoutBonus(this.skin);
     const pass = this.pass;
+    const pair = this.playerIndex === 1 ? '2' : '';
     const values = [
       bonus > 0 ? `${this.skin.label} +${bonus}%` : this.skin.label,
       this.creature.label,
-      `HEAD: ${accessoryByKey(this.shop.head).label}`,
-      `BODY: ${accessoryByKey(this.shop.back).label}`,
-      `TRAIL: ${trailByKey(this.shop.trail).label}`,
-      `COMPANION: ${companionByKey(this.shop.companion).label}`,
+      `HEAD: ${accessoryByKey(this.shop[`head${pair}`]).label}`,
+      `BODY: ${accessoryByKey(this.shop[`back${pair}`]).label}`,
+      `TRAIL: ${trailByKey(this.shop[`trail${pair}`]).label}`,
+      `DIVE BUDDIES: ${companionByKey(this.shop[`companion${pair}`]).label}`,
+      `AURA: ${auraByKey(this.shop[`aura${pair}`]).label}`,
       this.ownsPass(pass.key) ? `${pass.label} — OWNED` : `${pass.label} — ${pass.cost}`,
+      `EDITING P${this.playerIndex + 1}`,
     ];
     values.forEach((value, index) => {
       drawText(ctx, value, 620, top + this.menu.spacing * index, {
@@ -534,7 +606,8 @@ export class ShopScene extends Scene {
     fillRoundRect(ctx, 660, 180, 260, 280, 20, 'rgba(10, 39, 64, 0.85)');
     strokeRoundRect(ctx, 660, 180, 260, 280, 20, 'rgba(207, 239, 255, 0.3)', 2);
     const skin = this.skin;
-    drawText(ctx, this.creature.label, 790, 208, {
+    const pair = this.playerIndex === 1 ? '2' : '';
+    drawText(ctx, `P${this.playerIndex + 1} — ${this.creature.label}`, 790, 208, {
       size: 19,
       color: COLORS.text,
       glow: COLORS.bubble,
@@ -565,12 +638,15 @@ export class ShopScene extends Scene {
     });
     drawText(
       ctx,
-      `HEAD ${accessoryByKey(this.shop.head).label} — BODY ${accessoryByKey(this.shop.back).label}`,
+      `HEAD ${accessoryByKey(this.shop[`head${pair}`]).label} — BODY ${accessoryByKey(this.shop[`back${pair}`]).label}`,
       790,
       408,
       {
         size: 11,
-        color: this.shop.head === 'none' && this.shop.back === 'none' ? COLORS.textDim : COLORS.foam,
+        color:
+          this.shop[`head${pair}`] === 'none' && this.shop[`back${pair}`] === 'none'
+            ? COLORS.textDim
+            : COLORS.foam,
         alpha: 0.85,
       },
     );
@@ -586,6 +662,41 @@ export class ShopScene extends Scene {
         alpha: 0.8,
       },
     );
+  }
+
+  renderPlayerStatus(ctx) {
+    fillRoundRect(ctx, 660, 180, 260, 280, 20, 'rgba(10, 39, 64, 0.85)');
+    strokeRoundRect(ctx, 660, 180, 260, 280, 20, 'rgba(207, 239, 255, 0.3)', 2);
+    drawText(ctx, 'PLAYER', 790, 208, {
+      size: 19,
+      color: COLORS.text,
+      glow: COLORS.bubble,
+      glowBlur: 12,
+    });
+    drawText(ctx, `DRESSING P${this.playerIndex + 1}`, 790, 250, {
+      size: 22,
+      color: COLORS.accent,
+    });
+    drawText(ctx, 'EACH DIVER GETS THEIR OWN COLOR,', 790, 300, {
+      size: 11,
+      color: COLORS.textDim,
+      alpha: 0.9,
+    });
+    drawText(ctx, 'TRINKETS, TRAIL, BUDDY, AND AURA', 790, 318, {
+      size: 11,
+      color: COLORS.textDim,
+      alpha: 0.9,
+    });
+    drawText(ctx, 'PURCHASES UNLOCK FOR BOTH PLAYERS', 790, 344, {
+      size: 11,
+      color: COLORS.foam,
+      alpha: 0.85,
+    });
+    drawText(ctx, 'ENTER — SWITCH PLAYER', 790, 424, {
+      size: 12,
+      color: COLORS.accent,
+      alpha: 0.8,
+    });
   }
 
   renderOptionStatus(ctx, kind) {
@@ -610,7 +721,8 @@ export class ShopScene extends Scene {
     if (kind === 'head') setActiveHeadAccessory(item);
     else if (kind === 'body') setActiveBodyAccessory(item);
     else if (kind === 'trail') setActiveTrail(item);
-    else setActiveCompanion(item);
+    else if (kind === 'companion') setActiveCompanion(item);
+    else setActiveAura(item);
     this.creature.entity.render(ctx);
     drawSkinAura(ctx, this.creature.entity);
     drawTrail(ctx, this.creature.entity);
@@ -636,7 +748,7 @@ export class ShopScene extends Scene {
       item.key === 'none'
         ? 'ENTER — TAKE OFF'
         : this.ownsOption(kind, item.key)
-          ? 'ENTER — WEAR'
+          ? `ENTER — ${this.wearAction(kind)}`
           : 'ENTER — BUY',
       790,
       424,

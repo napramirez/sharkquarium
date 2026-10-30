@@ -126,12 +126,13 @@ menu, the two-player competition race and its 1P target chase, the tag minigame 
 named players, CPU
 swimmers, random CPU targeting, and tag-separation pushes, solo tag and solo dodgeball
 survival, difficulty-scaled minigame rules, the six paid arcade games (puffer ball
-against the CPU, school roundup, stealth dive, trench dive, jelly ascent, and the
+against the CPU, school roundup, stealth dive, trench dive with its always-reachable ice
+gaps, jelly ascent, and the
 no-clock reef cleanup whose morays peek, bite, and retreat), the nine playpasses with their
 pass-granted cosmetics (ragdoll plushies, the RGB neon jacket, eel aura rings, five swim
 trails, twenty-one companion pals covering every playable creature and enemy —
-including the MINI MEGASQUID — and dual
-head/body trinket slots), the 2P wardrobe with its PLAYER row and per-player buddy,
+including the MINI MEGASQUID — and
+head/body trinket slots plus the COSTUMES row), the 2P wardrobe with its PLAYER row and per-player buddy,
 trail, and aura slots, the lore codex with its five sections, the playerless pets tank
 with its snack-feeding (clicks and on-screen buttons),
 despawn lures, saved progress, pet tricks, toys, postcards, and meal packs, and
@@ -139,8 +140,8 @@ cross-level enemy waves (jellyfish, turtle, pufferfish, anglerfish, and morays) 
 coin rewards and win counters, pufferfish dodgeball with
 its three lives, no timer, and endless escalation, the labyrinth escape with its
 checkpoint masts, the part and per-player diver pickers, the WRECK ARRIVAL cutscene, the GAME TRAILER, the all-tank gameplay gauntlet, the SHARKQUARIUM: THE MOVIE and SHOP TRAILER reels, the nested tank and minigame cut-downs, the LABYRINTH TRAILER, the joystick steering, tentacle wall and grabber lunges, its seven-part descent,
-cracked-ground bursts, wall ambushes, ceiling feeding spears, ceiling chunks, the watching
-squid, grab respawns, the moray tail-slide retreat, the grab-clump spawner, the slowest-diver wall cap, the stingray's disabled deck burrow, saved-part resume, the MEGASQUID ending, dread theme, and
+cracked-ground bursts, wall ambushes, ceiling feeding spears, ceiling chunks and the collapsing ceiling stubs that crash onto the tangle, the watching
+squid, grab respawns, the moray tail-slide retreat, the grab-clump spawner, the slowest-diver wall cap, the stingray's disabled deck burrow, saved-part resume, the two-beat MEGASQUID ending, dread theme, and
 co-op/solo
 results, the kelp forest tank with its crab
 player and octopus boss, the per-tank themed backdrops, the track player with every level theme

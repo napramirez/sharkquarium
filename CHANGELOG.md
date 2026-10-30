@@ -86,6 +86,11 @@ Commits `7c7d0ea` (Oct 23), `fc9f6cd` and `99bf87a` (Oct 25), and the Oct 26 fea
   of the dark behind the wreck with its glowing yellow eye tracking the pack and a deep
   pressure roar, and the divers recoil a beat before the chase begins. Skippable with
   ENTER and replayable from the cutscene theatre's WRECK ARRIVAL row.
+- **Two-beat ending cutscene** — the MEGASQUID finale now cuts in two: the first beat
+  collapses the wreck around the entangled boss as the seven survivors race clear, then a
+  distance beat puts the survivors in the foreground looking back at the liner perched on
+  a rock ledge, which tips off the rim and sinks into the trench with the MEGASQUID and
+  its glowing eye, fading into the dark.
 - **MINI MEGASQUID** — a new DIVE BUDDY for PLAYPASS 8: the labyrinth boss shrunk to
   buddy size, arms and long tentacles waving as it trails the diver with a periodically
   blinking glowing yellow eye, drawn through the same shared megasquid shapes as the

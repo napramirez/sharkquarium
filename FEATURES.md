@@ -1291,9 +1291,12 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   checkpoint with 2 s of invulnerability, and running out of grabs means the tentacles
   drag them under — **that ends the run for everyone**. Escaping every player is what
   opens the next part, and clearing the seventh with nobody caught wins the bonus — which
-  plays the **ending cutscene**: the MEGASQUID tangles in the collapsing wreck and sinks
-  into the trench as all seven creatures (shark, stingray, squid, shrimp, crab, jelly,
-  nautilus) race clear, with the wreck's planks tumbling after it. ENTER skips straight to
+  plays the **ending cutscene** in two beats: first the wreck collapses around the
+  entangled MEGASQUID as all seven creatures (shark, stingray, squid, shrimp, crab, jelly,
+  nautilus) race clear with the wreck's planks tumbling; then the scene cuts to a distance
+  view where the seven survivors float in the foreground and look back at the liner
+  perched on a ledge, and the wreck and the MEGASQUID topple off the rim and sink into the
+  dark trench. ENTER skips straight to
   the results. The floor is scarred with
   cracked mounds and the wooden gates hide their own ambushes: come close and the spot
   glows red for half a second before tentacles erupt — a whole bunch spearing straight up

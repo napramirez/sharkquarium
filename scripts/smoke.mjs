@@ -3859,12 +3859,24 @@ async function main() {
     'a full escape should clear the saved progress',
   );
   assert.equal(labyrinth.escapees.length, 7, 'all seven creatures should escape in the ending');
-  const squidSinkStart = labyrinth.megasquid.y;
+  const escapeTravel = labyrinth.escapees[0].travel;
+  const squidSceneOne = labyrinth.megasquid.y;
   await frames(60);
   assert.ok(
-    labyrinth.megasquid.y > squidSinkStart,
-    'the MEGASQUID should sink through the ending',
+    labyrinth.escapees[0].travel > escapeTravel,
+    'the survivors should swim clear of the wreck in the first ending beat',
   );
+  assert.ok(
+    Math.abs(labyrinth.megasquid.y - squidSceneOne) < 40,
+    'the MEGASQUID should stay tangled in the wreck until the trench beat',
+  );
+  labyrinth.endingTimer = 5;
+  await frames(130);
+  assert.ok(
+    labyrinth.megasquid.y > 260,
+    'the MEGASQUID should sink into the trench in the second ending beat',
+  );
+  assert.ok(labyrinth.megasquid.sink > 0, 'the trench beat should sink the wreck');
   await tapKey('Enter');
   await frames(5);
   assert.equal(labyrinth.phase, 'results', 'skipping the ending should show the results');

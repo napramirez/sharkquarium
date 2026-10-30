@@ -277,13 +277,19 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   player escaped; the round ends when nobody is still playing, and `recordMinigame(won)`
   pays the bonus only when every player escaped, and a full escape enters
   `phase: 'ending'`: `startEnding()` plays a skippable `LABYRINTH.endingDuration` cutscene
-  where the wreck's squid becomes the MEGASQUID (`drawSquid` at scale 1.75, delegating
+  in two beats — the first `endingEscapeTime` seconds keep the wreck's squid as the
+  MEGASQUID (`drawSquid` at scale 1.75, delegating
   to the shared `drawMegasquid`/`drawMegasquidEye` from `src/entities/megasquid.js` along
   with the background watcher, the arrival cutscene, and the MINI MEGASQUID buddy — all
-  now drawn fully opaque, `alpha` only fading the arrival reveal),
-  tangled beams and tumbling
-  debris fall with it, and all seven `DIVE_CREATURES` instances (`escapees`) swim clear;
-  scripted impact/crumble/surface events fire bursts and tones, and Enter/Esc jumps
+  now drawn fully opaque, `alpha` only fading the arrival reveal)
+  tangled in the collapsing wreck with tumbling
+  debris while all seven `DIVE_CREATURES` instances (`escapees`) swim clear; the rest
+  (`renderEndingTrench()`) cuts to a distance shot — the seven survivors float in the
+  foreground facing the liner (`heading = PI`, `facing = -1`) while a hand-drawn
+  `drawDistantWreck()` dangling the MEGASQUID over a `drawEndingLedge()` rock shelf tips
+  off the rim and sinks into the abyss as `endingSinkDelay`/`endingSinkTime` ease its
+  fall and fade; scripted impact/escape/trench/settle events fire bursts and tones, and
+  Enter/Esc jumps
   ahead to the results panel. The run is a seven-part gauntlet:
   `resetRound()` builds part one, `checkResults()` calls `advancePart()` once every
   player has escaped the current part (and `finish()`es early if anyone is caught or

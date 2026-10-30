@@ -858,6 +858,8 @@ export class LabyrinthScene extends Scene {
       sink: 0,
       blink: 0,
     };
+    this.endingWreckX = 190;
+    this.endingWreckY = 228;
     this.endingDebris = Array.from({ length: 16 }, () => ({
       x: rand(40, LOGICAL_WIDTH - 40),
       y: rand(-90, 120),
@@ -1091,45 +1093,97 @@ export class LabyrinthScene extends Scene {
   updateEnding(dt, input) {
     this.endingTimer += dt;
     const t = this.endingTimer;
+    const escapeTime = LABYRINTH.endingEscapeTime;
     this.shake = Math.max(0, this.shake - dt * 0.9);
     const squid = this.megasquid;
-    squid.sink = clamp((t - 0.9) / 3.4, 0, 1);
-    squid.y = -170 + (LOGICAL_HEIGHT + 420) * squid.sink * squid.sink;
-    squid.x = LOGICAL_WIDTH / 2 + Math.sin(t * 0.8) * 28;
-    squid.rotation = Math.sin(t * 1.3) * 0.1 - squid.sink * 0.4;
-    squid.blink = clamp((t - 5.6) / 1.4, 0, 1);
-    if (t > 1.4 && !this.endingEvents.has('impact')) {
-      this.endingEvents.add('impact');
-      this.shake = 1;
-      this.particles.burst(LOGICAL_WIDTH / 2, 320, {
-        count: 44,
-        speed: 360,
-        life: 1.2,
-        colors: [COLORS.tentacleDark, COLORS.wreckWood, COLORS.sandDark],
-        buoyancy: -60,
+
+    if (t < escapeTime) {
+      squid.sink = 0;
+      squid.x = LOGICAL_WIDTH * 0.3 + Math.sin(t * 0.9) * 20;
+      squid.y = 200 + Math.sin(t * 1.5) * 10;
+      squid.rotation = Math.sin(t * 1.6) * 0.14;
+      squid.blink = clamp((t - 3.4) / 1, 0, 1);
+      for (const piece of this.endingDebris) {
+        piece.y += piece.fallSpeed * dt;
+        piece.x += piece.drift * dt;
+        piece.rotation += piece.spin * dt;
+      }
+      for (const escapee of this.escapees) {
+        escapee.travel += escapee.speed * dt;
+        escapee.entity.update(dt, IDLE_INPUT);
+        escapee.entity.x = escapee.startX + escapee.travel;
+        escapee.entity.y = escapee.lane + Math.sin(this.time * 2.1 + escapee.phase) * 9;
+      }
+      if (t > 1.2 && !this.endingEvents.has('impact')) {
+        this.endingEvents.add('impact');
+        this.shake = 1;
+        this.particles.burst(LOGICAL_WIDTH * 0.3, 300, {
+          count: 44,
+          speed: 360,
+          life: 1.2,
+          colors: [COLORS.tentacleDark, COLORS.wreckWood, COLORS.sandDark],
+          buoyancy: -60,
+        });
+        this.game.audio.tone({ freq: 58, endFreq: 34, type: 'sawtooth', duration: 1.1, volume: 0.36 });
+      }
+      if (t > 2.6 && !this.endingEvents.has('escape')) {
+        this.endingEvents.add('escape');
+        this.game.audio.tone({ freq: 523, type: 'triangle', duration: 0.24, volume: 0.22 });
+        this.game.audio.tone({
+          freq: 784,
+          type: 'triangle',
+          duration: 0.34,
+          volume: 0.22,
+          delay: 0.18,
+        });
+      }
+    } else {
+      const st = t - escapeTime;
+      const sink = clamp((st - LABYRINTH.endingSinkDelay) / LABYRINTH.endingSinkTime, 0, 1);
+      const eased = sink * sink;
+      squid.sink = sink;
+      squid.x = this.endingWreckX + eased * 250;
+      squid.y = this.endingWreckY + eased * 400;
+      squid.rotation = eased * 0.5;
+      squid.blink = clamp((st - 2.9) / 1.2, 0, 1);
+      this.escapees.forEach((escapee, index) => {
+        escapee.entity.update(dt, IDLE_INPUT);
+        escapee.entity.x = 556 + index * 58;
+        escapee.entity.y = LOGICAL_HEIGHT - 92 + Math.sin(this.time * 1.6 + escapee.phase) * 8;
+        escapee.entity.heading = Math.PI;
+        escapee.entity.facing = -1;
       });
-      this.game.audio.tone({ freq: 58, endFreq: 34, type: 'sawtooth', duration: 1.1, volume: 0.36 });
+      if (sink > 0.02 && !this.endingEvents.has('trench')) {
+        this.endingEvents.add('trench');
+        this.shake = 0.85;
+        this.particles.burst(this.endingWreckX, this.endingWreckY + 40, {
+          count: 40,
+          speed: 200,
+          life: 1.6,
+          colors: [COLORS.tentacleDark, COLORS.wreckWood, COLORS.sandDark],
+          buoyancy: -20,
+        });
+        this.game.audio.tone({
+          freq: 54,
+          endFreq: 26,
+          type: 'sawtooth',
+          duration: 1.6,
+          volume: 0.34,
+        });
+      }
+      if (sink > 0.85 && !this.endingEvents.has('settle')) {
+        this.endingEvents.add('settle');
+        this.shake = 0.6;
+        this.game.audio.tone({
+          freq: 40,
+          endFreq: 22,
+          type: 'sawtooth',
+          duration: 1.3,
+          volume: 0.28,
+        });
+      }
     }
-    if (t > 2.8 && !this.endingEvents.has('crumble')) {
-      this.endingEvents.add('crumble');
-      this.game.audio.tone({ freq: 130, endFreq: 60, type: 'sawtooth', duration: 0.8, volume: 0.3 });
-    }
-    if (t > 5.4 && !this.endingEvents.has('surface')) {
-      this.endingEvents.add('surface');
-      this.game.audio.tone({ freq: 523, type: 'triangle', duration: 0.24, volume: 0.22 });
-      this.game.audio.tone({ freq: 784, type: 'triangle', duration: 0.34, volume: 0.22, delay: 0.18 });
-    }
-    for (const piece of this.endingDebris) {
-      piece.y += piece.fallSpeed * dt;
-      piece.x += piece.drift * dt;
-      piece.rotation += piece.spin * dt;
-    }
-    for (const escapee of this.escapees) {
-      escapee.travel += escapee.speed * dt;
-      escapee.entity.update(dt, IDLE_INPUT);
-      escapee.entity.x = escapee.startX + escapee.travel;
-      escapee.entity.y = escapee.lane + Math.sin(this.time * 2.1 + escapee.phase) * 9;
-    }
+
     this.particles.update(dt);
     if (input.wasPressed('confirm') || input.wasPressed('back') || t >= LABYRINTH.endingDuration) {
       if (this.theatre) {
@@ -2264,6 +2318,11 @@ export class LabyrinthScene extends Scene {
   }
 
   renderEnding(ctx) {
+    const t = this.endingTimer;
+    if (t >= LABYRINTH.endingEscapeTime) {
+      this.renderEndingTrench(ctx, t - LABYRINTH.endingEscapeTime);
+      return;
+    }
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, {
       top: '#0d2029',
       bottom: '#02060a',
@@ -2335,21 +2394,16 @@ export class LabyrinthScene extends Scene {
     }
     ctx.restore();
 
-    const t = this.endingTimer;
     const card =
-      t < 2.4
-        ? 'THE WRECK COLLAPSES...'
-        : t < 5.2
-          ? 'THE MEGASQUID IS DRAGGED INTO THE TRENCH'
-          : 'THE SEVEN SURVIVORS ESCAPE THE WRECK';
+      t < 2.4 ? 'THE WRECK COLLAPSES...' : 'THE SEVEN SURVIVORS ESCAPE THE WRECK';
     drawText(ctx, card, LOGICAL_WIDTH / 2, 58, {
       size: 24,
-      color: t < 5.2 ? COLORS.accent : COLORS.bubble,
-      glow: t < 5.2 ? 'rgba(255, 209, 102, 0.5)' : 'rgba(207, 239, 255, 0.5)',
+      color: t < 2.4 ? COLORS.accent : COLORS.bubble,
+      glow: t < 2.4 ? 'rgba(255, 209, 102, 0.5)' : 'rgba(207, 239, 255, 0.5)',
       glowBlur: 18,
       alpha: 0.9,
     });
-    if (t > 5.2) {
+    if (t >= 2.4) {
       drawText(
         ctx,
         'SHARK · STINGRAY · SQUID · SHRIMP · CRAB · JELLY · NAUTILUS',
@@ -2363,6 +2417,154 @@ export class LabyrinthScene extends Scene {
       color: COLORS.textDim,
       alpha: 0.75,
     });
+  }
+
+  renderEndingTrench(ctx, st) {
+    const sink = clamp((st - LABYRINTH.endingSinkDelay) / LABYRINTH.endingSinkTime, 0, 1);
+    const eased = sink * sink;
+    drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, {
+      top: '#0a1a24',
+      bottom: '#010306',
+      ray: 'rgba(180, 220, 255, 0.035)',
+    });
+    ctx.save();
+    if (this.shake > 0) {
+      ctx.translate(rand(-1, 1) * 10 * this.shake, rand(-1, 1) * 10 * this.shake);
+    }
+
+    const rimY = 268;
+    const abyss = ctx.createLinearGradient(0, rimY, 0, LOGICAL_HEIGHT);
+    abyss.addColorStop(0, 'rgba(3, 6, 12, 0.12)');
+    abyss.addColorStop(0.45, 'rgba(1, 3, 7, 0.82)');
+    abyss.addColorStop(1, '#000000');
+    ctx.fillStyle = abyss;
+    ctx.beginPath();
+    ctx.moveTo(330, rimY + 10);
+    ctx.lineTo(LOGICAL_WIDTH, rimY - 34);
+    ctx.lineTo(LOGICAL_WIDTH, LOGICAL_HEIGHT);
+    ctx.lineTo(250, LOGICAL_HEIGHT);
+    ctx.closePath();
+    ctx.fill();
+
+    this.drawEndingLedge(ctx, rimY);
+
+    const wreckX = this.endingWreckX + eased * 250;
+    const wreckY = this.endingWreckY + eased * 400;
+    const fade = clamp(1.15 - sink * 1.05, 0.12, 1);
+    this.drawDistantWreck(ctx, wreckX, wreckY, eased * 0.5, fade);
+
+    this.particles.render(ctx);
+
+    for (const escapee of this.escapees) {
+      escapee.entity.render(ctx);
+    }
+    ctx.restore();
+
+    const card =
+      st < 1.6
+        ? 'THEY LOOK BACK AT THE SUNKEN LINER'
+        : 'THE WRECK AND THE MEGASQUID SINK INTO THE TRENCH';
+    drawText(ctx, card, LOGICAL_WIDTH / 2, 58, {
+      size: 24,
+      color: st < 1.6 ? COLORS.bubble : COLORS.accent,
+      glow: st < 1.6 ? 'rgba(207, 239, 255, 0.5)' : 'rgba(255, 209, 102, 0.5)',
+      glowBlur: 18,
+      alpha: 0.9,
+    });
+    if (st >= 1.6) {
+      drawText(
+        ctx,
+        'SHARK · STINGRAY · SQUID · SHRIMP · CRAB · JELLY · NAUTILUS',
+        LOGICAL_WIDTH / 2,
+        92,
+        { size: 11, color: COLORS.textDim, alpha: 0.8 },
+      );
+    }
+    drawText(ctx, 'ENTER — SKIP', LOGICAL_WIDTH / 2, LOGICAL_HEIGHT - 24, {
+      size: 12,
+      color: COLORS.textDim,
+      alpha: 0.75,
+    });
+  }
+
+  drawEndingLedge(ctx, rimY) {
+    ctx.fillStyle = '#10161b';
+    ctx.beginPath();
+    ctx.moveTo(0, rimY - 6);
+    ctx.lineTo(120, rimY - 26);
+    ctx.lineTo(260, rimY - 4);
+    ctx.lineTo(340, rimY + 12);
+    ctx.lineTo(300, rimY + 96);
+    ctx.lineTo(230, LOGICAL_HEIGHT);
+    ctx.lineTo(0, LOGICAL_HEIGHT);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(96, 120, 132, 0.35)';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(0, rimY - 6);
+    ctx.lineTo(120, rimY - 26);
+    ctx.lineTo(260, rimY - 4);
+    ctx.lineTo(340, rimY + 12);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(90, 122, 74, 0.4)';
+    ctx.lineWidth = 3;
+    for (let index = 0; index < 5; index += 1) {
+      const bx = 40 + index * 62;
+      const by = rimY - 8 + Math.sin(index * 1.7) * 6;
+      ctx.beginPath();
+      ctx.moveTo(bx, by);
+      ctx.lineTo(bx + 4 - index * 3, by - 22 - index * 3);
+      ctx.stroke();
+    }
+  }
+
+  drawDistantWreck(ctx, x, y, rotation, alpha) {
+    const s = 0.4;
+    ctx.save();
+    ctx.globalAlpha = alpha;
+    ctx.translate(x, y);
+    ctx.rotate(rotation);
+    ctx.scale(s, s);
+    this.drawSquid(ctx, 0, 20, 1, 1.3, alpha);
+    ctx.fillStyle = COLORS.wreckWoodDark;
+    ctx.beginPath();
+    ctx.moveTo(-140, -14);
+    ctx.lineTo(150, -14);
+    ctx.lineTo(108, 58);
+    ctx.lineTo(-112, 58);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(16, 11, 7, 0.85)';
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    ctx.strokeStyle = COLORS.wreckWood;
+    ctx.lineWidth = 8;
+    ctx.beginPath();
+    ctx.moveTo(-140, -14);
+    ctx.lineTo(150, -14);
+    ctx.stroke();
+    ctx.strokeStyle = COLORS.wreckWoodDark;
+    ctx.lineWidth = 9;
+    ctx.beginPath();
+    ctx.moveTo(20, -14);
+    ctx.lineTo(58, -110);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(58, -110);
+    ctx.lineTo(96, -92);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(24, 16, 10, 0.5)';
+    ctx.lineWidth = 2;
+    for (let index = 0; index < 5; index += 1) {
+      const rx = -96 + index * 46;
+      ctx.beginPath();
+      ctx.moveTo(rx, -14);
+      ctx.lineTo(rx - 10, 58);
+      ctx.stroke();
+    }
+    this.drawSquidEye(ctx, 42, 20 + 56, 0, 0.2, 0.9, alpha);
+    ctx.restore();
   }
 
   renderSelect(ctx) {

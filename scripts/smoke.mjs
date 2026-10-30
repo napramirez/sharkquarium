@@ -2747,6 +2747,23 @@ async function main() {
     await frames(5);
     assert.equal(game.currentSceneName, 'minigames', `${action} should quit to the menu`);
   }
+  game.changeScene('trench', { solo: true });
+  await frames(5);
+  const trench = game.scene;
+  assert.equal(game.currentSceneName, 'trench', 'trench dive should reopen for the gap check');
+  trench.lastGapX = 480;
+  trench.barriers.length = 0;
+  for (let i = 0; i < 60; i += 1) trench.spawnBarrier();
+  let prevGap = 480;
+  let maxGapShift = 0;
+  for (const barrier of trench.barriers) {
+    maxGapShift = Math.max(maxGapShift, Math.abs(barrier.gapX - prevGap));
+    prevGap = barrier.gapX;
+  }
+  assert.ok(
+    maxGapShift <= 220 + 0.001,
+    'consecutive ice gaps should stay within reach of the diver',
+  );
   game.changeScene('cleanup', { solo: true });
   await frames(5);
   assert.equal(game.currentSceneName, 'cleanup', 'cleanup should reopen for the clock check');

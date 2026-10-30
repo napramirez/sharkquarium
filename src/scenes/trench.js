@@ -20,17 +20,21 @@ export class TrenchScene extends MinigameScene {
     this.currents = [];
     this.spawnTimer = 0.9;
     this.driftX = 0;
+    this.lastGapX = LOGICAL_WIDTH / 2;
   }
 
   spawnBarrier() {
-    const gapWidth = 158;
-    const gapX = rand(150, LOGICAL_WIDTH - 150);
+    const gapWidth = TRENCH.gapWidth;
+    let gapX = rand(150, LOGICAL_WIDTH - 150);
+    gapX = clamp(gapX, this.lastGapX - TRENCH.maxGapShift, this.lastGapX + TRENCH.maxGapShift);
+    gapX = clamp(gapX, 150, LOGICAL_WIDTH - 150);
+    this.lastGapX = gapX;
     const left = gapX - gapWidth / 2;
     const right = gapX + gapWidth / 2;
     const parts = [];
     if (left > 0) parts.push({ x: 0, y: -90, w: left, h: 48 });
     if (right < LOGICAL_WIDTH) parts.push({ x: right, y: -90, w: LOGICAL_WIDTH - right, h: 48 });
-    const barrier = { parts, y: -90, hit: false };
+    const barrier = { parts, y: -90, hit: false, gapX };
     this.barriers.push(barrier);
     if (Math.random() < TRENCH.pearlChance) {
       this.collectibles.push({ x: gapX, y: -60, taken: false, phase: rand(0, 6) });

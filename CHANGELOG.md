@@ -131,7 +131,8 @@ Commits `7c7d0ea` (Oct 23), `fc9f6cd` and `99bf87a` (Oct 25), and the Oct 26 fea
   entry from the MINIGAMES menu: PUFFER BALL (2P or vs CPU, first to three goals), SCHOOL
   ROUNDUP (herd fleeing schools into the net), JELLY ASCENT (pulse-bounce up a ring
   shaft), STEALTH DIVE (slip past seal vision cones), REEF CLEANUP (nudge wreckage past
-  morays into the recycle net), and TRENCH DIVE (thread ice on a timed descent), all
+  morays into the recycle net), and TRENCH DIVE (thread ice on a timed descent — its ice
+  gaps stay within a diver's reach so the run is always winnable), all
   sharing a common minigame scaffold and paying their usual finish/win coins.
 - **Kelp Forest and reef content** — the kelp crab player and stun-the-octopus boss,
   reef corals and boulders, the purely cosmetic colorful school, and the tank chain

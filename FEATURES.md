@@ -1354,7 +1354,9 @@ The six arcade games (tickets in the payouts note below):
   their long bodies out, bite, and retreat from the floor; there is **no clock at all**
   — the HUD counts `RECYCLED n/8` and the round ends when the target is recycled.
 - TRENCH DIVE — a 60-second descent through scrolling ice barriers, gold pearls, pushing
-  currents, and bands of black water; three crunches and the trench keeps you.
+  currents, and bands of black water; three crunches and the trench keeps you. Each ice
+  wall's gap is placed within a diver's reach of the last one (`maxGapShift`), so the run
+  is always threadable — hard, but never a wall you cannot cross.
 
 Minigames pay sea coins — 30 for finishing plus a 60-coin win bonus (the race isn't a
 tie or beats its solo target, a CPU is still it in tag, dodgeball isn't a double KO,

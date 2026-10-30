@@ -385,6 +385,8 @@ export const TRENCH = {
   goalDepth: 900,
   iceMin: 0.9,
   iceMax: 1.7,
+  gapWidth: 158,
+  maxGapShift: 220,
   pearlChance: 0.55,
   currentWidth: 190,
   currentPush: 130,

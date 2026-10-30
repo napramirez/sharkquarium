@@ -201,7 +201,9 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   kelp crab) sneaks past three patrolling seals with vision cones and rock cover,
   respawning at checkpoints on three spot-outs; `TrenchScene` (`trench`, solo) is a
   60-second descent through scrolling ice barriers, gold pearls, currents, and dark
-  bands with three hits; `JellyAscentScene` (`jellyascent`, solo) pulse-bounces a moon
+  bands with three hits; `spawnBarrier()` clamps each wall's `gapWidth` opening to within
+  `maxGapShift` (220 px) of the last one, so the diver can always reach the next gap and
+  the run is winnable rather than a random dead end; `JellyAscentScene` (`jellyascent`, solo) pulse-bounces a moon
   jelly up a scrolling shaft of ring gaps and updrafts; and `CleanupScene` (`cleanup`,
   solo or co-op) nudges floating wreckage into the recycle net while three moray holes
   lunge, its HUD keeping the `RECYCLED n/target` counter and running with no clock at

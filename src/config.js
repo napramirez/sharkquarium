@@ -260,6 +260,10 @@ export const ACCESSORIES = [
   { key: 'eelscarf', label: 'EEL SCARF', cost: 140, slot: 'body' },
   { key: 'angelwings', label: 'ANGEL WINGS', cost: 220, slot: 'body' },
   { key: 'stingrayhat', label: 'STINGRAY HAT', cost: 160, slot: 'head' },
+  { key: 'sharkfin', label: 'SHARK FIN DISH', cost: 130, slot: 'costume' },
+  { key: 'sambalstingray', label: 'SAMBAL STINGRAY', cost: 150, slot: 'costume' },
+  { key: 'grilledsquid', label: 'GRILLED SQUID', cost: 120, slot: 'costume' },
+  { key: 'prawncrackers', label: 'PRAWN CRACKERS', cost: 100, slot: 'costume' },
 ];
 
 export const AURAS = [

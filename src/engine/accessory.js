@@ -7,6 +7,7 @@ const NONE = catalog.get('none');
 
 let activeHead = NONE;
 let activeBody = NONE;
+let activeCostume = NONE;
 
 export function accessoryByKey(key) {
   return catalog.get(key) ?? NONE;
@@ -26,6 +27,10 @@ export function setActiveHeadAccessory(accessory) {
 
 export function setActiveBodyAccessory(accessory) {
   activeBody = accessory && accessory.key !== 'none' ? accessory : NONE;
+}
+
+export function setActiveCostume(accessory) {
+  activeCostume = accessory && accessory.key !== 'none' ? accessory : NONE;
 }
 
 function drawNeonJacket(ctx, rx, ry, time) {
@@ -461,12 +466,225 @@ function renderAccessory(ctx, key, r, time, frame) {
   }
 }
 
+function drawDish(ctx, r) {
+  ctx.fillStyle = '#e9eff3';
+  ctx.beginPath();
+  ctx.ellipse(0, r * 0.16, r * 1.5, r * 1.02, 0, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(120, 140, 155, 0.55)';
+  ctx.lineWidth = r * 0.1;
+  ctx.stroke();
+  ctx.fillStyle = 'rgba(184, 202, 214, 0.5)';
+  ctx.beginPath();
+  ctx.ellipse(0, r * 0.16, r * 1.16, r * 0.74, 0, 0, TAU);
+  ctx.fill();
+}
+
+function drawSharkFinDish(ctx, r, time) {
+  drawDish(ctx, r);
+  const bob = Math.sin(time * 2.2) * r * 0.03;
+  ctx.save();
+  ctx.translate(0, bob);
+  ctx.fillStyle = '#5b6b78';
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.15, r * 0.55);
+  ctx.quadraticCurveTo(-r * 0.05, -r * 1.15, r * 1.0, -r * 0.35);
+  ctx.quadraticCurveTo(r * 0.25, r * 0.1, r * 0.55, r * 0.6);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#3f4c56';
+  ctx.lineWidth = r * 0.06;
+  ctx.stroke();
+  ctx.fillStyle = '#9fb0bb';
+  ctx.beginPath();
+  ctx.moveTo(r * 0.15, r * 0.45);
+  ctx.quadraticCurveTo(r * 0.4, -r * 0.2, r * 0.86, -r * 0.28);
+  ctx.quadraticCurveTo(r * 0.45, r * 0.16, r * 0.42, r * 0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(200, 150, 90, 0.85)';
+  ctx.lineWidth = r * 0.07;
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.9, r * 0.5);
+  ctx.quadraticCurveTo(-r * 0.2, r * 0.66, r * 0.7, r * 0.42);
+  ctx.stroke();
+  ctx.strokeStyle = '#7bbf5a';
+  ctx.lineWidth = r * 0.06;
+  for (let i = -2; i <= 2; i += 1) {
+    ctx.beginPath();
+    ctx.moveTo(i * r * 0.35, r * 0.72);
+    ctx.lineTo(i * r * 0.35 + r * 0.12, r * 0.42);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawSambalStingray(ctx, r, time) {
+  drawDish(ctx, r);
+  ctx.fillStyle = '#3f7d43';
+  ctx.beginPath();
+  ctx.ellipse(0, r * 0.2, r * 1.28, r * 0.86, 0.1, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(30, 60, 30, 0.5)';
+  ctx.lineWidth = r * 0.05;
+  ctx.stroke();
+  const flick = Math.sin(time * 3) * r * 0.04;
+  ctx.save();
+  ctx.translate(0, flick);
+  ctx.fillStyle = '#c0392b';
+  ctx.beginPath();
+  ctx.moveTo(-r * 1.05, r * 0.16);
+  ctx.quadraticCurveTo(-r * 0.1, -r * 0.85, r * 0.95, r * 0.02);
+  ctx.quadraticCurveTo(-r * 0.1, r * 0.95, -r * 1.05, r * 0.16);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#8e1f16';
+  ctx.lineWidth = r * 0.07;
+  ctx.stroke();
+  ctx.strokeStyle = '#e2603f';
+  ctx.lineWidth = r * 0.09;
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.75, r * 0.08);
+  ctx.quadraticCurveTo(-r * 0.05, -r * 0.5, r * 0.7, -r * 0.02);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.72, r * 0.28);
+  ctx.quadraticCurveTo(-r * 0.05, r * 0.6, r * 0.66, r * 0.22);
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(40, 12, 8, 0.6)';
+  ctx.lineWidth = r * 0.045;
+  for (let i = -2; i <= 2; i += 1) {
+    ctx.beginPath();
+    ctx.moveTo(i * r * 0.28, -r * 0.3);
+    ctx.lineTo(i * r * 0.2, r * 0.4);
+    ctx.stroke();
+  }
+  ctx.restore();
+  ctx.fillStyle = '#cde975';
+  ctx.beginPath();
+  ctx.moveTo(r * 0.7, -r * 0.6);
+  ctx.arc(r * 0.7, -r * 0.6, r * 0.34, -0.6, 1.4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#8fbf3a';
+  ctx.lineWidth = r * 0.05;
+  ctx.stroke();
+}
+
+function drawGrilledSquid(ctx, r, time) {
+  ctx.save();
+  ctx.rotate(-0.35);
+  ctx.strokeStyle = '#c9a06a';
+  ctx.lineWidth = r * 0.16;
+  ctx.beginPath();
+  ctx.moveTo(0, -r * 1.55);
+  ctx.lineTo(0, r * 1.5);
+  ctx.stroke();
+  ctx.fillStyle = '#d98a5a';
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.62, -r * 1.1);
+  ctx.lineTo(r * 0.62, -r * 1.1);
+  ctx.lineTo(r * 0.5, r * 0.5);
+  ctx.quadraticCurveTo(0, r * 0.72, -r * 0.5, r * 0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#a85f33';
+  ctx.lineWidth = r * 0.07;
+  ctx.stroke();
+  ctx.strokeStyle = 'rgba(70, 34, 14, 0.75)';
+  ctx.lineWidth = r * 0.08;
+  for (let i = -1; i <= 1; i += 1) {
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.5, i * r * 0.5);
+    ctx.lineTo(r * 0.5, i * r * 0.5 + r * 0.08);
+    ctx.stroke();
+  }
+  const tentacle = Math.sin(time * 3.4) * r * 0.06;
+  ctx.strokeStyle = '#d98a5a';
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 5; i += 1) {
+    const x = (i - 2) * r * 0.26;
+    ctx.lineWidth = r * 0.16;
+    ctx.beginPath();
+    ctx.moveTo(x, r * 0.5);
+    ctx.quadraticCurveTo(x + tentacle, r * 1.05, x - tentacle, r * 1.45);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawPrawnCrackers(ctx, r, time) {
+  ctx.fillStyle = 'rgba(244, 205, 214, 0.92)';
+  ctx.beginPath();
+  ctx.moveTo(-r * 1.1, r * 0.9);
+  ctx.lineTo(-r * 0.85, -r * 0.4);
+  ctx.lineTo(-r * 0.55, -r * 0.05);
+  ctx.lineTo(-r * 0.25, -r * 0.45);
+  ctx.lineTo(0.05 * r, -r * 0.1);
+  ctx.lineTo(r * 0.4, -r * 0.5);
+  ctx.lineTo(r * 0.7, -r * 0.05);
+  ctx.lineTo(r * 1.05, -r * 0.45);
+  ctx.lineTo(r * 1.15, r * 0.9);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(200, 130, 150, 0.7)';
+  ctx.lineWidth = r * 0.06;
+  ctx.stroke();
+  ctx.fillStyle = '#e0738f';
+  ctx.fillRect(-r * 0.95, -r * 0.15, r * 1.9, r * 0.5);
+  ctx.fillStyle = '#fff3f6';
+  ctx.font = `${Math.max(6, r * 0.34)}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('PRAWN', 0, r * 0.1);
+  const puff = Math.sin(time * 2.6) * r * 0.05;
+  const crackers = [
+    [-r * 0.55, -r * 0.85, -0.5],
+    [-r * 0.05, -r * 1.1, 0.1],
+    [r * 0.5, -r * 0.9, 0.5],
+  ];
+  for (const [cx, cy, tilt] of crackers) {
+    ctx.save();
+    ctx.translate(cx, cy + puff);
+    ctx.rotate(tilt);
+    ctx.fillStyle = '#f6e6c4';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 0.42, r * 0.34, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = '#d9bd88';
+    ctx.lineWidth = r * 0.05;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(226, 120, 140, 0.8)';
+    for (let i = 0; i < 4; i += 1) {
+      ctx.beginPath();
+      ctx.arc(
+        Math.cos(i * 1.7) * r * 0.2,
+        Math.sin(i * 1.7) * r * 0.16,
+        r * 0.06,
+        0,
+        TAU,
+      );
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+}
+
+function renderCostume(ctx, key, r, time) {
+  if (key === 'sharkfin') drawSharkFinDish(ctx, r, time);
+  else if (key === 'sambalstingray') drawSambalStingray(ctx, r, time);
+  else if (key === 'grilledsquid') drawGrilledSquid(ctx, r, time);
+  else if (key === 'prawncrackers') drawPrawnCrackers(ctx, r, time);
+}
+
 function renderSlot(ctx, radius, time, frame, slot) {
-  const active = slot === 'head' ? activeHead : activeBody;
+  const active = slot === 'head' ? activeHead : slot === 'costume' ? activeCostume : activeBody;
   if (!active || active.key === 'none') return;
   ctx.save();
   if (active.key.startsWith('plush')) {
     drawPlushie(ctx, active.key, radius, time, frame);
+  } else if (slot === 'costume') {
+    renderCostume(ctx, active.key, radius, time);
   } else {
     renderAccessory(ctx, active.key, radius, time, frame);
   }
@@ -476,4 +694,5 @@ function renderSlot(ctx, radius, time, frame, slot) {
 export function drawAccessory(ctx, radius, time, frame = {}) {
   renderSlot(ctx, radius, time, frame, 'body');
   renderSlot(ctx, radius, time, frame, 'head');
+  renderSlot(ctx, radius, time, frame, 'costume');
 }

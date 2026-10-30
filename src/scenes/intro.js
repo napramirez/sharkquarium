@@ -7,7 +7,7 @@ import { MENU_TRACK } from '../assets/tracks.js';
 import { clamp, rand } from '../engine/math.js';
 import { drawSkinAura, setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
 import { auraForShop, setActiveAura } from '../engine/aura.js';
-import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
+import { accessoryByKey, setActiveBodyAccessory, setActiveCostume, setActiveHeadAccessory } from '../engine/accessory.js';
 import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
 import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
 import {
@@ -34,6 +34,7 @@ export class IntroScene extends Scene {
     this.skin = skinByKey(shop.skin);
     this.head = accessoryByKey(shop.head);
     this.back = accessoryByKey(shop.back);
+    this.costume = accessoryByKey(shop.costume);
     this.trail = trailByKey(shop.trail);
     this.companion = companionByKey(shop.companion);
     this.shark = new Shark(LOGICAL_WIDTH * 0.5, LOGICAL_HEIGHT * 0.7);
@@ -85,6 +86,7 @@ export class IntroScene extends Scene {
     setSkinClock(this.time);
     setActiveHeadAccessory(this.head);
     setActiveBodyAccessory(this.back);
+    setActiveCostume(this.costume);
     setActiveTrail(this.trail);
     setActiveCompanion(this.companion);
     this.shark.render(ctx);

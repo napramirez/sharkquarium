@@ -54,6 +54,10 @@ Commits `7c7d0ea` (Oct 23), `fc9f6cd` and `99bf87a` (Oct 25), and the Oct 26 fea
   matching the tank eels, and the MINI MEGASQUID redrawing the labyrinth boss; separate HEAD and BODY trinket slots plus the aura slot; new coin trinkets
   including the stingray hat; and the SHADOW white eyes on the shrimp, stingray, and
   nautilus.
+- **Costumes** — a new COSTUMES row in the shop turns a diver into a dish: SHARK FIN
+  DISH, SAMBAL STINGRAY, GRILLED SQUID, and PRAWN CRACKERS, each a whole-body food drawn
+  over the creature in every tank, the menu, the cutscenes, and the shop preview, with its
+  own `costume` equip slot and per-player `costume2`.
 - **2P wardrobe** — a PLAYER row in the shop dresses each diver separately: one can wear
   SUNSET ORANGE while the other wears RED, and colors, trinkets, trails, buddies, and
   auras all keep a per-player slot (`skin2`, `head2`, …) while purchases stay shared; the

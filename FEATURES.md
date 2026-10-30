@@ -1109,6 +1109,14 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   and eleven stitched button-eyed plushies with dark fabric outlines.
   Trinkets ride on the creature in every tank, on the menu shark, and in the shop
   preview; old saves with a single `accessory` migrate into their slot automatically.
+- **COSTUMES** — a third equip slot turns a diver into a dish: **SHARK FIN DISH** 130 (a
+  white plate holding a gray fin with a sauce drizzle and green onion), **SAMBAL
+  STINGRAY** 150 (a banana-leaf plate with a sambal-coated ray and a lime wedge),
+  **GRILLED SQUID** 120 (a char-striped squid threaded on a skewer with waving
+  tentacles), and **PRAWN CRACKERS** 100 (a pink bag of speckled crackers). The dish is
+  drawn over the whole creature in every tank, on the menu shark, the cutscenes, and the
+  shop preview; Left/Right browses the COSTUMES row and Enter buys and wears the dish, or
+  wears an owned one for free (NONE takes it off).
 - TRAIL — a separate equip slot for swim wakes, browsed on the TRAIL row with its
   PLAYPASS 7 catalog: **BUBBLE STREAM** (wobbling bubbles), **STARDUST** (twinkling
   gold sparks), **INK PUFF** (dark spreading clouds), **ELECTRIC CRACKLE** (three-layer

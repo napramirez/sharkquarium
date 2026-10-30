@@ -15,6 +15,7 @@ import {
   accessoryByKey,
   accessorySlotCatalog,
   setActiveBodyAccessory,
+  setActiveCostume,
   setActiveHeadAccessory,
 } from '../engine/accessory.js';
 import { Shark } from '../entities/shark.js';
@@ -249,12 +250,14 @@ export class TrailerScene extends Scene {
     this.baseSkin = skinByKey(shop.skin);
     this.baseHead = accessoryByKey(shop.head);
     this.baseBody = accessoryByKey(shop.back);
+    this.baseCostume = accessoryByKey(shop.costume);
     this.baseTrail = trailByKey(shop.trail);
     this.baseCompanion = companionByKey(shop.companion);
     this.baseAura = auraByKey(shop.aura);
     this.activeSkin = this.baseSkin;
     this.activeHead = this.baseHead;
     this.activeBody = this.baseBody;
+    this.activeCostume = this.baseCostume;
     this.activeTrail = this.baseTrail;
     this.activeCompanion = this.baseCompanion;
     this.activeAura = this.baseAura;
@@ -1108,6 +1111,7 @@ export class TrailerScene extends Scene {
     this.activeSkin = this.baseSkin;
     this.activeHead = this.baseHead;
     this.activeBody = this.baseBody;
+    this.activeCostume = this.baseCostume;
     this.activeTrail = this.baseTrail;
     this.activeCompanion = this.baseCompanion;
     this.activeAura = this.baseAura;
@@ -1228,6 +1232,7 @@ export class TrailerScene extends Scene {
     setSkinClock(this.time);
     setActiveHeadAccessory(this.activeHead);
     setActiveBodyAccessory(this.activeBody);
+    setActiveCostume(this.activeCostume);
     setActiveTrail(this.activeTrail);
     setActiveCompanion(this.activeCompanion);
     setActiveAura(this.activeAura);

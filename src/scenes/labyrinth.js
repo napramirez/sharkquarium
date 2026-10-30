@@ -27,7 +27,7 @@ import { ParticleSystem } from '../engine/particles.js';
 import { setActiveSkin, setSkinClock, skinByKey, drawSkinAura } from '../engine/skin.js';
 import { auraForShop, setActiveAura } from '../engine/aura.js';
 import { applyWardrobe } from '../engine/wardrobe.js';
-import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
+import { accessoryByKey, setActiveBodyAccessory, setActiveCostume, setActiveHeadAccessory } from '../engine/accessory.js';
 import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
 import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
@@ -84,6 +84,7 @@ export class LabyrinthScene extends Scene {
     this.skin = skinByKey(shop.skin);
     this.head = accessoryByKey(shop.head);
     this.back = accessoryByKey(shop.back);
+    this.costume = accessoryByKey(shop.costume);
     this.trail = trailByKey(shop.trail);
     this.companion = companionByKey(shop.companion);
     const saved = loadJSON(LABYRINTH_KEY, { part: 1 });
@@ -2016,6 +2017,7 @@ export class LabyrinthScene extends Scene {
     setSkinClock(this.time);
     setActiveHeadAccessory(this.head);
     setActiveBodyAccessory(this.back);
+    setActiveCostume(this.costume);
     setActiveTrail(this.trail);
     setActiveCompanion(this.companion);
     if (this.phase === 'select') {

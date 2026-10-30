@@ -2022,8 +2022,8 @@ async function main() {
   assert.equal(game.currentSceneName, 'shop', 'the menu should open the shop');
   assert.equal(
     shop.menu.items.length,
-    10,
-    'the shop should list color, creature, head, body, trail, dive buddies, aura, playpass, player, and back',
+    11,
+    'the shop should list color, creature, head, body, trail, dive buddies, aura, playpass, player, costumes, and back',
   );
   assert.equal(
     shop.menu.items[5].label,
@@ -2031,6 +2031,7 @@ async function main() {
     'the buddy row should be named DIVE BUDDIES',
   );
   assert.equal(shop.menu.items[8].label, 'PLAYER', 'the player row should be named PLAYER');
+  assert.equal(shop.menu.items[9].label, 'COSTUMES', 'the costume row should sit before BACK');
   assert.equal(shop.coins, 100, 'the shop should read the banked sea coins');
   assert.equal(shop.skin.key, 'natural', 'the shop should start on the equipped color');
   assert.equal(shop.head.key, 'none', 'no head trinket should be worn by default');
@@ -2476,6 +2477,35 @@ async function main() {
     'none',
     'the detached aura should persist',
   );
+  assert.equal(shop.costume.key, 'none', 'no costume should be worn by default');
+  shop.coins = 1000;
+  for (const [index, key, label] of [
+    [1, 'sharkfin', 'SHARK FIN DISH'],
+    [2, 'sambalstingray', 'SAMBAL STINGRAY'],
+    [3, 'grilledsquid', 'GRILLED SQUID'],
+    [4, 'prawncrackers', 'PRAWN CRACKERS'],
+  ]) {
+    shop.costumeIndex = index;
+    assert.equal(shop.costume.key, key, `the costume catalog should include ${label}`);
+  }
+  shop.costumeIndex = 1;
+  const finCost = shop.costume.cost;
+  shop.buyOrEquipOption('costume');
+  assert.equal(shop.shop.costume, 'sharkfin', 'a costume should equip on purchase');
+  assert.equal(shop.coins, 1000 - finCost, 'the costume should cost its price');
+  assert.ok(
+    JSON.parse(storage.get('sharkquarium.shop')).accessories.includes('sharkfin'),
+    'the bought costume should persist in the collection',
+  );
+  shop.costumeIndex = 0;
+  shop.buyOrEquipOption('costume');
+  assert.equal(shop.shop.costume, 'none', 'NONE should take the costume off');
+  shop.costumeIndex = 1;
+  shop.buyOrEquipOption('costume');
+  assert.equal(shop.shop.costume, 'sharkfin', 're-wearing an owned costume should be free');
+  assert.equal(shop.coins, 1000 - finCost, 're-wearing a costume should not charge');
+  shop.costumeIndex = 0;
+  shop.buyOrEquipOption('costume');
   await tapKey('ArrowDown');
   assert.equal(shop.menu.selected.action, 'pass', 'the pass row should return after the aura');
   await tapKey('ArrowDown');

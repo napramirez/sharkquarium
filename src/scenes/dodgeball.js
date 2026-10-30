@@ -14,7 +14,7 @@ import { Pufferfish } from '../entities/pufferfish.js';
 import { setActiveSkin, setSkinClock, skinByKey, drawSkinAura } from '../engine/skin.js';
 import { auraForShop, setActiveAura } from '../engine/aura.js';
 import { applyWardrobe } from '../engine/wardrobe.js';
-import { accessoryByKey, setActiveBodyAccessory, setActiveHeadAccessory } from '../engine/accessory.js';
+import { accessoryByKey, setActiveBodyAccessory, setActiveCostume, setActiveHeadAccessory } from '../engine/accessory.js';
 import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/companion.js';
 import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
 import { circleOverlap } from '../engine/collision.js';
@@ -45,6 +45,7 @@ export class DodgeballScene extends Scene {
     this.skin = skinByKey(shop.skin);
     this.head = accessoryByKey(shop.head);
     this.back = accessoryByKey(shop.back);
+    this.costume = accessoryByKey(shop.costume);
     this.trail = trailByKey(shop.trail);
     this.companion = companionByKey(shop.companion);
     this.resultsMenu = new SelectList(
@@ -229,6 +230,7 @@ export class DodgeballScene extends Scene {
     setSkinClock(this.time);
     setActiveHeadAccessory(this.head);
     setActiveBodyAccessory(this.back);
+    setActiveCostume(this.costume);
     setActiveTrail(this.trail);
     setActiveCompanion(this.companion);
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);

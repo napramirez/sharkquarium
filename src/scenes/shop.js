@@ -15,6 +15,7 @@ import {
   accessoryByKey,
   accessorySlotCatalog,
   setActiveBodyAccessory,
+  setActiveCostume,
   setActiveHeadAccessory,
 } from '../engine/accessory.js';
 import { drawTrail, setActiveTrail, trailByKey, trailCatalog } from '../engine/trail.js';
@@ -64,6 +65,14 @@ const SLOTS = {
     title: 'BODY',
     noun: 'BODY ITEM',
   },
+  costume: {
+    field: 'costume',
+    index: 'costumeIndex',
+    list: 'accessories',
+    catalog: () => accessorySlotCatalog('costume'),
+    title: 'COSTUMES',
+    noun: 'COSTUME',
+  },
   trail: {
     field: 'trail',
     index: 'trailIndex',
@@ -111,10 +120,11 @@ export class ShopScene extends Scene {
       back,
       trail: raw.trail ?? 'none',
       companion: raw.companion ?? 'none',
+      costume: raw.costume ?? 'none',
     };
     delete this.shop.accessory;
     this.shop.aura = auraForShop(raw).key;
-    for (const key of ['skin', 'head', 'back', 'trail', 'companion', 'aura']) {
+    for (const key of ['skin', 'head', 'back', 'costume', 'trail', 'companion', 'aura']) {
       this.shop[`${key}2`] = raw[`${key}2`] ?? this.shop[key];
     }
     this.playerIndex = 0;
@@ -122,6 +132,7 @@ export class ShopScene extends Scene {
     this.passIndex = 0;
     this.headIndex = this.indexFor(SLOTS.head.catalog, this.shop.head);
     this.backIndex = this.indexFor(SLOTS.body.catalog, this.shop.back);
+    this.costumeIndex = this.indexFor(SLOTS.costume.catalog, this.shop.costume);
     this.trailIndex = this.indexFor(trailCatalog, this.shop.trail);
     this.companionIndex = this.indexFor(companionCatalog, this.shop.companion);
     this.auraIndex = this.indexFor(SLOTS.aura.catalog, this.shop.aura);
@@ -140,6 +151,7 @@ export class ShopScene extends Scene {
         { label: 'AURA', action: 'aura' },
         { label: 'PLAYPASS', action: 'pass' },
         { label: 'PLAYER', action: 'player' },
+        { label: 'COSTUMES', action: 'costume' },
         { label: 'BACK', action: 'back' },
       ],
       {
@@ -173,6 +185,7 @@ export class ShopScene extends Scene {
     this.skinIndex = this.indexFor(skinCatalog, this.shop[`skin${pair}`]);
     this.headIndex = this.indexFor(SLOTS.head.catalog, this.shop[`head${pair}`]);
     this.backIndex = this.indexFor(SLOTS.body.catalog, this.shop[`back${pair}`]);
+    this.costumeIndex = this.indexFor(SLOTS.costume.catalog, this.shop[`costume${pair}`]);
     this.trailIndex = this.indexFor(trailCatalog, this.shop[`trail${pair}`]);
     this.companionIndex = this.indexFor(companionCatalog, this.shop[`companion${pair}`]);
     this.auraIndex = this.indexFor(SLOTS.aura.catalog, this.shop[`aura${pair}`]);
@@ -201,6 +214,10 @@ export class ShopScene extends Scene {
     return SLOTS.body.catalog()[this.backIndex];
   }
 
+  get costume() {
+    return SLOTS.costume.catalog()[this.costumeIndex];
+  }
+
   get trail() {
     return trailCatalog()[this.trailIndex];
   }
@@ -220,6 +237,7 @@ export class ShopScene extends Scene {
   option(kind) {
     if (kind === 'head') return this.head;
     if (kind === 'body') return this.back;
+    if (kind === 'costume') return this.costume;
     if (kind === 'trail') return this.trail;
     if (kind === 'companion') return this.companion;
     return this.aura;
@@ -250,7 +268,7 @@ export class ShopScene extends Scene {
 
   ownsOption(kind, key) {
     const option = SLOTS[kind];
-    if (kind === 'head' || kind === 'body') return this.ownsAccessory(key);
+    if (option.list === 'accessories') return this.ownsAccessory(key);
     return this.shop[option.list].includes(key) || this.passGranted(option.list).includes(key);
   }
 
@@ -319,6 +337,7 @@ export class ShopScene extends Scene {
     const pair = this.playerIndex === 1 ? '2' : '';
     setActiveHeadAccessory(accessoryByKey(this.shop[`head${pair}`]));
     setActiveBodyAccessory(accessoryByKey(this.shop[`back${pair}`]));
+    setActiveCostume(accessoryByKey(this.shop[`costume${pair}`]));
     setActiveTrail(trailByKey(this.shop[`trail${pair}`]));
     setActiveCompanion(companionByKey(this.shop[`companion${pair}`]));
     setActiveAura(auraByKey(this.shop[`aura${pair}`]));
@@ -592,6 +611,7 @@ export class ShopScene extends Scene {
       `AURA: ${auraByKey(this.shop[`aura${pair}`]).label}`,
       this.ownsPass(pass.key) ? `${pass.label} — OWNED` : `${pass.label} — ${pass.cost}`,
       `EDITING P${this.playerIndex + 1}`,
+      `COSTUME: ${accessoryByKey(this.shop[`costume${pair}`]).label}`,
     ];
     values.forEach((value, index) => {
       drawText(ctx, value, 620, top + this.menu.spacing * index, {
@@ -682,12 +702,17 @@ export class ShopScene extends Scene {
       color: COLORS.textDim,
       alpha: 0.9,
     });
-    drawText(ctx, 'TRINKETS, TRAIL, BUDDY, AND AURA', 790, 318, {
+    drawText(ctx, 'TRINKETS, COSTUME, TRAIL, BUDDY,', 790, 318, {
       size: 11,
       color: COLORS.textDim,
       alpha: 0.9,
     });
-    drawText(ctx, 'PURCHASES UNLOCK FOR BOTH PLAYERS', 790, 344, {
+    drawText(ctx, 'AND AURA', 790, 334, {
+      size: 11,
+      color: COLORS.textDim,
+      alpha: 0.9,
+    });
+    drawText(ctx, 'PURCHASES UNLOCK FOR BOTH PLAYERS', 790, 358, {
       size: 11,
       color: COLORS.foam,
       alpha: 0.85,
@@ -720,6 +745,7 @@ export class ShopScene extends Scene {
     this.applyEquipped();
     if (kind === 'head') setActiveHeadAccessory(item);
     else if (kind === 'body') setActiveBodyAccessory(item);
+    else if (kind === 'costume') setActiveCostume(item);
     else if (kind === 'trail') setActiveTrail(item);
     else if (kind === 'companion') setActiveCompanion(item);
     else setActiveAura(item);

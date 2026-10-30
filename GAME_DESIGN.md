@@ -64,11 +64,14 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   aquarium window, and ENTER returns to the menu.
 - `ShopScene` (`shop`) sells character colors, coin trinkets, and nine playpasses
   (1200 each, browsed with Left/Right). Its menu rows are COLOR, CREATURE, HEAD, BODY,
-  TRAIL, DIVE BUDDIES, AURA, PLAYPASS, PLAYER, and BACK: HEAD/BODY split `ACCESSORIES` by their
-  `slot` tag into two independent equip slots (a hat combines with a plushie), while
+  TRAIL, DIVE BUDDIES, AURA, PLAYPASS, PLAYER, COSTUMES, and BACK: HEAD/BODY split
+  `ACCESSORIES` by their `slot` tag into two independent equip slots (a hat combines with
+  a plushie), the COSTUMES row adds a third `costume` slot whose four dish items
+  (`renderCostume()`: SHARK FIN DISH, SAMBAL STINGRAY, GRILLED SQUID, PRAWN CRACKERS)
+  draw a whole-body dish over the diver, while
   TRAIL, DIVE BUDDIES, and AURA browse `TRAILS`/`COMPANIONS`/`AURAS`. The PLAYER row
   switches the wardrobe between P1 and P2: every equip applies to the active player's
-  `*2` slot pair (`skin2`, `head2`, `back2`, `trail2`, `companion2`, `aura2`, each
+  `*2` slot pair (`skin2`, `head2`, `back2`, `costume2`, `trail2`, `companion2`, `aura2`, each
   defaulting to its P1 value on old saves) while purchases stay shared, so one diver can
   wear SUNSET ORANGE while the other wears RED and both sets follow them into co-op
   scenes. Pass 1 unlocks

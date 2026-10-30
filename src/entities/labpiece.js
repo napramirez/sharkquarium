@@ -1,4 +1,5 @@
 import { LOGICAL_HEIGHT, COLORS, AQUARIUM } from '../config.js';
+import { drawShadowedPlanks } from '../engine/render.js';
 
 export class LabPiece {
   constructor(kind, x, y) {
@@ -106,18 +107,18 @@ export class LabPiece {
       }
     }
     for (const tunnel of this.tunnels) {
-      ctx.fillStyle = '#05070a';
+      const cx = tunnel.x + tunnel.w / 2;
+      const cy = tunnel.y + tunnel.h / 2;
+      const rx = (tunnel.w - 12) / 2;
+      const ry = tunnel.h / 2;
+      ctx.save();
       ctx.beginPath();
-      ctx.ellipse(
-        tunnel.x + tunnel.w / 2,
-        tunnel.y + tunnel.h / 2,
-        (tunnel.w - 12) / 2,
-        tunnel.h / 2,
-        0,
-        0,
-        Math.PI * 2,
-      );
-      ctx.fill();
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+      ctx.clip();
+      drawShadowedPlanks(ctx, cx - rx, cy - ry, rx * 2, ry * 2);
+      ctx.restore();
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
       ctx.strokeStyle = COLORS.wreckWoodDark;
       ctx.lineWidth = 5;
       ctx.stroke();

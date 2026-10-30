@@ -72,7 +72,10 @@ Commits `7c7d0ea` (Oct 23), `fc9f6cd` and `99bf87a` (Oct 25), and the Oct 26 fea
   supports, floor cracks, and ceiling beams) that persists, regenerates from its seed,
   and is solid to the DIVE AS diver; the mode also adds nine hand-placed wreck pieces to
   the palette (walls, rising walls, holed walls, stubs, a cracked support, and TENTACLE
-  CRACK/BEAM bursters that spear out, fling planks, and knock the diver back). Plus
+  CRACK/BEAM bursters that spear out, fling planks, and knock the diver back) — the holed
+  walls' tunnel openings (and the wreck's own hull tunnels) are filled with the wall's
+  plank grain a shade darker instead of a flat black void, and the diver still swims
+  straight through. Plus
   ceiling ambushes for the labyrinth itself, whose tentacles spear straight down from the
   planks.
 - **Pets tank play** — moods and tastes (favorite critters fill a pet completely and pop

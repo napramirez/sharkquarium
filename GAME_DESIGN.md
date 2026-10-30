@@ -246,8 +246,10 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   sections of wooden
   gate walls and floor/ceiling stubs (`resolveCircleRect` keeps players out of them),
   carves a hull tunnel through every gate tall enough to hold one
-  (`tunnelHeight`/`tunnelMargin`) — so the tightest passages can always be swum straight
-  through — sprinkles hull ribs,
+  (`tunnelHeight`/`tunnelMargin`; `renderTunnel()` clips the opening with `roundRectClip`
+  and fills it via `drawShadowedPlanks()` — the wall's plank gradient a shade darker, with
+  cross-lines and a barnacle — so the tightest passages can always be swum straight
+  through) — sprinkles hull ribs,
   portholes, barrels, and weeds, and plants a checkpoint mast at every section start. The
   tangle advances each frame at `LABYRINTH.wallSpeed` scaled by course progress and the
   difficulty `enemySpeed` under a `speedCeiling`, after a `LABYRINTH.wallDelay` head start
@@ -411,7 +413,8 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   stingray-tank bite plays. `LABYRINTH MODE: ON/OFF` (persisted beside the items) builds
   a seeded wreck course from `AQUARIUM.labyrinth` via `buildLabyrinth(seed)` — four gate
   walls alternating hanging/floor with `laneGap` lanes (60% of tall spans carve a
-  `tunnelHeight` hull tunnel into two pieces), three alternating stubs, two hanging
+  `tunnelHeight` hull tunnel into two pieces, its opening clipped with `roundRectClip` and
+  filled by `drawShadowedPlanks()` like the hand-placed holed walls), three alternating stubs, two hanging
   cracked supports, three floor crack mounds, and two ceiling beams, laid out past the
   palette. In `DIVE AS` the diver resolves against the wall rects and support columns
   (`resolveCircleRect`) while the decor stays cosmetic to the residents; toggling on
@@ -419,7 +422,10 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `palette()` appends `AQUARIUM.labyrinthKinds`, so the nine wreck pieces can be placed
   by hand as ordinary items: `LabPiece` (`src/entities/labpiece.js`) builds wall/stub/
   support/holed rects from the click point (walls hang or rise as long as the click, holed
-  walls carve a tunnel) and renders the wreck planks, while `LabBurster`
+  walls carve a tunnel) and renders the wreck planks — the tunnel hole is clipped to its
+  ellipse and filled by `drawShadowedPlanks()` (the same plank gradient a shade darker,
+  plus cross-lines and barnacle dots, so it reads as shadowed wood, not a flat black void)
+  but stays out of `rects`, so the diver still swims straight through it — while `LabBurster`
   (`src/entities/labburster.js`) is a warn/burst/cooldown ambush owned by the scene:
   `updateBurster()` warns near a live diver, `burstBurster()` ripples its `Tentacle` arms
   middle-first with the shared curl moment (reusing `LABYRINTH.burstStagger`/

@@ -1,6 +1,6 @@
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
-import { drawWater, drawText, fillCircle, fillRoundRect, strokeRoundRect } from '../engine/render.js';
+import { drawWater, drawText, fillCircle, roundRectClip, strokeRoundRect, drawShadowedPlanks } from '../engine/render.js';
 import { drawJoystick, joystickState } from '../engine/joystick.js';
 import { ParticleSystem } from '../engine/particles.js';
 import { circleOverlap, resolveCircleRect } from '../engine/collision.js';
@@ -679,17 +679,16 @@ export class AquariumScene extends Scene {
       ctx.fill();
     }
     for (const tunnel of maze.tunnels) {
-      fillRoundRect(ctx, tunnel.x + 6, tunnel.y, tunnel.w - 12, tunnel.h, tunnel.h / 2, '#05070a');
-      strokeRoundRect(
-        ctx,
-        tunnel.x + 6,
-        tunnel.y,
-        tunnel.w - 12,
-        tunnel.h,
-        tunnel.h / 2,
-        COLORS.wreckWoodDark,
-        5,
-      );
+      const tx = tunnel.x + 6;
+      const ty = tunnel.y;
+      const tw = tunnel.w - 12;
+      const th = tunnel.h;
+      const tr = th / 2;
+      ctx.save();
+      roundRectClip(ctx, tx, ty, tw, th, tr);
+      drawShadowedPlanks(ctx, tx, ty, tw, th);
+      ctx.restore();
+      strokeRoundRect(ctx, tx, ty, tw, th, tr, COLORS.wreckWoodDark, 5);
     }
     for (const support of maze.supports) {
       const x = support.x - support.w / 2;

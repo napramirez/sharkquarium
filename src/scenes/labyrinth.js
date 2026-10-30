@@ -7,6 +7,8 @@ import {
   strokeCircle,
   fillRoundRect,
   strokeRoundRect,
+  roundRectClip,
+  drawShadowedPlanks,
 } from '../engine/render.js';
 import { clamp, lerp, rand, TAU } from '../engine/math.js';
 import { Shark } from '../entities/shark.js';
@@ -3013,19 +3015,12 @@ export class LabyrinthScene extends Scene {
     if (sx + tunnel.w < -60 || sx > LOGICAL_WIDTH + 60) return;
     const half = tunnel.height / 2;
     const top = tunnel.y - half;
-    fillRoundRect(ctx, sx + 16, top, tunnel.w - 32, tunnel.height, half * 0.9, '#05070a');
     ctx.save();
-    ctx.globalAlpha = 0.55;
-    fillRoundRect(ctx, sx + 30, top + 12, tunnel.w - 60, tunnel.height - 24, half * 0.7, '#123038');
+    roundRectClip(ctx, sx + 16, top, tunnel.w - 32, tunnel.height, half * 0.9);
+    drawShadowedPlanks(ctx, sx + 16, top, tunnel.w - 32, tunnel.height);
     ctx.restore();
     strokeRoundRect(ctx, sx + 16, top, tunnel.w - 32, tunnel.height, half * 0.9, COLORS.wreckWoodDark, 7);
     strokeRoundRect(ctx, sx + 20, top + 4, tunnel.w - 40, tunnel.height - 8, half * 0.8, 'rgba(92, 70, 51, 0.8)', 2);
-    ctx.fillStyle = 'rgba(92, 122, 74, 0.3)';
-    for (let i = 0; i < 3; i += 1) {
-      ctx.beginPath();
-      ctx.ellipse(sx + 40 + ((i * 71) % Math.max(1, tunnel.w - 80)), top + (i === 1 ? tunnel.height : 0), 18, 7, 0, 0, TAU);
-      ctx.fill();
-    }
   }
 
   renderSupports(ctx) {

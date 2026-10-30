@@ -145,7 +145,8 @@ Requirements:
   the gates and supports and threads the tunnels; the maze is cosmetic to the residents).
   The mode also **adds nine wreck pieces to the palette** so the player builds their own
   labyrinth by hand: WRECK WALL (a hanging wall as long as you click), RISING WALL (from
-  the floor up), HOLED WALL / HOLED RISING WALL (with a swimmable tunnel hole where you
+  the floor up), HOLED WALL / HOLED RISING WALL (with a swimmable tunnel hole, shaded in
+  the same plank grain a shade darker than the wall, where you
   click), CEILING STUB and FLOOR STUB, a CRACKED SUPPORT, and two **tentacle bursters** —
   TENTACLE CRACK (a floor mound) and TENTACLE BEAM (a ceiling seam). Placed walls and
   supports are solid in `DIVE AS`; a burster glows when the diver comes near, breaks open
@@ -1286,7 +1287,8 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   under a 300 px/s ceiling, with everything it has swallowed fading to pitch black; seven
   suckered arms lunge out of the tangle at anyone ahead of it, their tips curling into a
   hook as they reach. The wreck's wooden gates weave across the corridor, and tall gates
-  are bored through with dark hull tunnels, so a tight passage always has a swim-through
+  are bored through with hull tunnels — shadowed plank openings, the same wood grain a
+  shade darker than the walls — so a tight passage always has a swim-through
   shortcut.
   Every part opens with a four-second head start: the tangle does not appear or move —
   and cannot grab — while a `TENTACLES IN n` countdown ticks down, so divers get a beat to

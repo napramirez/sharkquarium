@@ -46,6 +46,32 @@ function roundRectPath(ctx, x, y, width, height, radius) {
   ctx.closePath();
 }
 
+export function roundRectClip(ctx, x, y, width, height, radius) {
+  roundRectPath(ctx, x, y, width, height, radius);
+  ctx.clip();
+}
+
+export function drawShadowedPlanks(ctx, x, y, width, height) {
+  const gradient = ctx.createLinearGradient(x, 0, x + width, 0);
+  gradient.addColorStop(0, '#2a2017');
+  gradient.addColorStop(0.5, '#423326');
+  gradient.addColorStop(1, '#2a2017');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(x, y, width, height);
+  ctx.strokeStyle = 'rgba(20, 13, 8, 0.65)';
+  ctx.lineWidth = 2;
+  for (let line = y + 22; line < y + height - 6; line += 40) {
+    ctx.beginPath();
+    ctx.moveTo(x + 2, line);
+    ctx.lineTo(x + width - 2, line);
+    ctx.stroke();
+  }
+  ctx.fillStyle = 'rgba(92, 122, 74, 0.25)';
+  ctx.beginPath();
+  ctx.ellipse(x + width * 0.4, y + 12, 18, 7, 0, 0, TAU);
+  ctx.fill();
+}
+
 export function drawText(ctx, text, x, y, options = {}) {
   const {
     size = 24,

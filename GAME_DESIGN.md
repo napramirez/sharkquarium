@@ -26,7 +26,9 @@ helpers), `selectlist.js` (navigable list widget), `joystick.js` (on-screen thum
 `skin.js` (shop color catalog and player recoloring), `accessory.js` (shop trinkets
 rendered onto the creatures, routed through `plushie.js` for the ragdoll plushie pack),
 `trail.js` (per-entity swim wakes), `companion.js` (per-entity follower pals),
-`aura.js` (per-entity orbiting rings — creature, weapon, neon, and bubble auras) and
+`aura.js` (per-entity orbiting rings — creature, weapon, neon, and bubble auras; the
+karambit reads `palette.key` so NATURAL wears a silver blade with a gold loop, RED a
+pure-red blade and loop, and SHADOW a blade pulsing pure red to pure black) and
 `wardrobe.js` (`applyWardrobe(shop, player)` switches every cosmetic module to P1's or
 P2's saved set for co-op rendering),
 `progress.js` (minigame rewards and counters), `math.js`, `collision.js` (circle

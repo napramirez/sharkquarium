@@ -1144,8 +1144,10 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   sharks), **SWORD AURA** 300 (three blades), and **OCTOPUS AURA** 320 (three curling
   suckered arms). Every aura is fully removable and attachable — NONE takes the ring off
   and Enter wears it again for free. The rings keep their own palettes and hue-cycle
-  with RAINBOW — except the KARAMBIT AURA, whose blades and loop take the diver's
-  equipped color (the handle stays black) — and they show in every tank, minigame, the
+  with RAINBOW — except the KARAMBIT AURA, whose short, curved blades and loop follow the
+  diver's equipped color (the handle stays black): NATURAL gives a silver blade with a
+  gold loop, RED makes both blade and loop pure red, and SHADOW pulses the blade between a
+  faintly glowing pure red and pure black — and they show in every tank, minigame, the
   menu, and the shop preview.
 - Payout bonus — the equipped color raises dive payouts by `1 + cost / 8000`: the
   accessory-priced colors add +1–2%, LAGOON +3%, CORAL +6%, MIDNIGHT +11%, GOLD +18%,

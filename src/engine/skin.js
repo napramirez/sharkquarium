@@ -78,6 +78,7 @@ export function drawSkinAura(ctx, entity) {
     ctx,
     entity,
     {
+      key: active.key,
       rainbow: active.special === 'rainbow',
       body: skinColor(active, 'body', clock),
       accent: skinColor(active, 'accent', clock),

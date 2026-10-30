@@ -167,33 +167,66 @@ function drawNeonRing(ctx, entity, rainbow, time) {
 
 function drawKarambitRing(ctx, entity, palette, time) {
   const rainbow = Boolean(palette?.rainbow);
+  const natural = !rainbow && !palette?.body && !palette?.accent;
+  const red = palette?.key === 'red';
+  const shadow = palette?.key === 'shadow';
   const orbit = entity.radius * 1.9;
   const r = entity.radius * 0.52;
   for (let index = 0; index < 3; index += 1) {
     const angle = time * 1.4 + (index * TAU) / 3 - 0.24;
     const hue = ringHue(time, index);
     const pulse = 0.4 + 0.3 * Math.sin(time * 6 + index * 2);
-    const glow = rainbow ? `hsl(${hue}, 90%, 60%)` : palette?.accent ?? '#ff3b4a';
-    const blade = rainbow ? `hsl(${hue}, 80%, 52%)` : palette?.body ?? '#c23b4a';
-    const edge = rainbow ? `hsl(${hue}, 90%, 76%)` : palette?.accent ?? '#ff5a66';
-    const loop = rainbow ? `hsl(${hue}, 90%, 70%)` : palette?.accent ?? '#ff3b4a';
+    const shadowMix = 0.5 + 0.5 * Math.sin(time * 2.6 + index * 1.2);
+    let glowAlpha = pulse;
+    let glow;
+    let blade;
+    let edge;
+    let loop;
+    if (rainbow) {
+      glow = `hsl(${hue}, 90%, 60%)`;
+      blade = `hsl(${hue}, 80%, 52%)`;
+      edge = `hsl(${hue}, 90%, 76%)`;
+      loop = `hsl(${hue}, 90%, 70%)`;
+    } else if (natural) {
+      glow = '#ffbf00';
+      blade = '#c9d4e4';
+      edge = '#f4fbff';
+      loop = '#ffbf00';
+    } else if (red) {
+      glow = `rgb(255, ${Math.round(40 + 60 * pulse)}, ${Math.round(40 + 60 * pulse)})`;
+      blade = '#ff0000';
+      edge = '#ff4d4d';
+      loop = '#ff0000';
+    } else if (shadow) {
+      const level = Math.round(255 * shadowMix);
+      glowAlpha = shadowMix * 0.75;
+      glow = '#ff2a2a';
+      blade = `rgb(${level}, 0, 0)`;
+      edge = `rgb(${Math.min(255, level + Math.round(70 * shadowMix))}, 0, 0)`;
+      loop = `rgb(${Math.round(level * 0.8)}, 0, 0)`;
+    } else {
+      glow = palette?.accent ?? '#ff3b4a';
+      blade = palette?.body ?? '#c23b4a';
+      edge = palette?.accent ?? '#ff5a66';
+      loop = palette?.accent ?? '#ff3b4a';
+    }
     const point = orbitPoint(entity, angle, orbit);
     ctx.save();
     ctx.translate(point.x, point.y);
     ctx.rotate(angle);
     ctx.lineCap = 'round';
     ctx.strokeStyle = glow;
-    ctx.globalAlpha = pulse;
+    ctx.globalAlpha = glowAlpha;
     ctx.lineWidth = entity.radius * 0.1;
     ctx.beginPath();
-    ctx.moveTo(r * 1.15, 0);
-    ctx.quadraticCurveTo(r * 0.1, -r * 1.05, -r * 0.75, -r * 0.15);
+    ctx.moveTo(r * 0.8, 0);
+    ctx.quadraticCurveTo(r * 0.2, -r * 1.15, -r * 0.68, -r * 0.28);
     ctx.stroke();
     ctx.globalAlpha = 1;
     ctx.beginPath();
-    ctx.moveTo(r * 1.15, 0);
-    ctx.quadraticCurveTo(r * 0.1, -r * 1.05, -r * 0.75, -r * 0.15);
-    ctx.quadraticCurveTo(r * 0.15, -r * 0.5, r * 1.15, 0);
+    ctx.moveTo(r * 0.8, 0);
+    ctx.quadraticCurveTo(r * 0.2, -r * 1.15, -r * 0.68, -r * 0.28);
+    ctx.quadraticCurveTo(-r * 0.02, -r * 0.58, r * 0.8, 0);
     ctx.closePath();
     ctx.fillStyle = blade;
     ctx.fill();
@@ -201,15 +234,15 @@ function drawKarambitRing(ctx, entity, palette, time) {
     ctx.lineWidth = entity.radius * 0.05;
     ctx.stroke();
     ctx.strokeStyle = '#20242c';
-    ctx.lineWidth = entity.radius * 0.14;
+    ctx.lineWidth = entity.radius * 0.2;
     ctx.beginPath();
-    ctx.moveTo(-r * 0.75, -r * 0.15);
-    ctx.lineTo(-r * 1.1, r * 0.35);
+    ctx.moveTo(-r * 0.68, -r * 0.28);
+    ctx.lineTo(-r * 1.06, r * 0.3);
     ctx.stroke();
     ctx.strokeStyle = loop;
     ctx.lineWidth = entity.radius * 0.05;
     ctx.beginPath();
-    ctx.arc(-r * 1.2, r * 0.48, entity.radius * 0.1, 0, TAU);
+    ctx.arc(-r * 1.16, r * 0.44, entity.radius * 0.1, 0, TAU);
     ctx.stroke();
     ctx.restore();
   }

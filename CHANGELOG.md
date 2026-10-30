@@ -44,7 +44,9 @@ Commits `7c7d0ea` (Oct 23), `fc9f6cd` and `99bf87a` (Oct 25), and the Oct 26 fea
 - **Cosmetics** — PLAYPASS 2's MONSOON/EMBER colors and pirate/propeller trinkets,
   PLAYPASS 5's eleven ragdoll plushies, the RGB neon jacket tailored to every creature,
   and the removable EEL AURA trinket, plus eight coin auras (BUBBLE, NEON, STINGRAY,
-  TRIDENT, KARAMBIT, SHARK, SWORD, and OCTOPUS) in the same slot, PLAYPASS 7's five
+  TRIDENT, KARAMBIT — short curved blades that read the equipped color: a silver blade
+  with a gold loop on NATURAL, a pure-red blade and loop on RED, and a pure-red-to-black
+  pulsing blade on SHADOW — SHARK, SWORD, and OCTOPUS) in the same slot, PLAYPASS 7's five
   swim trails, and PLAYPASS 8's twenty-one
   dive buddies covering every
   playable creature and enemy — with the seven playable-creature buddies wearing their

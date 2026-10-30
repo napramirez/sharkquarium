@@ -18,6 +18,7 @@ import { MoonJelly } from '../entities/moonjelly.js';
 import { Nautilus } from '../entities/nautilus.js';
 import { Tentacle } from '../entities/tentacle.js';
 import { CeilingChunk } from '../entities/ceilingchunk.js';
+import { CeilingStub } from '../entities/ceilingstub.js';
 import { BreachChunk } from '../entities/breachchunk.js';
 import { drawMegasquid, drawMegasquidEye } from '../entities/megasquid.js';
 import { resolveCircleRect } from '../engine/collision.js';
@@ -675,6 +676,8 @@ export class LabyrinthScene extends Scene {
     this.grabPickupTimer = LABYRINTH.grabPickupInterval * 0.6;
     this.popups = [];
     this.collapseChunks = [];
+    this.collapseStubs = [];
+    this.crushFades = [];
     this.breachChunks = [];
     this.wallStun = 0;
     this.schools = [];
@@ -1554,6 +1557,7 @@ export class LabyrinthScene extends Scene {
   breakSupport(support) {
     if (support.broken) return;
     support.broken = true;
+    const tangleX = this.wallX;
     this.wallX = Math.min(this.wallX, -LABYRINTH.wallStart);
     this.wallStun = Math.max(this.wallStun, LABYRINTH.supportStun);
     this.shake = Math.max(this.shake, 0.7);
@@ -1569,10 +1573,16 @@ export class LabyrinthScene extends Scene {
     });
     for (let index = 0; index < 3; index += 1) {
       this.collapseChunks.push(
-        new CeilingChunk(this.wallX + rand(-50, 90), -60 - index * 40, 1.5, rand(2.1, 3.2)),
+        new CeilingChunk(tangleX + rand(-50, 90), -60 - index * 40, 1.5, rand(2.1, 3.2)),
       );
     }
-    this.particles.burst(this.wallX + 40, 200, {
+    if (!this.collapseNearbyStub(tangleX)) this.dropCeilingStubs(tangleX);
+    this.crushFades.push({
+      x: tangleX,
+      timer: LABYRINTH.collapseCrushFade,
+      duration: LABYRINTH.collapseCrushFade,
+    });
+    this.particles.burst(tangleX + 40, 200, {
       count: 26,
       speed: 320,
       life: 0.9,
@@ -1593,6 +1603,86 @@ export class LabyrinthScene extends Scene {
       duration: 0.5,
       volume: 0.24,
       delay: 0.1,
+    });
+  }
+
+  collapseNearbyStub(tangleX) {
+    let best = null;
+    let bestDist = Infinity;
+    for (const wall of this.walls) {
+      if (wall.y > 0 || Math.abs(wall.w - LABYRINTH.stubWidth) > 0.5) continue;
+      const center = wall.x + wall.w / 2;
+      if (center > tangleX + 30) continue;
+      const distance = Math.abs(center - tangleX);
+      if (distance < bestDist) {
+        bestDist = distance;
+        best = wall;
+      }
+    }
+    if (!best || bestDist > LABYRINTH.collapseStubRange) return false;
+    this.walls.splice(this.walls.indexOf(best), 1);
+    const center = best.x + best.w / 2;
+    this.collapseStubs.push(
+      new CeilingStub(center, -LABYRINTH.stubHeight * 0.5, {
+        scale: 1,
+        landY: rand(
+          LABYRINTH.collapseStubLandTop,
+          LOGICAL_HEIGHT - LABYRINTH.collapseStubLandBottom,
+        ),
+      }),
+    );
+    return true;
+  }
+
+  dropCeilingStubs(center = this.wallX) {
+    const left = Math.max(this.cameraX + 30, center - LABYRINTH.collapseStubSpread);
+    const right = Math.max(left + 40, Math.min(center + 40, this.cameraX + LOGICAL_WIDTH * 0.5));
+    for (let index = 0; index < LABYRINTH.collapseStubCount; index += 1) {
+      const scale = rand(LABYRINTH.collapseStubScaleMin, LABYRINTH.collapseStubScaleMax);
+      const height = LABYRINTH.stubHeight * scale;
+      this.collapseStubs.push(
+        new CeilingStub(rand(left, right), -height - 16 - index * rand(26, 58), {
+          scale,
+          landY: rand(
+            LABYRINTH.collapseStubLandTop,
+            LOGICAL_HEIGHT - LABYRINTH.collapseStubLandBottom,
+          ),
+        }),
+      );
+    }
+  }
+
+  collapseStubImpact(stub) {
+    this.particles.burst(stub.x, stub.y, {
+      count: 16,
+      speed: 280,
+      life: 0.7,
+      colors: [COLORS.wreckWood, COLORS.wreckWoodDark, COLORS.sandDark],
+      buoyancy: -70,
+    });
+    this.particles.burst(stub.x, stub.y, {
+      count: 7,
+      speed: 190,
+      life: 0.5,
+      colors: [COLORS.tentacle, COLORS.tentacleDark],
+      buoyancy: 30,
+    });
+    for (let index = 0; index < 2; index += 1) {
+      this.breachChunks.push(
+        new BreachChunk(stub.x, stub.y, {
+          angle: rand(0, Math.PI),
+          speed: rand(140, 260),
+          size: rand(3, 6),
+        }),
+      );
+    }
+    this.shake = Math.max(this.shake, 0.22);
+    this.game.audio.tone({
+      freq: rand(96, 128),
+      endFreq: 52,
+      type: 'triangle',
+      duration: 0.22,
+      volume: 0.18,
     });
   }
 
@@ -1720,6 +1810,16 @@ export class LabyrinthScene extends Scene {
     this.updatePickups(dt);
     for (const chunk of this.collapseChunks) chunk.update(dt);
     this.collapseChunks = this.collapseChunks.filter((chunk) => chunk.alive);
+    for (const stub of this.collapseStubs) {
+      stub.update(dt);
+      if (stub.landed && !stub.impacted) {
+        stub.impacted = true;
+        this.collapseStubImpact(stub);
+      }
+    }
+    this.collapseStubs = this.collapseStubs.filter((stub) => stub.alive);
+    for (const fade of this.crushFades) fade.timer -= dt;
+    this.crushFades = this.crushFades.filter((fade) => fade.timer > 0);
     for (const chunk of this.breachChunks) chunk.update(dt);
     this.breachChunks = this.breachChunks.filter((chunk) => chunk.alive);
     for (const arm of this.packArms) arm.update(dt, this.wallX, null);
@@ -1933,6 +2033,7 @@ export class LabyrinthScene extends Scene {
       if (ceiling.chunk) ceiling.chunk.render(ctx);
     }
     for (const chunk of this.collapseChunks) chunk.render(ctx);
+    for (const stub of this.collapseStubs) stub.render(ctx);
     for (const chunk of this.breachChunks) chunk.render(ctx);
     this.renderSchools(ctx);
     this.renderPickups(ctx);
@@ -2957,15 +3058,26 @@ export class LabyrinthScene extends Scene {
   }
 
   renderTentacleWall(ctx) {
+    for (const fade of this.crushFades) {
+      this.drawTangleFade(ctx, fade.x, clamp(fade.timer / fade.duration, 0, 1));
+    }
     if (this.wallDelay > 0) return;
-    const edge = this.wallX - this.cameraX + 24;
+    if (this.wallX - this.cameraX + 24 <= 0) return;
+    this.drawTangleFade(ctx, this.wallX, 1);
+  }
+
+  drawTangleFade(ctx, worldX, alpha) {
+    const edge = worldX - this.cameraX + 24;
     if (edge <= 0) return;
     const gradient = ctx.createLinearGradient(edge - LABYRINTH.darkFade, 0, edge, 0);
     gradient.addColorStop(0, '#000000');
     gradient.addColorStop(0.45, '#0d0306');
     gradient.addColorStop(1, '#1c070c');
+    ctx.save();
+    ctx.globalAlpha = alpha;
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, edge, LOGICAL_HEIGHT);
+    ctx.restore();
   }
 
   renderHud(ctx) {

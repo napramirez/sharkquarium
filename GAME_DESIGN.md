@@ -300,6 +300,22 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   skip the wall with its 130 px/s crawl; supports break at `supportRamSpeed` (190 px/s)
   — `breakSupport()` restarts the wall at `-wallStart`, the part's spawn position, never
   moved forward, a flat reposition that no difficulty's `enemySpeed` can shrink.
+  `breakSupport()` also calls `collapseNearbyStub(tangleX)`: it scans the hanging
+  ceiling stubs (`wall.y <= 0`, width `stubWidth`) at or behind the tangle edge, splices
+  the closest one out of `this.walls` (so its brace opens up), and spawns a full-size
+  `CeilingStub` at that spot to tumble down onto the tangle — falling under
+  `collapseStubGravity` to a random `landY` between `collapseStubLandTop` and the floor
+  less `collapseStubLandBottom`, where `collapseStubImpact()` bursts dust, splinters,
+  deep-red sucker sparks, and `BreachChunk`s as it settles and fades over
+  `collapseStubLife`. When no stub sits within `collapseStubRange`, the fallback
+  `dropCeilingStubs()` rains `collapseStubCount` stub-sized `CeilingStub` planks (scaled
+  `collapseStubScaleMin`–`collapseStubScaleMax` across `collapseStubSpread`) instead; the
+  `collapseStubs` list updates and culls beside `collapseChunks`. Because the reset parks
+  the tangle at the part start, `breakSupport()` also records the old edge in `crushFades`
+  (a `collapseCrushFade`-second entry), and `renderTentacleWall()` paints each one through
+  `drawTangleFade()` — the same pitch-black gradient the live tangle uses — easing out as
+  its timer drains, so the stubs fall onto a visibly crushed tangle that recedes a beat
+  after the reset.
   `setupPart()` adds an arm
   every `partGrabberStep`, shortens every ambush and ceiling warn window and cooldown by
   `partWarnScale`/`partCooldownScale` per part, and scales chunk fall speed by

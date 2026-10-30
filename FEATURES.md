@@ -1249,7 +1249,11 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   difficulty, and cracked supports give way to a 190 px/s ram (well under every diver's
   top speed) with a flashing `RAM IT!` hint when a diver comes close — the collapse
   restarts the tentacle tangle at the start of the part, never forward and just as far
-  on APOCALYPTIC WIPEOUT as on EASY. **Grab-chance
+  on APOCALYPTIC WIPEOUT as on EASY, and tears the ceiling loose above the tangle: the
+  closest hanging ceiling stub rips off the course and tumbles down over the frozen tangle
+  (opening the gap it braced) — still painted black at the collapse site as it recedes to
+  the part start — and bursts into dust, splinters, and red sucker sparks where it lands.
+  If no stub is close enough, a rain of stub-sized planks drops in its place. **Grab-chance
   bubbles** float through every part in **clumps of three to five**: a fresh clump is
   seeded ahead of the pack about every three and a half seconds (four clumps at most at
   once), and

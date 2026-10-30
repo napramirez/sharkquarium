@@ -28,6 +28,13 @@ Commits `7c7d0ea` (Oct 23), `fc9f6cd` and `99bf87a` (Oct 25), and the Oct 26 fea
   tunnels to hide in, a 360 px checkpoint mercy push, seven grabs, grab clumps arriving
   more often with four floating at once, and support rams that restart the tangle at
   the start of the part — never forward, and on every difficulty.
+- **Collapsing ceiling stubs** — ramming a cracked support now breaks the ceiling loose
+  above the tentacle tangle: the closest hanging ceiling stub is torn out of the course
+  (opening the gap it braced) and tumbles down onto the frozen tangle, bursting into dust,
+  splinters, deep-red sucker sparks, and spinning `BreachChunk`s where it lands, while the
+  collapse site keeps its pitch-black tangle (`crushFades`/`drawTangleFade`) for
+  `collapseCrushFade` seconds and eases it out; when no stub is close, stub-sized planks
+  drop in its place.
 - **Pets Tank (PLAYPASS 3)** — the playerless feeding tank with snack and despawn-lure
   buttons, hungry swarms, saved progress, and cross-level enemy waves that include
   morays.

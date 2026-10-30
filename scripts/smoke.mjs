@@ -3708,6 +3708,14 @@ async function main() {
   assert.equal(support.broken, true, 'ramming a cracked support should break it');
   assert.ok(labyrinth.wallStun > 0, 'the collapse should stun the tentacle wall');
   assert.ok(
+    labyrinth.collapseStubs.length > 0,
+    'ramming a support should drop ceiling stubs onto the tangle',
+  );
+  assert.ok(
+    labyrinth.crushFades.length > 0,
+    'the collapse should keep the crushed tangle in view while the stubs fall',
+  );
+  assert.ok(
     Math.abs(labyrinth.wallX - restartX) < 0.001,
     'the collapse should restart the tangle at the start of the part',
   );
@@ -3720,6 +3728,27 @@ async function main() {
   assert.ok(
     labyrinth.wallX <= restartX - 200 + 0.001,
     'the collapse should never teleport the tangle forward',
+  );
+  const hangingStub = labyrinth.walls.find((wall) => wall.y <= 0 && wall.w <= 100);
+  assert.ok(hangingStub, 'the wreck should raise hanging ceiling stubs');
+  labyrinth.collapseStubs.length = 0;
+  const wallsBefore = labyrinth.walls.length;
+  const stubCenter = hangingStub.x + hangingStub.w / 2;
+  support.broken = false;
+  labyrinth.wallStun = 0;
+  labyrinth.wallX = stubCenter + 60;
+  runner.x = support.x - 58;
+  runner.vx = 430;
+  await frames(2);
+  assert.equal(support.broken, true, 'the ram should break the support');
+  assert.equal(
+    labyrinth.walls.length,
+    wallsBefore - 1,
+    'ramming should tear a nearby ceiling stub out of the course',
+  );
+  assert.ok(
+    labyrinth.collapseStubs.some((stub) => Math.abs(stub.x - stubCenter) < 2),
+    'the torn ceiling stub should fall from where it hung',
   );
   const savedRules = labyrinth.rules;
   labyrinth.rules = { ...savedRules, enemySpeed: 2.4 };
@@ -3742,6 +3771,11 @@ async function main() {
   assert.ok(labyrinth.wallX <= heldWallX + 0.001, 'the stunned wall should hold its ground');
   await frames(180);
   assert.ok(labyrinth.wallX > heldWallX, 'the wall should resume its advance after the stun');
+  assert.equal(
+    labyrinth.collapseStubs.length,
+    0,
+    'dropped ceiling stubs should settle into the tangle',
+  );
   runner.vx = 0;
   runner.vy = 0;
   runner.invulnerable = 0;

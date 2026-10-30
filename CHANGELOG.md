@@ -1,24 +1,57 @@
 # Changelog
 
-Notable changes to Sharkquarium, grouped by the date the work landed and split into
-**game features** (player-facing content like tanks, creatures, modes, screens,
-cosmetics, and progression) and **game systems** (the engine, rendering, persistence,
-tuning frameworks, tooling, tests, and docs that support them). Each section names the
-commits that carry the work.
+Notable changes to Sharkquarium, grouped into the contiguous days the work landed and
+split into **game features** (player-facing content like tanks, creatures, modes,
+screens, cosmetics, and progression) and **game systems** (the engine, rendering,
+persistence, tuning frameworks, tooling, tests, and docs that support them). Each section
+names the commits that carry the work.
 
-## October 23–30, 2026 (latest)
+## October 30, 2026 (latest)
 
-Commits `7c7d0ea` (Oct 23), `fc9f6cd` and `99bf87a` (Oct 25), `06f4603` (Oct 26), and the
-Oct 30 feature batch (`fb34c5b`, `d21de53`, `2845aea`, `305ee15`, `760f030`, `6dc0aeb`).
+Commits `fb34c5b` (collapsing ceiling stubs), `d21de53` (two-beat ending), `2845aea`
+(karambit aura), `305ee15` (shop costumes), `760f030` (shadowed tunnel planks), `6dc0aeb`
+(trench gaps), and `1f07537` and `7a18b65` (docs).
 
 ### Game features
 
-- **Shop and economy** — sea coins with a welcome bank, difficulty-scaled payouts and
-  equipped-color bonuses; thirteen colors including the SHADOW and RAINBOW specials;
-  coin trinkets; and nine PLAYPASSES at 1200 coins each.
-- **Minigames** — the two-player bubble race and its 1P chase, TAG with named players
-  and five CPU swimmers, and Pufferfish Dodgeball with three lives and no clock, all
-  paying sea coins and counting wins.
+- **Collapsing ceiling stubs** — ramming a cracked support now breaks the ceiling loose
+  above the tentacle tangle: the closest hanging ceiling stub is torn out of the course
+  (opening the gap it braced) and tumbles down onto the frozen tangle, bursting into dust,
+  splinters, deep-red sucker sparks, and spinning `BreachChunk`s where it lands, while the
+  collapse site keeps its pitch-black tangle (`crushFades`/`drawTangleFade`) for
+  `collapseCrushFade` seconds and eases it out; when no stub is close, stub-sized planks
+  drop in its place.
+- **Two-beat ending cutscene** — the MEGASQUID finale now cuts in two: the first beat
+  collapses the wreck around the entangled boss as the seven survivors race clear, then a
+  distance beat puts the survivors in the foreground looking back at the liner perched on
+  a rock ledge, which tips off the rim and sinks into the trench with the MEGASQUID and
+  its glowing eye, fading into the dark.
+- **Costumes** — a new COSTUMES row in the shop turns a diver into a dish: SHARK FIN
+  DISH, SAMBAL STINGRAY, GRILLED SQUID, and PRAWN CRACKERS, each a whole-body food drawn
+  over the creature in every tank, the menu, the cutscenes, and the shop preview, with its
+  own `costume` equip slot and per-player `costume2`.
+- **Karambit aura** — the KARAMBIT AURA's short, curved blades now read the equipped
+  color: a silver blade with a gold loop on NATURAL, a pure-red blade and loop on RED, and
+  a pure-red-to-black pulsing blade on SHADOW, over a thicker black handle.
+- **Shadowed tunnel openings** — the labyrinth's hull tunnels and the aquarium's
+  holed-wall and seeded openings are filled with the wall's plank grain a shade darker
+  instead of a flat black void, so they read as shadowed wood; the diver still swims
+  straight through.
+- **TRENCH DIVE** — its ice gaps now stay within a diver's reach (`maxGapShift`), so the
+  run is always threadable rather than a random dead end.
+
+### Game systems
+
+- **Tests and docs** — the smoke suite grew the ceiling-stub, ending-beat, costume, and
+  trench-gap checks (about 14k animation frames), and the docs were kept in sync.
+
+## October 25–26, 2026
+
+Commits `fc9f6cd` and `99bf87a` (Oct 25) and `06f4603` (Oct 26); `ce8cf4f` (Oct 25)
+created this changelog.
+
+### Game features
+
 - **LABYRINTH** — a seven-part shipwreck escape for one or two divers with part and
   per-player creature pickers, saved-part resume, a four-second tentacle head start, an
   on-screen joystick, ground and wall ambushes, ram-to-break supports, grab-clump
@@ -29,36 +62,35 @@ Oct 30 feature batch (`fb34c5b`, `d21de53`, `2845aea`, `305ee15`, `760f030`, `6d
   tunnels to hide in, a 360 px checkpoint mercy push, seven grabs, grab clumps arriving
   more often with four floating at once, and support rams that restart the tangle at
   the start of the part — never forward, and on every difficulty.
-- **Collapsing ceiling stubs** — ramming a cracked support now breaks the ceiling loose
-  above the tentacle tangle: the closest hanging ceiling stub is torn out of the course
-  (opening the gap it braced) and tumbles down onto the frozen tangle, bursting into dust,
-  splinters, deep-red sucker sparks, and spinning `BreachChunk`s where it lands, while the
-  collapse site keeps its pitch-black tangle (`crushFades`/`drawTangleFade`) for
-  `collapseCrushFade` seconds and eases it out; when no stub is close, stub-sized planks
-  drop in its place.
 - **Pets Tank (PLAYPASS 3)** — the playerless feeding tank with snack and despawn-lure
   buttons, hungry swarms, saved progress, and cross-level enemy waves that include
   morays.
+- **Pets tank play** — moods and tastes (favorite critters fill a pet completely and pop
+  hearts), click-to-trick spins and rolls that shed coin bubbles, a TOY button whose
+  bouncing toys pets boop around, a PHOTO button that saves persistent postcards, and a
+  MEALS button that trades sea coins for snack packs.
 - **Aquarium Builder (PLAYPASS 9)** — a twenty-two-entry palette of decor, pets,
   enemies, and habitats; CHILL mode; DIVE AS for all seven creatures; and a saved
   layout.
-- **Cosmetics** — PLAYPASS 2's MONSOON/EMBER colors and pirate/propeller trinkets,
-  PLAYPASS 5's eleven ragdoll plushies, the RGB neon jacket tailored to every creature,
-  and the removable EEL AURA trinket, plus eight coin auras (BUBBLE, NEON, STINGRAY,
-  TRIDENT, KARAMBIT — short curved blades that read the equipped color: a silver blade
-  with a gold loop on NATURAL, a pure-red blade and loop on RED, and a pure-red-to-black
-  pulsing blade on SHADOW — SHARK, SWORD, and OCTOPUS) in the same slot, PLAYPASS 7's five
-  swim trails, and PLAYPASS 8's twenty-one
-  dive buddies covering every
-  playable creature and enemy — with the seven playable-creature buddies wearing their
-  exact silhouettes and colors, the BABY MORAY, MINI DART EEL, and MINI VOLT EEL
-  matching the tank eels, and the MINI MEGASQUID redrawing the labyrinth boss; separate HEAD and BODY trinket slots plus the aura slot; new coin trinkets
-  including the stingray hat; and the SHADOW white eyes on the shrimp, stingray, and
-  nautilus.
-- **Costumes** — a new COSTUMES row in the shop turns a diver into a dish: SHARK FIN
-  DISH, SAMBAL STINGRAY, GRILLED SQUID, and PRAWN CRACKERS, each a whole-body food drawn
-  over the creature in every tank, the menu, the cutscenes, and the shop preview, with its
-  own `costume` equip slot and per-player `costume2`.
+- **Aquarium labyrinth mode** — a LABYRINTH MODE row in the aquarium builder raises a
+  seeded wreck course (gate walls with lane gaps and hull tunnels, stubs, hanging cracked
+  supports, floor cracks, and ceiling beams) that persists, regenerates from its seed,
+  and is solid to the DIVE AS diver; the mode also adds nine hand-placed wreck pieces to
+  the palette (walls, rising walls, holed walls, stubs, a cracked support, and TENTACLE
+  CRACK/BEAM bursters that spear out, fling planks, and knock the diver back) and
+  ceiling ambushes for the labyrinth itself, whose tentacles spear straight down from the
+  planks.
+- **Auras** — the aura slot arrives with the removable EEL AURA trinket and eight coin
+  auras: BUBBLE, NEON, STINGRAY, TRIDENT, KARAMBIT, SHARK, SWORD, and OCTOPUS.
+- **Plushies, trails, and buddies** — PLAYPASS 5's eleven ragdoll plushies and the RGB
+  neon jacket tailored to every creature, PLAYPASS 7's five swim trails, and PLAYPASS 8's
+  twenty-one dive buddies covering every playable creature and enemy — with the seven
+  playable-creature buddies wearing their exact silhouettes and colors, and the BABY
+  MORAY, MINI DART EEL, and MINI VOLT EEL matching the tank eels.
+- **MINI MEGASQUID** — a DIVE BUDDY for PLAYPASS 8: the labyrinth boss shrunk to buddy
+  size, arms and long tentacles waving as it trails the diver with a periodically
+  blinking glowing yellow eye, drawn through the same shared megasquid shapes as the
+  ending and the arrival cutscene, and fully opaque like the boss itself.
 - **2P wardrobe** — a PLAYER row in the shop dresses each diver separately: one can wear
   SUNSET ORANGE while the other wears RED, and colors, trinkets, trails, buddies, and
   auras all keep a per-player slot (`skin2`, `head2`, …) while purchases stay shared; the
@@ -68,43 +100,16 @@ Oct 30 feature batch (`fb34c5b`, `d21de53`, `2845aea`, `305ee15`, `760f030`, `6d
   the nine tanks, the seven divers, the thirteen hazards, and the minigames) with named
   story entries for every character, level, and mode, browsed with section tabs and a
   windowed entry list.
-- **Aquarium labyrinth mode** — a LABYRINTH MODE row in the aquarium builder raises a
-  seeded wreck course (gate walls with lane gaps and hull tunnels, stubs, hanging cracked
-  supports, floor cracks, and ceiling beams) that persists, regenerates from its seed,
-  and is solid to the DIVE AS diver; the mode also adds nine hand-placed wreck pieces to
-  the palette (walls, rising walls, holed walls, stubs, a cracked support, and TENTACLE
-  CRACK/BEAM bursters that spear out, fling planks, and knock the diver back) — the holed
-  walls' tunnel openings (and the wreck's own hull tunnels) are filled with the wall's
-  plank grain a shade darker instead of a flat black void, and the diver still swims
-  straight through. Plus
-  ceiling ambushes for the labyrinth itself, whose tentacles spear straight down from the
-  planks.
-- **Pets tank play** — moods and tastes (favorite critters fill a pet completely and pop
-  hearts), click-to-trick spins and rolls that shed coin bubbles, a TOY button whose
-  bouncing toys pets boop around, a PHOTO button that saves persistent postcards, and a
-  MEALS button that trades sea coins for snack packs.
-- **SHARKQUARIUM: THE MOVIE** — the cutscene theatre's longest cut: sixteen shots that
-  tour all nine tank gameplay sets, break for the minigames, and close on THE END, with
-  per-shot tank/minigame casting and continuous footage between the title and finale
-  cards.
-- **SHOP TRAILER** — a dedicated cutscene theatre reel for the wardrobe: nine shots that
-  cycle the thirteen colors, head and body trinkets, the five trails and their twenty-one
-  dive buddies, and the nine auras live across a seven-creature lineup, bracketed by
-  sea-coin, playpass, and play-now cards.
+- **Cutscene theatre** — the CUTSCENE THEATRE that replays any cutscene on demand, its
+  SHARKQUARIUM: THE MOVIE reel (sixteen shots touring all nine tank gameplay sets and the
+  minigames, closing on THE END) and SHOP TRAILER reel (nine shots cycling the colors,
+  trinkets, trails, buddies, and auras across a seven-creature lineup), and the nested
+  TANK TRAILERS and MINIGAME TRAILERS pages.
 - **Wreck arrival** — the labyrinth opens on a cutscene after the diver picker: all seven
   playable creatures swim in to the sunken liner together, then the MEGASQUID rises out
   of the dark behind the wreck with its glowing yellow eye tracking the pack and a deep
   pressure roar, and the divers recoil a beat before the chase begins. Skippable with
   ENTER and replayable from the cutscene theatre's WRECK ARRIVAL row.
-- **Two-beat ending cutscene** — the MEGASQUID finale now cuts in two: the first beat
-  collapses the wreck around the entangled boss as the seven survivors race clear, then a
-  distance beat puts the survivors in the foreground looking back at the liner perched on
-  a rock ledge, which tips off the rim and sinks into the trench with the MEGASQUID and
-  its glowing eye, fading into the dark.
-- **MINI MEGASQUID** — a new DIVE BUDDY for PLAYPASS 8: the labyrinth boss shrunk to
-  buddy size, arms and long tentacles waving as it trails the diver with a periodically
-  blinking glowing yellow eye, drawn through the same shared megasquid shapes as the
-  ending and the arrival cutscene, and fully opaque like the boss itself.
 - **Spear ambushes** — labyrinth floor cracks and wall bursts now break open with a
   dust-ring breach flash, flinging spinning chunks of planking (`BreachChunk` debris with
   gravity and a short fade), and snap their tentacles out as straight spears in a tenth
@@ -132,15 +137,42 @@ Oct 30 feature batch (`fb34c5b`, `d21de53`, `2845aea`, `305ee15`, `760f030`, `6d
   entry from the MINIGAMES menu: PUFFER BALL (2P or vs CPU, first to three goals), SCHOOL
   ROUNDUP (herd fleeing schools into the net), JELLY ASCENT (pulse-bounce up a ring
   shaft), STEALTH DIVE (slip past seal vision cones), REEF CLEANUP (nudge wreckage past
-  morays into the recycle net), and TRENCH DIVE (thread ice on a timed descent — its ice
-  gaps stay within a diver's reach so the run is always winnable), all
+  morays into the recycle net), and TRENCH DIVE (thread ice on a timed descent), all
   sharing a common minigame scaffold and paying their usual finish/win coins.
+
+### Game systems
+
+- **Engine additions** — the plushie, trail, and companion rendering systems, the aura
+  ring renderer, `resolveCircleRect` collision, and the theatre/trailer scaffolding.
+- **Performance** — cached tentacle spine frames, batched sucker paths, and off-screen
+  culling for the labyrinth tangle.
+- **Persistence** — the shop shape with legacy accessory migration, plus saved pets,
+  aquarium, and labyrinth progress and lifetime stats counters.
+- **Tuning frameworks** — settings-driven difficulty extended across the minigames, the
+  pets tank, and the labyrinth.
+- **Tests and docs** — the smoke suite extended to the labyrinth, theatre, shop,
+  cosmetics, minigames, and pets tank, and the docs kept in sync.
+
+## October 23, 2026
+
+Commit `7c7d0ea`.
+
+### Game features
+
+- **Shop and economy** — sea coins with a welcome bank, difficulty-scaled payouts and
+  equipped-color bonuses; thirteen colors including the SHADOW and RAINBOW specials;
+  coin trinkets; and nine PLAYPASSES at 1200 coins each.
+- **Minigames** — the two-player bubble race and its 1P chase, TAG with named players
+  and five CPU swimmers, and Pufferfish Dodgeball with three lives and no clock, all
+  paying sea coins and counting wins.
+- **Trinkets and colors** — separate HEAD and BODY trinket slots, coin trinkets
+  including the stingray hat, PLAYPASS 2's MONSOON/EMBER colors and pirate/propeller
+  trinkets, and the SHADOW white eyes on the shrimp, stingray, and nautilus.
 - **Kelp Forest and reef content** — the kelp crab player and stun-the-octopus boss,
   reef corals and boulders, the purely cosmetic colorful school, and the tank chain
   rework.
-- **Cutscenes and the theatre** — the intro splash, per-tank descents, the dawn
-  cutscene, the GAME TRAILER, the all-tank gameplay gauntlet, nested TANK TRAILERS and
-  MINIGAME TRAILERS pages, and the CUTSCENE THEATRE that replays any of them on demand.
+- **Cutscenes and trailers** — the intro splash, per-tank descents, the GAME TRAILER, and
+  the all-tank gameplay gauntlet.
 - **Music and the track player** — per-tank themes, the labyrinth dread theme, and a
   TRACK PLAYER that lists all eleven tracks and holds one across scene changes.
 - **Creature and hazard reworks** — moray eels named and given dart-eel-style faces,
@@ -152,22 +184,14 @@ Oct 30 feature batch (`fb34c5b`, `d21de53`, `2845aea`, `305ee15`, `760f030`, `6d
 ### Game systems
 
 - **Engine additions** — the music player's hold and routing model, the progress module
-  for minigame rewards and counters, the skin, accessory, plushie, trail, and companion
-  rendering systems, `resolveCircleRect` collision, and joystick input plumbing.
-- **Performance** — cached tentacle spine frames, batched sucker paths, and off-screen
-  culling for the labyrinth tangle.
-- **Persistence** — the shop shape with legacy accessory migration, plus saved pets,
-  aquarium, and labyrinth progress and lifetime stats counters.
-- **Tuning frameworks** — settings-driven difficulty extended across the minigames, the
-  pets tank, and the labyrinth.
-- **Tests and docs** — the smoke suite extended to every tank, screen, minigame,
-  labyrinth, theatre, shop, and cosmetic (about 14k animation frames), and the docs
-  kept in sync.
+  for minigame rewards and counters, the skin and accessory rendering systems, and
+  joystick input plumbing.
+- **Tests** — the smoke suite extended to the shop, minigames, kelp forest, and
+  cutscenes.
 
-## October 18–20, 2026
+## October 18–19, 2026
 
-Commits `efeca1a` and `516494c` (Oct 18), `eb3895f` and `8e7032b` (Oct 19). No changes
-landed on October 20 itself.
+Commits `efeca1a` and `516494c` (Oct 18) and `eb3895f` and `8e7032b` (Oct 19).
 
 ### Game features
 

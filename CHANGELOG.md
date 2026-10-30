@@ -6,9 +6,10 @@ cosmetics, and progression) and **game systems** (the engine, rendering, persist
 tuning frameworks, tooling, tests, and docs that support them). Each section names the
 commits that carry the work.
 
-## October 23–26, 2026 (latest)
+## October 23–30, 2026 (latest)
 
-Commits `7c7d0ea` (Oct 23), `fc9f6cd` and `99bf87a` (Oct 25), and the Oct 26 feature batch.
+Commits `7c7d0ea` (Oct 23), `fc9f6cd` and `99bf87a` (Oct 25), `06f4603` (Oct 26), and the
+Oct 30 feature batch (`fb34c5b`, `d21de53`, `2845aea`, `305ee15`, `760f030`, `6dc0aeb`).
 
 ### Game features
 

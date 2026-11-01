@@ -94,7 +94,18 @@ Requirements:
   score and continues the normal chain from there.
 - SETTINGS holds the `CO-OP TANK SELECT` switch, the `DIFFICULTY` selector
   (EASY / NORMAL / HARD / APOCALYPTIC WIPEOUT), the `VOLUME` slider (stepped in 10%
-  steps; `Left`/`Right` adjust, clicking the track sets it), the `SFX` switch, and the
+  steps; `Left`/`Right` adjust, clicking the track sets it), the `SFX` switch, the
+  `3D MODE` switch (renders the game in 3D: every enemy, bubble, prop, and the player is
+  drawn as a shaded 3D volume with a ground shadow, the background becomes a perspective
+  sky and grid floor, and the whole canvas tilts onto a perspective plane), the
+  `FIRST PERSON MODE` switch (renders every dive and minigame as a first-person
+  **raycast** view from the selected creature's eyes — a software raycaster of a 3D room
+  built from the level's walls, with depth-sorted billboards for the enemies, bubbles, and
+  props; it goes fullscreen and locks the pointer so the mouse turns the view endlessly
+  (never sticking at a screen edge), the diver is hidden, the cursor is hidden, a corner
+  **minimap** overlays the arena with walls and entity blips, and `W`/`S` move the diver
+  forward/back while `A`/`D` strafe — all relative to where you're looking, and never
+  turning the camera), and the
   `TRACK PLAYER` (opens the track player screen). When
   co-op tank select is ON, the tank select starts with co-op enabled (still adjustable
   per visit), so players can run co-op dives in any tank. Preferences persist under
@@ -171,13 +182,13 @@ Requirements:
 | Intro splash  | —                                    | Story cards over the ambient shark; ENTER or a click begins, auto-advances after 8 s |
 | Descent       | —                                    | One per tank teleport: the tank name and tagline rise through streaking bubbles; ENTER skips, auto-advances after 1.7 s |
 | Main menu     | START DIVE, CHOOSE TANK, CO-OP DIVE (2P), MINIGAMES (with playpass 1), PETS TANK (with playpass 3), ENDLESS DIVE (with playpass 4), AQUARIUM BUILDER (with playpass 9), SHOP, SETTINGS, HOW TO PLAY, LORE | Story blurb, best score, and sea-coin balance above the list; HOW TO PLAY opens an overlay closed with Enter or Esc |
-| LORE          | THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MINIGAMES       | The story codex: every character, level, and mode name with its lore; Left/Right switches sections, Up/Down steps entries (with an n/m counter), and Esc returns to the menu |
+| LORE          | THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MINIGAMES, THE MODES       | The story codex: every character, level, and mode name with its lore; Left/Right switches sections, Up/Down steps entries (with an n/m counter), and Esc returns to the menu |
 | Shop          | COLOR picker, PLAYPASS, BACK         | Left/Right browses the color catalog; Enter buys/equips with sea coins; the playpass adds MINIGAMES to the menu |
-| Minigames     | COMPETITIONS (2P RACE), RACE (1P), TAG (2P + 5 CPU), TAG SOLO (1P + 5 CPU), PUFFERFISH DODGEBALL (2P), DODGEBALL SOLO (1P), LABYRINTH (2P), LABYRINTH SOLO (1P), PUFFER BALL (2P), PUFFER BALL VS CPU (1P), SCHOOL ROUNDUP (1P), JELLY ASCENT (1P), STEALTH DIVE (2P), STEALTH DIVE SOLO (1P), REEF CLEANUP (2P), REEF CLEANUP SOLO (1P), TRENCH DIVE (1P), BACK | Listed when the competitions playpass is owned; every game has a singleplayer variant beside its two-player mode. The six arcade games charge a sea-coin ticket on every entry from this menu (the bank and each price are shown); the free games never charge |
-| Tank select   | CO-OP: OFF/ON, REEF TANK, STINGRAY TANK, DEEP SEA TANK, ARCTIC TANK, KELP FOREST TANK, JELLY TANK, NAUTILUS TANK, FRESHWATER TANK, PETS TANK (with playpass 3), EMPTY TANK, BACK | ESC or BACK returns to the menu; choosing a tank starts it immediately |
-| Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, TRACK PLAYER, CUTSCENE THEATRE, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD/APOCALYPTIC WIPEOUT (Left/Right or click), adjusts master volume plus SFX, and opens the track player or the cutscene theatre; preferences persist |
-| Track player  | MENU TRACK, REEF TRACK, STINGRAY TRACK, DEEP SEA TRACK, ARCTIC TRACK, KELP TRACK, PETS TRACK, JELLY TRACK, FRESHWATER TRACK, NAUTILUS TRACK, LABYRINTH TRACK, BACK | Plays or stops any level theme through the shared sequencer; the selected track shows its mood and BPM, the playing one shows a live equalizer; ESC returns to settings and the chosen track keeps playing |
-| Cutscene theatre | GAME TRAILER, SHARKQUARIUM: THE MOVIE, ALL-TANK GAMEPLAY, TANK TRAILERS, MINIGAME TRAILERS, SHOP TRAILER, INTRO SPLASH, DESCENT: REEF, DESCENT: STINGRAY, DESCENT: DEEP SEA, DESCENT: ARCTIC, DESCENT: KELP FOREST, DESCENT: JELLY, DESCENT: NAUTILUS, DESCENT: FRESHWATER, DAWN BREAKS, LABYRINTH TRAILER, WRECK ARRIVAL, MEGASQUID ENDING, BACK | Replays any cutscene on demand without reaching it in play; each cutscene returns to the theatre when skipped or finished; SHARKQUARIUM: THE MOVIE is the longest cut — every tank and minigame in one ~55 s feature — ALL-TANK GAMEPLAY cuts the whole gauntlet into one run, TANK TRAILERS opens a nested nine-tank page of three-shot cut-downs, MINIGAME TRAILERS does the same for race, tag, dodgeball, and labyrinth, SHOP TRAILER tours the shop shelves with live-cycling colors, trinkets, trails, buddies, and auras, and WRECK ARRIVAL stages the divers' arrival before the MEGASQUID appears on cue |
+| Minigames     | COMPETITIONS (2P RACE), RACE (1P), TAG (2P + 5 CPU), TAG SOLO (1P + 5 CPU), PUFFERFISH DODGEBALL (2P), DODGEBALL SOLO (1P), LABYRINTH (2P), LABYRINTH SOLO (1P), PUFFER BALL (2P), PUFFER BALL VS CPU (1P), SCHOOL ROUNDUP (1P), JELLY ASCENT (1P), STEALTH DIVE (2P), STEALTH DIVE SOLO (1P), REEF CLEANUP (2P), REEF CLEANUP SOLO (1P), TRENCH DIVE (1P), TRENCH EXPLORE (1P), BOSS RUSH (1P), MUTATOR: OFF/ON, RECORDS, BACK | Listed when the competitions playpass is owned; every game has a singleplayer variant beside its two-player mode. The arcade games charge a sea-coin ticket on every entry from this menu (the bank and each price are shown); the free games never charge. BOSS RUSH chains every horror boss into one gauntlet (also ticketed), MUTATOR opens the modifier picker, and RECORDS opens the best-time board |
+| Tank select   | CO-OP: OFF/ON, REEF TANK, STINGRAY TANK, DEEP SEA TANK, ARCTIC TANK, KELP FOREST TANK, JELLY TANK, NAUTILUS TANK, FRESHWATER TANK, ABYSS TRENCH TANK, REEF SWARM QUEEN, RAYCAST TANK, MYSTERIOUSLY QUIET TANK, THE ESCAPE, THE WATCHER, THE TRENCH MOUTH, PREHISTORIC TANK, PLAYTOY EXPLORATION, PETS TANK (with playpass 3), EMPTY TANK, MUTATOR: OFF/ON, BACK | ESC or BACK returns to the menu; choosing a tank starts it immediately. ABYSS TRENCH and REEF SWARM QUEEN run boss arenas (the leviathan and the swarm queen), RAYCAST runs the first-person wreck maze, MYSTERIOUSLY QUIET is the horror stealth tank, THE ESCAPE is its standalone escape chase, THE WATCHER is the look-away horror tank, THE TRENCH MOUTH is the anchor-against-the-gulp horror tank, PREHISTORIC TANK is the playable-lungfish chase, and PLAYTOY EXPLORATION is the sunken toy-liner exploration tank (Anchor-Pack tool). MUTATOR opens the modifier picker; each tank card shows your best time/score |
+| Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, 3D MODE switch, FIRST PERSON MODE switch, REDUCE MOTION switch, TRACK PLAYER, CUTSCENE THEATRE, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD/APOCALYPTIC WIPEOUT (Left/Right or click), adjusts master volume plus SFX, renders every object and background in 3D (extruded volumes, sphere bubbles, a perspective floor) and tilts the canvas, and switches every dive and minigame to a fullscreen, pointer-locked first-person raycast view from the selected creature (diver hidden, cursor hidden, mouse looks endlessly, WASD steers, a corner minimap); REDUCE MOTION damps the horror tanks' screen shake, zoom, and flash; opens the track player or the cutscene theatre; preferences persist |
+| Track player  | MENU TRACK, REEF TRACK, STINGRAY TRACK, DEEP SEA TRACK, ARCTIC TRACK, KELP TRACK, PETS TRACK, JELLY TRACK, FRESHWATER TRACK, NAUTILUS TRACK, LABYRINTH TRACK, QUIET TRACK, BACK | Plays or stops any level theme through the shared sequencer; the selected track shows its mood and BPM, the playing one shows a live equalizer; ESC returns to settings and the chosen track keeps playing |
+| Cutscene theatre | GAME TRAILER, SHARKQUARIUM: THE MOVIE, ALL-TANK GAMEPLAY, TANK TRAILERS, MINIGAME TRAILERS, SHOP TRAILER, INTRO SPLASH, DESCENT: REEF, DESCENT: STINGRAY, DESCENT: DEEP SEA, DESCENT: ARCTIC, DESCENT: KELP FOREST, DESCENT: JELLY, DESCENT: NAUTILUS, DESCENT: FRESHWATER, DAWN BREAKS, LABYRINTH TRAILER, WRECK ARRIVAL, MEGASQUID ENDING, THE ESCAPE, THE RISING, BACK | Replays any cutscene on demand without reaching it in play; each cutscene returns to the theatre when skipped or finished; SHARKQUARIUM: THE MOVIE is the longest cut — every tank and minigame in one ~55 s feature — ALL-TANK GAMEPLAY cuts the whole gauntlet into one run, TANK TRAILERS opens a nested nine-tank page of three-shot cut-downs, MINIGAME TRAILERS does the same for race, tag, dodgeball, and labyrinth, SHOP TRAILER tours the shop shelves with live-cycling colors, trinkets, trails, buddies, and auras, WRECK ARRIVAL stages the divers' arrival before the MEGASQUID appears on cue, THE ESCAPE replays the flooded-lab glass-shatter finale, and THE RISING replays the megasquid tearing a wreck apart |
 | Dawn cutscene | —                                    | Plays when the freshwater goal is met; ENTER returns to the menu |
 | Labyrinth arrival | —                                 | Plays once after the labyrinth picker and replays from the theatre: all seven playable creatures swim in to the sunken liner, then the MEGASQUID rises out of the dark and its glowing yellow eye locks onto them; ENTER skips straight into the part |
 | Labyrinth ending | —                                 | Plays after escaping all seven labyrinth parts: the MEGASQUID tangles in the wreck and sinks into the trench as the seven creatures escape; ENTER skips to the results |
@@ -186,8 +197,165 @@ Requirements:
 | Pause overlay | RESUME, RESTART, QUIT TO MENU        | Gameplay state stays intact; Esc also resumes; RESTART keeps the mode |
 | Game over     | PLAY AGAIN, MENU                     | Elastic panel; PLAY AGAIN preserves the previous mode (empty or full) |
 
-## 4. Controls
+Two standalone tanks sit at the bottom of the tank select:
 
+- **ABYSS TRENCH TANK** — a three-phase boss arena (one or two divers vs a leviathan).
+  The **LEVIATHAN** is a navy-blue hunter whose tentacles and long tail are lined with
+  glowing cyan dots, lit by a big bright-blue eye whose **white circular pupil tracks the
+  nearest diver**, flanked by two smaller eyes with the same look (the middle one
+  glows brightest); all three eyes blink. It hunts, telegraphs, then lunges; while
+  it staggers (after a lunge or a
+  hit) its glowing eye is the weak point — ram it fast enough and it takes damage, and its
+  phase climbs at 1/3 and 2/3 health (faster lunges, more **trenchlings** summoned each
+  cycle), each a navy-blue trenchling with glowing dots and one giant leviathan eye.
+  Lunge contact costs one of **three lives**; trenchlings only shove. Clear all
+  twelve hits to win — the leviathan lunges faster and more often as it loses health, and
+  its stagger (the ram window) shortens each phase. WASD or drag steers; ESC returns to
+  the tanks.
+- **RAYCAST TANK** — a first-person wreck maze rendered with a software raycaster
+  (distance-shaded wall columns, a looking cone, and a minimap). Collect every floating
+  bubble in the procedurally generated corridors, then reach the exit light. `W`/`S` move,
+  `A`/`D` turn, dragging looks; ESC returns to the tanks.
+- **REEF SWARM QUEEN** — a three-phase swarm boss (one or two divers vs the queen). The
+  queen hovers, then either **summons a swarm** of **swarmlings** or telegraphs and
+  **charges**; after each it **opens**, exposing a glowing core — ram the core while it is
+  open to deal damage, and ram swarmlings to pop them before they shove you. Its phase
+  climbs at 1/3 and 2/3 health (faster charges, bigger swarms, shorter openings). A charge
+  that connects costs one of **three lives**; swarmlings only shove. Clear ten hits to win.
+  WASD or drag steers; ESC returns to the tanks.
+- **MYSTERIOUSLY QUIET TANK** — a horror stealth dive through an **abandoned underwater
+  research lab that the alien attacked**, laid out like the labyrinth in scrolling
+  **sections with checkpoint masts**: metal bulkheads split by swim-through gaps, dead
+  consoles and canisters strewn across the flooded decks, and flickering warning lights. It
+  opens with a **diver picker** (all seven playable creatures) and an **arrival cutscene**:
+  an **intergalactic atom rift tears open in the lab** and the **ECHOEEL comes through**
+  it — driven here when its home planet ran out of prey — just as the
+  **seven divers arrive**. It
+  is banked from **checkpoint masts**: pass one and it lights up, and if the ECHOEEL
+  catches you the jumpscare plays and you **respawn at the last mast** instead of losing
+  the run. A really dark-grey, finless, eyeless **ECHOEEL** — a long,
+  eel-bodied thing whose armored head has no eyes and hinges open from the teeth to the
+  top with an **unnaturally wide, unhinging gape** (the lower jaw drops and the upper folds
+  back far past any natural mouth) over a stretched black gullet, revealing the dark inside
+  of its mouth, between rows of long needle teeth that jut
+  out past its silhouette, on a long, undulating tail lined with tiny black spikes and
+  tipped with a black shark caudal
+  fin — drifts
+  through the lab; it cannot see, only *hear*. Bumping the scattered **clutter** knocks it
+  over and makes noise, which sends the alien **charging at that junk at an
+  unoutswimmable speed** — blind, it thinks the diver is there, so it lunges at the
+  touched junk and **shatters it, even while the diver hides**. It never homes on the
+  diver and only ever strikes the junk it heard: if the diver is still **beside that junk**
+  when it strikes — and not in a hide alcove or behind a **bulkhead** — it takes them;
+  drift **right up against it** in the open and it takes them too; swim clear and it just
+  shatters the wreckage. Every few seconds it **echolocates** — a visible sonar sweep that
+  expands out to its range — and a diver **caught in the ping** in the open is
+  **jumpscared**, while a **hide alcove** or a **bulkhead between you and it** blocks the
+  ping. The diver must slip between the wreckage, stay silent, and reach the
+  **exit hatch** at the end. If the **noise meter stays full for more than two seconds**, it
+  finds you no matter what: a **jumpscare** lunges at the screen, its head splitting apart
+  to bare its needle teeth, and ends the run. The lab is **near-black**: only a small,
+  flickering pool of light follows your diver, so the corridor is mostly darkness and the
+  scatter you cannot see is easy to knock — while the **ECHOEEL stays fully visible**,
+  gliding out of the black. A **proximity heartbeat** quickens as it nears, and low ambient
+  **rumble, metal groans, creaks, water drips, and radio static** build the dread; **claw
+  marks** score the bulkheads and the **crew's empty dive suits** drift in the dark.
+  The **jumpscare has several variants** — a sonar catch, an instant snap, a lunge, and a
+  drawn-out breach. The light **tightens as it nears** (and as your noise rises), and
+  **swimming fast makes noise too**, so you must drift; **steam vents** erupt and lure it,
+  **bulkhead doors slam shut behind you**, the **remains of the six scientists who crewed
+  the lab** are found one by one (each surfacing a final log line), and the dark sometimes
+  conjures a **false echoeel** that drifts and
+  dissolves. Reach the **hatch** at the far end to escape — but in the last **four
+  bulkheads** it makes a **desperate lunge**, charging straight at you; it **barely
+  misses**, snapping at your tail as you slip through the hatch first (there is no
+  roaming end-of-run chase — that belongs to its own tank, **THE ESCAPE**). The tank
+  also runs under **FIRST PERSON MODE** as a tight, fogged raycast dive.
+  WASD or drag steers; ESC returns to the tanks.
+- **THE ESCAPE** — the standalone **escape** tank carved out of the quiet lab's
+  climax: pick a diver and the lab is already collapsing, the **ECHOEEL awake and
+  relentless** from the first second. It is a **straight sprint** down a collapsing
+  corridor: the shade drifts just slower than a clean diver, so **keep moving** — the
+  **ceiling debris** telegraphs and then crashes down into your path as blocking rubble,
+  and every dodge costs ground. **Checkpoint masts** bank your progress, and it shares the
+  near-black light, dread drone, and **four-variant jumpscare** (including a
+  **FIRST PERSON MODE** fogged raycast). Outswim it, or be taken — and if you reach the
+  **exit**, an **escape cutscene** plays: the ECHOEEL **slams into a pane of glass**, the
+  pane **shatters**, and its **high speed combined with its weight sinks it down into the
+  trench** as you get clear.
+- **THE WATCHER** — a **look-away** horror tank: your **gaze is both your light and your
+  weapon**. The trench is pitch black except a **beam you aim with the mouse** (in
+  **FIRST PERSON MODE** the camera itself is the beam), and the blind **WATCHERS** —
+  lumpy, barbed-tendril things crowned with a huge **slit-pupiled eye** ringed by **six
+  smaller blinking eyes** and a needle-toothed **maw** that gapes wider as they close —
+  **petrify inside the beam** (eyes glazing and locking onto you) and **only crawl toward
+  you when you are not looking**. A **STARE meter** drains as you look and forces a
+  **blink** when it empties: for a beat the light dies and every watcher **surges**. Gather
+  **sea coin bubbles** and push through four sectors that field **more and faster
+  watchers**; **checkpoint masts** respawn you when one catches you (a jumpscare), and the
+  last stretch is a **GREAT EYE** you must hold in the beam while edging to the hatch.
+- **THE TRENCH MOUTH** — the **anchor-against-the-gulp** horror tank: the **floor of the
+  trench is one colossal maw**. It **rests**, the water **rumbles**, then it **inhales** —
+  the gulp **drags you down toward the jaws** — and **snaps**; anything low enough is
+  **swallowed**. Ceiling **anchors** are your only grip: press **`SPACE`** near one to
+  **brace** and the suction can't move you, so you release to advance and re-grip before
+  each gulp. Four sections reach stronger, longer gulps and sparser holds; **checkpoint
+  masts** respawn you when the maw takes you, and picking up **sea coin bubbles** clears
+  each stretch on the way to the exit (with the shared darkness, heartbeat, and
+  **FIRST PERSON MODE** fogged raycast).
+- **PREHISTORIC TANK** — you play a **lungfish** fleeing through deep time in three
+  thirds. The **first third** is the **Devonian sea**: swim from a **DUNKLEOSTEUS** while
+  dodging floating **ammonites** — touching one knocks you back, but letting the armored
+  fish run into one **distracts** it (stunned) and buys you open water. The **second
+  third** is a **swamp** where the lungfish **runs on its fleshy fins** from a
+  **VELOCIRAPTOR** that lunges — dive through the **water pools**, which the raptor will
+  not enter. The **final third** opens with a **cutscene: the TITANOBOA coiled in a tree,
+  slowly moving** — then it drops and the chase begins across mixed **land and water**
+  against the giant snake, which trails a **long fixed-length body** (faster on land, slower through water). **Checkpoint masts**
+  bank each third and a three-part **progress bar** tracks the run.
+
+- **PLAYTOY EXPLORATION** — a third-person scrolling dive through the sunken cargo liner of
+  the **PlayToy Company**, a maker of goofy fantasy sea-creature plush. Flooded holds are
+  lined with **bulkheads**, **machinery, crates, pipes, and glowing portholes**, and roamed
+  by **living toys** (`src/entities/livingtoy.js`) — **BUBBLE-FANG**, **WIBBLE**,
+  **CRANK-FIN**, and **GLOOP-LO**, button-eyed plush that wander, then latch onto the diver
+  on contact (a knockback, never a death). Eight **lore notes** recount PlayToy's recipe for
+  sparking a toy alive; collected notes persist between runs and can be re-read any time from
+  the tank's **inventory** (`I` / `Tab` opens a scrollable **PLAYTOY INVENTORY** panel,
+  Up/Down browses the papers, `I`/`Esc` closes). **Typed gates** seal some bulkhead gaps — a
+  **BOLT LATCH**, a **LIVE
+  CIRCUIT**, and a **PRESSURE VALVE** — and only the matching head of the **ANCHOR-PACK**
+  opens each. Reach the surface hatch to win.
+- **THE ANCHOR-PACK** — the PlayToy tank's tool, and an original design (not a licensed
+  gadget): a wrist **winch** that fires a barbed **clamp head** on a tether line. Fire with
+  `F` or **right-click**, aimed at the pointer (or the crosshair in first-person); swap
+  heads with `E`. **MAIN ANCHOR** (gold) hauls loot and swings you to rings, **ELECTRICONDUCTOR
+  ANCHOR** (cyan) feeds live circuits and stuns toys, **PRESSURE ANCHOR** (orange) pries
+  valves and heaves heavy wrecks. Hitting a toy has the head's effect: knock, stun, or shove.
+  Firing at a plain hull wall makes the clamp **bounce off** (a slip and a spark, no grapple),
+  so you cannot accidentally pin yourself to the wreck; a **grapple** only takes on the
+  glowing **anchor rings**.
+  The tank plays third-person, but the **FIRST PERSON MODE** switch still applies to it.
+
+### 3.x Replayability: Mutators, Boss Rush, and Records
+- **Mutators** — an optional handicap chosen before any dive or minigame (from the
+  MUTATORS screen reachable in CHOOSE TANK and MINIGAMES). One at a time: **OFF**, **FAST**
+  (everything 60% faster), **ONE HIT** (a single hit ends the run), **NO AIR** (the clock
+  runs twice as fast), **LIGHTS OUT** (the tank goes dark), **GOLD RUSH** (double coins, no
+  recovery frames), **GLASS** (no invulnerability window), and **TIME PRESSURE** (tighter
+  clock, heavier spawns). Each carries a score and coin multiplier shown on the picker and
+  a HUD badge during the run; the choice is remembered and applies to play tanks, every
+  minigame, and every horror arena alike.
+- **Boss Rush** — a ticketed gauntlet that runs the five horror bosses back to back with a
+  running clock: the **Echoeel**, the **Watcher**, the **Trench Mouth**, the **Megasquid**,
+  and the **Titanoboa**. An interlude card previews each wave; clearing every wave pays a
+  per-boss bounty plus a full-clear bonus, and Esc abandons the run to the minigames.
+- **Records** — every tank, boss arena, and minigame banks a best time and score, shown
+  inline beside tank cards and minigame entries and collected on the **RECORDS** board
+  (grouped into tanks, boss arenas, and minigames with a cleared count). Winning a run that
+  beats a best stamps **NEW RECORD** on the results screen.
+
+## 4. Controls
 | Action       | Bindings                                |
 | ------------ | --------------------------------------- |
 | Move         | `WASD` / arrow keys                     |
@@ -200,8 +368,8 @@ Requirements:
 | Snack button | `SNACK` button, bottom-right (Pets Tank) — drops a critter mid-tank |
 | Lure button | `LURE` button, bottom-right (Pets Tank) — lights up while enemies are loose |
 | Pet buttons | `TOY` / `PHOTO` / `MEALS 25` buttons above the snack row (Pets Tank) — drop a bouncing toy, save a postcard, or buy a 250-snack meal pack |
-| Hide in sand | hold `Down` / `S` (or drag down) over the sand to bury; `Up` (or drag up) to surface (Stingray Tank) |
-| Hide in hole | hold `Down` / `S` (or drag down) by a stone-ledge hole to tuck in; release to swim out (Deep Sea Tank) |
+| Hide in sand | hold `Down` / `S` or `Shift` (or drag down) over the sand to bury; `Up` (or drag up) to surface (Stingray Tank) |
+| Hide in hole | hold `Down` / `S` or `Shift` (or drag down) by a stone-ledge hole to tuck in; release to swim out (Deep Sea Tank) |
 | Crawl        | `Left` / `Right` while buried in the sand (Stingray Tank) |
 | Break away   | `Up` / `W` (or drag up) to leave a sardine school (Arctic Tank) |
 | Dodge sideways | `Left` / `Right` (`A`/`D`, or drag sideways) in the Nautilus Tank |
@@ -209,6 +377,9 @@ Requirements:
 | Pause button | on-screen button, bottom-left corner    |
 | Confirm      | `Enter` / `Space` / mouse / tap         |
 | Back         | `Escape` (overlays and menu screens)    |
+| Fire Anchor-Pack | `F` / right click, aimed at the pointer (PlayToy Exploration; the crosshair in first person) |
+| Swap anchor head | `E` cycles MAIN / ELECTRICONDUCTOR / PRESSURE (PlayToy Exploration) |
+| Inventory    | `I` / `Tab` opens the read-your-papers panel; Up/Down browse, `I` / `Esc` closes (PlayToy Exploration) |
 
 In **CO-OP DIVE (2P)** the tank holds two of the player creature — two sharks, two
 stingrays, or two squids — and each player controls their own: P1 on `WASD`, P2 on the
@@ -227,7 +398,9 @@ drag) steer it, while up/down input is ignored.
 ## 5. Entities
 
 All entities are procedurally drawn and share the engine `Entity` base: center
-position, velocity, collision radius, age, and an `alive` flag. In co-op dives two
+position, velocity, collision radius, age, an `alive` flag, and a `facing` (-1/1).
+Playable creatures render upright and mirror horizontally to face their swim direction,
+so a diver heading left faces left rather than turning upside down. In co-op dives two
 player creatures exist (two sharks, stingrays, or squids), one per player; predators
 target the nearest visible player.
 
@@ -995,17 +1168,18 @@ Palette:
   at 90 BPM (no hats); arctic: a glassy F-major shimmer at 120 BPM; jelly: the A-minor
   turtle pulse at 140 BPM; freshwater: the D-minor catfish drive at 150 BPM; kelp: a
   deep G-major groove at 108 BPM; pets: a bouncy C-major play theme at 128 BPM;
-  nautilus: an E-minor descent at 96 BPM (no hats); and the labyrinth: a menacing
+  nautilus: an E-minor descent at 96 BPM (no hats); the labyrinth: a menacing
   D-minor tritone chase at 138 BPM that layers tritone stabs over a chromatic descending
-  bass — sequenced in eighth notes through
+  bass; and the mysteriously quiet lab: a slow **horror D-tritone drone at 64 BPM**, sparse
+  low clusters pulsing a tritone and a minor second under isolated high stabs — sequenced in eighth notes through
   the same bus. The intro splash and the whole menu family (menu, tank select, settings,
   shop, minigames, tag, dodgeball, and the track player) share a cozy A-minor **MENU
   lullaby at 92 BPM** that carries across screens and hands off to the tank theme the
-  moment a dive starts; the labyrinth swaps it for its chase theme and restores whatever
-  was held when the wreck is left. Themes pause with gameplay, follow the volume and SFX settings,
-  and the EMPTY TANK test mode stays silent. The TRACK PLAYER (SETTINGS) lists all eleven —
+  moment a dive starts; the labyrinth and the quiet lab swap it for their own themes and
+  restore whatever was held when they are left. Themes pause with gameplay, follow the volume and SFX settings,
+  and the EMPTY TANK test mode stays silent. The TRACK PLAYER (SETTINGS) lists all twelve —
   MENU TRACK, REEF TRACK, STINGRAY TRACK, DEEP SEA TRACK, ARCTIC TRACK, KELP TRACK,
-  PETS TRACK, JELLY TRACK, FRESHWATER TRACK, NAUTILUS TRACK, and LABYRINTH TRACK — and plays or stops any
+  PETS TRACK, JELLY TRACK, FRESHWATER TRACK, NAUTILUS TRACK, LABYRINTH TRACK, and QUIET TRACK — and plays or stops any
   of them on demand, showing the theme's mood and BPM plus a live equalizer while it
   plays. A theme started there is **held**:
   it keeps playing as you leave the player and roam the menus and settings, and only
@@ -1326,7 +1500,10 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   toward them and tracking them until they pass out of its reach, holding rigid like a
   spear — a long lance beat — with chunks of wood flying off the breach and only curling
   at the end — grabbing
-  anyone it touches. The ruined ceiling joins in too: stand directly under a creaking beam
+  anyone it touches. The floor stubs sprout their own hazard: a scatter of tiny moray
+  holes in the wood, and a diver who lingers over one gets a moray rearing up to bite —
+  the REEF CLEANUP peek/bite/retreat in the stingray tank's brown-to-spotted-yellow moray
+  colors — staggering them for a second while the tangle closes in. The ruined ceiling joins in too: stand directly under a creaking beam
   and it glows, sheds dust, then drops a spinning hunk of planking that staggers whoever
   it lands on for a second, leaving them drifting while the tangle closes in. Behind the
   whole wreck a colossal squid
@@ -1357,6 +1534,30 @@ The six arcade games (tickets in the payouts note below):
   currents, and bands of black water; three crunches and the trench keeps you. Each ice
   wall's gap is placed within a diver's reach of the last one (`maxGapShift`), so the run
   is always threadable — hard, but never a wall you cannot cross.
+- TRENCH EXPLORE — a **timeless** buoyancy dive: `SPACE` kicks you up while you sink under
+  your own weight, so you hover, rise, and drop through a vertical trench to gather **sea
+  coin bubbles**. A **fishing boat and net** sit on the surface; the winch rattles, the net
+  **drops**, and you have to sink beneath its reach until it retracts. Grab every bubble to
+  clear a trench and move on — each trench reaches **deeper** with a faster net. Clear all
+  four and the **MEGASQUID rises from the last trench**, tentacles tangled in a shipwreck,
+  and **tears the wreck apart**; the finale is a **thrilling boss chase**: the dive
+  becomes a **rightward run** with **fishing nets hanging from the surface** to swim under,
+  while you **round the drifting fish schools into a net to bait it**. The baited net **lures
+  the megasquid in**, and the net **deals damage** — each hit stuns it while its **health
+  bar** drains (it rages as it drops and lunges harder). Deplete its health to zero to **drive
+  it off and escape**. No clock at all; the run ends when a net or the squid takes you, or when you
+  surface. The trench is alive with **cosmetics** — **morays** cruising past, swaying
+  **seaweed**, **crabs** scuttling the floor that bolt away when you near them, and
+  **octopus** and **squid** (each with a pair of eyes) that jet around the trench **hunting the small shrimps** that dart through it. A whole **rainbow of stingrays** drifts it —
+  spotted (dark yellow, bright blue spots, orange-ringed dark blue tail), plain gray, tiger,
+  blue, green, violet, crimson, sunset, mint, gold, silver, pink, cyan, copper, and night,
+  plus tiny translucent **baby rays** with one big spot (pink, blue, green, yellow, or
+  purple). Chase any ray toward the descending net and it is **scooped up**, unlocking that
+  ray's **free color skin** in the shop — no coins needed (twenty ray skins in all). The
+  **crabs** scuttling the floor **naturally keep their distance** from the diver (drifting
+  and speeding away), and **burrow under the sand when cornered** at the trench edge
+  (sinking out of sight) before **resurfacing once the diver swims far enough**. The floor is **solid**
+  and the coin bubbles have roomy hitboxes.
 
 Minigames pay sea coins — 30 for finishing plus a 60-coin win bonus (the race isn't a
 tie or beats its solo target, a CPU is still it in tag, dodgeball isn't a double KO,
@@ -1364,8 +1565,8 @@ solo dodgeball survives its 45-second target, or labyrinth escapes all seven par
 `sharkquarium.stats` as `minigames` / `minigameWins`, shown on the menu as
 `w/t MINIGAMES WON`. They never touch the best score or the dive stats.
 
-The six arcade games charge a ticket at the door: **PUFFER BALL 25, SCHOOL ROUNDUP 30,
-JELLY ASCENT 30, STEALTH DIVE 35, REEF CLEANUP 40, TRENCH DIVE 45** sea coins
+The arcade games charge a ticket at the door: **PUFFER BALL 25, SCHOOL ROUNDUP 30,
+JELLY ASCENT 30, STEALTH DIVE 35, REEF CLEANUP 40, TRENCH DIVE 45, TRENCH EXPLORE 50** sea coins
 (`MINIGAME_FEES`). The ticket is charged by the MINIGAMES menu on **every entry** — exit
 to the menu and entering again pays again; `PLAY AGAIN` after a round stays inside the
 paid session. The menu shows the bank, each price (red when unaffordable), and quotes the

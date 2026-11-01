@@ -30,7 +30,7 @@ index.html           dev entry that loads the ES modules
 styles/main.css      page shell styles
 src/engine/          reusable engine (loop, scenes, input, audio, rendering, UI widgets)
 src/ui/              game HUD
-src/scenes/          boot, intro, menu, tank select, settings, shop, minigames, tag, dodgeball, labyrinth, puffer ball, school roundup, stealth dive, trench dive, jelly ascent, reef cleanup, track player, cutscene theatre, game trailer, movie and shop trailers, lore codex, aquarium builder and dive, play, game over, descent, dawn cutscene
+src/scenes/          boot, intro, menu, tank select, settings, shop, minigames, tag, dodgeball, labyrinth, puffer ball, school roundup, stealth dive, trench dive, trench explore, jelly ascent, reef cleanup, abyss boss, reef swarm queen, raycast maze, mysteriously quiet horror tank, the escape chase, the watcher look-away horror tank, the trench mouth anchor-against-the-gulp horror tank, the prehistoric lungfish chase tank, the playtoy toy-liner exploration tank, mutators screen, boss rush gauntlet, records board, track player, cutscene theatre, game trailer, movie and shop trailers, lore codex, aquarium builder and dive, play, game over, descent, dawn cutscene
 src/entities/        each tank's player creatures, hazards, and collectibles
 src/config.js        all game tuning and palette
 src/assets/          image manifest (data URIs) + tank music tracks
@@ -117,7 +117,7 @@ cutscene, the nautilus descent (lane pinning, side steering, whale skeletons, da
 eels, squid interception and dodge-fed shark distraction, and its 120-bubble goal
 opening the freshwater chase),
 the per-tank music themes, tank selection with the
-co-op toggle, the settings switches, the difficulty selector (through APOCALYPTIC
+co-op toggle, the ABYSS TRENCH leviathan and REEF SWARM QUEEN boss arenas and the RAYCAST first-person wreck maze, the MYSTERIOUSLY QUIET horror stealth tank (a labyrinth-style abandoned lab in sections with a diver picker and an intergalactic atom rift arrival cutscene, hunted by the finless, eyeless ECHOEEL with a split needle-toothed head that hears your noise, echolocation pings, hide alcoves, a near-black lab lit only by a small light around your diver that tightens as it nears, movement that makes noise, steam vents, slamming bulkheads, the remains of the lab's dead scientists, false-echo hallucinations, checkpoint masts that respawn you at the last sector, a last-second echoeel lunge that barely misses as you slip through the hatch, a proximity heartbeat and ambient horror sound, several jumpscare variants, and a first-person raycast option, scored by its own slow horror drone theme), THE ESCAPE (the standalone escape chase carved from the quiet lab's climax: the ECHOEEL relentless from the first second, a collapsing debris-strewn corridor, checkpoint masts, a pure dash to the exit, and an escape cutscene where it crashes through a glass pane and its weight and speed sink it into the trench), THE WATCHER (the look-away horror tank: your gaze is the only light and only weapon, single-eyed watchers petrify in the beam and only crawl when unobserved, a stare meter forces blinks that let them surge, checkpoint respawns, and a first-person beam), THE TRENCH MOUTH (the anchor-against-the-gulp horror tank: the floor is one colossal maw that breathes, drags, and snaps, ceiling anchors brace you with SPACE, checkpoint respawns, and a first-person route), the PREHISTORIC TANK (you play a lungfish fleeing a Dunkleosteus through the Devonian sea, a Velociraptor across a swamp by fin, and a Titanoboa that drops from a tree across land and water), the settings switches (including the 3D MODE that renders every object and background in 3D and the first-person raycast view over every dive and minigame), the difficulty selector (through APOCALYPTIC
 WIPEOUT), and the volume slider, the shop (a welcome sea-coin bank, difficulty-scaled
 payouts with equipped-color bonuses, color purchases with creature browsing, cheap
 accessories, the SHADOW and RAINBOW specials, and the
@@ -125,9 +125,10 @@ playpasses), the minigames
 menu, the two-player competition race and its 1P target chase, the tag minigame with
 named players, CPU
 swimmers, random CPU targeting, and tag-separation pushes, solo tag and solo dodgeball
-survival, difficulty-scaled minigame rules, the six paid arcade games (puffer ball
+survival, difficulty-scaled minigame rules, the seven paid arcade games (puffer ball
 against the CPU, school roundup, stealth dive, trench dive with its always-reachable ice
-gaps, jelly ascent, and the
+gaps, trench explore — the timeless buoyancy dive (cosmetic morays, crabs, seaweed, octopus/squid corals, and a rainbow of twenty catchable stingrays (spotted, gray, tiger, blue, green, violet, crimson, sunset, mint, gold, silver, pink, cyan, copper, night, and baby rays) that unlock free color skins, and floor crabs that burrow under the sand when cornered) where you sink under the surface net and
+out to the megasquid boss, jelly ascent, and the
 no-clock reef cleanup whose morays peek, bite, and retreat), the nine playpasses with their
 pass-granted cosmetics (ragdoll plushies, the RGB neon jacket, eel aura rings, five swim
 trails, twenty-one companion pals covering every playable creature and enemy —
@@ -139,8 +140,8 @@ despawn lures, saved progress, pet tricks, toys, postcards, and meal packs, and
 cross-level enemy waves (jellyfish, turtle, pufferfish, anglerfish, and morays) that bite the pets and drain the tally, minigame
 coin rewards and win counters, pufferfish dodgeball with
 its three lives, no timer, and endless escalation, the labyrinth escape with its
-checkpoint masts, the part and per-player diver pickers, the WRECK ARRIVAL cutscene, the GAME TRAILER, the all-tank gameplay gauntlet, the SHARKQUARIUM: THE MOVIE and SHOP TRAILER reels, the nested tank and minigame cut-downs, the LABYRINTH TRAILER, the joystick steering, tentacle wall and grabber lunges, its seven-part descent,
-cracked-ground bursts, wall ambushes, ceiling feeding spears, ceiling chunks and the collapsing ceiling stubs that crash onto the tangle, the watching
+checkpoint masts, the part and per-player diver pickers, the WRECK ARRIVAL cutscene, the flooded-lab escape and megasquid-rising cutscenes, the GAME TRAILER, the all-tank gameplay gauntlet, the SHARKQUARIUM: THE MOVIE and SHOP TRAILER reels, the nested tank and minigame cut-downs, the LABYRINTH TRAILER, the joystick steering, tentacle wall and grabber lunges, its seven-part descent,
+cracked-ground bursts, wall ambushes, ceiling feeding spears, ceiling chunks and the collapsing ceiling stubs that crash onto the tangle, the floor-stub morays that rear up and bite, the watching
 squid, grab respawns, the moray tail-slide retreat, the grab-clump spawner, the slowest-diver wall cap, the stingray's disabled deck burrow, saved-part resume, the two-beat MEGASQUID ending, dread theme, and
 co-op/solo
 results, the kelp forest tank with its crab
@@ -150,5 +151,9 @@ out-of-lives panel, the aquarium builder with its full palette, dive mode, chill
 LABYRINTH MODE with its seeded wreck course and hand-placed wall, support, and tentacle
 burster pieces, and saved
 layouts, and co-op
-two-creature control — so code and build regressions surface immediately. The artifact
+two-creature control, the MUTATORS screen with handicap scaling, the BOSS RUSH gauntlet
+over all five horror bosses, the RECORDS board with per-mode best times and scores, and the
+PLAYTOY EXPLORATION toy-liner tank (the ANCHOR-PACK with its three anchor heads, typed
+gates, an anchor that bounces off hull walls, living plush toys, and a persistent lore-paper
+INVENTORY) — so code and build regressions surface immediately. The artifact
 is a single HTML file with no external requests and can be opened from `file://`.

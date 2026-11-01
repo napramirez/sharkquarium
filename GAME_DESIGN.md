@@ -59,7 +59,50 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
 - `TankSelectScene` (`tanks`) picks a starting tank and an optional co-op flag, then
   hands `PlayScene` the same `{ tank, coop }` payloads a normal run uses.
 - `SettingsScene` (`settings`) holds the persisted `CO-OP TANK SELECT` switch, which
-  pre-enables the co-op flag in the tank select.
+  pre-enables the co-op flag in the tank select, plus the `3D MODE` switch: toggling it
+  calls `Game.set3D()`, which flips the `engine/mode3d.js` flag and sets a CSS
+  `perspective(1100px) rotateX(22deg)` transform on the canvas element (and `none` when
+  off) so every scene renders onto an angled 3D plane. While the flag is set, `Entity`
+  renders in 3D — its base constructor wraps each subclass `render()` so `drawEntity3D()`
+  paints a ground shadow plus one hard offset drop shadow (`shadowOffset`, no blur or
+  `ctx.filter`) so each object pops off the floor at a single draw call, bubbles render as
+  lit spheres (`sphere3D`), entities flagged `flat3D` or larger than 64 px keep just the
+  ground shadow, and `drawWater()` switches
+  to `drawWater3D()` — a perspective sky, horizon, and converging grid floor. The setting
+  persists under `SETTINGS_KEY` and `main.js` re-applies it on boot. The
+  canvas backing-store sizing in `Game.resize()` prefers `clientWidth`/`clientHeight` so
+  the CSS tilt never skews the render resolution. Alongside it, the `FIRST PERSON MODE`
+  switch (`Game.setFirstPerson()` → `setFirstPersonMode()` in `engine/mode3d.js`) turns
+  every dive and minigame into a first-person **raycast** view via `engine/raycastview.js`,
+  the same software-raycast look as the standalone RAYCAST TANK: when the flag is set,
+  `PlayScene`, `MinigameScene` (all arcade games, dodgeball, abyss, raycast),
+  `LabyrinthScene`, `TagScene`, and `AquariumScene` skip their normal world draw (after
+  the HUD/overlay draws) and call `renderFirstPersonLevel(ctx, scene)`, which builds a
+  camera at the actor (`firstPersonCamera()`: the yaw is seeded from the actor's heading
+  once and then driven only by the mouse — relative `movementX` deltas while the pointer is
+  locked, or a bounded offset as a fallback — so `A`/`D` strafing never swings the view and
+  the look never sticks at a screen edge). `Game.updateFirstPerson()` (run each fixed step)
+  owns that yaw and turns the pressed `W`/`A`/`S`/`D` movement keys into a camera-relative
+  vector, publishing it through the synthetic `input.pointer.look` + `dragX/dragY` the
+  creatures already steer with — so `W`/`S` drive forward/back along the view and `A`/`D`
+  strafe, in every scene. It collects geometry with `collectWalls()` — solid boxes for the labyrinth's
+  `walls`/`supports` and the aquarium's maze walls, plus an inward boundary rectangle from
+  `firstPersonBounds()` — and raycasts it per column (slab against boxes, segment
+  intersection against the boundary), then draws depth-sorted billboards —
+  `firstPersonSprites()` returns the scene's live entities, each rendered scaled through
+  its raw `entity._draw` and occluded by the per-column wall depths. `renderFrame()` still
+  marks the actor with `setHiddenEntity()` so its own body is skipped; the mouse only looks
+  (damped by `LOOK_SENSITIVITY`) and `WASD`/arrows steer, and `renderFrame()` sets
+  `canvas.style.cursor = 'none'` while first person is on in a dive/minigame scene
+  (`FIRST_PERSON_SCENES`) so the pointer disappears, restoring it in menus, and
+  `Game.capturePointer()` requests pointer lock plus `documentElement.requestFullscreen()`
+  on enabling or on a gameplay pointer/key gesture (released when the mode is turned off or
+  a first-person scene is left), so the mouse turns the view endlessly. A corner
+  `drawMinimap()` overlays the arena bounds, wall boxes, entity blips, and the player's
+  heading, scaled to a fixed panel. It resolves
+  the actor through
+  `Scene.firstPersonActor()` (`divePlayer`/`players[0]`/`swimmers[0]`/`player`), applies
+  to every dive and minigame, is independent of 3D MODE, and persists the same way.
 - `DawnScene` (`dawn`) is the freshwater goal cutscene: the sun rises outside the
   aquarium window, and ENTER returns to the menu.
 - `ShopScene` (`shop`) sells character colors, coin trinkets, and nine playpasses
@@ -91,8 +134,12 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   (`{ entity, heading, flip }`) so `plushie.js` can read each wearer's velocity: every
   plushie keeps its appendage chains in a `WeakMap` of spring/damper joints
   (`STIFFNESS` 55, `DAMPING` 5.5) whose targets trail opposite `vx`/`vy` (mapped into the
-  entity's rotated or mirrored render space), straighten under speed, and sway at rest,
+  entity's mirrored render space), straighten under speed, and sway at rest,
   with per-creature specs for the seven divers, the moray, and the three rare pets.
+  Playable creatures render upright: every diver keeps a `facing` (`Entity.updateFacing()`
+  sets it from `vx`) and its `render()` mirrors with `ctx.scale(facing, 1)` instead of
+  rotating to `heading`, so swimming left faces the sprite left rather than flipping it
+  upside down; the nautilus already worked this way.
   `trail.js` samples each swimmer's recent positions in a per-entity `WeakMap` and draws
   the five wakes; `companion.js` eases a floating dive buddy behind the entity along its
   velocity or heading, and the seven buddies that mirror the playable creatures redraw
@@ -202,8 +249,21 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   respawning at checkpoints on three spot-outs; `TrenchScene` (`trench`, solo) is a
   60-second descent through scrolling ice barriers, gold pearls, currents, and dark
   bands with three hits; `spawnBarrier()` clamps each wall's `gapWidth` opening to within
-  `maxGapShift` (220 px) of the last one, so the diver can always reach the next gap and
-  the run is winnable rather than a random dead end; `JellyAscentScene` (`jellyascent`, solo) pulse-bounces a moon
+  `  maxGapShift` (220 px) of the last one, so the diver can always reach the next gap and
+  the run is winnable rather than a random dead end; `TrenchExploreScene` (`trenchexplore`,
+  solo) is a **timeless buoyancy dive**: the diver is integrated directly (space thrusts
+  up, gravity sinks, `QUIET`-style drag) down a vertical shaft (`camY` follows the diver),
+  gathering `coinBubbles` in each trench while a surface boat's `net` runs an
+  `idle`/`warn`/`down`/`hold`/`up` cycle; sinking below `net.depth + radius` avoids it, and
+  clearing a trench (`clearTrench`) advances to a deeper, faster one (`netMaxDepths` /
+  `coinCounts`). Clearing the last trench runs a `phase: 'rising'` cutscene
+  (`drawMegasquid` rising out of the trench tearing a shipwreck apart) and then a
+  `phase: 'boss'` upward chase where `bossNets` appear at depths instead of trenches — an
+  active net overlapping the `squid` sets its `stun` (freezing the chase), and reaching
+  `escapeY` wins. `buildCritters()` scatters cosmetic life per trench (`moray`, `weed`,
+  `crab`, `octopus`/`squid` corals, and `ray` variants) and `updateCritters()` drives them:
+  crabs bolt from the diver, and a `ray` overlapping the descending net is **scooped up**,
+  its `skin` pushed into `SHOP_KEY.owned` to unlock a free shop skin. `JellyAscentScene` (`jellyascent`, solo) pulse-bounces a moon
   jelly up a scrolling shaft of ring gaps and updrafts; and `CleanupScene` (`cleanup`,
   solo or co-op) nudges floating wreckage into the recycle net while three moray holes
   lunge, its HUD keeping the `RECYCLED n/target` counter and running with no clock at
@@ -216,6 +276,141 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   yellow). Fees live in `MINIGAME_FEES` (25–45 coins) and are charged by
   `MinigamesScene.choose()` on every entry from the menu; `PLAY AGAIN` after a round
   stays inside the paid session.
+- `AbyssScene` (`abyss`) and `RaycastScene` (`raycast`) are the two standalone tanks in
+  the tank select: their options carry a `{ scene }` param, so `TankSelectScene.choose()`
+  routes them straight to the scene instead of `play`. **ABYSS** is a three-phase boss
+  arena — the `Leviathan` entity state-machines `hunt → summon → telegraph → lunge →
+  recover`, drawn navy blue (`leviathan`/`leviathanDark`) with glowing cyan dots on its
+  tentacles, body rim, and a long swaying `renderTail()` and a big `renderEye()` bright-blue
+  eye (`leviathanEye`) whose **white circular pupil tracks the nearest diver** (the
+  `gaze` angle is taken from the stored nearest threat and converted to local space),
+  flanked by two smaller eyes with the same look; a `blinkTimer`/`blinkHold` pulse closes
+  all three eyes periodically, and the shared `drawLeviathanEye()` also draws the navy
+  trenchlings' single giant eye; its eye is only weak while
+  staggered (`vulnerable`, gated on `ABYSS.ramSpeed`),
+  damage bumps `phase` at 1/3 and 2/3 health (`phaseSpeed()` accelerates lunges and adds
+  `trenchlings` each summon; the post-lunge stagger window `ABYSS.recoverTime / phaseSpeed()`
+  shrinks each phase), a lunge that connects costs one of three lives, and the HUD
+  draws a segmented health bar and hearts. **RAYCAST** is a Canvas2D software raycaster:
+  `generateMaze()` carves an odd-sized grid with a seeded LCG, `castColumn()` steps a ray
+  to the first wall, and `renderRound()` draws distance-shaded wall columns over a
+  ceiling/floor gradient with a live minimap; the round is won by collecting every bubble
+  then reaching `exitPoint`. Both extend `MinigameScene` for the results/particle
+  scaffolding but override `backScene()`/`chooseResult()` to return to `tanks`.
+- `ReefQueenScene` (`reefqueen`) is the second boss tank, built on the same
+  `MinigameScene` scaffold: the `SwarmQueen` entity cycles `hover → summon/telegraph →
+  open` (and `telegraph → charge → open`), so its glowing core is weak only while `open`;
+  `damage()` bumps `phase` at 1/3 and 2/3 health (`phaseSpeed()` speeds charges, grows the
+  swarm, and shrinks the opening), the scene spawns `Swarmling` entities (`spawnSwarm()`,
+  `SWARM_QUEEN.swarmlings` + per phase) that home the nearest diver, a charge that connects
+  costs a life, and divers can pop swarmlings by   ramming them (`popped`).
+- `QuietScene` (`quiet`) is the horror stealth tank, built like a cut-down labyrinth: it
+  generates **sections** (`QUIET.sections` × `sectionLength`) of metal `walls` with
+  swim-through gaps, scattered `Clutter`, and hide alcoves, scrolls via `updateCamera()`,
+  and **checkpoints** — passing a `checkpoints` mast banks it, and `respawn()` returns the
+  diver there (resetting noise, the echoeel, seals and debris) after a scare instead of
+  ending the run; the win is reaching `exitZone` at the end. It opens in a
+  `select` phase (a `SelectList` that cycles the seven `DIVE_CREATURES`, then START/BACK)
+  and plays a `phase: 'arrival'` cutscene before the dive: `startArrival()` opens an
+  intergalactic atom `rift` in the lab, then `arrivalEchoeel` (a real `Echoeel`) passes
+  through it (`reveal`) as the seven `arrivalCrew` divers swim in; the chosen creature is
+  spawned as
+  the player in `buildRound()`. A really dark-grey, finless eyeless `Echoeel` (`echoeel.js`), a long eel body
+  with a long undulating tail (`renderTail`) lined with tiny black spikes and tipped with a black shark caudal fin
+  whose armored head `renderHead()` hinges its lid open from the teeth to the top with a
+  runaway gape (`open` scales the upper jaw by 1.8× and drops the lower by 0.65×, stretching
+  a black gullet and elongating the teeth) — a dark
+  mouth interior behind rows of long needle teeth — and which renders upright with the same
+  `ctx.scale(facing, 1)` flip as the divers — drifts (`pickWander`, bounded by `worldWidth`); `Clutter` topples call `emitNoise()`,
+  raising `noise` and `alertTo()`ing the alien at the junk, whose `update()` runs `alert → charge`
+  `→ search`; a noise alert points it at the touched junk, so — blind — it charges and `shatterJunk()`s
+  it (planks + shake) even if the diver is concealed, and it **never homes on the diver**. It
+  only takes the diver when they are still beside that junk as it strikes (`QUIET.shatterCatch`)
+  or drift within `QUIET.touchRange` of it in the open, and not concealed; every `QUIET.echoEvery` it sends an
+  expanding echolocation sweep out to `QUIET.echoRange` (the drawn ring), and a diver it reaches
+  in the open is `startScare()`'d, while overlapping a hide alcove (`hidden`) or a `walls` bulkhead across the
+  line of sight (`hasLineOfSight()` / `segmentHitsRect()` build `concealed`) keeps the diver safe
+  from it. `noise` held over `QUIET.scareHold`
+  (2 s) calls `startScare()` — a `renderJumpscare()` ending the run. `enter()` swaps the
+  held theme for `QUIET_TRACK` (a 64 BPM D-tritone horror drone, `music.hold` cleared) and
+  `exit()` restores whatever was held; `render()` ticks `setSkinClock(this.time)` so the
+  diver's skin aura/pulse animates like the other scenes. Each play frame draws the world,
+  then `renderDarkness()` lays a near-black radial around the diver (`QUIET.visionRadius` /
+  `visionSoft` / `ambientDark`, with a slight flicker), then `renderDarkLayer()` redraws the
+  echo sweep, faint hide/exit markers, and the **always-visible** alien on top so only the
+  creature is lit out of the dark; `updateAmbience()` schedules low filtered `audio.noise()`
+  and `tone()` cues (rumble, groans, creaks, drips, static) plus a **proximity heartbeat**
+  whose rate rises with closeness and `noise`. `startScare(kind)` stores `scareKind`
+  (`sonar`/`snap`/`lunge`/`breach`) that picks a `renderJumpscare()` variant, bulkheads
+  carry claw scratches, and drifting empty `ghosts` suits litter the sectors. Phase-2 horror
+  systems hang off `updateHorror()`: a `danger` value (closeness/noise) **tightens the
+  `renderDarkness()` light** (`QUIET.visionTighten`) and drives a subtle screen zoom; fast
+  swimming raises `noise` (`QUIET.moveNoise`); steam `vents` erupt and `emitNoise()` to lure
+  it; `slamDoors` seal behind the diver (pushed into `walls`); six `remains` — the dead
+  scientists who crewed the lab — surface a final log line
+  (`QUIET_REMAINS`); and `phantoms` are low-alpha false echoeels that dissolve. The quiet
+  tank has **no roaming end-of-run chase** (that lives in `FloodScene`), but within
+  `QUIET.finalLungeRange` of the hatch a **scripted near-miss** fires: the echoeel is
+  snapped to just behind the diver at `QUIET.finalLungeSpeed`, `relentless` and locked on,
+  and clamped to stay `QUIET.touchRange + 6` away (the ping/contact/strike catches are
+  skipped under `finalLunge`) so it **barely misses** and the diver reaches `exitZone`
+  first. The scene
+  opts into
+  `FIRST_PERSON_SCENES`, rendering a tight fogged raycast (`firstPersonRange`/fog, no
+  minimap) with `firstPersonSprites()` including the alien, clutter, ghosts, remains, vents,
+  and phantoms.
+- `QuietScene` also backs **`FloodScene`** (registered as `flood`, "THE ESCAPE"), its own
+  standalone tank: the same class with `this.name === 'flood'` entering `flood` mode, the
+  diver picker reused, and `buildFloodRound()` replacing the stealth sections with a
+  **corridor-only** open course (`sectionCount 0`, no bulkheads), `debris`, two
+  checkpoints, and a `trueExit` at the end; the echoeel starts `relentless` at
+  `QUIET.part2Speed` from off-screen and `phase2` is on from the first frame, so it is a
+  pure — but winnable — chase (`part2Speed` is below the diver's `PLAYER.maxSpeed`, so a
+  clean runner gains ground and only a stalled dodger is caught). `startArrival()` skips
+  the rift cutscene for flood mode (just `acknowledgeFlood()`), and `updateChase()`
+  (called only in flood mode) keeps the shade locked on the diver. Reaching `trueExit`
+  starts a **`phase: 'outro'` cutscene** instead of ending immediately: `startOutro()` /
+  `updateOutro()` stage the ECHOEEL slamming into a glass pane, the pane shattering
+  (`outroShattered`, particles + shake + flash), the shade tumbling through and then
+  **sinking toward the trench**, and `renderOutro()` draws it card by card before
+  `finish(true)` after `QUIET.outroDuration`. `resetAhead()` keeps `phase2`/`finale` latched
+  in flood mode so death only resets the chase, and `respawn()` re-places the shade behind
+  the last mast.
+- `WatcherScene` (`watcher`, "THE WATCHER") is the **look-away** tank: an open, pitch-dark
+  trench where the diver's **gaze is the only light**. `currentGazeAngle()` aims from the
+  pointer (top-down) or `firstPersonYaw` (first-person), and `renderGaze()` masks everything
+  outside the beam with an even-odd clip plus `renderConeLight`. `Watcher` entities
+  (`entities/watcher.js`, a big single-eye body with tendrils) are `observed()` — inside
+  `QUIET`-style range and half-angle and with the gaze active — and **freeze** only while
+  observed, else stalk at `WATCHER.stalk[sector]` toward the diver; a catch runs
+  `startScare()`/`respawn()`. A `stare` meter drains while looking and, when it empties,
+  forces a `blink` (`blinking`) that shuts the beam and lets the watchers advance.
+  Sectors spawn `WATCHER.coins` bubbles and `WATCHER.watchers` stalkers, checkpoints bank
+  respawns, and reaching `exitZone` wins; the scene opts into `FIRST_PERSON_SCENES`
+  (`renderFirstPerson()` uses a tight `renderFirstPersonLevel` fog with the watchers and
+  coins as billboards), and the diver's `pointerSteering` toggles with the mode so WASD
+  drives it camera-relative only in first person.
+- `MouthScene` (`mouth`, "THE TRENCH MOUTH") is the **anchor-against-the-gulp** tank: the
+  trench floor is one maw that runs `idle → warn → inhale → bite` in `updateGulp()`. During
+  `inhale` an unbraced diver is pulled down (`MOUTH.suction[sector]` added to `y`/`vy`),
+  and a diver at or below `safeY` (above `MOUTH.mouthDepth`) in the maw when it `bite`s is
+  `startScare()`'d/`respawn()`'d. Ceiling `anchors` are grabbed by holding **`SPACE`** within
+  `MOUTH.grabRange` (`heldAnchor`); a braced diver is pinned and ignores the suction. Four
+  sections field stronger/longer gulps and fewer holds, `coinBubbles` clear a section, and
+  reaching `exitZone` wins; it opts into `FIRST_PERSON_SCENES` with a tight fog and
+  anchors/coins as billboards.
+- `PrehistoricScene` (`prehistoric`, "PREHISTORIC TANK") is the **playable-lungfish chase**:
+  a horizontal corridor in **three zones** (`PREHISTORIC.zoneLength`): open **Devonian sea**,
+  a **swamp** of ground with **water gaps**, and mixed **highlands**. `Lungfish`
+  (`entities/lungfish.js`, a `Shark` subclass with a fin-legged render) is driven manually in
+  `updatePlayer()`: over water (`isWater(x)`) it **swims** (`thrust`/gravity/drag), over
+  ground it **runs** and **jumps** (`SPACE`). Three chasers swap by zone in
+  `updateChasers()`: the **DUNKLEOSTEUS** chases in the sea but is **stunned by ammonites**
+  (`dunkDistract`), the **VELOCIRAPTOR** runs the swamp and **won't cross the water gaps**,
+  and the **TITANOBOA** (`drawSnake` trail) chases the highlands slower in water. Entering
+  zone 3 plays a `phase: 'intro'` cutscene (`drawSnakeOnTree`) before the snake activates;
+  `startScare()`/`respawn()` bank the zone starts, and a three-part progress bar tracks the
+  run to `worldEnd`.
 - `DodgeballScene` (`dodgeball`) is the third minigame: two shark players with three
   lives each dodge `Pufferfish` that telegraph at an arena edge (charge state with an
   inflation grow and warning ring) before flying across on wobbling lines. Hits pop the
@@ -371,7 +566,13 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `ceilingSpots` mark cracked ceiling beams: `updateCeiling()` warns when a live
   player is directly beneath (`ceilingTriggerX`), then drops a `CeilingChunk` under
   gravity — a hit calls `stagger()`, knocking the player around and freezing control for
-  `ceilingStun` seconds while the wall keeps coming. `updatePickups()` then keeps a fresh
+  `ceilingStun` seconds while the wall keeps coming. `buildMorayHoles()` seeds one or two
+  tiny holes into each floor stub (`morayHolesPerStub`, inset `morayHoleInset`); when a
+  diver comes within `morayTriggerX`, `updateMorayHoles()` runs the REEF CLEANUP
+  peek/bite/retreat cycle (`CLEANUP.peekHeight`/`biteHeight`/`lungeEvery`, same easings)
+  with the moray's `EEL_VARIANTS` palette — a bite under `morayReach` calls
+  `morayBite()`, which stuns and knocks the diver back — and `renderMorayHoles()` draws
+  the dark hole plus the emerging head, clipped above the stub top. `updatePickups()` then keeps a fresh
   grab-chance clump (`makeClump()`, `grabPickupClumpMin`–`grabPickupClumpMax` packed
   within `grabPickupClumpSpread`) floating ahead of the pack (`grabPickupInterval`,
   capped at `grabPickupActive` clumps at once) in every part; `collectPickups()` turns
@@ -540,6 +741,35 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   the co-op flag and carry payload through it, the tank name and tagline (`TANK_INTROS`)
   rise through streaking bubbles, and confirm/click or 1.7 s continues into the next
   tank — so the arrival banner lives here instead of inside play.
+- **Mutators** live on the base `Scene` (`src/engine/mutators.js` + `src/engine/scene.js`):
+  `Game.applyPending()` calls `scene.setMutator(params.mutator)` before `enter`, and `Scene`
+  exposes a `rules` accessor (`_baseRules` scaled by the active mutator via `scaleRules()`)
+  plus `renderMutatorOverlay()` (darkness + HUD badge) that `Game.renderFrame()` draws after
+  the scene. Because the accessor sits on the base `Scene`, every subclass — play tanks, all
+  minigames, the horror arenas — honours mutators without per-scene wiring; scenes with
+  bespoke enemy speeds (the horrors) multiply them by `this.mutator.knobs.enemySpeedScale`,
+  and `Shark` steers off its instance `maxSpeed` so FAST can scale the diver.
+  `MutatorsScene` (`mutators`) edits the persisted choice in `SETTINGS_KEY`.
+- **Boss Rush** (`src/scenes/bossrush.js`) is a `MinigameScene` orchestrator: it instantiates
+  fresh child scenes (`QuietScene`, `WatcherScene`, `MouthScene`, `TrenchExploreScene`,
+  `PrehistoricScene`), assigns each `game`/`name`, sets `rushMode` (which suppresses the
+  child's own rewards/records), calls `enter()` + `rushStart()`, then forwards `update`/`render`
+  and watches `child.phase === 'results'` to advance or `game.pending` to abort. The
+  `prehistoric` `bossOnly` param and the `trenchexplore` `rising` param skip straight to their
+  bosses for the gauntlet.
+- **Records** (`src/engine/records.js`) bank per-mode best time/score; `recordWin()` is called
+  from the minigame base, the horror tanks, the Scene-based minigames, and play. `RecordsScene`
+  (`records`) renders the board from `RECORD_GROUPS`, and `formatRecord()` stamps bests onto
+  the tank and minigame lists.
+- **PlayToy Exploration** (`src/scenes/playtoy.js`, a `MinigameScene`) is a third-person
+  scrolling wreck built from `PLAYTOY` config: bulkhead walls with vertical gaps (some
+  sealed by typed `PLAYTOY_GATES`), anchor rings, `PLAYTOY_NOTES`, and `LivingToy` entities.
+  Its **Anchor-Pack** is a scene-owned state machine (`idle → flying → haul/pullSelf →
+  returning`) that aims from the pointer (or `firstPersonYaw` under `firstPersonMode()`),
+  travels the head each step, and resolves against `tetherHit()` (targets, then walls).
+  Rendering helpers live in `src/engine/tether.js`; the scene is listed in
+  `FIRST_PERSON_SCENES` and exposes `firstPersonPalette/Bounds/Sprites`, so the existing
+  raycaster renders it like the other tanks.
 
 ## 3. Game Loop and Timing
 
@@ -555,8 +785,10 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
 ## 4. Input
 
 - `Input` maps raw key codes to actions (`left`, `right`, `up`, `down`, `confirm`,
-  `pause`, `back`) via `DEFAULT_BINDINGS`, plus per-player movement sets
-  (`left1`…`down2`).
+  `pause`, `back`, `hide`) via `DEFAULT_BINDINGS`, plus per-player movement sets
+  (`left1`…`down2`). The `hide` action (`ShiftLeft`/`ShiftRight`) is a second trigger for
+  the stingray's sand burrow and the squid's ledge-hole hide — both creatures OR it into
+  their `wantsDown` check, so `Shift` buries/hides the same as `Down`/`S`.
 - Co-op uses the per-player sets: P1 is `WASD`, P2 is the arrow keys, and pointer drag
   steers only P1.
 - Pressed/released edges are cleared after each fixed step, so scenes read input edges
@@ -566,7 +798,10 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
 - Drag steering: while the pointer is held, `pointer.dragX`/`dragY` hold the offset from
   the press origin; the shark steers along that offset past `PLAYER.pointerDeadzone`.
 - `POINTER_KEY` covers the primary press; `POINTER_SECONDARY` fires on right clicks
-  (the canvas context menu is suppressed), used by the Pets Tank's critter feeding.
+  (the canvas context menu is suppressed), used by the Pets Tank's critter feeding and as
+  the Anchor-Pack's fire binding.
+- Two PlayToy bindings joined `DEFAULT_BINDINGS`: `tool: ['KeyF', 'PointerSecondary']`
+  (fire the Anchor-Pack) and `cycleAnchor: ['KeyE']` (swap its head).
 - The on-screen joystick (`src/engine/joystick.js`) reuses the drag model: a press whose
   origin lands inside the bottom-right pad draws a knob and steers P1 with the drag
   vector; `hitJoystick`/`joystickState` own the geometry and the play scene renders it
@@ -597,12 +832,22 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   URIs in `IMAGE_MANIFEST` and audio is synthesized.
 - `loadImages(manifest)` resolves a keyed map of `HTMLImageElement`s. The scaffold's
   manifest is empty and all art is procedural canvas drawing.
-- `AudioBus.tone({ freq, endFreq, type, duration, volume, delay })` schedules oscillator
-  envelopes. The context is created lazily; `src/main.js` unlocks it on the first
-  pointer or key event, and the bus disables itself if WebAudio is unavailable.
+- `AudioBus.tone({ freq, endFreq, type, duration, volume, delay, pan, reverb })` schedules
+  oscillator envelopes, and `AudioBus.noise({ …filterFreq/filterEnd/q…, pan, reverb })`
+  schedules filtered white-noise envelopes. The context is created lazily; `src/main.js`
+  unlocks it on the first pointer or key event, and the bus disables itself if WebAudio is
+  unavailable.
+- **Spatial audio** — `pan` routes a voice through a `StereoPannerNode` (with
+  `AudioBus.panFor(worldX, centerX, width)` to derive it), and `reverb` sends through a
+  shared `ConvolverNode` with a synthesized decaying-noise impulse, so horror cues can sit
+  left/right of the diver and bloom into the wreck.
 - `AudioBus.setVolume(value)` scales the master bus (base gain 0.9) and
   `setSfxEnabled(flag)` mutes cues; `src/main.js` re-applies the persisted settings on
   startup.
+- **Comfort + shared horror helpers** — `src/engine/motion.js` exports
+  `motionScale()` (1, or 0 when the persisted `SETTINGS_KEY.reduceMotion` is on) so horror
+  scenes can damp shake/zoom/flash, and `src/engine/horror.js` provides `renderDarkness()`,
+  `renderConeLight()`, and angle helpers shared by the dark tanks.
 - `MusicPlayer` (`src/engine/music.js`) step-sequences looping themes (the menu lullaby
   plus one per tank) from
   `src/assets/tracks.js` (MIDI-note bass/lead arrays plus a beat length). `Game` drives
@@ -620,9 +865,13 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
 - Best score persists under `STORAGE_KEY`; lifetime stats persist under `STATS_KEY` and
   user settings under `SETTINGS_KEY` (all in `src/config.js`) — stats as
   `{ games, bubbles, longestRun, minigames, minigameWins }` and settings as
-  `{ coopTankSelect, difficulty, volume, sfx }`. Lifetime stats gain `minigames` and
-  `minigameWins`, written by `recordMinigame()` in `src/engine/progress.js`, which also
-  banks minigame coin rewards (30 + 60 win bonus). Shop progress persists under `SHOP_KEY`
+  `{ coopTankSelect, difficulty, volume, sfx, mutator }`. Lifetime stats gain `minigames`
+  and `minigameWins`, written by `recordMinigame()` in `src/engine/progress.js`, which also
+  banks minigame coin rewards (30 + 60 win bonus), scaled by a module-level coin multiplier
+  that `Game.applyPending()` sets from the active mutator (`setCoinMultiplier()`), so every
+  minigame — including the bespoke Scene-based ones — pays the mutator bonus. Best times and
+  scores persist per mode under `RECORDS_KEY` as `{ [mode]: { time, score, cleared } }`
+  (written by `recordWin()` in `src/engine/records.js`). Shop progress persists under `SHOP_KEY`
   as `{ owned, skin, passes, accessories, trails, companions, head, back, trail,
   companion }` and the sea-coin bank under
   `COINS_KEY` (defaulting to the 500-coin welcome bank on first read); the aquarium

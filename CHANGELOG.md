@@ -6,7 +6,75 @@ screens, cosmetics, and progression) and **game systems** (the engine, rendering
 persistence, tuning frameworks, tooling, tests, and docs that support them). Each section
 names the commits that carry the work.
 
-## October 30, 2026 (latest)
+## November 1, 2026 (latest)
+
+The replayability pack (mutators, a boss rush, and a records/time-trial system), the
+shared water realism pass, and the PlayToy Exploration tank with its Anchor-Pack tool and
+lore inventory.
+
+### Game features
+
+- **Mutators** — a new MUTATORS screen (reachable from CHOOSE TANK and MINIGAMES) toggles
+  one optional handicap across every dive and minigame: FAST, ONE HIT, NO AIR, LIGHTS OUT,
+  GOLD RUSH, GLASS, and TIME PRESSURE. Each mutator hardens the run (enemy speed, clock,
+  graces, darkness, lives) and pays back a coin and score multiplier; the active mutator
+  shows a HUD badge on every run.
+- **Boss rush** — a gauntlet (`MINIGAMES` entry, ticket fee) that chains all five horror
+  bosses — the Echoeel, the Watcher, the Trench Mouth, the Megasquid, and the Titanoboa —
+  wave by wave with a running clock, an interlude card per boss, and a bounty for each
+  clear plus a full-clear bonus.
+- **Records and time trials** — every tank, boss arena, and minigame banks a best time and
+  score (new `src/engine/records.js` + `RECORDS_KEY`). A new RECORDS board cycles the
+  tanks/bosses/minigames with a cleared count, and your best runs are stamped beside the
+  tank-select and minigame entries; results screens announce NEW RECORD.
+- **Prehistoric skip-to-boss** — the Titanoboa encounter can now be launched directly
+  (`bossOnly`), used by the rush.
+- **PlayToy Exploration** — a third-person standalone tank aboard the sunken cargo liner of
+  the PlayToy Company, a maker of goofy fantasy sea-creature plush. Its flooded holds are
+  full of **living toys** — button-eyed creatures (BUBBLE-FANG, WIBBLE, CRANK-FIN,
+  GLOOP-LO) that wander and cling — and eight **lore notes** scattered through the wreck
+  recount PlayToy's recipe for sparking a toy to life. Reach the surface hatch to win;
+  collect the notes (and repel the toys) along the way. Collected papers persist between
+  runs and can be re-read from a scrollable **PLAYTOY INVENTORY** panel (`I`/`Tab`, browse
+  with Up/Down). The FIRST PERSON MODE switch still affects the tank like any other dive.
+- **The Anchor-Pack** — the tank's tool: a wrist winch firing a barbed clamp on a line
+  (fire with `F` or right-click). Three interchangeable heads swap with `E` — the **MAIN
+  ANCHOR** hauls loot and swings you to rings, the **ELECTRICONDUCTOR ANCHOR** feeds live
+  circuits and stuns toys, and the **PRESSURE ANCHOR** pries valves and heaves heavy wrecks.
+  Typed gates require the matching head, and a head that finds only bare hull **bounces off**
+  instead of pinning you to the wreck. Aim at a toy to knock, stun, or shove it off your back.
+
+### Game systems
+
+- **Shared mutator framework** — `src/engine/mutators.js` defines the mutator list and
+  `scaleRules()`; `Scene` now owns the mutator lifecycle (`setMutator`, a rules accessor
+  that scales difficulty, and a `renderMutatorOverlay` drawing the darkness and badge), so
+  any scene — play tanks, all minigames, and the horror tanks — honours mutators uniformly.
+  `recordMinigame()` applies a global coin multiplier set on scene entry, so even the
+  bespoke minigames pay the bonus.
+- **Boss-rush orchestrator** — `src/scenes/bossrush.js` instantiates and drives fresh child
+  scenes, detecting their `results` phase to advance and their scene-change requests to
+  abort, with `rushMode` guarding each boss from double-recording.
+- **Records plumbing** — `recordWin()`/`formatTime()` in `src/engine/records.js`, win hooks
+  in the minigame base, the horror tanks, the Scene-based minigames, and play, plus
+  `MODE_LABELS`/`RECORD_GROUPS`/`SOLO_VARIANT_SCENES` in `src/config.js`.
+- **Scaling seams** — `Shark` now steers off its instance `maxSpeed` (so mutators can scale
+  the diver), and the horror bosses scale their chase/suction/stalk speeds by the mutator's
+  enemy multiplier.
+- **PlayToy systems** — `src/engine/tether.js` draws the sagging line, barbed clamp head,
+  and first-person reticle; `src/entities/livingtoy.js` is the wander/chase/stun/knock
+  plush entity; `src/scenes/playtoy.js` builds the scrolling wreck (bulkheads, typed gates,
+  anchor rings, notes, machinery) with a camera follow, HUD, inventory, and first-person
+  hooks. `src/config.js` adds `ANCHOR_TYPES`, `PLAYTOY`, `PLAYTOY_GATES`, `PLAYTOY_NOTES`,
+  `PLAYTOY_TOYS`, and `PLAYTOY_KEY`, and `src/engine/input.js` adds `tool`, `cycleAnchor`,
+  and `inventory` bindings.
+- **Tests and docs** — smoke coverage for the mutator screen, rules scaling, records
+  persistence, a full five-wave boss-rush clear, and the PlayToy tank (world build, note
+  persistence + inventory, head-to-gate matching, wall bounce, exit win, first person); LORE
+  gains PLAYTOY EXPLORATION, THE ANCHOR-PACK, LIVING TOYS, THE ANCHOR SWITCH, MUTATORS, BOSS
+  RUSH, and RECORDS.
+
+## October 30, 2026
 
 Commits `fb34c5b` (collapsing ceiling stubs), `d21de53` (two-beat ending), `2845aea`
 (karambit aura), `305ee15` (shop costumes), `760f030` (shadowed tunnel planks), `6dc0aeb`
@@ -39,11 +107,164 @@ Commits `fb34c5b` (collapsing ceiling stubs), `d21de53` (two-beat ending), `2845
   straight through.
 - **TRENCH DIVE** — its ice gaps now stay within a diver's reach (`maxGapShift`), so the
   run is always threadable rather than a random dead end.
+- **Floor-stub morays** — the labyrinth's floor stubs sprout a scatter of tiny moray
+  holes; a diver who lingers over one gets a moray rearing up to bite with the REEF
+  CLEANUP peek/bite/retreat in the stingray tank's moray colors, staggering them a beat.
+- **Upright facing** — playable creatures no longer rotate to their heading; they stay
+  upright and mirror to face their swim direction, so heading left faces left instead of
+  flipping the sprite upside down.
+- **Shift to hide** — `Shift` is now a second bind for hiding: it buries the stingray in
+  the sand and tucks the squid into a ledge hole, exactly like `Down`/`S`.
+- **3D MODE** — a SETTINGS switch renders the whole game in 3D: every enemy, bubble, prop,
+  and the player is drawn as a shaded extruded volume with a ground shadow (bubbles as lit
+  spheres), each scene's background becomes a perspective sky and grid floor, and the
+  canvas tilts onto a perspective plane; the toggle persists and re-applies on boot.
+- **ABYSS TRENCH TANK** — a new three-phase boss tank on the tank select: a leviathan that
+  hunts, telegraphs, and lunges, exposes its glowing eye only while staggered, escalates at
+  1/3 and 2/3 health with faster lunges and summoned trenchlings, and is beaten in twelve
+  ramming hits across three lives. The leviathan is navy blue with glowing cyan dots lining
+  its tentacles and tail and a big bright-blue eye whose white circular pupil follows
+  the nearest diver (flanked by two smaller eyes, all blinking), and its trenchlings are
+  navy-blue with glowing dots and one giant leviathan eye.
+- **REEF SWARM QUEEN** — a second boss tank: a hovering queen that summons homing
+  swarmlings or telegraphs a charge, then opens its glowing core to be rammed; pop the
+  swarmlings to stay clear, and beat it across three lives and three phases.
+- **MYSTERIOUSLY QUIET TANK** — a horror stealth tank set in an abandoned
+  underwater research lab the alien attacked, laid out in scrolling labyrinth-style
+  sections with checkpoint masts, opened by a diver picker and an arrival cutscene where an
+  intergalactic atom rift tears open in the lab and the ECHOEEL comes through it
+  (its planet ran out of prey) as the seven divers arrive: a really
+  dark-grey, finless, eyeless ECHOEEL whose armored
+  head hinges open from its teeth to the top (revealing the dark inside of its mouth) drifts in the background and only
+  hears you — bumping clutter makes noise that
+  draws it in at unoutswimmable speed and it lunges at and shatters that junk (blind, it
+  thinks you're there) even while the diver hides, and it never homes on or diverts to the
+  diver: it takes you only if you are still beside that junk — and not hidden or behind a
+  bulkhead — when it strikes, if you drift right up against it in the open, or if its
+  expanding echolocation sweep catches you in the open (hide alcoves and bulkheads block
+  the ping), while
+  holding a full noise meter for over two seconds
+  triggers a jumpscare whose head splits apart to bare its needle teeth;
+  reach the exit hatch to escape. The tank swaps the menu lullaby for its own slow
+  **horror D-tritone drone at 64 BPM** (a new selectable QUIET TRACK) and restores the
+  held theme on the way out.
+- **QUIET TANK HORROR PASS** — the lab goes **near-black**: only a small flickering pool
+  of light follows the diver, so the corridor and its scatter are invisible while the
+  **ECHOEEL stays fully visible** gliding out of the dark. A **proximity heartbeat**
+  quickens as it nears and **ambient rumble, metal groans, creaks, water drips, and radio
+  static** fill the silence; **claw marks** score the bulkheads, the **crew's empty dive
+  suits** drift in the dark, and the jumpscare gains **variants** (a sonar catch, an
+  instant snap, a lunge, and a drawn-out breach) behind a short dread beat.
+- **QUIET TANK PHASE 2** — the horror deepens: the light **tightens as the echoeel nears**
+  (and as your noise rises), and **swimming fast now makes noise**; **steam vents** erupt
+  and lure it, **bulkhead doors slam shut behind you**, the **remains of the six scientists
+  who crewed the lab** turn up one by one (each with a final log line), the dark conjures
+  **false echoeels** that dissolve, and its end-of-run chase is gone (that now lives in
+  **THE ESCAPE**). In the last **four bulkheads** the echoeel makes a **scripted near-miss
+  lunge** (charging straight at the diver, held just out of reach) so the diver slips
+  through the hatch a heartbeat before it lands. Its jaw now **unhinges
+  unnaturally wide** — the lower jaw drops and the upper folds back, the teeth elongating
+  over a stretched black gullet. The tank also opts into
+  **FIRST PERSON MODE** as a tight, fogged raycast dive.
+- **THE ESCAPE TANK** — the quiet lab's climax is now its **own standalone tank**:
+  pick a diver and the lab is already collapsing with the **ECHOEEL awake and relentless**
+  from the first second (`phase2` on). It is a **winnable straight sprint**: the shade
+  pursues at `QUIET.part2Speed` (slower than a clean diver) so you outrun it by keeping
+  moving, while **ceiling debris** telegraphs then crashes into your path as blocking
+  rubble and every dodge costs ground, with two checkpoint masts and the same near-black
+  light, dread drone, jumpscare variants, and first-person raycast. Reaching the exit plays
+  an **escape cutscene**: the ECHOEEL **slams into a pane of glass**, the pane **shatters**,
+  and its **high speed combined with its weight sinks it into the trench**. The quiet tank
+  itself now ends at its hatch.
+- **THE WATCHER TANK** — a **look-away** horror tank with a redesigned monster: a lumpy,
+  barbed creeper crowned by a huge bloodshot **slit-pupiled eye** (glowing when it stalks,
+  glassy and locked on you when petrified) ringed by smaller blinking eyes over a
+  needle-toothed maw that gapes as it closes, all writhing on its tendrils: your **gaze is the only light** (a
+  beam aimed with the mouse, or the camera in **FIRST PERSON MODE**). Big single-eyed
+  **WATCHERS** **petrify inside the beam** and **only crawl toward you when you look
+  away**; a **STARE meter** forces a **blink** that kills the light and lets them **surge**.
+  Four sectors field more and faster watchers, **checkpoint masts** respawn you on a catch,
+  and the finale is a **GREAT EYE** to hold in the beam while you reach the hatch.
+- **THE TRENCH MOUTH TANK** — the **anchor-against-the-gulp** horror tank: the trench
+  **floor is one colossal maw** that rests, rumbles, **inhales** (dragging the diver toward
+  the jaws), and **snaps**. Ceiling **anchors** are the only grip — hold **`SPACE`** to
+  **brace** so the suction can't move you, release to advance, and re-grip before each
+  gulp. Stronger/longer gulps and sparser holds per section, **checkpoint masts** on a
+  swallow, coin bubbles to clear each stretch, and a first-person fogged raycast.
+- **PREHISTORIC TANK** — a new chase tank where you play a **lungfish** fleeing through
+  three thirds of deep time: the **Devonian sea** (swim from a **DUNKLEOSTEUS** while
+  dodging **ammonites** that knock you back but **distract** the armored fish when it hits
+  one), a **swamp** (run on your fins from a lunging **VELOCIRAPTOR**, diving through water
+  pools it won't enter), and the **highlands**, which open on a cutscene of the **TITANOBOA
+  coiled in a tree, slowly moving** before the giant snake drops and chases you across land
+  and water on a **long, fixed-length body**. Checkpoint masts and a three-part progress bar pace the run.
+- **QUIET TANK CHECKPOINTS** — a lit **checkpoint mast** at each sector start banks your
+  progress; if the ECHOEEL catches you, the jumpscare plays and you **respawn at the last
+  mast** (noise cleared, the echoeel sent away, seals and debris reset) instead of losing
+  the run. The HUD tracks `CHECKPOINTS n/3`.
+- **TRENCH EXPLORE MINIGAME** — a new **timeless** buoyancy minigame: `SPACE` kicks you
+  up while you sink under your own weight, so you hover and dive a vertical trench
+  gathering **sea coin bubbles**. A **fishing boat and net** sit on the surface — the
+  winch rattles, the net **drops**, and you must **sink beneath its reach** until it
+  retracts. Grab every bubble to clear a trench and move on; each trench reaches **deeper**
+  with a faster net. Clear all four and the **MEGASQUID rises from the last trench**
+  (tentacles tangled in a shipwreck that it **tears apart**), then a **thrilling boss chase**: the dive
+  becomes a **rightward run** with **fishing nets hanging from the surface** to swim under,
+  and you **round the drifting fish schools into a net to bait it** — the bait **lures the
+  megasquid** in and the net **deals damage**, each hit stunning it while its **health bar**
+  drains (it rages as it drops). Deplete its health to **drive it off and escape**. Charges a 50-coin ticket.
+- **TRENCH EXPLORE LIFE + CATCHABLE RAYS** — the trench now teems with cosmetics: cruising
+  **morays**, swaying **seaweed**, floor **crabs** that bolt when the diver nears, and
+  **octopus**/**squid** coral per trench. A whole **rainbow of stingrays** drifts it — spotted
+  (dark yellow, bright blue spots, orange-ringed dark blue tail), plain gray, tiger, blue,
+  green, violet, crimson, sunset, mint, gold, silver, pink, cyan, copper, and night, plus
+  translucent **baby rays** with one big spot (pink, blue, green, yellow, or purple). Herd a
+  ray into the descending net to **scoop it up** and unlock its **free shop skin** (twenty
+  ray colors in all). The floor **crabs** now **burrow under the sand when cornered** at a
+  trench edge and **resurface when the diver is far enough**. The floor is now **solid** (no clipping) and coin bubbles got **roomier
+  hitboxes**.
+- **CUTSCENES IN THE THEATRE** — two new finale cutscenes are replayable from the
+  CUTSCENE THEATRE: **THE ESCAPE** (the flooded-lab glass-shatter finale, where the
+  ECHOEEL slams into the pane and sinks toward the trench) and **THE RISING** (Trench
+  Explore's megasquid hauling itself out of the last trench to tear a wreck apart).
+- **RAYCAST TANK** — a new first-person novelty tank: a Canvas2D software raycaster over a
+  procedurally generated wreck maze with distance-shaded walls, a licking cone, and a
+  minimap; collect every bubble then reach the exit light.
+- **FIRST PERSON MODE** — a SETTINGS switch below 3D MODE renders every dive and minigame
+  as a first-person **raycast** view from the selected creature: a software raycaster of a
+  3D room built from the level's walls, with depth-sorted billboards for the enemies,
+  bubbles, and props; the mode goes fullscreen and pointer-locks so the mouse looks
+  endlessly without edge-sticking, the diver's own body and the cursor are hidden, `W`/`S`
+  move forward/back and `A`/`D` strafe relative to the view (never swinging the camera), a
+  corner minimap shows the arena. It
+  works independently of 3D MODE and persists. (Also fixes a hang
+  when first person and 3D MODE were both on entering the labyrinth.)
 
 ### Game systems
 
-- **Tests and docs** — the smoke suite grew the ceiling-stub, ending-beat, costume, and
-  trench-gap checks (about 14k animation frames), and the docs were kept in sync.
+- **Filtered noise on the audio bus** — `AudioBus` gained `noise()` (a cached white-noise
+  buffer through a `BiquadFilter`/gain envelope) so scenes can layer rumble, creaks, drips,
+  static, and other non-tonal horror sound; it stays silent when there is no `AudioContext`.
+- **Raycaster scene overrides** — `renderFirstPersonLevel()` now honors per-scene
+  `firstPersonRange`/`firstPersonFog`/`firstPersonShadeFloor` and an optional
+  `firstPersonMinimap: false`, so a scene can render a much tighter, darker view.
+- **Spatial audio + comfort** — the bus gained `pan` (a `StereoPannerNode` with a
+  `panFor()` helper) and `reverb` (a shared `ConvolverNode` with a synthesized impulse),
+  so horror cues can sit left/right of the diver and bloom into the wreck; a new
+  `src/engine/motion.js` `motionScale()` and a persisted **REDUCE MOTION** setting damp the
+  horror tanks' shake/zoom/flash; `src/engine/horror.js` shares `renderDarkness()` /
+  `renderConeLight()` across the dark tanks.
+- **Quiet-tank cosmetics fix** — the MYSTERIOUSLY QUIET scene never advanced the shared
+  skin clock during play, so a diver's karambit aura and shadow-skin pulse rendered
+  frozen; it now ticks `setSkinClock()` every frame like the other scenes.
+- **Shared water realism pass** — `drawWater` (used by every play tank, the abyss and swarm-queen arenas, and the horror tanks) now layers a light-from-above gradient, a shimmering surface band, five pulsing god rays, animated caustics, and floating motes over the strengthened vignette; a new `drawDepthFish()` adds faint drifting background silhouettes (wired into the play tanks with a floor haze), and the abyss and swarm-queen arenas gained glow-vent/coral backdrops.
+- **Lore codex update** — the in-game LORE codex gained entries for THE ESCAPE, THE
+  WATCHER, THE TRENCH MOUTH, and the PREHISTORIC TANK, the WATCHER / AMMONITE /
+  DUNKLEOSTEUS / VELOCIRAPTOR / TITANOBOA hazards, the TRENCH EXPLORE minigame, and a new
+  THE MODES section (3D MODE, FIRST PERSON MODE, REDUCE MOTION, costumes & the karambit).
+- **Tests and docs** — the smoke suite grew the ceiling-stub, ending-beat, costume,
+  moray-hole, and trench-gap checks (about 14k animation frames), and the docs were kept
+  in sync.
 
 ## October 25–26, 2026
 

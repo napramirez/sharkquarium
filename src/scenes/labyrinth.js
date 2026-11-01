@@ -10,6 +10,8 @@ import {
   roundRectClip,
   drawShadowedPlanks,
 } from '../engine/render.js';
+import { renderFirstPersonLevel } from '../engine/raycastview.js';
+import { firstPersonMode } from '../engine/mode3d.js';
 import { clamp, lerp, rand, TAU } from '../engine/math.js';
 import { Shark } from '../entities/shark.js';
 import { Stingray } from '../entities/stingray.js';
@@ -23,6 +25,7 @@ import { CeilingChunk } from '../entities/ceilingchunk.js';
 import { CeilingStub } from '../entities/ceilingstub.js';
 import { BreachChunk } from '../entities/breachchunk.js';
 import { drawMegasquid, drawMegasquidEye } from '../entities/megasquid.js';
+import { drawMorayHead, paintMorayTrail } from '../entities/eel.js';
 import { resolveCircleRect } from '../engine/collision.js';
 import { drawJoystick, joystickState } from '../engine/joystick.js';
 import { ParticleSystem } from '../engine/particles.js';
@@ -34,13 +37,16 @@ import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/com
 import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
 import { recordMinigame } from '../engine/progress.js';
+import { recordWin } from '../engine/records.js';
 import { LABYRINTH_TRACK } from '../assets/tracks.js';
 import {
   COLORS,
   COLORSCHOOL_PALETTE,
   CONTROLS,
   CORAL_PALETTE,
+  CLEANUP,
   DIFFICULTY,
+  EEL_VARIANTS,
   LABYRINTH,
   LABYRINTH_KEY,
   LABYRINTH_PALETTE,
@@ -482,6 +488,31 @@ export class LabyrinthScene extends Scene {
         });
       }
     }
+    this.morayHoles = this.buildMorayHoles();
+  }
+
+  buildMorayHoles() {
+    const holes = [];
+    let index = 0;
+    for (const wall of this.walls) {
+      if (wall.y <= 0 || Math.abs(wall.w - LABYRINTH.stubWidth) > 0.5) continue;
+      const count = Math.floor(rand(1, LABYRINTH.morayHolesPerStub + 0.999));
+      for (let i = 0; i < count; i += 1) {
+        const inset = LABYRINTH.morayHoleInset;
+        holes.push({
+          x: rand(wall.x + inset, wall.x + wall.w - inset),
+          top: wall.y,
+          state: 'idle',
+          timer: rand(0.6, 2.4),
+          rise: 0,
+          jaw: 0,
+          phase: rand(0, TAU),
+          palette: EEL_VARIANTS[index % EEL_VARIANTS.length],
+        });
+        index += 1;
+      }
+    }
+    return holes;
   }
 
   resetRound() {
@@ -828,6 +859,7 @@ export class LabyrinthScene extends Scene {
   finish() {
     this.won = this.players.every((_, index) => !this.out[index] && this.escaped[index]);
     this.reward = recordMinigame(this.won);
+    this.newRecord = this.won ? recordWin(this.solo ? 'labyrinthSolo' : 'labyrinth', {}) : null;
     if (this.won) {
       this.startPart = 1;
       this.saveProgress(1);
@@ -1517,6 +1549,87 @@ export class LabyrinthScene extends Scene {
     });
   }
 
+  morayBite(index) {
+    const player = this.players[index];
+    this.stunned[index] = CLEANUP.stun;
+    player.vx = rand(-1, 1) * 260;
+    player.vy = 240;
+    player.invulnerable = CLEANUP.stun;
+    this.flash = Math.max(this.flash, 0.45);
+    this.shake = Math.max(this.shake, 0.4);
+    this.particles.burst(player.x, player.y, {
+      count: 14,
+      speed: 220,
+      life: 0.6,
+      colors: [COLORS.eel, COLORS.eelDark, '#ffffff'],
+      buoyancy: 10,
+    });
+    this.game.audio.tone({ freq: 130, endFreq: 60, type: 'square', duration: 0.3, volume: 0.28 });
+  }
+
+  updateMorayHoles(dt, targets) {
+    if (this.wallDelay > 0) return;
+    for (const hole of this.morayHoles) {
+      const near = targets.some(
+        (player) => Math.abs(player.x - hole.x) < LABYRINTH.morayTriggerX,
+      );
+      if (!near && hole.state === 'idle') {
+        hole.timer = Math.max(hole.timer, 0.5);
+        continue;
+      }
+      hole.timer -= dt;
+      const targetRise =
+        hole.state === 'peek'
+          ? CLEANUP.peekHeight
+          : hole.state === 'bite'
+            ? CLEANUP.peekHeight + CLEANUP.biteHeight
+            : 0;
+      const targetJaw = hole.state === 'peek' ? 0.25 : hole.state === 'bite' ? 0.75 : 0;
+      const easeSpeed =
+        hole.state === 'bite'
+          ? CLEANUP.biteEase
+          : hole.state === 'retreat'
+            ? CLEANUP.retreatEase
+            : CLEANUP.riseEase;
+      const ease = 1 - Math.exp(-easeSpeed * dt);
+      hole.rise += (targetRise - hole.rise) * ease;
+      hole.jaw += (targetJaw - hole.jaw) * ease;
+      if (hole.state === 'bite') {
+        for (const player of targets) {
+          const index = this.players.indexOf(player);
+          if (index < 0 || this.stunned[index] > 0 || this.grabbed[index]) continue;
+          if (player.invulnerable > 0) continue;
+          const gap = hole.top - player.y;
+          if (Math.abs(player.x - hole.x) < 46 && gap > 0 && gap < LABYRINTH.morayReach) {
+            this.morayBite(index);
+            hole.state = 'retreat';
+            hole.timer = CLEANUP.retreatTime;
+            break;
+          }
+        }
+      }
+      if (hole.timer <= 0) {
+        if (hole.state === 'idle') {
+          hole.state = 'peek';
+          hole.timer = CLEANUP.peekTime;
+          this.game.audio.tone({ freq: 90, endFreq: 55, type: 'sawtooth', duration: 0.25, volume: 0.2 });
+        } else if (hole.state === 'peek') {
+          hole.state = 'bite';
+          hole.timer = CLEANUP.biteTime;
+          this.game.audio.tone({ freq: 150, endFreq: 70, type: 'square', duration: 0.14, volume: 0.24 });
+        } else if (hole.state === 'bite') {
+          hole.state = 'retreat';
+          hole.timer = CLEANUP.retreatTime;
+        } else {
+          hole.state = 'idle';
+          hole.timer = CLEANUP.lungeEvery;
+          hole.rise = 0;
+          hole.jaw = 0;
+        }
+      }
+    }
+  }
+
   supportRect(support) {
     return {
       x: support.x - LABYRINTH.supportWidth / 2,
@@ -1895,6 +2008,7 @@ export class LabyrinthScene extends Scene {
     }
     for (const ambush of this.ambushes) this.updateAmbush(ambush, dt, targets);
     for (const ceiling of this.ceilings) this.updateCeiling(ceiling, dt, targets);
+    this.updateMorayHoles(dt, targets);
     this.updateSquid(dt, targets);
     this.players.forEach((player, index) => {
       if (this.out[index]) {
@@ -2038,6 +2152,14 @@ export class LabyrinthScene extends Scene {
       this.renderTrailer(ctx);
       return;
     }
+    if (firstPersonMode()) {
+      ctx.save();
+      if (this.shake > 0) {
+        ctx.translate(rand(-1, 1) * 6 * this.shake, rand(-1, 1) * 6 * this.shake);
+      }
+      renderFirstPersonLevel(ctx, this);
+      ctx.restore();
+    } else {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, LABYRINTH_PALETTE);
     ctx.save();
     if (this.shake > 0) {
@@ -2056,6 +2178,7 @@ export class LabyrinthScene extends Scene {
     for (const wall of this.walls) this.renderWall(ctx, wall);
     for (const tunnel of this.tunnels) this.renderTunnel(ctx, tunnel);
     this.renderSupports(ctx);
+    this.renderMorayHoles(ctx);
     this.renderWallSeams(ctx);
     this.renderCeilingSeams(ctx);
     this.renderCeilingBursts(ctx);
@@ -2106,6 +2229,7 @@ export class LabyrinthScene extends Scene {
     ctx.restore();
     this.particles.render(ctx);
     ctx.restore();
+    }
     this.renderHud(ctx);
     if (this.phase === 'results') this.renderResults(ctx);
   }
@@ -2171,6 +2295,7 @@ export class LabyrinthScene extends Scene {
     for (const wall of this.walls) this.renderWall(ctx, wall);
     for (const tunnel of this.tunnels) this.renderTunnel(ctx, tunnel);
     this.renderSupports(ctx);
+    this.renderMorayHoles(ctx);
     this.renderWallSeams(ctx);
     this.renderCeilingSeams(ctx);
     this.renderCeilingBursts(ctx);
@@ -3277,6 +3402,61 @@ export class LabyrinthScene extends Scene {
     ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, edge, LOGICAL_HEIGHT);
     ctx.restore();
+  }
+
+  renderMorayHoles(ctx) {
+    for (const hole of this.morayHoles) {
+      const sx = hole.x - this.cameraX;
+      if (sx < -60 || sx > LOGICAL_WIDTH + 60) continue;
+      ctx.fillStyle = 'rgba(10, 7, 6, 0.92)';
+      ctx.beginPath();
+      ctx.ellipse(sx, hole.top + 5, 16, 7, 0, 0, TAU);
+      ctx.fill();
+      if (hole.rise <= 0.5) continue;
+      const radius = 12;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(sx - 70, hole.top - 260, 140, 260);
+      ctx.clip();
+      ctx.translate(sx, hole.top - 2 - hole.rise);
+      ctx.rotate(-Math.PI / 2);
+      const span = radius * 2 + hole.rise * 1.6;
+      const count = 12;
+      const trail = [];
+      for (let i = 0; i < count; i += 1) {
+        const t = i / (count - 1);
+        trail.push({
+          x: radius * 1.2 - t * span,
+          y: Math.sin(this.time * 6 + hole.phase - i * 0.55) * radius * (0.12 + t * 0.5),
+        });
+      }
+      paintMorayTrail(ctx, radius, trail, hole.palette);
+      drawMorayHead(ctx, 0, 0, 0, radius, hole.palette, hole.jaw);
+      ctx.restore();
+    }
+  }
+
+  firstPersonPalette() {
+    return {
+      top: LABYRINTH_PALETTE.top,
+      bottom: LABYRINTH_PALETTE.bottom,
+      wall: '#5a4633',
+    };
+  }
+
+  firstPersonBounds() {
+    return { x: 0, y: 0, w: this.worldLength, h: LOGICAL_HEIGHT };
+  }
+
+  firstPersonSprites() {
+    const list = [...(this.players ?? [])];
+    for (const stub of this.collapseStubs ?? []) list.push(stub);
+    for (const chunk of this.collapseChunks ?? []) list.push(chunk);
+    for (const chunk of this.breachChunks ?? []) list.push(chunk);
+    for (const ceiling of this.ceilings ?? []) {
+      if (ceiling.chunk) list.push(ceiling.chunk);
+    }
+    return list;
   }
 
   renderHud(ctx) {

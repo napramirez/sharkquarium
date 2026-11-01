@@ -8,6 +8,10 @@ import { Shark } from '../entities/shark.js';
 const IDLE_INPUT = { isDown: () => false, pointer: { down: false, dragX: 0, dragY: 0 } };
 
 export class PufferballScene extends MinigameScene {
+  firstPersonSprites() {
+    return [...(this.players ?? []), this.cpu].filter(Boolean);
+  }
+
   buildRound() {
     this.spawnSharks([
       { x: LOGICAL_WIDTH * 0.3, y: LOGICAL_HEIGHT / 2 },
@@ -176,6 +180,7 @@ export class PufferballScene extends MinigameScene {
         1 - Math.exp(-9 * dt),
       );
     }
+    cpu.updateFacing();
   }
 
   kick(entity, index) {

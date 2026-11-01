@@ -30,7 +30,7 @@ export class ArcticShrimp extends Entity {
     super.update(dt);
     let horizontal = (input.isDown(this.controls.right) ? 1 : 0) - (input.isDown(this.controls.left) ? 1 : 0);
     let vertical = (input.isDown(this.controls.down) ? 1 : 0) - (input.isDown(this.controls.up) ? 1 : 0);
-    if (this.pointerSteering && input.pointer.down) {
+    if (this.pointerSteering && (input.pointer.down || input.pointer.look)) {
       const drag = Math.hypot(input.pointer.dragX, input.pointer.dragY);
       if (drag > 16) {
         horizontal = input.pointer.dragX / drag;
@@ -63,6 +63,8 @@ export class ArcticShrimp extends Entity {
       if (this.speed > 24) {
         this.heading = lerpAngle(this.heading, Math.atan2(driftY, driftX), 1 - Math.exp(-8 * dt));
       }
+      if (driftX > 6) this.facing = 1;
+      else if (driftX < -6) this.facing = -1;
     } else {
       const length = Math.hypot(horizontal, vertical);
       const dirX = length > 0 ? horizontal / length : 0;
@@ -78,6 +80,7 @@ export class ArcticShrimp extends Entity {
       if (this.speed > 24) {
         this.heading = lerpAngle(this.heading, Math.atan2(this.vy, this.vx), 1 - Math.exp(-ARCTIC_SHRIMP.turnResponse * dt));
       }
+      this.updateFacing();
     }
     this.invulnerable = Math.max(0, this.invulnerable - dt);
     this.armPhase += dt * (4 + this.speed * 0.02);
@@ -89,7 +92,7 @@ export class ArcticShrimp extends Entity {
     ctx.save();
     ctx.translate(this.x, this.y);
     if (flash) ctx.globalAlpha = 0.4;
-    ctx.rotate(this.heading);
+    ctx.scale(this.facing, 1);
     drawArcticShrimpBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
     ctx.restore();

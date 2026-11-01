@@ -1,5 +1,7 @@
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
+import { renderFirstPersonLevel } from '../engine/raycastview.js';
+import { firstPersonMode } from '../engine/mode3d.js';
 import {
   drawWater,
   drawText,
@@ -21,6 +23,7 @@ import { circleOverlap } from '../engine/collision.js';
 import { ParticleSystem } from '../engine/particles.js';
 import { loadJSON } from '../engine/storage.js';
 import { recordMinigame } from '../engine/progress.js';
+import { recordWin } from '../engine/records.js';
 import {
   CONTROLS,
   DIFFICULTY,
@@ -171,6 +174,7 @@ export class DodgeballScene extends Scene {
         this.won = this.winner !== -1;
         this.reward = this.won ? recordMinigame(true) : 0;
       }
+      this.newRecord = this.won ? recordWin(this.solo ? 'dodgeballSolo' : 'dodgeball', { time: this.elapsed }) : null;
       this.resultsMenu.reset();
       this.game.audio.tone({ freq: 220, endFreq: 110, type: 'triangle', duration: 0.3, volume: 0.24 });
       this.game.audio.tone({ freq: 165, type: 'triangle', duration: 0.5, volume: 0.24, delay: 0.24 });
@@ -225,6 +229,10 @@ export class DodgeballScene extends Scene {
     this.shake = Math.max(0, this.shake - dt * 1.8);
   }
 
+  firstPersonSprites() {
+    return [...(this.players ?? []), ...(this.puffers ?? [])];
+  }
+
   render(ctx) {
     setActiveSkin(this.skin);
     setSkinClock(this.time);
@@ -233,6 +241,14 @@ export class DodgeballScene extends Scene {
     setActiveCostume(this.costume);
     setActiveTrail(this.trail);
     setActiveCompanion(this.companion);
+    if (firstPersonMode()) {
+      ctx.save();
+      if (this.shake > 0) {
+        ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
+      }
+      renderFirstPersonLevel(ctx, this);
+      ctx.restore();
+    } else {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);
     ctx.save();
     if (this.shake > 0) {
@@ -249,6 +265,7 @@ export class DodgeballScene extends Scene {
     }
     this.particles.render(ctx);
     ctx.restore();
+    }
 
     if (this.solo) {
       this.renderLives(ctx, 0, LOGICAL_WIDTH / 2, 36);

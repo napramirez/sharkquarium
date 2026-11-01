@@ -196,6 +196,24 @@ export const LABYRINTH_TRACK = {
   ],
 };
 
+export const QUIET_TRACK = {
+  name: 'quiet',
+  beat: 60 / 64 / 2,
+  hat: false,
+  bass: [
+    38, 0, 0, 0, 38, 0, 38, 0,
+    44, 0, 0, 0, 44, 0, 44, 0,
+    38, 0, 0, 0, 38, 0, 38, 0,
+    39, 0, 0, 0, 38, 0, 0, 0,
+  ],
+  lead: [
+    0, 0, 0, 74, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 80, 0,
+    0, 0, 0, 74, 0, 0, 0, 0,
+    0, 0, 0, 0, 0, 0, 75, 0,
+  ],
+};
+
 export const TRACK_LIBRARY = [
   { key: 'menu', label: 'MENU TRACK', blurb: 'COZY A-MINOR LULLABY — 92 BPM', track: MENU_TRACK },
   { key: 'reef', label: 'REEF TRACK', blurb: 'BRIGHT C-MAJOR SAUNTER — 104 BPM', track: REEF_TRACK },
@@ -208,4 +226,5 @@ export const TRACK_LIBRARY = [
   { key: 'freshwater', label: 'FRESHWATER TRACK', blurb: 'D-MINOR CATFISH DRIVE — 150 BPM', track: CATFISH_TRACK },
   { key: 'nautilus', label: 'NAUTILUS TRACK', blurb: 'E-MINOR DESCENT — 96 BPM', track: NAUTILUS_TRACK },
   { key: 'labyrinth', label: 'LABYRINTH TRACK', blurb: 'MENACING D-MINOR CHASE — 138 BPM', track: LABYRINTH_TRACK },
+  { key: 'quiet', label: 'QUIET TRACK', blurb: 'HORROR D-TRITONE DRONE — 64 BPM', track: QUIET_TRACK },
 ];

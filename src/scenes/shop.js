@@ -386,6 +386,11 @@ export class ShopScene extends Scene {
       this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.22 });
       return;
     }
+    if (skin.caught && !this.owns(skin.key)) {
+      this.setStatus('CATCH IT IN TRENCH EXPLORE — THEN IT IS FREE');
+      this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.22 });
+      return;
+    }
     if (this.owns(skin.key)) {
       if (this.shop[this.skinField()] === skin.key) {
         this.setStatus('ALREADY EQUIPPED');
@@ -510,6 +515,7 @@ export class ShopScene extends Scene {
       return pass ? `INCLUDED WITH ${pass.label} — ENTER TO EQUIP` : 'OWNED — ENTER TO EQUIP';
     }
     if (skin.passOnly) return `${pass ? pass.label : 'PLAYPASS'} EXCLUSIVE`;
+    if (skin.caught) return 'CATCH IT IN TRENCH EXPLORE — FREE';
     return `${skin.cost} SEA COINS — ENTER TO BUY`;
   }
 

@@ -21,7 +21,7 @@ export class Shark extends Entity {
     super.update(dt);
     let horizontal = (input.isDown(this.controls.right) ? 1 : 0) - (input.isDown(this.controls.left) ? 1 : 0);
     let vertical = (input.isDown(this.controls.down) ? 1 : 0) - (input.isDown(this.controls.up) ? 1 : 0);
-    if (this.pointerSteering && input.pointer.down) {
+    if (this.pointerSteering && (input.pointer.down || input.pointer.look)) {
       const drag = Math.hypot(input.pointer.dragX, input.pointer.dragY);
       if (drag > PLAYER.pointerDeadzone) {
         horizontal = input.pointer.dragX / drag;
@@ -32,8 +32,8 @@ export class Shark extends Entity {
     const dirX = length > 0 ? horizontal / length : 0;
     const dirY = length > 0 ? vertical / length : 0;
     const response = 1 - Math.exp(-PLAYER.response * dt);
-    this.vx = lerp(this.vx, dirX * PLAYER.maxSpeed, response);
-    this.vy = lerp(this.vy, dirY * PLAYER.maxSpeed, response);
+    this.vx = lerp(this.vx, dirX * this.maxSpeed, response);
+    this.vy = lerp(this.vy, dirY * this.maxSpeed, response);
     this.x += this.vx * dt;
     this.y += this.vy * dt;
     this.x = clamp(this.x, this.radius, this.maxX - this.radius);
@@ -43,6 +43,7 @@ export class Shark extends Entity {
       const turn = 1 - Math.exp(-PLAYER.turnResponse * dt);
       this.heading = lerpAngle(this.heading, Math.atan2(this.vy, this.vx), turn);
     }
+    this.updateFacing();
     this.invulnerable = Math.max(0, this.invulnerable - dt);
   }
 
@@ -52,7 +53,7 @@ export class Shark extends Entity {
     ctx.save();
     ctx.translate(this.x, this.y);
     if (flash) ctx.globalAlpha = 0.4;
-    ctx.rotate(this.heading);
+    ctx.scale(this.facing, 1);
     drawSharkBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
     ctx.restore();

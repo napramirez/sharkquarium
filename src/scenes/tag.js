@@ -1,9 +1,12 @@
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
+import { renderFirstPersonLevel } from '../engine/raycastview.js';
+import { firstPersonMode } from '../engine/mode3d.js';
 import { clamp, rand, TAU } from '../engine/math.js';
 import { TagSwimmer } from '../entities/tagswimmer.js';
 import { recordMinigame } from '../engine/progress.js';
+import { recordWin } from '../engine/records.js';
 import { loadJSON } from '../engine/storage.js';
 import {
   CONTROLS,
@@ -196,6 +199,7 @@ export class TagScene extends Scene {
       this.resultLoser = this.swimmers[this.taggerIndex].name;
       this.winner = this.swimmers[this.taggerIndex].cpu;
       this.reward = recordMinigame(this.winner);
+      this.newRecord = recordWin(this.solo ? 'tagSolo' : 'tag', {});
       this.phase = 'results';
       this.resultsMenu.reset();
       this.game.audio.tone({ freq: 392, type: 'triangle', duration: 0.24, volume: 0.2 });
@@ -308,28 +312,40 @@ export class TagScene extends Scene {
     }
   }
 
-  renderPlay(ctx) {
-    ctx.save();
-    ctx.scale(SCALE, SCALE);
-    strokeRoundRect(
-      ctx,
-      8,
-      8,
-      TAG.worldWidth - 16,
-      TAG.worldHeight - 16,
-      48,
-      'rgba(207, 239, 255, 0.28)',
-      8,
-    );
-    for (const swimmer of this.swimmers) swimmer.render(ctx, this.time);
-    ctx.restore();
+  firstPersonBounds() {
+    return { x: 0, y: 0, w: TAG.worldWidth, h: TAG.worldHeight };
+  }
 
-    for (const swimmer of this.swimmers) {
-      drawText(ctx, swimmer.name, swimmer.x * SCALE, swimmer.y * SCALE - 32, {
-        size: 11,
-        color: swimmer.isTagged ? COLORS.danger : COLORS.foam,
-        alpha: swimmer.isTagged ? 0.95 : 0.75,
-      });
+  firstPersonPalette() {
+    return { top: WATER_PALETTE.top, bottom: WATER_PALETTE.bottom, wall: '#3a4a52' };
+  }
+
+  renderPlay(ctx) {
+    if (firstPersonMode()) {
+      renderFirstPersonLevel(ctx, this);
+    } else {
+      ctx.save();
+      ctx.scale(SCALE, SCALE);
+      strokeRoundRect(
+        ctx,
+        8,
+        8,
+        TAG.worldWidth - 16,
+        TAG.worldHeight - 16,
+        48,
+        'rgba(207, 239, 255, 0.28)',
+        8,
+      );
+      for (const swimmer of this.swimmers) swimmer.render(ctx, this.time);
+      ctx.restore();
+
+      for (const swimmer of this.swimmers) {
+        drawText(ctx, swimmer.name, swimmer.x * SCALE, swimmer.y * SCALE - 32, {
+          size: 11,
+          color: swimmer.isTagged ? COLORS.danger : COLORS.foam,
+          alpha: swimmer.isTagged ? 0.95 : 0.75,
+        });
+      }
     }
 
     const ratio = Math.max(0, this.timeLeft / TAG.duration);

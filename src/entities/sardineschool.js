@@ -11,6 +11,7 @@ export class SardineSchool extends Entity {
     });
     this.baseX = this.x;
     this.baseY = this.y;
+    this.flat3D = true;
     this.wanderPhase = rand(0, TAU);
     this.wanderSpeed = rand(0.12, 0.2);
     this.facing = 1;

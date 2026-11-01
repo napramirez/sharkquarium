@@ -30,14 +30,14 @@ export class Squid extends Entity {
     super.update(dt);
     let horizontal = (input.isDown(this.controls.right) ? 1 : 0) - (input.isDown(this.controls.left) ? 1 : 0);
     let vertical = (input.isDown(this.controls.down) ? 1 : 0) - (input.isDown(this.controls.up) ? 1 : 0);
-    if (this.pointerSteering && input.pointer.down) {
+    if (this.pointerSteering && (input.pointer.down || input.pointer.look)) {
       const drag = Math.hypot(input.pointer.dragX, input.pointer.dragY);
       if (drag > PLAYER.pointerDeadzone) {
         horizontal = input.pointer.dragX / drag;
         vertical = input.pointer.dragY / drag;
       }
     }
-    const wantsDown = vertical > 0.5;
+    const wantsDown = vertical > 0.5 || input.isDown('hide');
     if (!this.hidden && wantsDown && hideSpot) {
       this.hidden = true;
       this.hideX = hideSpot.x;
@@ -70,6 +70,7 @@ export class Squid extends Entity {
         this.heading = lerpAngle(this.heading, Math.atan2(this.vy, this.vx), turn);
       }
     }
+    this.updateFacing();
     this.invulnerable = Math.max(0, this.invulnerable - dt);
     this.armPhase += dt * (4 + this.speed * 0.02);
   }
@@ -85,7 +86,7 @@ export class Squid extends Entity {
       const scale = 1 - this.hideProgress * 0.2;
       ctx.scale(scale, scale);
     }
-    ctx.rotate(this.heading);
+    ctx.scale(this.facing, 1);
     drawSquidBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
     ctx.restore();

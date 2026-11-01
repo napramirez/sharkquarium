@@ -70,6 +70,7 @@ export class IntroScene extends Scene {
     this.shark.vx = Math.cos(drift) * 96;
     this.shark.vy = Math.sin(drift * 2.3) * 42;
     this.shark.heading = Math.atan2(this.shark.vy, this.shark.vx);
+    this.shark.facing = this.shark.vx >= 0 ? 1 : -1;
 
     const input = this.game.input;
     if (this.time > 0.8 && (input.wasPressed('confirm') || input.pointer.down)) {

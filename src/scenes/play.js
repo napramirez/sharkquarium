@@ -1,5 +1,7 @@
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
+import { renderFirstPersonLevel } from '../engine/raycastview.js';
+import { firstPersonMode } from '../engine/mode3d.js';
 import { Shark } from '../entities/shark.js';
 import { Stingray } from '../entities/stingray.js';
 import { Squid } from '../entities/squid.js';
@@ -63,6 +65,7 @@ import { clamp, distance, lerp, rand, TAU } from '../engine/math.js';
 import {
   drawWater,
   drawText,
+  drawDepthFish,
   fillCircle,
   fillRoundRect,
   strokeCircle,
@@ -87,6 +90,8 @@ import { companionByKey, drawCompanion, setActiveCompanion } from '../engine/com
 import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
 import { recordMinigame } from '../engine/progress.js';
+import { recordWin } from '../engine/records.js';
+import { mutatorByKey, mutatorCoinMult, drawMutatorDarkness } from '../engine/mutators.js';
 import {
   ANGELFISH,
   ANGLER,
@@ -152,6 +157,28 @@ const TANK_TRACKS = {
 };
 
 export class PlayScene extends Scene {
+  setMutator(key) {
+    this.mutator = mutatorByKey(key);
+  }
+
+  renderMutatorOverlay(ctx) {
+    if (!this.mutator || this.mutator.key === 'none' || this.empty) return;
+    if (this.mutator.knobs.darkness) {
+      const actor = this.player;
+      const x = actor && actor.x != null ? actor.x : LOGICAL_WIDTH / 2;
+      const y = actor && actor.y != null ? actor.y : LOGICAL_HEIGHT / 2;
+      drawMutatorDarkness(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, x, y);
+    }
+    drawText(ctx, `MUTATOR ${this.mutator.label} · x${this.mutator.scoreMult}`, 16, LOGICAL_HEIGHT - 14, {
+      size: 12,
+      color: COLORS.accent,
+      align: 'left',
+      alpha: 0.9,
+      glow: 'rgba(255, 209, 102, 0.4)',
+      glowBlur: 8,
+    });
+  }
+
   enter(params = {}) {
     this.params = params;
     this.empty = Boolean(params.empty);
@@ -159,6 +186,7 @@ export class PlayScene extends Scene {
     this.solo = Boolean(params.solo);
     this.endless = Boolean(params.endless);
     this.lives = this.endless ? ROUND.endlessLives : 0;
+    this.mutator = mutatorByKey(params.mutator ?? (this.mutator ? this.mutator.key : undefined));
     this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
     this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
     this.eelNeed = Math.max(1, Math.round(EEL.bubblesPerHunt * this.rules.chargeScale));
@@ -214,6 +242,8 @@ export class PlayScene extends Scene {
           (spawn) => new PlayerClass(spawn.x, spawn.y, { controls: spawn.controls, pointer: spawn.pointer }),
         );
     this.player = this.players[0] ?? null;
+    const speedMult = this.mutator.knobs.playerSpeedScale;
+    if (speedMult) this.players.forEach((player) => { player.maxSpeed *= speedMult; });
     this.playerBubbles = this.players.map(() => 0);
     this.wasConcealed = this.players.map(() => false);
     if (this.freshwater) {
@@ -278,7 +308,7 @@ export class PlayScene extends Scene {
     const petKinds = this.petTrained ? [...PETS.kinds, ...PETS.bonusKinds] : PETS.kinds;
     this.pets = this.petsTank
       ? petKinds.map(
-          (kind, index) => new Pet(kind, index, { drainScale: 1 / (this.rules.grace ?? 1) }),
+          (kind, index) => new Pet(kind, index, { drainScale: 1 / Math.max(0.2, this.rules.grace ?? 1) }),
         )
       : [];
     this.food = [];
@@ -1933,6 +1963,14 @@ export class PlayScene extends Scene {
   }
 
   loseLife() {
+    if (this.mutator.knobs.oneHit && !this.endless && !this.teleported && !this.empty && !this.race) {
+      this.teleported = true;
+      this.game.changeScene('gameover', {
+        ...this.completionPayload(),
+        params: this.replayParams(),
+      });
+      return;
+    }
     if (!this.endless || this.teleported) return;
     this.lives -= 1;
     if (this.lives <= 0) {
@@ -1984,9 +2022,14 @@ export class PlayScene extends Scene {
       coins = Math.round(
         (COINS.bonus + this.score * COINS.perScore + Math.floor(this.elapsed) * COINS.perSecond) *
           scale *
-          skinScale,
+          skinScale *
+          mutatorCoinMult(this.mutator),
       );
       saveJSON(COINS_KEY, loadJSON(COINS_KEY, COINS.starting) + coins);
+      this.newRecord = recordWin(this.endless ? 'endless' : this.tank, {
+        time: this.elapsed,
+        score: this.score,
+      });
     }
     return {
       score: this.score,
@@ -2029,6 +2072,7 @@ export class PlayScene extends Scene {
         race = this.playerBubbles.slice();
         raceWon = this.solo ? race[0] >= RACE.soloTarget : race[0] !== race[1];
         raceReward = recordMinigame(raceWon);
+        recordWin(this.solo ? 'raceSolo' : 'race', { score: race[0] });
       }
       const payload = this.completionPayload();
       this.game.changeScene('gameover', {
@@ -2041,6 +2085,66 @@ export class PlayScene extends Scene {
     }
   }
 
+  firstPersonPalette() {
+    const palette = this.freshwater
+      ? FRESHWATER_PALETTE
+      : this.nautilusTank
+        ? NAUTILUS_PALETTE
+        : this.petsTank
+          ? PETS_PALETTE
+          : this.kelp
+            ? KELP_PALETTE
+            : this.jellyTank
+              ? JELLY_PALETTE
+              : this.arctic
+                ? ARCTIC_PALETTE
+                : this.deepsea
+                  ? DEEPSEA_PALETTE
+                  : WATER_PALETTE;
+    return { top: palette.top, bottom: palette.bottom, wall: '#3a4a52' };
+  }
+
+  firstPersonSprites() {
+    return [
+      ...(this.reefRocks ?? []),
+      ...(this.corals ?? []),
+      ...(this.weeds ?? []),
+      ...(this.logs ?? []),
+      ...(this.rocks ?? []),
+      ...(this.piranhas ?? []),
+      ...(this.electricEels ?? []),
+      ...(this.schools ?? []),
+      ...(this.colorSchools ?? []),
+      ...(this.skeletons ?? []),
+      ...(this.bubbles ?? []),
+      ...(this.hazards ?? []),
+      ...(this.eels ?? []),
+      ...(this.anglers ?? []),
+      ...(this.seals ?? []),
+      ...(this.minnows ?? []),
+      ...(this.bonus ?? []),
+      ...(this.baitSquids ?? []),
+      ...(this.dartEels ?? []),
+      ...(this.petEnemies ?? []),
+      ...(this.lures ?? []),
+      ...(this.food ?? []),
+      ...(this.pets ?? []),
+      this.turtle,
+      this.octopus,
+      this.catfish,
+      this.nautilusShark,
+    ].filter(Boolean);
+  }
+
+  renderDepthLayer(ctx) {
+    drawDepthFish(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, 9, COLORS.bubble, 0.1);
+    const haze = ctx.createLinearGradient(0, LOGICAL_HEIGHT * 0.68, 0, LOGICAL_HEIGHT);
+    haze.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    haze.addColorStop(1, 'rgba(0, 8, 16, 0.32)');
+    ctx.fillStyle = haze;
+    ctx.fillRect(0, LOGICAL_HEIGHT * 0.68, LOGICAL_WIDTH, LOGICAL_HEIGHT * 0.32);
+  }
+
   render(ctx) {
     setActiveSkin(this.skin);
     setSkinClock(this.time);
@@ -2049,6 +2153,14 @@ export class PlayScene extends Scene {
     setActiveCostume(this.costume);
     setActiveTrail(this.trail);
     setActiveCompanion(this.companion);
+    if (firstPersonMode()) {
+      ctx.save();
+      if (this.shake > 0) {
+        ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
+      }
+      renderFirstPersonLevel(ctx, this);
+      ctx.restore();
+    } else {
     drawWater(
       ctx,
       LOGICAL_WIDTH,
@@ -2070,6 +2182,7 @@ export class PlayScene extends Scene {
                 ? DEEPSEA_PALETTE
                 : WATER_PALETTE,
     );
+    this.renderDepthLayer(ctx);
     ctx.save();
     if (this.shake > 0) {
       ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
@@ -2134,6 +2247,7 @@ export class PlayScene extends Scene {
     }
     this.particles.render(ctx);
     ctx.restore();
+    }
 
     this.hud.render(ctx, this.hudState());
     if (this.petsTank) {

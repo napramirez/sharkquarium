@@ -2,6 +2,8 @@ import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
 import { drawWater, drawText } from '../engine/render.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
+import { formatRecord } from '../engine/records.js';
+import { mutatorByKey } from '../engine/mutators.js';
 import {
   COLORS,
   COINS,
@@ -9,6 +11,7 @@ import {
   LOGICAL_WIDTH,
   LOGICAL_HEIGHT,
   MINIGAME_FEES,
+  SETTINGS_KEY,
   SHOP_KEY,
   WATER_PALETTE,
 } from '../config.js';
@@ -20,6 +23,7 @@ export class MinigamesScene extends Scene {
     this.status = null;
     this.statusTimer = 0;
     this.shop = { passes: [], ...loadJSON(SHOP_KEY, {}) };
+    this.mutator = mutatorByKey(loadJSON(SETTINGS_KEY, {}).mutator);
     const items = [];
     if (this.shop.passes.includes('playpass1') || this.shop.passes.includes('competitions')) {
       items.push({ label: 'COMPETITIONS (2P RACE)', action: 'race' });
@@ -39,13 +43,21 @@ export class MinigamesScene extends Scene {
       items.push({ label: 'REEF CLEANUP (2P)', action: 'cleanup', feeKey: 'cleanup' });
       items.push({ label: 'REEF CLEANUP SOLO (1P)', action: 'cleanupSolo', feeKey: 'cleanup' });
       items.push({ label: 'TRENCH DIVE (1P)', action: 'trench', feeKey: 'trench' });
+      items.push({ label: 'TRENCH EXPLORE (1P)', action: 'trenchexplore', feeKey: 'trenchexplore' });
+      items.push({ label: 'BOSS RUSH (1P)', action: 'bossrush', feeKey: 'bossrush' });
     }
+    items.push({
+      label: `MUTATOR: ${this.mutator.key === 'none' ? 'OFF' : this.mutator.label}`,
+      action: 'mutators',
+      highlight: this.mutator.key !== 'none',
+    });
+    items.push({ label: 'RECORDS', action: 'records' });
     items.push({ label: 'BACK', action: 'back' });
     this.menu = new SelectList(items, {
       glowColor: COLORS.bubble,
       accentColor: COLORS.accent,
       color: COLORS.text,
-      spacing: 24,
+      spacing: items.length > 20 ? 21 : 24,
       fontSize: 16,
       width: 520,
       onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
@@ -65,6 +77,16 @@ export class MinigamesScene extends Scene {
       this.game.changeScene('menu');
       return;
     }
+    if (item.action === 'records') {
+      this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
+      this.game.changeScene('records');
+      return;
+    }
+    if (item.action === 'mutators') {
+      this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
+      this.game.changeScene('mutators', { from: 'minigames' });
+      return;
+    }
     if (item.feeKey) {
       const fee = MINIGAME_FEES[item.feeKey];
       if (this.coins < fee) {
@@ -79,23 +101,26 @@ export class MinigamesScene extends Scene {
     } else {
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
     }
-    if (item.action === 'race') this.game.changeScene('play', { race: true });
-    else if (item.action === 'raceSolo') this.game.changeScene('play', { race: true, solo: true });
-    else if (item.action === 'tag') this.game.changeScene('tag');
-    else if (item.action === 'tagSolo') this.game.changeScene('tag', { solo: true });
-    else if (item.action === 'dodgeball') this.game.changeScene('dodgeball');
-    else if (item.action === 'dodgeballSolo') this.game.changeScene('dodgeball', { solo: true });
-    else if (item.action === 'labyrinth') this.game.changeScene('labyrinth');
-    else if (item.action === 'labyrinthSolo') this.game.changeScene('labyrinth', { solo: true });
-    else if (item.action === 'pufferball') this.game.changeScene('pufferball');
-    else if (item.action === 'pufferballSolo') this.game.changeScene('pufferball', { solo: true });
-    else if (item.action === 'roundup') this.game.changeScene('roundup');
-    else if (item.action === 'jelly') this.game.changeScene('jellyascent');
-    else if (item.action === 'stealth') this.game.changeScene('stealth');
-    else if (item.action === 'stealthSolo') this.game.changeScene('stealth', { solo: true });
-    else if (item.action === 'cleanup') this.game.changeScene('cleanup');
-    else if (item.action === 'cleanupSolo') this.game.changeScene('cleanup', { solo: true });
-    else if (item.action === 'trench') this.game.changeScene('trench');
+    const mutator = this.mutator.key === 'none' ? undefined : this.mutator.key;
+    if (item.action === 'race') this.game.changeScene('play', { race: true, mutator });
+    else if (item.action === 'raceSolo') this.game.changeScene('play', { race: true, solo: true, mutator });
+    else if (item.action === 'tag') this.game.changeScene('tag', { mutator });
+    else if (item.action === 'tagSolo') this.game.changeScene('tag', { solo: true, mutator });
+    else if (item.action === 'dodgeball') this.game.changeScene('dodgeball', { mutator });
+    else if (item.action === 'dodgeballSolo') this.game.changeScene('dodgeball', { solo: true, mutator });
+    else if (item.action === 'labyrinth') this.game.changeScene('labyrinth', { mutator });
+    else if (item.action === 'labyrinthSolo') this.game.changeScene('labyrinth', { solo: true, mutator });
+    else if (item.action === 'pufferball') this.game.changeScene('pufferball', { mutator });
+    else if (item.action === 'pufferballSolo') this.game.changeScene('pufferball', { solo: true, mutator });
+    else if (item.action === 'roundup') this.game.changeScene('roundup', { mutator });
+    else if (item.action === 'jelly') this.game.changeScene('jellyascent', { mutator });
+    else if (item.action === 'stealth') this.game.changeScene('stealth', { mutator });
+    else if (item.action === 'stealthSolo') this.game.changeScene('stealth', { solo: true, mutator });
+    else if (item.action === 'cleanup') this.game.changeScene('cleanup', { mutator });
+    else if (item.action === 'cleanupSolo') this.game.changeScene('cleanup', { solo: true, mutator });
+    else if (item.action === 'trench') this.game.changeScene('trench', { mutator });
+    else if (item.action === 'trenchexplore') this.game.changeScene('trenchexplore', { mutator });
+    else if (item.action === 'bossrush') this.game.changeScene('bossrush', { mutator });
   }
 
   update(dt) {
@@ -125,6 +150,7 @@ export class MinigamesScene extends Scene {
     });
     this.menu.render(ctx, 400, 306);
     this.renderFees(ctx);
+    this.renderRecords(ctx);
     if (this.status && this.statusTimer > 0) {
       drawText(ctx, this.status, LOGICAL_WIDTH - 90, 76, {
         size: 12,
@@ -160,6 +186,22 @@ export class MinigamesScene extends Scene {
         color: this.coins >= fee ? COLORS.accent : COLORS.danger,
         align: 'left',
         alpha: 0.9,
+      });
+    });
+  }
+
+  renderRecords(ctx) {
+    const rows = this.menu.items.length;
+    const top = 306 - ((rows - 1) * this.menu.spacing) / 2;
+    this.menu.items.forEach((item, index) => {
+      const mode = item.action === 'jelly' ? 'jellyascent' : item.action;
+      const rec = formatRecord(mode);
+      if (rec === 'NO RECORD') return;
+      drawText(ctx, rec, 136, top + this.menu.spacing * index, {
+        size: 12,
+        color: COLORS.bubble,
+        align: 'right',
+        alpha: 0.85,
       });
     });
   }

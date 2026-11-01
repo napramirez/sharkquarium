@@ -132,6 +132,7 @@ export class MenuScene extends Scene {
     this.shark.vx = Math.cos(drift) * 96;
     this.shark.vy = Math.sin(drift * 2.3) * 46;
     this.shark.heading = Math.atan2(this.shark.vy, this.shark.vx);
+    this.shark.facing = this.shark.vx >= 0 ? 1 : -1;
   }
 
   render(ctx) {

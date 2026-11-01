@@ -6,6 +6,7 @@ export class Bubble extends Entity {
   constructor(x, y, options = {}) {
     super({ x, y, radius: options.radius ?? rand(BUBBLE.minRadius, BUBBLE.maxRadius) });
     this.golden = false;
+    this.sphere3D = 'bubble';
     this.baseX = x;
     this.rise = options.rise ?? rand(BUBBLE.minRise, BUBBLE.maxRise);
     this.wobble = options.wobble ?? rand(BUBBLE.minWobble, BUBBLE.maxWobble);

@@ -11,6 +11,7 @@ export class ColorSchool extends Entity {
       radius: COLORSCHOOL.radius,
     });
     this.direction = fromLeft ? 1 : -1;
+    this.flat3D = true;
     this.speed = rand(COLORSCHOOL.speedMin, COLORSCHOOL.speedMax);
     this.baseY = this.y;
     this.bobPhase = rand(0, TAU);

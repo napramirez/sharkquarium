@@ -65,7 +65,7 @@ export class LoreScene extends Scene {
   }
 
   renderTabs(ctx) {
-    const spacing = 176;
+    const spacing = 150;
     const startX = LOGICAL_WIDTH / 2 - ((LORE.length - 1) * spacing) / 2;
     LORE.forEach((section, index) => {
       const x = startX + index * spacing;
@@ -147,7 +147,7 @@ export class LoreScene extends Scene {
       glow: COLORS.bubble,
       glowBlur: 20,
     });
-    drawText(ctx, 'THE STORY OF THE SHARKQUARIUM — NAMES, TANKS, DIVERS, AND HAZARDS', LOGICAL_WIDTH / 2, 88, {
+    drawText(ctx, 'THE STORY OF THE SHARKQUARIUM — WRECK, TANKS, DIVERS, HAZARDS, MINIGAMES, AND MODES', LOGICAL_WIDTH / 2, 88, {
       size: 12,
       color: COLORS.foam,
       alpha: 0.8,

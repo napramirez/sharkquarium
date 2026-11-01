@@ -194,6 +194,17 @@ async function main() {
   assert.equal(game.scene.menu.index, 0, 'menu should start on START DIVE');
   assert.equal(game.scene.coins, 500, 'new players should start with a welcome sea-coin bank');
 
+  game.set3D(true);
+  await frames(4);
+  assert.equal(game.threeD, true, '3D mode should be active on the menu');
+  assert.ok(game.scene.shark, 'the menu shark should be drawn as a 3D volume');
+  await frames(40);
+  assert.ok(game.scene.bubbles.length > 0, 'the menu bubbles should draw as 3D spheres');
+  game.set3D(false);
+  await frames(2);
+  assert.equal(canvas.style.transform, 'none', 'leaving 3D mode should flatten the canvas');
+  assert.equal(game.threeD, false, '3D mode should switch back off');
+
   await tapKey('ArrowDown');
   assert.equal(game.scene.menu.index, 1, 'arrow down should navigate the menu');
   await tapKey('ArrowDown');
@@ -253,11 +264,56 @@ async function main() {
     'FRESHWATER TANK',
     'the nautilus tank should sit before the freshwater tank',
   );
-  assert.equal(game.scene.menu.items[9].label, 'EMPTY TANK', 'the tank list should include every tank');
-  const emptyRow = game.scene.menu.bounds[9];
+  assert.equal(
+    game.scene.menu.items[9].label,
+    'ABYSS TRENCH TANK',
+    'the abyss boss tank should join the list',
+  );
+  assert.equal(
+    game.scene.menu.items[10].label,
+    'REEF SWARM QUEEN',
+    'the reef swarm queen tank should join the list',
+  );
+  assert.equal(
+    game.scene.menu.items[11].label,
+    'RAYCAST TANK',
+    'the raycast tank should join the list',
+  );
+  assert.equal(
+    game.scene.menu.items[12].label,
+    'MYSTERIOUSLY QUIET TANK',
+    'the horror tank should join the list',
+  );
+  assert.equal(
+    game.scene.menu.items[13].label,
+    'THE ESCAPE',
+    'the escape should join the list as its own tank',
+  );
+  assert.equal(
+    game.scene.menu.items[14].label,
+    'THE WATCHER',
+    'the watcher tank should join the list',
+  );
+  assert.equal(
+    game.scene.menu.items[15].label,
+    'THE TRENCH MOUTH',
+    'the trench mouth tank should join the list',
+  );
+  assert.equal(
+    game.scene.menu.items[16].label,
+    'PREHISTORIC TANK',
+    'the prehistoric tank should join the list',
+  );
+  assert.equal(
+    game.scene.menu.items[17].label,
+    'PLAYTOY EXPLORATION',
+    'the playtoy exploration tank should join the list',
+  );
+  assert.equal(game.scene.menu.items[18].label, 'EMPTY TANK', 'the tank list should include every tank');
+  const emptyRow = game.scene.menu.bounds[18];
   movePointer(emptyRow.x + emptyRow.width / 2, emptyRow.y + emptyRow.height / 2);
   await frames(2);
-  assert.equal(game.scene.menu.index, 9, 'pointer hover should select EMPTY TANK in the list');
+  assert.equal(game.scene.menu.index, 18, 'pointer hover should select EMPTY TANK in the list');
   await clickAt(emptyRow.x + emptyRow.width / 2, emptyRow.y + emptyRow.height / 2);
   await frames(5);
   assert.equal(game.currentSceneName, 'play', 'clicking EMPTY TANK should start the play scene');
@@ -283,10 +339,708 @@ async function main() {
   assert.equal(game.currentSceneName, 'menu', 'game over menu should return to the menu');
   assert.equal(game.scene.menu.index, 0, 'menu should reset its selection');
 
+  game.changeScene('abyss');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'abyss', 'tank select should open the abyss boss tank');
+  const abyss = game.scene;
+  assert.ok(abyss.leviathan, 'the abyss should spawn the leviathan');
+  assert.equal(abyss.lives, 3, 'the abyss should start with three lives');
+  abyss.leviathan.state = 'recover';
+  abyss.leviathan.stateTimer = 2;
+  abyss.leviathan.stun = 1;
+  const leviathanEye = abyss.leviathan.eyePosition();
+  abyss.players[0].x = leviathanEye.x;
+  abyss.players[0].y = leviathanEye.y;
+  abyss.players[0].vx = 340;
+  abyss.players[0].vy = 0;
+  await frames(2);
+  assert.ok(
+    abyss.leviathan.hp < abyss.leviathan.maxHp,
+    'ramming the glowing eye should damage the leviathan',
+  );
+  abyss.leviathan.blinkTimer = 0;
+  abyss.leviathan.blinkHold = 0;
+  await frames(3);
+  assert.ok(
+    abyss.leviathan.blink > 0,
+    'the leviathan eyes should blink on their own over time',
+  );
+  abyss.leviathan.blink = 0;
+  abyss.leviathan.blinkHold = 0;
+  abyss.leviathan.blinkTimer = 999;
+  abyss.leviathan.hp = 1;
+  abyss.leviathan.state = 'recover';
+  abyss.leviathan.stun = 1;
+  abyss.players[0].invulnerable = 0;
+  const finishingEye = abyss.leviathan.eyePosition();
+  abyss.players[0].x = finishingEye.x;
+  abyss.players[0].y = finishingEye.y;
+  abyss.players[0].vx = 340;
+  await frames(2);
+  assert.equal(abyss.leviathan.dead, true, 'the last eye hit should kill the leviathan');
+  await frames(140);
+  assert.equal(abyss.phase, 'results', 'killing the leviathan should end the fight');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'tanks', 'escape should leave the abyss boss tank');
+
+  game.changeScene('reefqueen');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'reefqueen', 'tank select should open the reef swarm queen');
+  const queen = game.scene;
+  assert.ok(queen.queen, 'the reef tank should spawn the swarm queen');
+  assert.equal(queen.lives, 3, 'the swarm queen fight should start with three lives');
+  queen.queen.state = 'open';
+  queen.queen.stateTimer = 2;
+  queen.queen.stun = 1;
+  const queenCore = queen.queen.corePosition();
+  queen.players[0].x = queenCore.x;
+  queen.players[0].y = queenCore.y;
+  queen.players[0].vx = 340;
+  queen.players[0].vy = 0;
+  await frames(2);
+  assert.ok(
+    queen.queen.hp < queen.queen.maxHp,
+    'ramming the glowing core should damage the swarm queen',
+  );
+  queen.queen.hp = 1;
+  queen.queen.state = 'open';
+  queen.queen.stun = 1;
+  queen.players[0].invulnerable = 0;
+  const finishingCore = queen.queen.corePosition();
+  queen.players[0].x = finishingCore.x;
+  queen.players[0].y = finishingCore.y;
+  queen.players[0].vx = 340;
+  await frames(2);
+  assert.equal(queen.queen.dead, true, 'the last core hit should kill the swarm queen');
+  await frames(140);
+  assert.equal(queen.phase, 'results', 'killing the swarm queen should end the fight');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'tanks', 'escape should leave the reef swarm queen');
+
+  game.changeScene('quiet');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'quiet', 'tank select should open the quietly quiet tank');
+  assert.equal(game.music.track.name, 'quiet', 'the quiet tank should play its horror theme');
+  const quietPreviousTrack = game.scene.previousTrack;
+  assert.equal(game.scene.phase, 'select', 'the quiet tank should ask for a diver first');
+  assert.equal(game.scene.creature.label, 'SHARK', 'the quiet picker should default to the shark');
+  await tapKey('ArrowRight');
+  assert.equal(game.scene.creature.label, 'STINGRAY', 'Left/Right should change the quiet diver');
+  await tapKey('ArrowLeft');
+  assert.equal(game.scene.creature.label, 'SHARK', 'the quiet picker should step back');
+  await tapKey('ArrowDown');
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.scene.phase, 'arrival', 'starting should play the arrival cutscene');
+  assert.ok(game.scene.rift, 'the arrival should tear open an atom rift in the lab');
+  assert.ok(game.scene.arrivalEchoeel, 'the arrival should hold the passing echoeel');
+  assert.equal(game.scene.arrivalCrew.length, 7, 'the seven divers should arrive at the lab');
+  await frames(210);
+  assert.equal(game.scene.rift.open, 1, 'the intergalactic atom rift should tear open');
+  assert.ok(game.scene.arrivalEchoeel.reveal > 0, 'the echoeel should pass through the rift');
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.scene.phase, 'play', 'skipping the arrival should begin the dive');
+  const quiet = game.scene;
+  assert.ok(quiet.alien, 'the quiet tank should spawn the echoeel');
+  assert.ok(quiet.clutter.length > 0, 'the quiet tank should hold knockable clutter');
+  game.setFirstPerson(true);
+  await frames(4);
+  assert.equal(
+    game.currentSceneName,
+    'quiet',
+    'the quiet tank should render in the first-person raycaster',
+  );
+  game.setFirstPerson(false);
+  await frames(2);
+  quiet.player.x = -100;
+  quiet.player.y = -100;
+  await frames(2);
+  const prop = quiet.clutter[0];
+  quiet.noise = 0;
+  quiet.alien.state = 'drift';
+  quiet.alien.x = quiet.worldLength - 60;
+  quiet.alien.y = 60;
+  quiet.player.x = prop.x;
+  quiet.player.y = prop.y;
+  await frames(2);
+  assert.equal(prop.toppled, true, 'bumping clutter should knock it over');
+  assert.ok(quiet.noise > 0, 'knocking clutter should raise the noise meter');
+  assert.ok(quiet.alien.hunting, 'noise should send the blind one hunting after the sound');
+
+  const bulkhead = quiet.walls[0];
+  const bulkheadY = bulkhead.y + bulkhead.h * 0.5;
+  quiet.alien.x = bulkhead.x - 50;
+  quiet.alien.y = bulkheadY;
+  quiet.player.x = bulkhead.x + bulkhead.w + 50;
+  quiet.player.y = bulkheadY;
+  assert.equal(
+    quiet.hasLineOfSight(),
+    false,
+    'a bulkhead should block the alien echolocation line of sight',
+  );
+  quiet.alien.x = quiet.player.x;
+  quiet.alien.y = quiet.player.y;
+  assert.equal(
+    quiet.hasLineOfSight(),
+    true,
+    'clear water should restore the alien line of sight',
+  );
+
+  const junk = quiet.clutter[0];
+  const hide = quiet.hides[0];
+  for (const item of quiet.clutter) {
+    if (Math.hypot(item.x - hide.x, item.y - hide.y) < item.radius + hide.radius + 24) {
+      item.toppled = true;
+    }
+  }
+  quiet.player.x = hide.x;
+  quiet.player.y = hide.y;
+  quiet.alien.state = 'charge';
+  quiet.alien.x = junk.x;
+  quiet.alien.y = junk.y;
+  quiet.emitNoise(junk.x, junk.y, junk);
+  assert.equal(
+    Math.abs(quiet.alien.targetX - junk.x) < 1 && Math.abs(quiet.alien.targetY - junk.y) < 1,
+    true,
+    'the echoeel should aim at the touched junk, not the diver',
+  );
+  await frames(2);
+  assert.ok(
+    !quiet.clutter.includes(junk),
+    'the echoeel should shatter the junk it heard even while the diver hides',
+  );
+  assert.equal(
+    quiet.phase,
+    'play',
+    'shattering the junk while the diver hides should not catch the diver',
+  );
+
+  quiet.noise = 0;
+  quiet.noiseHold = 0;
+  quiet.noiseTarget = null;
+  quiet.alien.state = 'charge';
+  quiet.alien.stateTimer = 5;
+  quiet.alien.targetX = 0;
+  quiet.alien.targetY = quiet.alien.y;
+  quiet.alien.x = 900;
+  const lungeStart = quiet.alien.x;
+  await frames(6);
+  assert.ok(
+    lungeStart - quiet.alien.x > 120,
+    'the echoeel lunge should cover ground faster than any diver can swim',
+  );
+
+  quiet.noise = 0;
+  quiet.noiseHold = 0;
+  quiet.noiseTarget = null;
+  quiet.alien.state = 'search';
+  quiet.alien.stateTimer = 4;
+  quiet.player.x = 300;
+  quiet.player.y = quiet.exitZone.y;
+  quiet.alien.x = quiet.player.x + 140;
+  quiet.alien.y = quiet.player.y;
+  quiet.echoTimer = 0;
+  await frames(2);
+  assert.equal(
+    quiet.alien.state,
+    'search',
+    'swimming beside the echoeel in open water should not draw it in',
+  );
+  assert.equal(quiet.phase, 'play', 'the echoeel should not attack a diver it merely swims beside');
+
+  quiet.noise = 0;
+  quiet.noiseHold = 0;
+  quiet.noiseTarget = null;
+  quiet.alien.state = 'alert';
+  quiet.alien.stateTimer = 999;
+  quiet.alien.x = quiet.player.x + 120;
+  quiet.alien.y = quiet.player.y;
+  quiet.echoTimer = 0;
+  for (let i = 0; i < 200 && quiet.phase === 'play'; i += 1) await frames(1);
+  assert.equal(
+    quiet.phase,
+    'scare',
+    'a diver caught in the echolocation ping should be jumpscared',
+  );
+  assert.equal(quiet.scareKind, 'sonar', 'a ping catch should use the sonar scare');
+
+  quiet.resetRound();
+  await frames(2);
+  assert.equal(quiet.phase, 'play', 'resetting after the ping scare should start a fresh run');
+
+  quiet.noise = 0;
+  quiet.noiseHold = 0;
+  quiet.noiseTarget = null;
+  quiet.alien.state = 'drift';
+  quiet.alien.x = quiet.player.x;
+  quiet.alien.y = quiet.player.y;
+  await frames(2);
+  assert.equal(
+    quiet.phase,
+    'scare',
+    'the echoeel should jumpscare a diver it drifts right up against',
+  );
+  assert.equal(quiet.scareKind, 'snap', 'a close touch should use the snap scare');
+
+  quiet.resetRound();
+  await frames(2);
+  assert.equal(quiet.phase, 'play', 'resetting after the proximity scare should start a fresh run');
+
+  quiet.noise = 0;
+  quiet.noiseHold = 0;
+  quiet.noiseTarget = null;
+  const catchJunk =
+    quiet.clutter.find(
+      (item) =>
+        item.x < quiet.worldLength - 900 &&
+        quiet.hides.every(
+          (spot) => Math.hypot(item.x - spot.x, item.y - spot.y) > spot.radius + item.radius + 30,
+        ),
+    ) ?? quiet.clutter[0];
+  for (const item of quiet.clutter) {
+    if (
+      Math.hypot(item.x - catchJunk.x, item.y - catchJunk.y) <
+      item.radius + catchJunk.radius + 24
+    ) {
+      item.toppled = true;
+    }
+  }
+  quiet.player.x = catchJunk.x;
+  quiet.player.y = catchJunk.y;
+  quiet.alien.state = 'drift';
+  quiet.alien.x = catchJunk.x;
+  quiet.alien.y = catchJunk.y;
+  quiet.emitNoise(catchJunk.x, catchJunk.y, catchJunk);
+  await frames(2);
+  assert.equal(
+    quiet.phase,
+    'scare',
+    'the echoeel should take a diver lingering beside the junk it knocked',
+  );
+  assert.equal(quiet.scareKind, 'lunge', 'a junk strike should use the lunge scare');
+
+  quiet.resetRound();
+  await frames(2);
+  assert.equal(quiet.phase, 'play', 'a reset should start a fresh quiet run');
+  quiet.ambientTimer = 0;
+  quiet.heartbeatTimer = 0.001;
+  quiet.echoTimer = 5;
+  quiet.alien.state = 'alert';
+  quiet.alien.stateTimer = 999;
+  quiet.alien.x = quiet.player.x + 200;
+  quiet.alien.y = quiet.player.y;
+  await frames(3);
+  assert.ok(quiet.ambientTimer > 0, 'the lab should keep scheduling ambient horror cues');
+  assert.ok(quiet.heartbeatTimer > 0.5, 'the proximity heartbeat should beat and reschedule');
+
+  quiet.resetRound();
+  await frames(2);
+  assert.equal(quiet.checkpoints.length, 3, 'the lab should hold three checkpoints');
+  const checkpoint = quiet.checkpoints[0];
+  quiet.player.x = checkpoint.x + 10;
+  quiet.player.y = checkpoint.y;
+  await frames(2);
+  assert.equal(checkpoint.reached, true, 'passing a checkpoint should bank it');
+  assert.equal(quiet.checkpoint.x, checkpoint.x, 'the bank should become the respawn point');
+
+  quiet.noise = 0;
+  quiet.player.vx = 430;
+  quiet.player.vy = 0;
+  await frames(6);
+  assert.ok(quiet.noise > 0, 'swimming fast should raise the noise meter');
+  quiet.player.vx = 0;
+  quiet.player.vy = 0;
+
+  quiet.noise = 0;
+  quiet.noiseHold = 0;
+  const vent = quiet.vents[0];
+  vent.timer = 0;
+  quiet.player.x = vent.x;
+  quiet.player.y = quiet.exitZone.y;
+  await frames(2);
+  assert.ok(quiet.noise > 0, 'a steam vent should make noise that lures the echoeel');
+
+  assert.equal(quiet.remains.length, 6, 'the lab should hold six dead scientists');
+  quiet.remainNote = null;
+  quiet.player.x = quiet.remains[1].x;
+  quiet.player.y = quiet.remains[1].y;
+  await frames(2);
+  assert.ok(quiet.remainNote, 'finding a dead scientist should surface their message');
+
+  quiet.phantoms = [];
+  quiet.hallucinationTimer = 0;
+  await frames(2);
+  assert.ok(quiet.phantoms.length > 0, 'the dark should conjure false echoes');
+
+  const slamDoor = quiet.slamDoors[0];
+  slamDoor.closed = false;
+  quiet.player.x = slamDoor.x + slamDoor.w + 100;
+  quiet.player.y = quiet.exitZone.y;
+  await frames(2);
+  assert.equal(slamDoor.closed, true, 'passing a bulkhead should slam it shut behind you');
+
+  quiet.finale = false;
+  quiet.finalLunge = false;
+  quiet.alien.relentless = false;
+  quiet.alien.state = 'drift';
+  quiet.player.x = quiet.runLength - 500;
+  quiet.player.y = quiet.exitZone.y;
+  quiet.alien.x = quiet.runLength - 900;
+  quiet.alien.y = quiet.exitZone.y;
+  await frames(2);
+  assert.equal(quiet.finale, false, 'the quiet tank should have no distant end-of-run chase');
+
+  quiet.player.x = quiet.exitZone.x - 200;
+  quiet.player.y = quiet.exitZone.y;
+  await frames(2);
+  assert.equal(quiet.finalLunge, true, 'approaching the exit should trigger the echoeel final lunge');
+  for (let i = 0; i < 30; i += 1) {
+    quiet.player.x = quiet.exitZone.x - 200;
+    quiet.player.y = quiet.exitZone.y;
+    await frames(1);
+  }
+  const lungeGap = Math.hypot(quiet.alien.x - quiet.player.x, quiet.alien.y - quiet.player.y);
+  assert.ok(lungeGap > 44, 'the final lunge should barely miss the diver');
+  assert.equal(quiet.phase, 'play', 'the near-miss should not catch the diver');
+  quiet.player.x = quiet.exitZone.x;
+  quiet.player.y = quiet.exitZone.y;
+  await frames(2);
+  assert.equal(quiet.phase, 'results', 'the diver should reach the exit before the echoeel');
+  assert.equal(quiet.won, true, 'escaping the quiet tank should count as a win');
+
+  quiet.resetRound();
+  await frames(2);
+  for (let i = 0; i < 240 && quiet.phase === 'play'; i += 1) {
+    quiet.noise = 1;
+    quiet.player.x = 26;
+    quiet.player.y = 26;
+    await frames(1);
+  }
+  assert.equal(quiet.phase, 'scare', 'a full noise meter held over two seconds should jumpscare');
+  assert.equal(quiet.scareKind, 'breach', 'a noise-meter scare should use the drawn-out breach');
+  await frames(160);
+  assert.equal(quiet.phase, 'play', 'a caught diver should respawn at the last checkpoint');
+  assert.ok(quiet.respawns > 0, 'the respawn should be recorded');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'tanks', 'escape should leave the quiet tank');
+  assert.equal(game.music.track, quietPreviousTrack, 'leaving the quiet tank should restore the held theme');
+
+  game.changeScene('flood');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'flood', 'tank select should open the flooded escape');
+  assert.equal(game.scene.flood, true, 'the flood tank should run in flood mode');
+  assert.equal(game.scene.phase, 'select', 'the flood should ask for a diver first');
+  await tapKey('ArrowDown');
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.scene.phase, 'play', 'starting the flood should begin the escape');
+  const flood = game.scene;
+  assert.equal(flood.phase2, true, 'the flood should run the relentless chase');
+  assert.equal(flood.alien.relentless, true, 'the flood echoeel should be relentless');
+  assert.ok(flood.trueExit.x > 0, 'the flood should have a true exit');
+  assert.equal(flood.debris.length, 6, 'the flood corridor should hold collapsing debris');
+  assert.equal(flood.checkpoints.length, 2, 'the flood should hold checkpoints');
+
+  const floodDebris = flood.debris[0];
+  flood.walls.length = 0;
+  flood.alien.x = floodDebris.x + 2000;
+  flood.alien.y = floodDebris.y;
+  for (let i = 0; i < 60 && floodDebris.state !== 'fall'; i += 1) {
+    flood.player.x = floodDebris.x - 70;
+    flood.player.y = floodDebris.y;
+    await frames(1);
+  }
+  assert.equal(floodDebris.state, 'fall', 'the flood ceiling debris should collapse');
+  assert.ok(flood.walls.some((wall) => wall.debris), 'flood debris should block the corridor');
+
+  flood.resetRound();
+  await frames(2);
+  flood.debris = [];
+  flood.walls.length = 0;
+  flood.player.x = 120;
+  flood.player.y = flood.exitZone.y;
+  flood.alien.x = -600;
+  flood.alien.y = flood.exitZone.y;
+  flood.alien.state = 'charge';
+  flood.alien.relentless = true;
+  flood.alien.chargeSpeed = 380;
+  pressKey('KeyD');
+  for (let i = 0; i < 600 && flood.phase === 'play'; i += 1) await frames(1);
+  releaseKey('KeyD');
+  assert.equal(flood.phase, 'outro', 'escaping should play the glass-shatter cutscene');
+  for (let i = 0; i < 600 && flood.phase === 'outro'; i += 1) await frames(1);
+  assert.equal(flood.phase, 'results', 'the cutscene should end in a win');
+  assert.equal(flood.won, true, 'outrunning the flood should count as a win');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'tanks', 'escape should leave the flood tank');
+
+  game.changeScene('watcher');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'watcher', 'tank select should open the watcher tank');
+  assert.equal(game.scene.phase, 'select', 'the watcher should ask for a diver first');
+  await tapKey('ArrowDown');
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.scene.phase, 'play', 'starting the watcher should begin the dive');
+  const watcherScene = game.scene;
+  assert.equal(watcherScene.watchers.length, 1, 'sector one should hold one watcher');
+  assert.ok(watcherScene.coinBubbles.length > 0, 'each sector should hold coin bubbles');
+  assert.equal(watcherScene.gazeActive(), true, 'the gaze should start open');
+
+  const stalker = watcherScene.watchers[0];
+  stalker.x = watcherScene.player.x + 200;
+  stalker.y = watcherScene.player.y;
+  const stalkStart = stalker.x;
+  game.input.pointer.x = watcherScene.player.x - watcherScene.cameraX + 200;
+  game.input.pointer.y = watcherScene.player.y;
+  await frames(20);
+  assert.equal(stalker.frozen, true, 'a watcher inside the gaze should freeze');
+  assert.ok(Math.abs(stalker.x - stalkStart) < 2, 'a frozen watcher should not advance');
+
+  game.input.pointer.x = watcherScene.player.x - watcherScene.cameraX - 300;
+  await frames(20);
+  assert.equal(stalker.frozen, false, 'a watcher outside the gaze should stalk');
+  assert.ok(stalker.x < stalkStart, 'an unobserved watcher should close on the diver');
+
+  watcherScene.stare = 0.01;
+  watcherScene.blinking = false;
+  await frames(2);
+  assert.equal(watcherScene.blinking, true, 'an empty stare meter should force a blink');
+  assert.equal(watcherScene.gazeActive(), false, 'the gaze should close while blinking');
+  watcherScene.stare = 4.4;
+  watcherScene.blinking = false;
+
+  watcherScene.player.x = watcherScene.exitZone.x;
+  watcherScene.player.y = watcherScene.exitZone.y;
+  await frames(2);
+  assert.equal(watcherScene.phase, 'results', 'reaching the exit should win the watcher run');
+  assert.equal(watcherScene.won, true, 'escaping the watcher should count as a win');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'tanks', 'escape should leave the watcher tank');
+
+  game.changeScene('mouth');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'mouth', 'tank select should open the trench mouth');
+  assert.equal(game.scene.phase, 'select', 'the trench mouth should ask for a diver first');
+  await tapKey('ArrowDown');
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.scene.phase, 'play', 'starting the trench mouth should begin the dive');
+  const maw = game.scene;
+  assert.ok(maw.anchors.length > 0, 'each section should hold ceiling anchors');
+  assert.ok(maw.coinBubbles.length > 0, 'each section should hold coin bubbles');
+  assert.equal(maw.gulp.state, 'idle', 'the maw should start at rest');
+
+  const brace = maw.anchors[0];
+  maw.player.x = brace.x;
+  maw.player.y = brace.y;
+  pressKey('Space');
+  await frames(2);
+  assert.equal(maw.heldAnchor, brace, 'space near an anchor should brace the diver');
+  const bracedY = maw.player.y;
+  maw.gulp.state = 'inhale';
+  maw.gulp.timer = 1.5;
+  await frames(12);
+  assert.ok(Math.abs(maw.player.y - bracedY) < 2, 'a braced diver should resist the gulp');
+  releaseKey('Space');
+  await frames(2);
+  assert.equal(maw.heldAnchor, null, 'releasing space should let the diver go');
+
+  maw.player.x = brace.x + 200;
+  maw.player.y = 130;
+  maw.player.vx = 0;
+  maw.player.vy = 0;
+  maw.gulp.state = 'inhale';
+  maw.gulp.timer = 1.5;
+  const freeY = maw.player.y;
+  await frames(20);
+  assert.ok(maw.player.y > freeY, 'the gulp should drag an unbraced diver toward the maw');
+
+  maw.gulp.state = 'inhale';
+  maw.gulp.timer = 0.02;
+  maw.player.y = maw.safeY + 10;
+  await frames(3);
+  assert.equal(maw.phase, 'scare', 'being in the maw when it bites should swallow the diver');
+  await frames(120);
+  assert.equal(maw.phase, 'play', 'a swallowed diver should respawn at the last checkpoint');
+
+  maw.player.x = maw.exitZone.x;
+  maw.player.y = maw.exitZone.y;
+  await frames(2);
+  assert.equal(maw.phase, 'results', 'reaching the exit should clear the maw');
+  assert.equal(maw.won, true, 'clearing the maw should count as a win');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'tanks', 'escape should leave the trench mouth');
+
+  game.changeScene('prehistoric');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'prehistoric', 'tank select should open the prehistoric tank');
+  const pre = game.scene;
+  assert.equal(pre.phase, 'play', 'the prehistoric tank should start playable');
+  assert.equal(pre.zoneIndex, 0, 'the prehistoric tank should open in the devonian sea');
+  assert.ok(pre.ammonites.length > 0, 'the devonian sea should hold ammonites');
+  pre.player.x = pre.startPadding;
+  pre.player.y = 150;
+  const preAmmo = pre.ammonites[0];
+  pre.dunk.x = preAmmo.x;
+  pre.dunk.y = preAmmo.y;
+  await frames(2);
+  assert.ok(pre.dunk.stun > 0, 'an ammonite should distract the dunkleosteus');
+
+  pre.player.x = pre.zoneStarts[1] + 40;
+  pre.player.y = pre.groundY - pre.player.radius;
+  await frames(2);
+  assert.equal(pre.zoneIndex, 1, 'the prehistoric tank should reach the swamp');
+  assert.equal(pre.raptor.active, true, 'the swamp should wake the velociraptor');
+
+  pre.player.x = pre.zoneStarts[2] + 40;
+  pre.player.y = pre.groundY - pre.player.radius;
+  await frames(2);
+  assert.equal(pre.phase, 'intro', 'entering the highlands should play the titanoboa tree cutscene');
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(pre.phase, 'play', 'skipping the cutscene should start the chase');
+  assert.equal(pre.snake.active, true, 'the titanoboa should give chase');
+  let snakeLen = 0;
+  for (let i = 1; i < pre.snake.body.length; i += 1) {
+    snakeLen += Math.hypot(
+      pre.snake.body[i].x - pre.snake.body[i - 1].x,
+      pre.snake.body[i].y - pre.snake.body[i - 1].y,
+    );
+  }
+  assert.ok(snakeLen > 800, 'the titanoboa should trail a long fixed-length body');
+
+  pre.snake.x = 0;
+  pre.player.x = pre.worldEnd - 5;
+  await frames(2);
+  assert.equal(pre.phase, 'results', 'reaching the end should win the prehistoric run');
+  assert.equal(pre.won, true, 'outrunning prehistory should count as a win');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'tanks', 'escape should leave the prehistoric tank');
+
+  game.changeScene('raycast');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'raycast', 'tank select should open the raycast tank');
+  const raycastScene = game.scene;
+  assert.ok(raycastScene.grid.length > 3, 'the raycast tank should build a maze');
+  assert.ok(raycastScene.bubbles.length > 0, 'the raycast maze should hold bubbles');
+  assert.equal(raycastScene.collected, 0, 'the raycast tank should start with no bubbles collected');
+  raycastScene.collected = raycastScene.bubbles.length;
+  raycastScene.px = raycastScene.exitPoint.x;
+  raycastScene.py = raycastScene.exitPoint.y;
+  await frames(3);
+  assert.equal(raycastScene.phase, 'results', 'reaching the exit with every bubble should win');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'tanks', 'escape should leave the raycast tank');
+  game.changeScene('menu');
+  await frames(5);
+
+  game.set3D(true);
+  game.setFirstPerson(true);
+  game.changeScene('labyrinth', { solo: true });
+  await frames(10);
+  assert.equal(
+    game.currentSceneName,
+    'labyrinth',
+    'labyrinth solo should survive 3D mode plus first person',
+  );
+  game.changeScene('tag', { solo: true });
+  await frames(6);
+  assert.equal(game.currentSceneName, 'tag', 'tag should render in the first-person raycaster');
+  game.changeScene('aquarium');
+  await frames(6);
+  assert.equal(
+    game.currentSceneName,
+    'aquarium',
+    'the aquarium dive should render in the first-person raycaster',
+  );
+  game.setFirstPerson(false);
+  game.set3D(false);
+  game.changeScene('menu');
+  await frames(3);
+
   await tapKey('Enter');
   await frames(5);
   assert.equal(game.currentSceneName, 'play', 'menu should start a dive');
   assert.equal(game.scene.empty, false, 'start dive should spawn the full game');
+
+  game.setFirstPerson(true);
+  await frames(2);
+  const fpPlayer = game.scene.player;
+  assert.equal(game.firstPerson, true, 'first person mode should be active');
+  assert.ok(
+    typeof game.scene.firstPersonSprites === 'function',
+    'scenes should expose first-person raycast sprites',
+  );
+  assert.equal(
+    game.scene.firstPersonActor(),
+    fpPlayer,
+    'first person should look through the selected creature',
+  );
+  game.input.pointer.x = 880;
+  game.input.pointer.y = 240;
+  await frames(6);
+  assert.equal(
+    canvas.style.transform,
+    'none',
+    'first person should render the raycast view in-canvas, not via a CSS tilt',
+  );
+  assert.equal(
+    canvas.style.cursor,
+    'none',
+    'first person should hide the mouse cursor during a dive',
+  );
+  const yawBefore = game.scene.firstPersonYaw ?? 0;
+  document.pointerLockElement = canvas;
+  game.input.pointer.lookDX = 80;
+  await frames(2);
+  assert.ok(
+    Math.abs((game.scene.firstPersonYaw ?? 0) - yawBefore) > 0.05,
+    'a locked pointer should turn the first-person view by relative mouse movement',
+  );
+  document.pointerLockElement = null;
+  game.scene.firstPersonYaw = 0;
+  game.scene.firstPersonBaseYaw = 0;
+  fpPlayer.vx = 0;
+  fpPlayer.vy = 0;
+  const forwardStartX = fpPlayer.x;
+  pressKey('KeyW');
+  await frames(25);
+  releaseKey('KeyW');
+  assert.ok(
+    fpPlayer.x > forwardStartX,
+    'W should move the diver forward along the view in first person',
+  );
+  game.scene.firstPersonYaw = 0;
+  game.scene.firstPersonBaseYaw = 0;
+  fpPlayer.vx = 0;
+  fpPlayer.vy = 0;
+  const strafeStartY = fpPlayer.y;
+  pressKey('KeyD');
+  await frames(25);
+  releaseKey('KeyD');
+  assert.ok(
+    fpPlayer.y > strafeStartY,
+    'D should strafe the diver relative to the view in first person',
+  );
+  game.input.pointer.x = 480;
+  game.input.pointer.y = 270;
+  game.setFirstPerson(false);
+  await frames(2);
+  assert.equal(game.firstPerson, false, 'first person mode should switch off');
+  assert.equal(canvas.style.cursor, '', 'leaving first person should restore the cursor');
+  fpPlayer.vx = 0;
+  fpPlayer.vy = 0;
+  await frames(2);
 
   assert.equal(game.music.track.name, 'reef', 'the reef tank should play the reef theme');
   await frames(20);
@@ -365,9 +1119,10 @@ async function main() {
 
   const scoreBefore = scene.score;
   scene.bonus[0].baseY = scene.player.y;
+  scene.bonus[0].bob = 0;
   scene.bonus[0].x = scene.player.x;
   scene.bonus[0].y = scene.player.y;
-  await frames(2);
+  await frames(4);
   assert.ok(scene.score >= scoreBefore + 10, 'angelfish should award bonus score');
   assert.equal(scene.bonus.length, 0, 'angelfish should despawn on contact');
 
@@ -554,6 +1309,18 @@ async function main() {
   assert.equal(tank.player.burrowed, false, 'pressing up should surface the stingray');
   assert.equal(tank.eelPhase, 'hidden', 'surfacing alone should not wake the eels');
 
+  tank.player.y = 470;
+  pressKey('ShiftLeft');
+  await frames(10);
+  releaseKey('ShiftLeft');
+  assert.equal(tank.player.burrowed, true, 'holding SHIFT should burrow the stingray');
+  await frames(5);
+  assert.equal(tank.player.burrowed, true, 'releasing SHIFT should keep the stingray hidden');
+  pressKey('ArrowUp');
+  await frames(5);
+  releaseKey('ArrowUp');
+  assert.equal(tank.player.burrowed, false, 'pressing up should surface after a SHIFT burrow');
+
   tank.bubbles.length = 0;
   tank.eelCharge = 9;
   tank.spawnBubble();
@@ -724,6 +1491,14 @@ async function main() {
   releaseKey('ArrowDown');
   await frames(5);
   assert.equal(deep.player.hidden, false, 'releasing down should let the squid out');
+  pressKey('ShiftLeft');
+  deep.player.x = hole.x;
+  deep.player.y = hole.y;
+  await frames(6);
+  assert.equal(deep.player.hidden, true, 'holding SHIFT by a ledge hole should hide the squid');
+  releaseKey('ShiftLeft');
+  await frames(6);
+  assert.equal(deep.player.hidden, false, 'releasing SHIFT should let the squid out');
   deep.bubbles.length = 0;
   deep.player.invulnerable = 0;
   for (const angler of deep.anglers) {
@@ -1336,6 +2111,77 @@ async function main() {
   await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
+    'threeD',
+    'settings should offer 3D mode',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.threeD, true, '3D mode should turn on');
+  assert.equal(game.threeD, true, 'the game should switch to the 3D view');
+  assert.equal(
+    canvas.style.transform,
+    'perspective(1100px) rotateX(22deg)',
+    'the canvas should tilt onto a perspective plane',
+  );
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.settings')).threeD,
+    true,
+    '3D mode should persist',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.threeD, false, '3D mode should turn back off');
+  assert.equal(game.threeD, false, 'the game should return to the flat view');
+  assert.equal(canvas.style.transform, 'none', 'the canvas should flatten again');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
+    'firstPerson',
+    'settings should offer first person mode',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.firstPerson, true, 'first person mode should turn on');
+  assert.equal(
+    game.firstPerson,
+    true,
+    'the game should switch to the first person raycast view',
+  );
+  assert.equal(
+    canvas.style.transform,
+    'none',
+    'the first person raycast view should not tilt the canvas',
+  );
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.settings')).firstPerson,
+    true,
+    'first person mode should persist',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.firstPerson, false, 'first person mode should turn back off');
+  assert.equal(game.firstPerson, false, 'the game should return to the flat view');
+  assert.equal(canvas.style.transform, 'none', 'the canvas should flatten again');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
+    'reduceMotion',
+    'settings should offer reduce motion',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.reduceMotion, true, 'reduce motion should turn on');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.settings')).reduceMotion,
+    true,
+    'reduce motion should persist',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.reduceMotion, false, 'reduce motion should turn back off');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
     'tracks',
     'settings should offer the track player',
   );
@@ -1349,11 +2195,11 @@ async function main() {
   );
   assert.equal(
     game.scene.menu.items.length,
-    12,
+    13,
     'the track player should list every theme plus back',
   );
   assert.deepEqual(
-    game.scene.menu.items.slice(0, 11).map((item) => item.label),
+    game.scene.menu.items.slice(0, 12).map((item) => item.label),
     [
       'MENU TRACK',
       'REEF TRACK',
@@ -1366,6 +2212,7 @@ async function main() {
       'FRESHWATER TRACK',
       'NAUTILUS TRACK',
       'LABYRINTH TRACK',
+      'QUIET TRACK',
     ],
     'the track player should list every theme',
   );
@@ -1408,7 +2255,7 @@ async function main() {
   await frames(30);
   assert.ok(game.music.step > heldStep, 'the held track should keep sequencing after leaving');
 
-  for (let i = 0; i < 5; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 8; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
     'theatre',
@@ -1417,9 +2264,9 @@ async function main() {
   await tapKey('Enter');
   await frames(5);
   assert.equal(game.currentSceneName, 'theatre', 'settings should open the theatre');
-  assert.equal(game.scene.menu.items.length, 20, 'the theatre should list every cutscene plus back');
+  assert.equal(game.scene.menu.items.length, 22, 'the theatre should list every cutscene plus back');
   assert.deepEqual(
-    game.scene.menu.items.slice(0, 19).map((item) => item.label),
+    game.scene.menu.items.slice(0, 21).map((item) => item.label),
     [
       'GAME TRAILER',
       'SHARKQUARIUM: THE MOVIE',
@@ -1440,8 +2287,44 @@ async function main() {
       'LABYRINTH TRAILER',
       'WRECK ARRIVAL',
       'MEGASQUID ENDING',
+      'THE ESCAPE',
+      'THE RISING',
     ],
     'the theatre should name every cutscene',
+  );
+
+  const escapeIdx = game.scene.menu.items.findIndex((item) => item.label === 'THE ESCAPE');
+  assert.ok(escapeIdx >= 0, 'the theatre should offer the escape cutscene');
+  game.scene.menu.setIndex(escapeIdx);
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'flood', 'the escape cutscene should play from the theatre');
+  assert.equal(game.scene.phase, 'outro', 'the escape cutscene should open on the glass break');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(
+    game.currentSceneName,
+    'theatre',
+    'skipping the escape cutscene should return to the theatre',
+  );
+
+  const risingIdx = game.scene.menu.items.findIndex((item) => item.label === 'THE RISING');
+  assert.ok(risingIdx >= 0, 'the theatre should offer the megasquid rising cutscene');
+  game.scene.menu.setIndex(risingIdx);
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(
+    game.currentSceneName,
+    'trenchexplore',
+    'the rising cutscene should play from the theatre',
+  );
+  assert.equal(game.scene.phase, 'rising', 'the rising cutscene should open at the trench');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(
+    game.currentSceneName,
+    'theatre',
+    'skipping the rising cutscene should return to the theatre',
   );
 
   await tapKey('ArrowDown');
@@ -1514,8 +2397,8 @@ async function main() {
   assert.ok(game.scene.performers.length > 0, 'the all-tank trailer should cast creatures');
   let gauntletTime = 0;
   for (let index = 0; index < game.scene.shots.length; index += 1) {
-    game.scene.time = gauntletTime + 0.05;
-    await frames(1);
+    game.scene.time = gauntletTime + game.scene.shots[index].duration * 0.5;
+    for (let k = 0; k < 5 && game.scene.shotIndex !== index; k += 1) await frames(1);
     assert.equal(game.scene.shotIndex, index, `the all-tank trailer should reach shot ${index}`);
     assert.ok(
       game.scene.performers.length > 0,
@@ -1620,9 +2503,11 @@ async function main() {
     game.changeScene('trailer', { tank });
     await frames(2);
     assert.equal(game.scene.tankId, tank, `the ${tank} trailer should open on its own tank`);
+    let viewTime = 0;
     for (let view = 0; view < 3; view += 1) {
-      game.scene.time = [0, 2.6, 5.4][view] + 0.05;
-      await frames(1);
+      game.scene.time = viewTime + game.scene.shots[view].duration * 0.5;
+      viewTime += game.scene.shots[view].duration;
+      for (let k = 0; k < 5 && game.scene.shotIndex !== view; k += 1) await frames(1);
       assert.equal(game.scene.shotIndex, view, `the ${tank} trailer should reach shot ${view}`);
       assert.ok(
         game.scene.performers.length > 0,
@@ -1686,9 +2571,11 @@ async function main() {
       minigame,
       `the ${minigame} trailer should open on its own game`,
     );
+    let viewTime = 0;
     for (let view = 0; view < 3; view += 1) {
-      game.scene.time = [0, 2.6, 5.4][view] + 0.05;
-      await frames(1);
+      game.scene.time = viewTime + game.scene.shots[view].duration * 0.5;
+      viewTime += game.scene.shots[view].duration;
+      for (let k = 0; k < 5 && game.scene.shotIndex !== view; k += 1) await frames(1);
       assert.equal(game.scene.shotIndex, view, `the ${minigame} trailer should reach shot ${view}`);
       assert.ok(
         game.scene.performers.length > 0,
@@ -1727,7 +2614,7 @@ async function main() {
   assert.ok(game.scene.performers.length > 0, 'the shop trailer should cast creatures');
   let shopTime = 0;
   for (let index = 0; index < game.scene.shots.length; index += 1) {
-    game.scene.time = shopTime + 0.05;
+    game.scene.time = shopTime + game.scene.shots[index].duration * 0.5;
     await frames(1);
     assert.equal(game.scene.shotIndex, index, `the shop trailer should reach shot ${index}`);
     assert.ok(
@@ -2286,7 +3173,7 @@ async function main() {
   await frames(10);
   assert.equal(shop.shop.back, 'plushshark', 'the plush shark should equip for free');
   let shadowGuard = 0;
-  while (shop.skin.key !== 'shadow' && shadowGuard < 20) {
+  while (shop.skin.key !== 'shadow' && shadowGuard < 80) {
     shop.cycle(1);
     shadowGuard += 1;
   }
@@ -2517,7 +3404,7 @@ async function main() {
   for (let i = 0; i < 8; i += 1) await tapKey('ArrowUp');
   assert.equal(shop.menu.selected.action, 'skin', 'the color row should be reachable while dressing P2');
   let redGuard = 0;
-  while (shop.skin.key !== 'red' && redGuard < 20) {
+  while (shop.skin.key !== 'red' && redGuard < 80) {
     shop.cycle(1);
     redGuard += 1;
   }
@@ -2541,7 +3428,7 @@ async function main() {
   for (let i = 0; i < 8; i += 1) await tapKey('ArrowUp');
   assert.equal(shop.menu.selected.action, 'skin', 'the P1 color row should return');
   let sunsetGuard = 0;
-  while (shop.skin.key !== 'sunset' && sunsetGuard < 20) {
+  while (shop.skin.key !== 'sunset' && sunsetGuard < 80) {
     shop.cycle(1);
     sunsetGuard += 1;
   }
@@ -2668,8 +3555,8 @@ async function main() {
   await frames(5);
   assert.equal(
     game.scene.menu.items.length,
-    18,
-    'the pass should unlock every minigame plus back',
+    22,
+    'the pass should unlock every minigame plus boss rush, records, mutator, and back',
   );
   assert.equal(game.scene.menu.items[2].label, 'TAG (2P + 5 CPU)', 'tag should be the third entry');
   storage.set('sharkquarium.coins', '500');
@@ -2679,8 +3566,8 @@ async function main() {
   assert.equal(paid.coins, 500, 'the minigames menu should read the coin bank');
   assert.equal(
     paid.menu.items.filter((item) => item.feeKey).length,
-    9,
-    'nine paid entries should charge a ticket',
+    11,
+    'eleven paid entries should charge a ticket',
   );
   paid.coins = 0;
   paid.menu.setIndex(paid.menu.items.findIndex((item) => item.action === 'pufferball'));
@@ -2733,6 +3620,7 @@ async function main() {
     ['jelly', 'jellyascent', (scene) => scene.rings.length === 22],
     ['stealthSolo', 'stealth', (scene) => scene.seals.length === 3],
     ['trench', 'trench', (scene) => scene.hits === 0 && scene.players.length === 1],
+    ['trenchexplore', 'trenchexplore', (scene) => scene.players.length === 1 && scene.shaftBottom > 0],
     ['cleanupSolo', 'cleanup', (scene) => scene.debris.length === 6],
   ]) {
     const menu = game.scene;
@@ -2764,6 +3652,127 @@ async function main() {
     maxGapShift <= 220 + 0.001,
     'consecutive ice gaps should stay within reach of the diver',
   );
+
+  game.changeScene('trenchexplore');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'trenchexplore', 'trench explore should open from the menu');
+  const explore = game.scene;
+  assert.equal(explore.phase, 'play', 'trench explore should start playable');
+  assert.equal(explore.players.length, 1, 'trench explore is a solo dive');
+  assert.equal(explore.trenchIndex, 0, 'trench explore should start at the first trench');
+  assert.ok(explore.coinBubbles.length > 0, 'each trench should hold coin bubbles');
+  assert.ok(
+    explore.critters.filter((c) => c.kind === 'ray').length >= 6,
+    'the trench should hold plenty of catchable rays',
+  );
+  const burrowCrab = explore.critters.find((c) => c.kind === 'crab');
+  burrowCrab.x = 46;
+  burrowCrab.state = 'out';
+  burrowCrab.burrow = 0;
+  explore.players[0].x = burrowCrab.x + 40;
+  explore.players[0].y = burrowCrab.y;
+  await frames(5);
+  assert.notEqual(burrowCrab.state, 'out', 'a cornered crab should burrow into the sand');
+  explore.players[0].x = 900;
+  explore.players[0].y = explore.floorTop - 60;
+  for (let i = 0; i < 600 && burrowCrab.state !== 'out'; i += 1) await frames(1);
+  assert.equal(burrowCrab.state, 'out', 'a crab should resurface once the diver is far enough');
+
+  assert.ok(
+    explore.critters.filter((c) => c.kind === 'shrimp').length > 0,
+    'shrimps should dart the trench',
+  );
+  const hunter = explore.critters.find((c) => c.kind === 'octopus' || c.kind === 'squid');
+  const snack = explore.critters.find((c) => c.kind === 'shrimp');
+  hunter.x = snack.x + 4;
+  hunter.y = snack.y;
+  await frames(2);
+  assert.equal(snack.dead, true, 'an octopus or squid should catch a nearby shrimp');
+  assert.equal(explore.net.state, 'idle', 'the fishing net should start raised');
+  for (let i = 0; i < explore.coinTarget; i += 1) {
+    const coin = explore.coinBubbles[0];
+    explore.players[0].x = coin.x;
+    explore.players[0].y = coin.y;
+    await frames(1);
+  }
+  assert.equal(explore.trenchIndex, 1, 'clearing a trench should move the diver on');
+  assert.ok(explore.coinBubbles.length > 0, 'the next trench should spawn fresh coin bubbles');
+  explore.players[0].x = 100;
+  explore.players[0].y = 400;
+  const catchRay = explore.critters.find((c) => c.kind === 'ray');
+  explore.net.state = 'test';
+  explore.net.depth = 200;
+  catchRay.x = 480;
+  catchRay.y = 150;
+  await frames(2);
+  assert.equal(catchRay.caught, true, 'a stingray under the net should be scooped up');
+  const caughtShop = JSON.parse(storage.get('sharkquarium.shop') ?? '{}');
+  assert.ok(
+    (caughtShop.owned ?? []).includes(catchRay.skin),
+    'catching a stingray should unlock its free skin',
+  );
+  const netted = explore.players[0];
+  netted.y = 40;
+  netted.vy = 0;
+  explore.net.state = 'hold';
+  explore.net.depth = explore.netMax;
+  explore.net.timer = 1;
+  await frames(2);
+  assert.equal(explore.phase, 'results', 'the descending net should catch a surfaced diver');
+  assert.equal(explore.won, false, 'getting netted should lose the run');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'minigames', 'trench explore should quit to the menu');
+
+  game.changeScene('trenchexplore');
+  await frames(5);
+  const finalDive = game.scene;
+  finalDive.startTrench(3);
+  finalDive.collected = finalDive.coinTarget;
+  finalDive.clearTrench();
+  assert.equal(finalDive.phase, 'rising', 'clearing the last trench should rise the megasquid');
+  pressKey('Space');
+  for (let i = 0; i < 500 && finalDive.phase === 'rising'; i += 1) await frames(1);
+  assert.equal(finalDive.phase, 'boss', 'the cutscene should flow into the boss chase');
+  assert.ok(finalDive.squid, 'the boss chase should field the megasquid');
+  assert.equal(finalDive.squid.hp, 6, 'the megasquid should start at full health');
+  finalDive.bossNets.length = 0;
+  finalDive.bossNetCursor = finalDive.players[0].x + 6000;
+  const bossNet = finalDive.newNet(finalDive.players[0].x + 300);
+  finalDive.bossNets.push(bossNet);
+  const bait = finalDive.newSchool();
+  bait.x = bossNet.x;
+  bait.y = bossNet.depth - 60;
+  bait.vx = 0;
+  bait.vy = 0;
+  finalDive.bossSchools.push(bait);
+  await frames(2);
+  assert.equal(bossNet.baited, true, 'a school herded into a net should bait it');
+  finalDive.squid.stun = 0;
+  finalDive.squid.x = bossNet.x;
+  finalDive.squid.y = bossNet.depth - 20;
+  await frames(2);
+  assert.ok(finalDive.squid.hp < 6, 'a baited net should damage the megasquid');
+  assert.ok(finalDive.squid.stun > 0, 'the net hit should stun the megasquid');
+
+  finalDive.squid.hp = 1;
+  finalDive.squid.stun = 0;
+  finalDive.squid.x = bossNet.x;
+  finalDive.squid.y = bossNet.depth - 20;
+  for (const s of finalDive.bossSchools) {
+    s.x = bossNet.x;
+    s.y = bossNet.depth - 60;
+    s.vx = 0;
+    s.vy = 0;
+  }
+  await frames(2);
+  releaseKey('Space');
+  assert.equal(finalDive.phase, 'results', 'draining the megasquid health should win the chase');
+  assert.equal(finalDive.won, true, 'beating the megasquid should count as a win');
+  await tapKey('Escape');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'minigames', 'the megasquid chase should quit to the menu');
+
   game.changeScene('cleanup', { solo: true });
   await frames(5);
   assert.equal(game.currentSceneName, 'cleanup', 'cleanup should reopen for the clock check');
@@ -3525,10 +4534,12 @@ async function main() {
   labyrinth.grabbed[0] = null;
   labyrinth.out[0] = false;
   runner.invulnerable = 0;
-  for (let i = 0; i < 24 && labyrinth.grabs[0] === 6; i += 1) {
-    const point = wallBurst.arms[0].pointAt(0.15);
+  for (let i = 0; i < 40 && labyrinth.grabs[0] === 6; i += 1) {
+    if (wallBurst.state === 'idle') wallBurst.timer = 0;
+    const point = wallBurst.arms[0].pointAt(0.45);
     runner.x = point.x;
     runner.y = point.y;
+    runner.invulnerable = 0;
     await frames(1);
   }
   assert.equal(labyrinth.grabs[0], 5, 'a wall burst should grab the swimmer in its path');
@@ -3797,6 +4808,31 @@ async function main() {
     labyrinth.collapseStubs.some((stub) => Math.abs(stub.x - stubCenter) < 2),
     'the torn ceiling stub should fall from where it hung',
   );
+  assert.ok(labyrinth.morayHoles.length > 0, 'the floor stubs should sprout moray holes');
+  const morayHole = labyrinth.morayHoles[0];
+  assert.ok(
+    morayHole.top > 0,
+    'the moray holes should sit on floor stubs, not ceiling stubs',
+  );
+  labyrinth.wallDelay = 0;
+  labyrinth.out[0] = false;
+  labyrinth.escaped[0] = false;
+  labyrinth.grabbed[0] = null;
+  labyrinth.stunned[0] = 0;
+  runner.invulnerable = 0;
+  morayHole.state = 'bite';
+  morayHole.timer = 999;
+  runner.x = morayHole.x;
+  runner.y = morayHole.top - 40;
+  runner.vx = 0;
+  runner.vy = 0;
+  await frames(2);
+  assert.ok(labyrinth.stunned[0] > 0, 'a floor-stub moray should bite a diver over its hole');
+  assert.equal(morayHole.state, 'retreat', 'the bite should send the moray into retreat');
+  labyrinth.stunned[0] = 0;
+  runner.invulnerable = 0;
+  runner.vx = 0;
+  runner.vy = 0;
   const savedRules = labyrinth.rules;
   labyrinth.rules = { ...savedRules, enemySpeed: 2.4 };
   support.broken = false;
@@ -5253,6 +6289,143 @@ async function main() {
   await frames(3);
   assert.equal(mazeTank.phase, 'build', 'escape should surface from the maze dive');
   await tapKey('Escape');
+  await frames(5);
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal' }));
+  game.changeScene('mutators', { from: 'tanks' });
+  await frames(5);
+  assert.equal(game.currentSceneName, 'mutators', 'the mutator screen should open');
+  assert.equal(game.scene.menu.items[0].label, 'MUTATOR: OFF', 'the mutator list should start on OFF');
+  const oneHitIndex = game.scene.menu.items.findIndex((item) => item.key === 'onehit');
+  game.scene.menu.setIndex(oneHitIndex);
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'tanks', 'picking a mutator should return to the caller');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.settings')).mutator,
+    'onehit',
+    'the chosen mutator should persist to settings',
+  );
+
+  game.changeScene('tag', { solo: true, mutator: 'fast' });
+  await frames(5);
+  assert.equal(game.scene.mutator.key, 'fast', 'the run should adopt the mutator');
+  assert.equal(
+    game.scene.rules.enemySpeed,
+    game.scene._baseRules.enemySpeed * 1.6,
+    'FAST should scale enemy speed',
+  );
+
+  storage.set('sharkquarium.records', JSON.stringify({}));
+  game.changeScene('roundup');
+  await frames(5);
+  game.scene.finish(true);
+  await frames(3);
+  const roundupRecord = JSON.parse(storage.get('sharkquarium.records')).roundup;
+  assert.ok(roundupRecord && roundupRecord.cleared, 'a win should bank a record for the mode');
+
+  game.changeScene('records');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'records', 'the records board should open');
+  assert.equal(game.scene.group.title, 'THE TANKS', 'the board should start on the tank group');
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal' }));
+  game.changeScene('bossrush');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'bossrush', 'the boss rush should open');
+  assert.equal(game.scene.roster.length, 5, 'the rush should line up five bosses');
+  for (let wave = 0; wave < 5; wave += 1) {
+    let guard = 0;
+    while (game.scene.phase !== 'play' && guard < 400) {
+      await frames(2);
+      guard += 2;
+    }
+    assert.equal(game.scene.phase, 'play', `wave ${wave + 1} should start`);
+    game.scene.current.finish(true);
+    await frames(3);
+  }
+  assert.equal(game.scene.phase, 'results', 'clearing every wave should end the rush');
+  assert.equal(game.scene.won, true, 'a full clear should win the rush');
+  const rushRecord = JSON.parse(storage.get('sharkquarium.records')).bossrush;
+  assert.ok(rushRecord && rushRecord.cleared, 'the rush should bank its own record');
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal' }));
+  game.changeScene('playtoy');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'playtoy', 'the playtoy tank should open');
+  const playtoy = game.scene;
+  assert.ok(playtoy.worldLength > 0, 'the wreck should build a world');
+  assert.equal(playtoy.notes.length, 8, 'eight PlayToy notes should be scattered');
+  assert.ok(playtoy.toys.length >= 6, 'living toys should fill the holds');
+  assert.ok(playtoy.anchors.length >= 4, 'anchor rings should hang in the holds');
+
+  playtoy.anchorIndex = 0;
+  playtoy.cycleAnchor();
+  assert.equal(playtoy.anchorIndex, 1, 'E should swap the anchor head');
+
+  game.input.pointer.x = 0;
+  game.input.pointer.y = 0;
+  playtoy.players[0].heading = 0;
+  playtoy.tether.state = 'idle';
+  playtoy.tether.cooldown = 0;
+  playtoy.fireTether();
+  assert.equal(playtoy.tether.state, 'flying', 'firing the anchor-pack should launch the head');
+  await frames(40);
+  assert.ok(
+    ['idle', 'returning', 'haul', 'pullSelf'].includes(playtoy.tether.state),
+    'the fired head should resolve',
+  );
+
+  const ptNote = playtoy.notes[0];
+  playtoy.players[0].x = ptNote.x;
+  playtoy.players[0].y = ptNote.y;
+  await frames(3);
+  assert.equal(playtoy.notesCollected, 1, 'touching a note should collect it');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.playtoy')).notes.length,
+    1,
+    'collected note papers should persist to storage',
+  );
+  playtoy.toggleInventory();
+  assert.equal(playtoy.inventoryOpen, true, 'the inventory should open');
+  assert.ok(playtoy.collectedNotes.has(ptNote.index), 'the collected paper should be readable');
+  playtoy.inventoryIndex = ptNote.index;
+  await frames(2);
+  playtoy.toggleInventory();
+  assert.equal(playtoy.inventoryOpen, false, 'the inventory should close');
+
+  if (playtoy.gates.length > 0) {
+    const gate = playtoy.gates[0];
+    const keyToIndex = { main: 0, electric: 1, pressure: 2 };
+    const wrongKey = gate.type.anchor === 'main' ? 'electric' : 'main';
+    playtoy.anchorIndex = keyToIndex[wrongKey];
+    playtoy.tether.state = 'idle';
+    playtoy.attachTether({ kind: 'gate', target: gate, x: gate.cx, y: gate.cy, radius: gate.w / 2 });
+    assert.equal(gate.open, false, 'the wrong anchor head should not open a gate');
+    playtoy.anchorIndex = keyToIndex[gate.type.anchor] ?? 0;
+    playtoy.attachTether({ kind: 'gate', target: gate, x: gate.cx, y: gate.cy, radius: gate.w / 2 });
+    assert.ok(gate.open, 'the matching anchor head should open the gate');
+    playtoy.tether.state = 'idle';
+  }
+
+  playtoy.tether.state = 'idle';
+  playtoy.attachTether({ kind: 'wall', x: 0, y: 0, radius: 0 });
+  assert.equal(playtoy.tether.state, 'returning', 'the anchor should bounce off a hull wall, not grapple');
+
+  playtoy.players[0].x = playtoy.worldLength;
+  await frames(3);
+  assert.equal(playtoy.phase, 'results', 'reaching the surface hatch should win');
+  assert.equal(playtoy.won, true, 'the playtoy run should be a win');
+
+  game.setFirstPerson(true);
+  game.changeScene('playtoy');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'playtoy', 'the playtoy tank should run in first person');
+  assert.equal(game.scene.firstPersonActor(), game.scene.players[0], 'first person should follow the diver');
+  game.setFirstPerson(false);
+  await frames(2);
+
+  game.changeScene('menu');
   await frames(5);
 
   console.log(

@@ -40,7 +40,7 @@ export class Stingray extends Entity {
     const sandTop = LOGICAL_HEIGHT - SAND.height;
     let horizontal = (input.isDown(this.controls.right) ? 1 : 0) - (input.isDown(this.controls.left) ? 1 : 0);
     let vertical = (input.isDown(this.controls.down) ? 1 : 0) - (input.isDown(this.controls.up) ? 1 : 0);
-    if (this.pointerSteering && input.pointer.down) {
+    if (this.pointerSteering && (input.pointer.down || input.pointer.look)) {
       const drag = Math.hypot(input.pointer.dragX, input.pointer.dragY);
       if (drag > PLAYER.pointerDeadzone) {
         horizontal = input.pointer.dragX / drag;
@@ -53,7 +53,7 @@ export class Stingray extends Entity {
       vertical *= 0.35;
     }
     if (this.autoScrollX !== null) horizontal = 0;
-    const wantsDown = vertical > 0.5;
+    const wantsDown = vertical > 0.5 || input.isDown('hide');
     const wantsUp = vertical < -0.5;
     if (this.burrowEnabled && !this.burrowed && wantsDown && this.y > sandTop - 10) {
       this.burrowed = true;
@@ -73,6 +73,7 @@ export class Stingray extends Entity {
       this.speed = Math.abs(horizontal) * STINGRAY.burrowMoveSpeed;
       if (Math.abs(horizontal) > 0.1) {
         this.heading = lerpAngle(this.heading, horizontal > 0 ? 0 : Math.PI, 1 - Math.exp(-8 * dt));
+        this.facing = horizontal > 0 ? 1 : -1;
       }
     } else {
       const length = Math.hypot(horizontal, vertical);
@@ -90,6 +91,7 @@ export class Stingray extends Entity {
         const turn = 1 - Math.exp(-STINGRAY.turnResponse * dt);
         this.heading = lerpAngle(this.heading, Math.atan2(this.vy, this.vx), turn);
       }
+      this.updateFacing();
     }
     if (this.autoScrollX !== null) {
       this.x += (this.autoScrollX - this.x) * (1 - Math.exp(-6 * dt));
@@ -107,7 +109,7 @@ export class Stingray extends Entity {
       ctx.save();
       ctx.translate(this.x, this.y);
       if (flash) ctx.globalAlpha = 0.4;
-      ctx.rotate(this.heading);
+      ctx.scale(this.facing, 1);
       drawStingrayBody(ctx, radius, this);
       drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
       ctx.restore();
@@ -150,19 +152,27 @@ export class Stingray extends Entity {
 
 export function drawStingrayBody(ctx, radius, pose) {
   const bodyColor = pose.bodyColor ?? COLORS.stingray;
+  const raw = Boolean(pose.raw);
+  const color = (slot, fallback) => (raw ? fallback : playerColor(slot, fallback));
   const tailPhase = pose.tailPhase ?? 0;
-  ctx.strokeStyle = bodyColor;
-  ctx.lineWidth = radius * 0.11;
-  ctx.lineCap = 'round';
-  ctx.beginPath();
-  ctx.moveTo(-radius * 0.8, 0);
-  ctx.quadraticCurveTo(
-    -radius * 1.8,
-    Math.sin(tailPhase) * radius * 0.5,
-    -radius * 2.6,
-    Math.sin(tailPhase + 1.1) * radius * 0.35,
-  );
-  ctx.stroke();
+  const tailColor = pose.tailColor ?? (raw ? bodyColor : playerColor('tail', bodyColor));
+  const tailOutline = pose.tailOutline ?? (raw ? null : playerColor('tailOutline', null));
+  const drawTail = (stroke, width) => {
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = width;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-radius * 0.8, 0);
+    ctx.quadraticCurveTo(
+      -radius * 1.8,
+      Math.sin(tailPhase) * radius * 0.5,
+      -radius * 2.6,
+      Math.sin(tailPhase + 1.1) * radius * 0.35,
+    );
+    ctx.stroke();
+  };
+  if (tailOutline) drawTail(tailOutline, radius * 0.17);
+  drawTail(tailColor, radius * 0.11);
 
   ctx.beginPath();
   ctx.moveTo(radius * 1.3, 0);
@@ -171,23 +181,30 @@ export function drawStingrayBody(ctx, radius, pose) {
   ctx.quadraticCurveTo(-radius * 1.0, radius * 0.3, -radius * 0.7, radius * 1.1);
   ctx.quadraticCurveTo(radius * 0.4, radius * 1.5, radius * 1.3, 0);
   ctx.closePath();
-  ctx.fillStyle = playerColor('body', bodyColor);
+  ctx.fillStyle = color('body', bodyColor);
   ctx.fill();
 
-  ctx.fillStyle = playerColor('accent', pose.spotColor ?? 'rgba(70, 62, 50, 0.35)');
-  for (let i = 0; i < 4; i += 1) {
+  if (pose.bigSpot) {
+    ctx.fillStyle = color('accent', pose.bigSpot);
     ctx.beginPath();
-    ctx.arc(
-      -radius * 0.5 + i * radius * 0.4,
-      (i % 2 === 0 ? -1 : 1) * radius * 0.28,
-      radius * 0.11,
-      0,
-      TAU,
-    );
+    ctx.arc(0, 0, radius * 0.5, 0, TAU);
     ctx.fill();
+  } else if (!pose.noSpots) {
+    ctx.fillStyle = color('accent', pose.spotColor ?? 'rgba(70, 62, 50, 0.35)');
+    for (let i = 0; i < 4; i += 1) {
+      ctx.beginPath();
+      ctx.arc(
+        -radius * 0.5 + i * radius * 0.4,
+        (i % 2 === 0 ? -1 : 1) * radius * 0.28,
+        radius * 0.11,
+        0,
+        TAU,
+      );
+      ctx.fill();
+    }
   }
 
-  ctx.fillStyle = shadowEyeColor(pose.eyeColor ?? '#10233a');
+  ctx.fillStyle = raw ? pose.eyeColor ?? '#10233a' : shadowEyeColor(pose.eyeColor ?? '#10233a');
   ctx.beginPath();
   ctx.arc(radius * 0.75, -radius * 0.3, radius * 0.09, 0, TAU);
   ctx.fill();

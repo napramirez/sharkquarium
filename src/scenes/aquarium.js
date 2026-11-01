@@ -1,6 +1,8 @@
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
 import { drawWater, drawText, fillCircle, roundRectClip, strokeRoundRect, drawShadowedPlanks } from '../engine/render.js';
+import { renderFirstPersonLevel } from '../engine/raycastview.js';
+import { firstPersonMode } from '../engine/mode3d.js';
 import { drawJoystick, joystickState } from '../engine/joystick.js';
 import { ParticleSystem } from '../engine/particles.js';
 import { circleOverlap, resolveCircleRect } from '../engine/collision.js';
@@ -798,7 +800,23 @@ export class AquariumScene extends Scene {
     this.particles.update(dt);
   }
 
+  firstPersonSprites() {
+    const list = [];
+    if (this.divePlayer) list.push(this.divePlayer);
+    for (const item of this.items) {
+      if (!HABITATS.includes(item.entry.kind)) list.push(item.entity);
+    }
+    return list;
+  }
+
+  firstPersonPalette() {
+    return { top: WATER_PALETTE.top, bottom: WATER_PALETTE.bottom, wall: '#3a4a52' };
+  }
+
   render(ctx) {
+    if (firstPersonMode()) {
+      renderFirstPersonLevel(ctx, this);
+    } else {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);
     const sandTop = LOGICAL_HEIGHT - SAND.height;
     const gradient = ctx.createLinearGradient(0, sandTop, 0, LOGICAL_HEIGHT);
@@ -816,6 +834,7 @@ export class AquariumScene extends Scene {
     if (this.divePlayer) this.divePlayer.render(ctx);
     for (const chunk of this.breachChunks) chunk.render(ctx);
     this.particles.render(ctx);
+    }
 
     const pointer = this.game.input.pointer;
     if (this.phase === 'build' && pointer.x > 0 && pointer.y > 0) {

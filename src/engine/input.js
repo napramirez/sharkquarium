@@ -15,9 +15,13 @@ export const DEFAULT_BINDINGS = {
   right2: ['ArrowRight'],
   up2: ['ArrowUp'],
   down2: ['ArrowDown'],
+  hide: ['ShiftLeft', 'ShiftRight'],
   confirm: ['Enter', 'Space', POINTER_KEY],
   pause: ['Escape', 'KeyP'],
   back: ['Escape'],
+  tool: ['KeyF', POINTER_SECONDARY],
+  cycleAnchor: ['KeyE'],
+  inventory: ['KeyI', 'Tab'],
 };
 
 export class Input {
@@ -26,7 +30,7 @@ export class Input {
     this.down = new Set();
     this.pressed = new Set();
     this.released = new Set();
-    this.pointer = { x: 0, y: 0, down: false, moved: false, originX: 0, originY: 0, dragX: 0, dragY: 0, button: 0 };
+    this.pointer = { x: 0, y: 0, down: false, moved: false, originX: 0, originY: 0, dragX: 0, dragY: 0, button: 0, lookDX: 0, lookDY: 0 };
     this.canvas = null;
     this.viewWidth = 0;
     this.viewHeight = 0;
@@ -137,6 +141,13 @@ export class Input {
   handlePointerMove(event) {
     this.updatePointerPosition(event);
     this.pointer.moved = true;
+    const locked =
+      typeof document !== 'undefined' && document.pointerLockElement === this.canvas;
+    if (locked) {
+      this.pointer.lookDX += event.movementX ?? 0;
+      this.pointer.lookDY += event.movementY ?? 0;
+      return;
+    }
     if (this.pointer.down) {
       this.pointer.dragX = this.pointer.x - this.pointer.originX;
       this.pointer.dragY = this.pointer.y - this.pointer.originY;

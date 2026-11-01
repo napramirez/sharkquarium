@@ -1,10 +1,13 @@
 import { Scene } from './scene.js';
 import { SelectList } from './selectlist.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect } from './render.js';
+import { renderFirstPersonLevel } from './raycastview.js';
+import { firstPersonMode } from './mode3d.js';
 import { rand } from './math.js';
 import { ParticleSystem } from './particles.js';
 import { loadJSON } from './storage.js';
 import { recordMinigame } from './progress.js';
+import { recordWin } from './records.js';
 import { applyWardrobe } from './wardrobe.js';
 import { drawSkinAura, setSkinClock } from './skin.js';
 import { drawTrail } from './trail.js';
@@ -15,6 +18,7 @@ import {
   DIFFICULTY,
   SETTINGS_KEY,
   SHOP_KEY,
+  SOLO_VARIANT_SCENES,
   COLORS,
   LOGICAL_WIDTH,
   LOGICAL_HEIGHT,
@@ -22,6 +26,8 @@ import {
 } from '../config.js';
 
 export class MinigameScene extends Scene {
+  rushStart() {}
+
   enter(params = {}) {
     this.time = 0;
     this.solo = Boolean(params.solo);
@@ -99,10 +105,22 @@ export class MinigameScene extends Scene {
   finish(won) {
     this.phase = 'results';
     this.won = won;
+    if (this.rushMode) {
+      this.reward = 0;
+      this.newRecord = null;
+      return;
+    }
     this.reward = recordMinigame(won);
+    this.newRecord = won ? recordWin(this.recordMode(), { time: this.elapsed }) : null;
     this.resultsMenu.reset();
     this.game.audio.tone({ freq: 220, endFreq: 110, type: 'triangle', duration: 0.3, volume: 0.24 });
     this.game.audio.tone({ freq: 165, type: 'triangle', duration: 0.5, volume: 0.24, delay: 0.24 });
+  }
+
+  recordMode() {
+    const base = this.name;
+    if (this.solo && SOLO_VARIANT_SCENES.includes(base)) return `${base}Solo`;
+    return base;
   }
 
   chooseResult(action) {
@@ -111,11 +129,15 @@ export class MinigameScene extends Scene {
     else this.game.changeScene('minigames');
   }
 
+  backScene() {
+    return 'minigames';
+  }
+
   update(dt) {
     this.time += dt;
     const input = this.game.input;
     if (input.wasPressed('back')) {
-      this.game.changeScene('minigames');
+      this.game.changeScene(this.backScene());
       return;
     }
     if (this.phase === 'results') {
@@ -131,19 +153,36 @@ export class MinigameScene extends Scene {
 
   render(ctx) {
     setSkinClock(this.time);
-    drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);
-    ctx.save();
-    if (this.shake > 0) {
-      ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
+    if (firstPersonMode()) {
+      ctx.save();
+      if (this.shake > 0) {
+        ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
+      }
+      renderFirstPersonLevel(ctx, this);
+      ctx.restore();
+    } else {
+      drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);
+      ctx.save();
+      if (this.shake > 0) {
+        ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
+      }
+      this.renderRound(ctx);
+      ctx.restore();
     }
-    this.renderRound(ctx);
-    ctx.restore();
     this.renderHud(ctx);
     if (this.flash > 0) {
       ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.phase === 'results') this.renderResults(ctx);
+  }
+
+  firstPersonPalette() {
+    return { top: WATER_PALETTE.top, bottom: WATER_PALETTE.bottom, wall: '#3a4a52' };
+  }
+
+  firstPersonSprites() {
+    return [...(this.players ?? [])];
   }
 
   renderPlayers(ctx) {
@@ -186,6 +225,15 @@ export class MinigameScene extends Scene {
       264,
       { size: 12, color: this.reward > 0 ? COLORS.accent : COLORS.textDim, alpha: 0.85 },
     );
+    if (this.newRecord && (this.newRecord.time || this.newRecord.score)) {
+      drawText(ctx, 'NEW RECORD!', LOGICAL_WIDTH / 2, 292, {
+        size: 14,
+        color: COLORS.accent,
+        glow: 'rgba(255, 209, 102, 0.6)',
+        glowBlur: 14,
+        alpha: 0.75 + 0.25 * Math.sin(this.time * 8),
+      });
+    }
     this.resultsMenu.render(ctx, LOGICAL_WIDTH / 2, 340);
   }
 }

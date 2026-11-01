@@ -30,7 +30,7 @@ export class Nautilus extends Entity {
     let vertical = this.freeVertical
       ? (input.isDown(this.controls.down) ? 1 : 0) - (input.isDown(this.controls.up) ? 1 : 0)
       : 0;
-    if (this.pointerSteering && input.pointer.down) {
+    if (this.pointerSteering && (input.pointer.down || input.pointer.look)) {
       const drag = Math.hypot(input.pointer.dragX, input.pointer.dragY);
       if (drag > PLAYER.pointerDeadzone) {
         horizontal = input.pointer.dragX / drag;

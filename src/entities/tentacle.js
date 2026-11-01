@@ -7,6 +7,7 @@ export class Tentacle extends Entity {
     super({ x: 0, y: laneY, radius: LABYRINTH.grabRadius });
     this.laneY = laneY;
     this.index = index;
+    this.flat3D = true;
     this.phase = rand(0, TAU);
     this.aimY = laneY;
     this.reach = 0;

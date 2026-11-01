@@ -6,6 +6,7 @@ export class GoldenBubble extends Bubble {
   constructor(x, y) {
     super(x, y, { radius: GOLDEN.radius, rise: rand(GOLDEN.riseMin, GOLDEN.riseMax) });
     this.golden = true;
+    this.sphere3D = 'golden';
   }
 
   render(ctx) {

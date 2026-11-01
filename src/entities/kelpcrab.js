@@ -24,7 +24,7 @@ export class KelpCrab extends Entity {
       (input.isDown(this.controls.right) ? 1 : 0) - (input.isDown(this.controls.left) ? 1 : 0);
     let vertical =
       (input.isDown(this.controls.down) ? 1 : 0) - (input.isDown(this.controls.up) ? 1 : 0);
-    if (this.pointerSteering && input.pointer.down) {
+    if (this.pointerSteering && (input.pointer.down || input.pointer.look)) {
       const drag = Math.hypot(input.pointer.dragX, input.pointer.dragY);
       if (drag > PLAYER.pointerDeadzone) {
         horizontal = input.pointer.dragX / drag;
@@ -46,6 +46,7 @@ export class KelpCrab extends Entity {
       const turn = 1 - Math.exp(-KELP_CRAB.turnResponse * dt);
       this.heading = lerpAngle(this.heading, Math.atan2(this.vy, this.vx), turn);
     }
+    this.updateFacing();
     this.legPhase += dt * (2 + this.speed * 0.012);
     this.invulnerable = Math.max(0, this.invulnerable - dt);
   }
@@ -56,7 +57,7 @@ export class KelpCrab extends Entity {
     ctx.save();
     ctx.translate(this.x, this.y);
     if (flash) ctx.globalAlpha = 0.4;
-    ctx.rotate(this.heading);
+    ctx.scale(this.facing, 1);
     drawKelpCrabBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
     ctx.restore();

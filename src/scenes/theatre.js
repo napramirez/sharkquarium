@@ -46,6 +46,18 @@ const CUTSCENES = [
     scene: 'labyrinth',
     params: { ending: true },
   },
+  {
+    label: 'THE ESCAPE',
+    blurb: 'THE FLOODED LAB — THE ECHOEEL SLAMS INTO GLASS AND SINKS TO THE TRENCH',
+    scene: 'flood',
+    params: { outro: true, from: 'theatre' },
+  },
+  {
+    label: 'THE RISING',
+    blurb: 'TRENCH EXPLORE — THE MEGASQUID RISES AND TEARS A WRECK APART',
+    scene: 'trenchexplore',
+    params: { rising: true, from: 'theatre' },
+  },
 ];
 
 const GAUNTLET_ROW = {

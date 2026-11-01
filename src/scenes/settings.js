@@ -3,6 +3,7 @@ import { SelectList } from '../engine/selectlist.js';
 import { drawWater, drawText, fillCircle, fillRoundRect, strokeRoundRect } from '../engine/render.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
 import { clamp } from '../engine/math.js';
+import { setReducedMotion } from '../engine/motion.js';
 import {
   AUDIO,
   COLORS,
@@ -28,14 +29,23 @@ export class SettingsScene extends Scene {
       difficulty: 'normal',
       volume: AUDIO.volume,
       sfx: true,
+      threeD: false,
+      firstPerson: false,
+      reduceMotion: false,
       ...loadJSON(SETTINGS_KEY, {}),
     };
+    this.game.set3D(this.settings.threeD);
+    this.game.setFirstPerson(this.settings.firstPerson);
+    setReducedMotion(this.settings.reduceMotion);
     this.menu = new SelectList(
       [
         { label: 'CO-OP TANK SELECT', action: 'coopTankSelect' },
         { label: 'DIFFICULTY', action: 'difficulty' },
         { label: 'VOLUME', action: 'volume' },
         { label: 'SFX', action: 'sfx' },
+        { label: '3D MODE', action: 'threeD' },
+        { label: 'FIRST PERSON MODE', action: 'firstPerson' },
+        { label: 'REDUCE MOTION', action: 'reduceMotion' },
         { label: 'TRACK PLAYER', action: 'tracks' },
         { label: 'CUTSCENE THEATRE', action: 'theatre' },
         { label: 'BACK', action: 'back' },
@@ -121,6 +131,39 @@ export class SettingsScene extends Scene {
       this.game.audio.setSfxEnabled(next);
       if (next) this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.14, volume: 0.2 });
       saveJSON(SETTINGS_KEY, this.settings);
+      return;
+    }
+    if (item.action === 'threeD') {
+      this.settings.threeD = !this.settings.threeD;
+      this.game.set3D(this.settings.threeD);
+      saveJSON(SETTINGS_KEY, this.settings);
+      this.game.audio.tone({
+        freq: this.settings.threeD ? 620 : 320,
+        duration: 0.1,
+        volume: 0.18,
+      });
+      return;
+    }
+    if (item.action === 'firstPerson') {
+      this.settings.firstPerson = !this.settings.firstPerson;
+      this.game.setFirstPerson(this.settings.firstPerson);
+      saveJSON(SETTINGS_KEY, this.settings);
+      this.game.audio.tone({
+        freq: this.settings.firstPerson ? 620 : 320,
+        duration: 0.1,
+        volume: 0.18,
+      });
+      return;
+    }
+    if (item.action === 'reduceMotion') {
+      this.settings.reduceMotion = !this.settings.reduceMotion;
+      setReducedMotion(this.settings.reduceMotion);
+      saveJSON(SETTINGS_KEY, this.settings);
+      this.game.audio.tone({
+        freq: this.settings.reduceMotion ? 320 : 620,
+        duration: 0.1,
+        volume: 0.18,
+      });
       return;
     }
     if (item.action === 'difficulty') {
@@ -215,6 +258,28 @@ export class SettingsScene extends Scene {
       color: COLORS.foam,
       alpha: 0.75,
     });
+    drawText(
+      ctx,
+      '3D MODE — tilt the whole tank onto a perspective plane',
+      LOGICAL_WIDTH / 2,
+      194,
+      {
+        size: 13,
+        color: COLORS.foam,
+        alpha: 0.75,
+      },
+    );
+    drawText(
+      ctx,
+      'FIRST PERSON MODE — the mouse looks around a close-up view',
+      LOGICAL_WIDTH / 2,
+      216,
+      {
+        size: 13,
+        color: COLORS.foam,
+        alpha: 0.75,
+      },
+    );
 
     const centerY = LOGICAL_HEIGHT * 0.54;
     this.menu.render(ctx, LOGICAL_WIDTH / 2, centerY);
@@ -223,7 +288,9 @@ export class SettingsScene extends Scene {
     this.renderDifficulty(ctx, CONTROLS_X, top + this.menu.spacing, this.settings.difficulty);
     this.renderSlider(ctx, CONTROLS_X, top + this.menu.spacing * 2, this.settings.volume);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 3, this.settings.sfx);
-    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 4, {
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 4, this.settings.threeD);
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 5, this.settings.firstPerson);
+    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 6, {
       size: 13,
       color: COLORS.textDim,
       alpha: 0.85,

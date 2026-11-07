@@ -5,6 +5,7 @@ import { TURTLE, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 export class Turtle extends Entity {
   constructor() {
     super({ x: rand(180, LOGICAL_WIDTH - 180), y: rand(140, LOGICAL_HEIGHT - 140), radius: TURTLE.radius });
+    this.santa = true;
     this.state = 'patrol';
     this.stateTimer = 0;
     this.chargeTimer = rand(TURTLE.chargeIntervalMin, TURTLE.chargeIntervalMax);

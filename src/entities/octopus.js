@@ -9,6 +9,7 @@ export class Octopus extends Entity {
       y: rand(140, LOGICAL_HEIGHT - 140),
       radius: OCTOPUS.radius,
     });
+    this.santa = true;
     this.state = 'patrol';
     this.stateTimer = 0;
     this.lungeTimer = rand(OCTOPUS.lungeIntervalMin, OCTOPUS.lungeIntervalMax);

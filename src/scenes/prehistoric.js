@@ -10,6 +10,8 @@ import { applyWardrobe } from '../engine/wardrobe.js';
 import { drawTrail } from '../engine/trail.js';
 import { drawCompanion } from '../engine/companion.js';
 import { Lungfish } from '../entities/lungfish.js';
+import { drawSeasonHat } from '../entities/entity.js';
+import { seasonOn, currentSeason } from '../engine/season.js';
 import { QUIET_TRACK } from '../assets/tracks.js';
 import {
   PREHISTORIC as P,
@@ -34,7 +36,7 @@ export class PrehistoricScene extends MinigameScene {
     this.enemyMult = this.mutator ? this.mutator.knobs.enemySpeedScale ?? 1 : 1;
     this.shop = loadJSON(SHOP_KEY, {});
     if (this.game.music) {
-      this.previousTrack = this.game.music.track;
+      this.previousTrack = this.game.music.source ?? this.game.music.track;
       this.previousHold = this.game.music.hold;
       this.game.music.play(QUIET_TRACK);
       this.game.music.hold = false;
@@ -1246,6 +1248,16 @@ export class PrehistoricScene extends MinigameScene {
     if (this.zoneIndex === 0 && this.dunk.active) this.drawDunkleosteus(ctx, this.dunk.x, this.dunk.y);
     if (this.zoneIndex === 1) this.drawRaptor(ctx, this.raptor.x, this.raptor.y);
     if (this.zoneIndex === 2 && this.snake.active) this.drawSnake(ctx, this.snake.x, this.snake.y);
+    if (seasonOn()) {
+      const hatSeason = currentSeason();
+      if (this.zoneIndex === 0 && this.dunk.active) {
+        drawSeasonHat(ctx, this.dunk.x, this.dunk.y - P.dunkRadius * 0.9, P.dunkRadius * 0.5, hatSeason);
+      } else if (this.zoneIndex === 1) {
+        drawSeasonHat(ctx, this.raptor.x, this.raptor.y - P.raptorRadius * 1.1, P.raptorRadius * 0.5, hatSeason);
+      } else if (this.zoneIndex === 2 && this.snake.active) {
+        drawSeasonHat(ctx, this.snake.x, this.snake.y - P.snakeRadius * 0.9, P.snakeRadius * 0.5, hatSeason);
+      }
+    }
     for (let index = 0; index < this.players.length; index += 1) {
       applyWardrobe(this.shop, index);
       const player = this.players[index];

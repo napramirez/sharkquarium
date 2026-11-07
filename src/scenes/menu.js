@@ -1,11 +1,13 @@
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
 import { Bubble } from '../entities/bubble.js';
+import { Snowflake } from '../entities/snowflake.js';
 import { Shark } from '../entities/shark.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
 import { loadJSON } from '../engine/storage.js';
 import { MENU_TRACK } from '../assets/tracks.js';
 import { rand } from '../engine/math.js';
+import { currentSeason } from '../engine/season.js';
 import { drawSkinAura, setActiveSkin, setSkinClock, skinByKey } from '../engine/skin.js';
 import { auraForShop, setActiveAura } from '../engine/aura.js';
 import { accessoryByKey, setActiveBodyAccessory, setActiveCostume, setActiveHeadAccessory } from '../engine/accessory.js';
@@ -77,7 +79,7 @@ export class MenuScene extends Scene {
       glowColor: COLORS.bubble,
       accentColor: COLORS.accent,
       color: COLORS.text,
-      spacing: items.length > 8 ? 22 : items.length > 6 ? 30 : items.length > 5 ? 34 : 42,
+      spacing: items.length > 8 ? 20 : items.length > 6 ? 30 : items.length > 5 ? 34 : 42,
       onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
       onConfirm: (item) => this.choose(item.action),
     });
@@ -114,16 +116,41 @@ export class MenuScene extends Scene {
   }
 
   updateAmbient(dt) {
+    const season = currentSeason();
+    const themed = season !== 'none';
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {
-      this.spawnTimer = rand(0.22, 0.6);
-      this.bubbles.push(
-        new Bubble(rand(40, LOGICAL_WIDTH - 40), LOGICAL_HEIGHT + 24, { rise: rand(28, 62) }),
-      );
+      this.spawnTimer = themed ? rand(0.1, 0.36) : rand(0.22, 0.6);
+      const x = rand(0, LOGICAL_WIDTH);
+      if (season === 'halloween') {
+        const colors = ['#ff9a3c', '#e2602e', '#b4502a', '#8f3d5c', '#d9b34a'];
+        this.bubbles.push(
+          new Snowflake(x, -24, {
+            kind: 'leaf',
+            color: colors[Math.floor(rand(0, colors.length))],
+            fall: rand(24, 54),
+          }),
+        );
+      } else if (season === 'newyear') {
+        const colors = ['#ffd166', '#63e6ff', '#ff6b9d', '#c6ff7a', '#ffffff'];
+        this.bubbles.push(
+          new Snowflake(x, -24, {
+            kind: 'confetti',
+            color: colors[Math.floor(rand(0, colors.length))],
+            fall: rand(34, 78),
+          }),
+        );
+      } else if (season === 'christmas') {
+        this.bubbles.push(new Snowflake(x, -24, { kind: 'snow' }));
+      } else {
+        this.bubbles.push(
+          new Bubble(rand(40, LOGICAL_WIDTH - 40), LOGICAL_HEIGHT + 24, { rise: rand(28, 62) }),
+        );
+      }
     }
     this.bubbles = this.bubbles.filter((bubble) => {
       bubble.update(dt);
-      return bubble.y > -30;
+      return themed ? bubble.y < LOGICAL_HEIGHT + 30 : bubble.y > -30;
     });
     const drift = this.time * 0.7;
     this.shark.update(dt, IDLE_INPUT);

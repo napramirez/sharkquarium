@@ -12,6 +12,7 @@ export class Anglerfish extends Entity {
       y: rand(80, LOGICAL_HEIGHT - DEEPSEA.floorHeight - 70),
       radius: ANGLER.radius,
     });
+    this.santa = true;
     this.mode = 'roam';
     this.heading = rand(0, TAU);
     this.targetX = this.x;

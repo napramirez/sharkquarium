@@ -1,7 +1,37 @@
 import { TAU } from './math.js';
 import { mode3D } from './mode3d.js';
+import { is8Bit } from './retro.js';
 
 export const FONT = '"Trebuchet MS", "Segoe UI", system-ui, sans-serif';
+export const FONT_RETRO = '"Courier New", "Lucida Console", monospace';
+
+const fontCache = new Map();
+const gradientCache = new WeakMap();
+
+function fontFor(weight, size) {
+  const retro = is8Bit();
+  const key = `${retro ? 1 : 0}|${weight}|${size}`;
+  let font = fontCache.get(key);
+  if (!font) {
+    font = `${weight} ${size}px ${retro ? FONT_RETRO : FONT}`;
+    fontCache.set(key, font);
+  }
+  return font;
+}
+
+function cachedGradient(ctx, key, factory) {
+  let map = gradientCache.get(ctx);
+  if (!map) {
+    map = new Map();
+    gradientCache.set(ctx, map);
+  }
+  let gradient = map.get(key);
+  if (!gradient) {
+    gradient = factory();
+    map.set(key, gradient);
+  }
+  return gradient;
+}
 
 export function clear(ctx, width, height, color) {
   ctx.fillStyle = color;
@@ -85,12 +115,12 @@ export function drawText(ctx, text, x, y, options = {}) {
     glowBlur = 18,
   } = options;
   ctx.save();
-  ctx.font = `${weight} ${size}px ${FONT}`;
+  ctx.font = fontFor(weight, size);
   ctx.fillStyle = color;
   ctx.textAlign = align;
   ctx.textBaseline = baseline;
   ctx.globalAlpha = alpha;
-  if (glow) {
+  if (glow && !is8Bit()) {
     ctx.shadowColor = glow;
     ctx.shadowBlur = glowBlur;
   }
@@ -103,23 +133,30 @@ export function drawWater(ctx, width, height, time, palette) {
     drawWater3D(ctx, width, height, time, palette);
     return;
   }
-  const gradient = ctx.createLinearGradient(0, 0, 0, height);
-  gradient.addColorStop(0, palette.top);
-  gradient.addColorStop(0.42, palette.top);
-  gradient.addColorStop(1, palette.bottom);
+  const sizeKey = `${width}x${height}|${ctx.canvas.width}x${ctx.canvas.height}`;
+  const gradient = cachedGradient(ctx, `water|${sizeKey}|${palette.top}|${palette.bottom}`, () => {
+    const g = ctx.createLinearGradient(0, 0, 0, height);
+    g.addColorStop(0, palette.top);
+    g.addColorStop(0.42, palette.top);
+    g.addColorStop(1, palette.bottom);
+    return g;
+  });
   ctx.fillStyle = gradient;
   ctx.fillRect(0, 0, width, height);
 
-  const light = ctx.createRadialGradient(
-    width * 0.5,
-    -height * 0.35,
-    height * 0.15,
-    width * 0.5,
-    height * 0.1,
-    height * 1.15,
-  );
-  light.addColorStop(0, 'rgba(207, 239, 255, 0.16)');
-  light.addColorStop(1, 'rgba(207, 239, 255, 0)');
+  const light = cachedGradient(ctx, `light|${sizeKey}`, () => {
+    const g = ctx.createRadialGradient(
+      width * 0.5,
+      -height * 0.35,
+      height * 0.15,
+      width * 0.5,
+      height * 0.1,
+      height * 1.15,
+    );
+    g.addColorStop(0, 'rgba(207, 239, 255, 0.16)');
+    g.addColorStop(1, 'rgba(207, 239, 255, 0)');
+    return g;
+  });
   ctx.fillStyle = light;
   ctx.fillRect(0, 0, width, height);
 
@@ -159,16 +196,19 @@ export function drawWater(ctx, width, height, time, palette) {
   drawCaustics(ctx, width, height, time, palette);
   drawMotes(ctx, width, height, time, 30, palette);
 
-  const vignette = ctx.createRadialGradient(
-    width / 2,
-    height * 0.45,
-    height * 0.28,
-    width / 2,
-    height * 0.5,
-    height * 1.05,
-  );
-  vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
-  vignette.addColorStop(1, 'rgba(2, 8, 14, 0.62)');
+  const vignette = cachedGradient(ctx, `vignette|${sizeKey}`, () => {
+    const g = ctx.createRadialGradient(
+      width / 2,
+      height * 0.45,
+      height * 0.28,
+      width / 2,
+      height * 0.5,
+      height * 1.05,
+    );
+    g.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    g.addColorStop(1, 'rgba(2, 8, 14, 0.62)');
+    return g;
+  });
   ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, width, height);
 }
@@ -237,16 +277,23 @@ export function drawDepthFish(ctx, width, height, time, count = 9, color = '#cfe
 function drawWater3D(ctx, width, height, time, palette) {
   const horizon = Math.round(height * 0.42);
   const vanishX = width / 2 + Math.sin(time * 0.18) * width * 0.08;
+  const sizeKey = `${width}x${height}|${ctx.canvas.width}x${ctx.canvas.height}`;
 
-  const floor = ctx.createLinearGradient(0, horizon, 0, height);
-  floor.addColorStop(0, palette.bottom);
-  floor.addColorStop(1, '#010306');
+  const floor = cachedGradient(ctx, `floor|${sizeKey}|${palette.bottom}`, () => {
+    const g = ctx.createLinearGradient(0, horizon, 0, height);
+    g.addColorStop(0, palette.bottom);
+    g.addColorStop(1, '#010306');
+    return g;
+  });
   ctx.fillStyle = floor;
   ctx.fillRect(0, horizon, width, height);
 
-  const sky = ctx.createLinearGradient(0, 0, 0, horizon);
-  sky.addColorStop(0, palette.top);
-  sky.addColorStop(1, palette.bottom);
+  const sky = cachedGradient(ctx, `sky|${sizeKey}|${palette.top}|${palette.bottom}`, () => {
+    const g = ctx.createLinearGradient(0, 0, 0, horizon);
+    g.addColorStop(0, palette.top);
+    g.addColorStop(1, palette.bottom);
+    return g;
+  });
   ctx.fillStyle = sky;
   ctx.fillRect(0, 0, width, horizon);
 
@@ -296,16 +343,19 @@ function drawWater3D(ctx, width, height, time, palette) {
   }
   ctx.restore();
 
-  const vignette = ctx.createRadialGradient(
-    width / 2,
-    height * 0.5,
-    height * 0.34,
-    width / 2,
-    height * 0.5,
-    height * 1.05,
-  );
-  vignette.addColorStop(0, 'rgba(0, 0, 0, 0)');
-  vignette.addColorStop(1, 'rgba(1, 4, 9, 0.6)');
+  const vignette = cachedGradient(ctx, `vignette3d|${sizeKey}`, () => {
+    const g = ctx.createRadialGradient(
+      width / 2,
+      height * 0.5,
+      height * 0.34,
+      width / 2,
+      height * 0.5,
+      height * 1.05,
+    );
+    g.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    g.addColorStop(1, 'rgba(1, 4, 9, 0.6)');
+    return g;
+  });
   ctx.fillStyle = vignette;
   ctx.fillRect(0, 0, width, height);
 }

@@ -9,6 +9,7 @@ export class PiranhaSchool extends Entity {
       y: rand(110, LOGICAL_HEIGHT - SAND.height - 80),
       radius: 28,
     });
+    this.santa = true;
     this.fish = Array.from({ length: 7 }, () => ({
       offsetX: rand(-24, 24),
       offsetY: rand(-18, 18),

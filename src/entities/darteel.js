@@ -9,6 +9,7 @@ export class DartEel extends Entity {
       y: LOGICAL_HEIGHT + 120,
       radius: NAUTILUS.eelRadius,
     });
+    this.santa = true;
     this.direction = Math.random() < 0.5 ? -1 : 1;
     this.speed = rand(NAUTILUS.eelSpeedMin, NAUTILUS.eelSpeedMax);
     this.wavePhase = rand(0, TAU);

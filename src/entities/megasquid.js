@@ -1,8 +1,11 @@
 import { COLORS } from '../config.js';
 import { TAU } from '../engine/math.js';
+import { seasonOn, currentSeason } from '../engine/season.js';
+import { drawSeasonHat } from './entity.js';
 
 export function drawMegasquid(ctx, px, py, scale, time, flail = 1, alpha = 1) {
   const s = scale;
+  if (seasonOn()) drawSeasonHat(ctx, px, py - 96 * s, 24 * s, currentSeason());
   ctx.save();
   ctx.lineCap = 'round';
   ctx.globalAlpha = alpha;

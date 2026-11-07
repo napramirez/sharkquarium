@@ -5,6 +5,7 @@ import { COLORS } from '../config.js';
 export class Swarmling extends Entity {
   constructor(x, y) {
     super({ x, y, radius: 10 });
+    this.santa = true;
     this.phase = rand(0, TAU);
     this.speed = 0;
     this.heading = rand(0, TAU);

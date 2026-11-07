@@ -5,6 +5,7 @@ import { ABYSS, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 export class Leviathan extends Entity {
   constructor() {
     super({ x: LOGICAL_WIDTH / 2, y: LOGICAL_HEIGHT * 0.32, radius: ABYSS.radius });
+    this.santa = true;
     this.maxHp = ABYSS.health;
     this.hp = ABYSS.health;
     this.phase = 1;

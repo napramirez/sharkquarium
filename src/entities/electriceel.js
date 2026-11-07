@@ -5,6 +5,7 @@ import { ELECTRIC_EEL, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.j
 export class ElectricEel extends Entity {
   constructor() {
     super({ x: LOGICAL_WIDTH + 90, y: rand(120, LOGICAL_HEIGHT - 140), radius: ELECTRIC_EEL.radius });
+    this.santa = true;
     this.heading = Math.PI;
     this.phase = rand(0, TAU);
   }

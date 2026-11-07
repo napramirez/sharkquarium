@@ -548,6 +548,124 @@ function drawMiniPuffer(ctx, r, age, phase) {
   ctx.fill();
 }
 
+function drawSnowfish(ctx, r, age, phase) {
+  const wob = Math.sin(age * 3 + phase) * r * 0.06;
+  ctx.fillStyle = '#dff2ff';
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.9, 0);
+  ctx.lineTo(-r * 1.7, -r * 0.6 + wob);
+  ctx.lineTo(-r * 1.7, r * 0.6 + wob);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(150, 190, 220, 0.7)';
+  ctx.lineWidth = r * 0.1;
+  ctx.stroke();
+  ctx.fillStyle = '#f4fbff';
+  ctx.beginPath();
+  ctx.arc(-r * 0.1, r * 0.1, r * 0.85, 0, TAU);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(r * 0.15, -r * 0.75, r * 0.62, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = 'rgba(150, 190, 220, 0.35)';
+  ctx.beginPath();
+  ctx.arc(-r * 0.42, r * 0.42, r * 0.5, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#10233a';
+  ctx.beginPath();
+  ctx.arc(0, -r * 0.85, r * 0.08, 0, TAU);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(r * 0.42, -r * 0.85, r * 0.08, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#ff8f3c';
+  ctx.beginPath();
+  ctx.moveTo(r * 0.2, -r * 0.7);
+  ctx.lineTo(r * 0.78, -r * 0.62);
+  ctx.lineTo(r * 0.2, -r * 0.54);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#d33a3a';
+  ctx.lineWidth = r * 0.18;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.5, -r * 0.32);
+  ctx.lineTo(r * 0.5, -r * 0.32);
+  ctx.stroke();
+  ctx.fillStyle = '#1d1f2b';
+  ctx.fillRect(-r * 0.4, -r * 1.75, r * 0.8, r * 0.5);
+  ctx.fillRect(-r * 0.62, -r * 1.28, r * 1.24, r * 0.14);
+  ctx.fillStyle = '#d33a3a';
+  ctx.fillRect(-r * 0.4, -r * 1.5, r * 0.8, r * 0.14);
+}
+
+function drawGhostFish(ctx, r, age, phase) {
+  const wob = Math.sin(age * 2.6 + phase) * r * 0.08;
+  ctx.save();
+  ctx.globalAlpha = 0.5 + 0.22 * Math.sin(age * 3 + phase);
+  ctx.fillStyle = 'rgba(220, 240, 255, 0.85)';
+  ctx.beginPath();
+  ctx.ellipse(0, wob, r * 1.05, r * 0.7, 0, 0, TAU);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.9, wob);
+  ctx.quadraticCurveTo(-r * 1.6, wob - r * 0.7, -r * 2.05, wob + r * 0.3);
+  ctx.quadraticCurveTo(-r * 1.5, wob + r * 0.6, -r * 0.9, wob);
+  ctx.closePath();
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#0b1a2a';
+  ctx.beginPath();
+  ctx.arc(r * 0.45, wob - r * 0.12, r * 0.12, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(20, 40, 60, 0.8)';
+  ctx.lineWidth = r * 0.09;
+  ctx.beginPath();
+  ctx.arc(r * 0.55, wob + r * 0.2, r * 0.18, 0, Math.PI);
+  ctx.stroke();
+  ctx.restore();
+}
+
+function drawFireworkFish(ctx, r, age, phase) {
+  const colors = ['#ffd166', '#ff6b9d', '#63e6ff', '#c6ff7a'];
+  ctx.save();
+  for (let i = 0; i < 5; i += 1) {
+    const t = i / 5;
+    ctx.globalAlpha = 0.75 * (1 - t);
+    ctx.fillStyle = colors[i % colors.length];
+    ctx.beginPath();
+    ctx.arc(
+      -r * (1.0 + t * 1.3),
+      Math.sin(age * 4 + phase + i) * r * 0.42,
+      Math.max(0.8, r * (0.15 - t * 0.02)),
+      0,
+      TAU,
+    );
+    ctx.fill();
+  }
+  ctx.globalAlpha = 1;
+  ctx.fillStyle = '#2b6cff';
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 0.95, r * 0.62, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#ffd166';
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.85, 0);
+  ctx.lineTo(-r * 1.5, -r * 0.5);
+  ctx.lineTo(-r * 1.5, r * 0.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(r * 0.4, -r * 0.15, r * 0.14, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#0b1a2a';
+  ctx.beginPath();
+  ctx.arc(r * 0.43, -r * 0.15, r * 0.07, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+}
+
 export function drawCompanion(ctx, entity) {
   if (!active || active.key === 'none') return;
   let state = states.get(entity);
@@ -578,6 +696,9 @@ export function drawCompanion(ctx, entity) {
   ctx.scale(facing, 1);
   ctx.globalAlpha = 0.95;
   if (active.key === 'bubblepal') drawBubblePal(ctx, r, entity.age, state.phase);
+  else if (active.key === 'snowfish') drawSnowfish(ctx, r, entity.age, state.phase);
+  else if (active.key === 'ghostfish') drawGhostFish(ctx, r, entity.age, state.phase);
+  else if (active.key === 'fireworkfish') drawFireworkFish(ctx, r, entity.age, state.phase);
   else if (active.key === 'babymoray') drawBabyMoray(ctx, r, entity.age, state.phase);
   else if (active.key === 'lanternfish') drawLanternFish(ctx, r, entity.age, state.phase);
   else if (active.key === 'tinyjelly') drawTinyJelly(ctx, r, entity.age, state.phase);

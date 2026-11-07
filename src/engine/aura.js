@@ -36,6 +36,7 @@ export function drawAuraRing(ctx, entity, palette, time) {
   else if (active.key === 'sharkaura') drawSharkRing(ctx, entity, rainbow, time);
   else if (active.key === 'swordaura') drawSwordRing(ctx, entity, rainbow, time);
   else if (active.key === 'octopusaura') drawOctopusRing(ctx, entity, rainbow, time);
+  else if (active.key === 'snowflakeaura') drawSnowflakeRing(ctx, entity, rainbow, time);
 }
 
 function orbitPoint(entity, angle, orbit) {
@@ -500,6 +501,80 @@ function drawOctopusRing(ctx, entity, rainbow, time) {
       x = nx;
       y = ny;
     }
+    ctx.restore();
+  }
+}
+
+function drawSnowCrystal(ctx, x, y, size, spin, glow, line) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(spin);
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = line;
+  ctx.lineWidth = Math.max(1, size * 0.14);
+  ctx.globalAlpha = 0.9;
+  for (let i = 0; i < 6; i += 1) {
+    const angle = (i / 6) * TAU;
+    const ex = Math.cos(angle) * size;
+    const ey = Math.sin(angle) * size;
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(ex * 0.58, ey * 0.58);
+    ctx.lineTo(ex * 0.58 + Math.cos(angle + 0.7) * size * 0.34, ey * 0.58 + Math.sin(angle + 0.7) * size * 0.34);
+    ctx.moveTo(ex * 0.58, ey * 0.58);
+    ctx.lineTo(ex * 0.58 + Math.cos(angle - 0.7) * size * 0.34, ey * 0.58 + Math.sin(angle - 0.7) * size * 0.34);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 0.7;
+  ctx.fillStyle = glow;
+  ctx.beginPath();
+  ctx.arc(0, 0, size * 0.24, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawSnowflakeRing(ctx, entity, rainbow, time) {
+  const r = entity.radius;
+  const orbit = r * 1.95;
+  ctx.save();
+  ctx.globalAlpha = 0.14;
+  ctx.strokeStyle = rainbow ? `hsl(${ringHue(time, 0)}, 80%, 80%)` : '#bfeaff';
+  ctx.lineWidth = Math.max(1, r * 0.05);
+  ctx.beginPath();
+  ctx.ellipse(entity.x, entity.y, orbit, orbit * 0.9, 0, 0, TAU);
+  ctx.stroke();
+  ctx.restore();
+  for (let index = 0; index < 5; index += 1) {
+    const angle = time * 0.7 + (index / 5) * TAU;
+    const bob = Math.sin(time * 2.4 + index * 1.3) * r * 0.18;
+    const x = entity.x + Math.cos(angle) * orbit;
+    const y = entity.y + Math.sin(angle) * orbit * 0.9 - bob;
+    const size = r * (0.2 + 0.05 * (index % 2));
+    const hue = ringHue(time, index);
+    const glow = rainbow ? `hsl(${hue}, 90%, 85%)` : 'rgba(220, 245, 255, 0.9)';
+    const line = rainbow ? `hsl(${hue}, 90%, 68%)` : '#8fd0ef';
+    ctx.save();
+    ctx.globalAlpha = 0.28;
+    ctx.fillStyle = glow;
+    ctx.beginPath();
+    ctx.arc(x, y, size * 1.5, 0, TAU);
+    ctx.fill();
+    ctx.restore();
+    drawSnowCrystal(ctx, x, y, size, time * 0.9 + index * 1.2, glow, line);
+  }
+  for (let index = 0; index < 7; index += 1) {
+    const drift = (time * 0.24 + index * 0.137) % 1;
+    const x = entity.x + Math.sin(time * 0.9 + index * 2.1) * orbit * 0.9;
+    const y = entity.y - r * 1.4 + drift * r * 3.2;
+    ctx.save();
+    ctx.globalAlpha = 0.4 * (1 - drift);
+    ctx.fillStyle = rainbow ? `hsl(${ringHue(time, index)}, 90%, 86%)` : '#eaf7ff';
+    ctx.beginPath();
+    ctx.arc(x, y, Math.max(0.8, r * 0.05), 0, TAU);
+    ctx.fill();
     ctx.restore();
   }
 }

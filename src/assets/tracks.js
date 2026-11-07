@@ -214,8 +214,211 @@ export const QUIET_TRACK = {
   ],
 };
 
-export const TRACK_LIBRARY = [
-  { key: 'menu', label: 'MENU TRACK', blurb: 'COZY A-MINOR LULLABY — 92 BPM', track: MENU_TRACK },
+function seasonal(name, title, bpm, lead, roots, perBar = 4) {
+  const bass = [];
+  for (const root of roots) {
+    for (let i = 0; i < perBar; i += 1) bass.push(i % 2 === 0 ? root : 0);
+  }
+  return { name, title, beat: 60 / bpm, hat: false, bass, lead };
+}
+
+export const JINGLE_BELLS_TRACK = seasonal(
+  'jinglebells',
+  'JINGLE BELLS',
+  130,
+  [
+    64, 64, 64, 0, 64, 64, 64, 0, 64, 67, 72, 74, 64, 0, 0, 0,
+    65, 65, 65, 65, 65, 64, 64, 0, 64, 62, 62, 64, 62, 0, 67, 0,
+    64, 64, 64, 0, 64, 64, 64, 0, 64, 67, 72, 74, 64, 0, 0, 0,
+    65, 65, 65, 65, 65, 64, 64, 0, 67, 67, 65, 62, 60, 0, 0, 0,
+  ],
+  [48, 48, 48, 48, 53, 53, 48, 55, 48, 48, 48, 48, 53, 53, 55, 48],
+);
+
+export const DECK_THE_HALLS_TRACK = seasonal(
+  'deckthehalls',
+  'DECK THE HALLS',
+  120,
+  [
+    67, 67, 67, 65, 65, 67, 69, 67, 65, 64, 62, 0, 62, 64, 65, 64,
+    67, 67, 67, 65, 65, 67, 69, 67, 69, 67, 65, 64, 62, 0, 0, 0,
+  ],
+  [48, 48, 53, 55, 48, 48, 53, 55],
+);
+
+export const SILENT_NIGHT_TRACK = seasonal(
+  'silentnight',
+  'SILENT NIGHT',
+  70,
+  [
+    67, 69, 67, 64, 0, 0, 67, 69, 67, 64, 0, 0,
+    62, 62, 59, 60, 60, 55, 69, 69, 72, 71, 69, 67,
+    69, 67, 64, 69, 69, 72, 71, 69, 67, 69, 67, 64,
+    62, 62, 65, 62, 59, 60, 64, 0, 0, 60, 0, 0,
+  ],
+  [48, 48, 48, 48, 55, 48, 53, 48, 48, 53, 48, 48, 55, 48, 48, 48],
+  3,
+);
+
+export const WE_WISH_YOU_TRACK = seasonal(
+  'wewishyou',
+  'WE WISH YOU A MERRY CHRISTMAS',
+  124,
+  [
+    60, 60, 65, 65, 67, 67, 65, 0, 0, 64, 64, 62, 62, 60, 0,
+    60, 60, 65, 65, 67, 67, 65, 0, 0, 64, 64, 62, 62, 60, 0,
+  ],
+  [48, 53, 48, 55, 53, 48, 53, 48, 53, 48],
+  3,
+);
+
+export const JOY_TO_THE_WORLD_TRACK = seasonal(
+  'joytotheworld',
+  'JOY TO THE WORLD',
+  120,
+  [
+    72, 71, 69, 67, 65, 64, 62, 60, 67, 67, 69, 71, 72, 72, 0, 0,
+    72, 72, 71, 69, 67, 67, 65, 64, 62, 64, 65, 67, 69, 71, 72, 0,
+  ],
+  [48, 48, 53, 55, 48, 48, 55, 48],
+);
+
+export const ANGELS_WE_HAVE_HEARD_TRACK = seasonal(
+  'angelswehaveheard',
+  'ANGELS WE HAVE HEARD ON HIGH',
+  112,
+  [
+    67, 67, 67, 69, 67, 65, 64, 62, 60, 60, 60, 62, 60, 59, 57, 55,
+    67, 67, 67, 69, 67, 65, 64, 62, 64, 64, 65, 67, 69, 67, 64, 60,
+  ],
+  [48, 48, 53, 55, 48, 48, 55, 48],
+);
+
+export const HAUNTED_DRIFT_TRACK = seasonal(
+  'haunteddrift',
+  'HAUNTED DRIFT',
+  72,
+  [
+    57, 0, 0, 0, 60, 0, 0, 0, 59, 0, 0, 0, 55, 0, 0, 0,
+    57, 0, 0, 0, 63, 0, 0, 0, 62, 0, 0, 0, 59, 0, 0, 0,
+  ],
+  [45, 45, 41, 40, 45, 45, 43, 40],
+);
+
+export const WITCHES_WALTZ_TRACK = seasonal(
+  'witchesWaltz',
+  'WITCHES WALTZ',
+  104,
+  [
+    69, 72, 76, 74, 72, 69, 67, 71, 74, 72, 71, 67,
+    69, 72, 76, 74, 72, 69, 68, 71, 74, 67, 0, 0,
+  ],
+  [45, 45, 41, 43, 45, 45, 40, 45],
+  3,
+);
+
+export const MIDNIGHT_HUNT_TRACK = seasonal(
+  'midnighthunt',
+  'MIDNIGHT HUNT',
+  148,
+  [
+    69, 0, 72, 69, 74, 0, 72, 69, 67, 0, 71, 67, 72, 0, 71, 67,
+    69, 0, 72, 69, 76, 0, 74, 72, 71, 0, 67, 71, 69, 0, 0, 0,
+  ],
+  [45, 45, 43, 41, 45, 45, 40, 45],
+);
+
+export const GRAVEYARD_BELLS_TRACK = seasonal(
+  'graveyardbells',
+  'GRAVEYARD BELLS',
+  66,
+  [
+    57, 0, 0, 60, 0, 0, 56, 0, 0, 59, 0, 0,
+    57, 0, 0, 52, 0, 0, 55, 0, 0, 57, 0, 0,
+  ],
+  [45, 45, 44, 43, 45, 40, 43, 45],
+  3,
+);
+
+export const AULD_LANG_SYNE_TRACK = seasonal(
+  'auldlangsyne',
+  'AULD LANG SYNE',
+  96,
+  [
+    67, 67, 69, 67, 72, 72, 71, 69, 69, 67, 69, 71, 67, 0, 0, 0,
+    67, 67, 69, 67, 74, 74, 72, 69, 69, 67, 69, 71, 67, 0, 0, 0,
+  ],
+  [48, 48, 53, 48, 48, 55, 48, 48],
+);
+
+export const FIREWORK_FINALE_TRACK = seasonal(
+  'fireworkfinale',
+  'FIREWORK FINALE',
+  128,
+  [
+    72, 76, 79, 84, 79, 76, 72, 76, 74, 77, 81, 86, 81, 77, 74, 77,
+    72, 76, 79, 84, 79, 83, 86, 84, 81, 77, 74, 72, 74, 0, 0, 0,
+  ],
+  [48, 53, 55, 48, 48, 53, 55, 48],
+);
+
+export const COUNTDOWN_PARTY_TRACK = seasonal(
+  'countdownparty',
+  'COUNTDOWN PARTY',
+  150,
+  [
+    72, 72, 74, 76, 79, 76, 74, 72, 74, 74, 76, 77, 81, 77, 76, 74,
+    76, 76, 79, 81, 84, 81, 79, 76, 74, 76, 79, 76, 72, 0, 0, 0,
+  ],
+  [48, 55, 53, 55, 48, 55, 53, 48],
+);
+
+export const SEASON_TRACKS = {
+  christmas: {
+    menu: JINGLE_BELLS_TRACK,
+    reef: DECK_THE_HALLS_TRACK,
+    stingray: WE_WISH_YOU_TRACK,
+    deepsea: SILENT_NIGHT_TRACK,
+    arctic: ANGELS_WE_HAVE_HEARD_TRACK,
+    kelp: DECK_THE_HALLS_TRACK,
+    pets: JINGLE_BELLS_TRACK,
+    jelly: WE_WISH_YOU_TRACK,
+    freshwater: JOY_TO_THE_WORLD_TRACK,
+    nautilus: SILENT_NIGHT_TRACK,
+    labyrinth: JOY_TO_THE_WORLD_TRACK,
+    quiet: SILENT_NIGHT_TRACK,
+  },
+  halloween: {
+    menu: HAUNTED_DRIFT_TRACK,
+    reef: WITCHES_WALTZ_TRACK,
+    stingray: MIDNIGHT_HUNT_TRACK,
+    deepsea: GRAVEYARD_BELLS_TRACK,
+    arctic: HAUNTED_DRIFT_TRACK,
+    kelp: WITCHES_WALTZ_TRACK,
+    pets: MIDNIGHT_HUNT_TRACK,
+    jelly: WITCHES_WALTZ_TRACK,
+    freshwater: MIDNIGHT_HUNT_TRACK,
+    nautilus: GRAVEYARD_BELLS_TRACK,
+    labyrinth: MIDNIGHT_HUNT_TRACK,
+    quiet: HAUNTED_DRIFT_TRACK,
+  },
+  newyear: {
+    menu: AULD_LANG_SYNE_TRACK,
+    reef: FIREWORK_FINALE_TRACK,
+    stingray: COUNTDOWN_PARTY_TRACK,
+    deepsea: AULD_LANG_SYNE_TRACK,
+    arctic: FIREWORK_FINALE_TRACK,
+    kelp: COUNTDOWN_PARTY_TRACK,
+    pets: FIREWORK_FINALE_TRACK,
+    jelly: COUNTDOWN_PARTY_TRACK,
+    freshwater: FIREWORK_FINALE_TRACK,
+    nautilus: AULD_LANG_SYNE_TRACK,
+    labyrinth: COUNTDOWN_PARTY_TRACK,
+    quiet: AULD_LANG_SYNE_TRACK,
+  },
+};
+
+export const TRACK_LIBRARY = [  { key: 'menu', label: 'MENU TRACK', blurb: 'COZY A-MINOR LULLABY — 92 BPM', track: MENU_TRACK },
   { key: 'reef', label: 'REEF TRACK', blurb: 'BRIGHT C-MAJOR SAUNTER — 104 BPM', track: REEF_TRACK },
   { key: 'stingray', label: 'STINGRAY TRACK', blurb: 'WARM D-MINOR SWAY — 112 BPM', track: STINGRAY_TRACK },
   { key: 'deepsea', label: 'DEEP SEA TRACK', blurb: 'SPARSE C-MINOR DRONE — 90 BPM', track: DEEPSEA_TRACK },

@@ -5,6 +5,7 @@ import { COLORS, WATCHER } from '../config.js';
 export class Watcher extends Entity {
   constructor(x, y) {
     super({ x, y, radius: WATCHER.radius });
+    this.santa = true;
     this.speed = WATCHER.stalk[0];
     this.frozen = false;
     this.eyeOpen = 1;

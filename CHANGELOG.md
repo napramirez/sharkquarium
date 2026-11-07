@@ -43,6 +43,41 @@ lore inventory.
   circuits and stuns toys, and the **PRESSURE ANCHOR** pries valves and heaves heavy wrecks.
   Typed gates require the matching head, and a head that finds only bare hull **bounces off**
   instead of pinning you to the wreck. Aim at a toy to knock, stun, or shove it off your back.
+- **Christmas mode** — a SETTINGS switch that swaps the soundtrack for public-domain carols
+  (Jingle Bells on the menu, plus Deck the Halls, Silent Night, We Wish You a Merry
+  Christmas, Joy to the World, and Angels We Have Heard on High through the tanks; Twinkle
+  Twinkle is deliberately excluded), turns the menu's rising ambient bubbles into **slow
+  sinking snowflakes**, and puts **santa hats on every enemy and boss** (the morays' hats
+  ride their heads and fade into the holes as they retreat). It also adds free festive
+  cosmetics — a **SANTA HAT**, **REINDEER ANTLERS**, a **CARROT NOSE**, and the **SNOWFISH**
+  dive buddy — and a **MERRY CHRISTMAS** cutscene-trailer greeting that closes on
+  “SHARKQUARIUM WISHES YOU A MERRY CHRISTMAS!”.
+- **Halloween mode** — a second seasonal switch: an eerie original score (Haunted Drift on
+  the menu, plus Witches Waltz, Midnight Hunt, and Graveyard Bells), drifting autumn leaves
+  instead of menu bubbles, **witch hats** on every enemy and boss, a **WITCH HAT**,
+  **PUMPKIN HEAD**, and **GHOST FISH** buddy in the wardrobe, and a **HAPPY HALLOWEEN**
+  theatre trailer.
+- **New Year mode** — a third seasonal switch: a party score (Auld Lang Syne on the menu,
+  plus Firework Finale and Countdown Party), falling confetti instead of menu bubbles,
+  **party hats** on every enemy and boss, **NEW YEAR GLASSES** and a **FIREWORK FISH** buddy
+  in the wardrobe, and a **HAPPY NEW YEAR** theatre trailer.
+- **8-bit mode** — a SETTINGS switch that renders the whole game to a tiny 256×144 buffer and
+  blows it up with hard nearest-neighbour pixels plus CRT scanlines (blocky text in a
+  monospace pixel font, chunky creatures, no smoothing, no glow blur) and turns the audio
+  chiptune: warm square-wave pulse tones with a soft envelope, gentle noise-percussion hats,
+  a lightly band-limited master, and a soft bit-crusher — retro without the earache.
+- **Season controls** — the three modes are mutually exclusive and the **top-right corner
+  names the song currently playing**; switching a season swaps the track already playing
+  immediately.
+- **Carol accuracy pass** — the seasonal melodies were re-sequenced to follow the real tunes
+  more closely (Silent Night in proper 3/4, Joy to the World's descending scale and rising
+  answer, Angels We Have Heard on High, and Auld Lang Syne), leaving Jingle Bells as-is.
+- **Snowflake aura** — a new shop aura that rings the diver with orbiting six-pointed snow
+  crystals, a faint icy halo, and drifting sparkles (rainbow-aware like the other auras).
+- **Scrolling tank select** — the tank list is long enough to overflow the screen, so it now
+  renders in a fixed 11-row window that scrolls (with up/down caret hints) to keep the
+  highlighted tank visible; the per-tank best-time badges scroll with it. The reusable
+  `SelectList` gained this optional `visible` window.
 
 ### Game systems
 
@@ -68,6 +103,36 @@ lore inventory.
   hooks. `src/config.js` adds `ANCHOR_TYPES`, `PLAYTOY`, `PLAYTOY_GATES`, `PLAYTOY_NOTES`,
   `PLAYTOY_TOYS`, and `PLAYTOY_KEY`, and `src/engine/input.js` adds `tool`, `cycleAnchor`,
   and `inventory` bindings.
+- **Seasonal music, particles, hats, and trailers** — `src/assets/tracks.js` adds themed
+  tracks (carols, eerie originals, and party tunes) with titles and a per-season
+  `SEASON_TRACKS` map; new `src/engine/season.js` owns `setSeason()`/`resolveSeasonTrack()`
+  and `src/engine/music.js` uses it (keeping the non-seasonal base track in `source`) so
+  `MusicPlayer.play()`/`refresh()` transparently substitute the theme and re-resolve the
+  track already playing. `Game.renderFrame()` draws the `NOW PLAYING · <title>` label.
+  `src/entities/snowflake.js` renders snow/leaf/confetti particles the menu spawns instead
+  of bubbles, `Entity` overlays the season's hat on `santa`-flagged enemies, the wardrobe
+  gains each season's accessories/companion, and `src/scenes/christmastrail.js` plays the
+  holiday trailer for whichever season is requested. Applied on boot from settings and by
+  the SETTINGS switches.
+- **8-bit rendering and audio** — new `src/engine/retro.js` holds the flag;
+  `Game.renderFrame()` renders scenes into a 256×144 offscreen canvas and upscales it with
+  smoothing off plus scanlines, `drawText()` switches to a monospace pixel font without glow,
+  and `AudioBus` runs its master through a gentle low-pass filter and bit-crusher while
+  `tone()` uses a warm square periodic pulse with a soft envelope and `MusicPlayer` adds
+  gentle noise-percussion hats.
+- **Settings layout fix** — the SETTINGS screen now shows a single description line for the
+  selected row and a lower, tighter list, so the caption text no longer overlaps the menu
+  options.
+- **Smoother, lighter rendering** — the canvas backing store is capped (device pixel ratio
+  1.5 and at most 1920×1080) so large/high-DPI displays stop burning fill-rate; the fixed
+  step catch-up is capped at four steps with leftover time dropped to avoid spiral stalls;
+  and the shared water gradients plus text font strings are cached instead of rebuilt every
+  frame.
+- **Christmas music toggle fix** — `MusicPlayer` keeps the base (non-seasonal) track in
+  `source`, ignores resolved seasonal tracks when they are passed back in, and clears
+  `source` on `stop()`; scene restores capture `source`. Turning Christmas off now always
+  restores the normal theme, even after the Christmas trailer or any dive that had been
+  playing the resolved Jingle Bells track.
 - **Tests and docs** — smoke coverage for the mutator screen, rules scaling, records
   persistence, a full five-wave boss-rush clear, and the PlayToy tank (world build, note
   persistence + inventory, head-to-gate matching, wall bounce, exit win, first person); LORE

@@ -1,5 +1,6 @@
 import { TAU } from '../engine/math.js';
 import { mode3D, hiddenEntity } from '../engine/mode3d.js';
+import { seasonOn, currentSeason } from '../engine/season.js';
 
 export class Entity {
   constructor(options = {}) {
@@ -19,6 +20,13 @@ export class Entity {
       if (hiddenEntity() === entity) return;
       if (mode3D()) drawEntity3D(ctx, entity, draw);
       else draw(ctx);
+      if (entity.santa && seasonOn()) {
+        if (typeof entity.santaHat === 'function') entity.santaHat(ctx);
+        else {
+          const r = entity.radius ?? 12;
+          drawSeasonHat(ctx, entity.x, entity.y - r * 0.92, r, currentSeason());
+        }
+      }
     };
   }
 
@@ -77,8 +85,7 @@ function drawEntityShadow(ctx, entity, radius, depth) {
   ctx.restore();
 }
 
-function drawEntitySphere(ctx, entity, radius, kind) {
-  const golden = kind === 'golden';
+function drawEntitySphere(ctx, entity, radius, kind) {  const golden = kind === 'golden';
   const gradient = ctx.createRadialGradient(
     entity.x - radius * 0.34,
     entity.y - radius * 0.38,
@@ -104,5 +111,85 @@ function drawEntitySphere(ctx, entity, radius, kind) {
   ctx.strokeStyle = golden ? 'rgba(255, 226, 150, 0.85)' : 'rgba(207, 239, 255, 0.75)';
   ctx.lineWidth = Math.max(1, radius * 0.08);
   ctx.stroke();
+  ctx.restore();
+}
+
+export function drawSeasonHat(ctx, x, y, r, season) {
+  if (season === 'halloween') {
+    drawWitchHat(ctx, x, y, r);
+    return;
+  }
+  if (season === 'newyear') {
+    drawPartyHat(ctx, x, y, r);
+    return;
+  }
+  drawSantaHat(ctx, x, y, r);
+}
+
+function drawSantaHat(ctx, x, y, r) {
+  ctx.save();
+  ctx.fillStyle = '#d33a3a';
+  ctx.beginPath();
+  ctx.moveTo(x - r * 0.72, y);
+  ctx.lineTo(x + r * 0.72, y);
+  ctx.lineTo(x + r * 0.26, y - r * 1.4);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#f7f7f7';
+  ctx.beginPath();
+  ctx.ellipse(x, y, r * 0.84, r * 0.24, 0, 0, TAU);
+  ctx.fill();
+  ctx.beginPath();
+  ctx.arc(x + r * 0.26, y - r * 1.45, r * 0.26, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawWitchHat(ctx, x, y, r) {
+  ctx.save();
+  ctx.fillStyle = '#211a2e';
+  ctx.beginPath();
+  ctx.moveTo(x - r * 0.62, y);
+  ctx.quadraticCurveTo(x - r * 0.1, y - r * 1.2, x + r * 0.74, y - r * 1.85);
+  ctx.quadraticCurveTo(x + r * 0.4, y - r * 0.9, x + r * 0.62, y);
+  ctx.closePath();
+  ctx.fill();
+  ctx.fillStyle = '#7b3fa0';
+  ctx.beginPath();
+  ctx.ellipse(x, y - r * 0.15, r * 0.66, r * 0.18, 0, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = '#ffd166';
+  ctx.lineWidth = Math.max(1, r * 0.08);
+  ctx.strokeRect(x - r * 0.15, y - r * 0.29, r * 0.3, r * 0.28);
+  ctx.fillStyle = '#2a2140';
+  ctx.beginPath();
+  ctx.ellipse(x, y, r * 0.98, r * 0.26, 0, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawPartyHat(ctx, x, y, r) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(x - r * 0.6, y);
+  ctx.lineTo(x + r * 0.6, y);
+  ctx.lineTo(x, y - r * 1.55);
+  ctx.closePath();
+  ctx.fillStyle = '#2b6cff';
+  ctx.fill();
+  ctx.strokeStyle = '#ffd166';
+  ctx.lineWidth = Math.max(1, r * 0.11);
+  for (let i = 1; i <= 2; i += 1) {
+    const t = i / 3;
+    const half = r * 0.6 * (1 - t);
+    ctx.beginPath();
+    ctx.moveTo(x - half, y - r * 1.55 * t);
+    ctx.lineTo(x + half, y - r * 1.55 * t);
+    ctx.stroke();
+  }
+  ctx.fillStyle = '#ff5c8a';
+  ctx.beginPath();
+  ctx.arc(x, y - r * 1.62, r * 0.27, 0, TAU);
+  ctx.fill();
   ctx.restore();
 }

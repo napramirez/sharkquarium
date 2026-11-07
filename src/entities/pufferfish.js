@@ -5,6 +5,7 @@ import { PUFFER, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 export class Pufferfish extends Entity {
   constructor(options = {}) {
     super({ x: 0, y: 0, radius: PUFFER.radius });
+    this.santa = true;
     const target = options.target ?? null;
     let side;
     if (target) {

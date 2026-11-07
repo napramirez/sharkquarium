@@ -4,6 +4,8 @@ import { drawWater, drawText, fillCircle, fillRoundRect, strokeRoundRect } from 
 import { loadJSON, saveJSON } from '../engine/storage.js';
 import { clamp } from '../engine/math.js';
 import { setReducedMotion } from '../engine/motion.js';
+import { setSeason, SEASONS } from '../engine/season.js';
+import { set8Bit } from '../engine/retro.js';
 import {
   AUDIO,
   COLORS,
@@ -24,6 +26,9 @@ const PILL_HEIGHT = 30;
 export class SettingsScene extends Scene {
   enter() {
     this.time = 0;
+    const saved = loadJSON(SETTINGS_KEY, {});
+    const savedSeason =
+      saved.season ?? (saved.christmas ? 'christmas' : 'none');
     this.settings = {
       coopTankSelect: false,
       difficulty: 'normal',
@@ -32,11 +37,26 @@ export class SettingsScene extends Scene {
       threeD: false,
       firstPerson: false,
       reduceMotion: false,
-      ...loadJSON(SETTINGS_KEY, {}),
+      season: 'none',
+      christmas: false,
+      halloween: false,
+      newyear: false,
+      eightBit: false,
+      ...saved,
     };
+    this.settings.season = saved.season !== undefined
+      ? SEASONS.includes(saved.season)
+        ? saved.season
+        : 'none'
+      : savedSeason;
+    this.settings.christmas = this.settings.season === 'christmas';
+    this.settings.halloween = this.settings.season === 'halloween';
+    this.settings.newyear = this.settings.season === 'newyear';
     this.game.set3D(this.settings.threeD);
     this.game.setFirstPerson(this.settings.firstPerson);
     setReducedMotion(this.settings.reduceMotion);
+    setSeason(this.settings.season);
+    set8Bit(this.settings.eightBit);
     this.menu = new SelectList(
       [
         { label: 'CO-OP TANK SELECT', action: 'coopTankSelect' },
@@ -46,6 +66,10 @@ export class SettingsScene extends Scene {
         { label: '3D MODE', action: 'threeD' },
         { label: 'FIRST PERSON MODE', action: 'firstPerson' },
         { label: 'REDUCE MOTION', action: 'reduceMotion' },
+        { label: 'CHRISTMAS MODE', action: 'christmas' },
+        { label: 'HALLOWEEN MODE', action: 'halloween' },
+        { label: 'NEW YEAR MODE', action: 'newyear' },
+        { label: '8-BIT MODE', action: 'eightBit' },
         { label: 'TRACK PLAYER', action: 'tracks' },
         { label: 'CUTSCENE THEATRE', action: 'theatre' },
         { label: 'BACK', action: 'back' },
@@ -54,7 +78,8 @@ export class SettingsScene extends Scene {
         glowColor: COLORS.bubble,
         accentColor: COLORS.accent,
         color: COLORS.text,
-        spacing: 44,
+        spacing: 27,
+        fontSize: 17,
         width: 480,
         onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
         onConfirm: (item) => this.choose(item),
@@ -96,6 +121,24 @@ export class SettingsScene extends Scene {
     this.game.audio.setVolume(next);
     this.game.audio.tone({ freq: 480 + next * 320, duration: 0.05, volume: 0.15 });
     saveJSON(SETTINGS_KEY, this.settings);
+  }
+
+  toggleSeason(key) {
+    const next = this.settings.season === key ? 'none' : key;
+    this.settings.season = next;
+    this.settings.christmas = next === 'christmas';
+    this.settings.halloween = next === 'halloween';
+    this.settings.newyear = next === 'newyear';
+    setSeason(next);
+    if (this.game.music) this.game.music.refresh();
+    saveJSON(SETTINGS_KEY, this.settings);
+    this.game.audio.tone({
+      freq: next === 'none' ? 320 : 880,
+      endFreq: next === 'none' ? 300 : 1180,
+      type: 'triangle',
+      duration: 0.18,
+      volume: 0.2,
+    });
   }
 
   choose(item) {
@@ -166,6 +209,24 @@ export class SettingsScene extends Scene {
       });
       return;
     }
+    if (item.action === 'christmas' || item.action === 'halloween' || item.action === 'newyear') {
+      this.toggleSeason(item.action);
+      return;
+    }
+    if (item.action === 'eightBit') {
+      this.settings.eightBit = !this.settings.eightBit;
+      set8Bit(this.settings.eightBit);
+      if (this.game.audio) this.game.audio.applyRetro();
+      saveJSON(SETTINGS_KEY, this.settings);
+      this.game.audio.tone({
+        freq: this.settings.eightBit ? 990 : 330,
+        endFreq: this.settings.eightBit ? 1320 : 300,
+        type: 'square',
+        duration: 0.14,
+        volume: 0.2,
+      });
+      return;
+    }
     if (item.action === 'difficulty') {
       const pointer = this.game.input.pointer;
       if (pointer.down) {
@@ -225,63 +286,36 @@ export class SettingsScene extends Scene {
 
   render(ctx) {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);
-    drawText(ctx, 'SETTINGS', LOGICAL_WIDTH / 2, 90, {
+    drawText(ctx, 'SETTINGS', LOGICAL_WIDTH / 2, 78, {
       size: 40,
       color: COLORS.text,
       glow: COLORS.bubble,
       glowBlur: 22,
     });
-    drawText(
-      ctx,
-      'CO-OP TANK SELECT — start tank-select dives with two players',
-      LOGICAL_WIDTH / 2,
-      128,
-      {
-        size: 13,
-        color: COLORS.foam,
-        alpha: 0.75,
-      },
-    );
-    drawText(
-      ctx,
-      'DIFFICULTY — SCALES ENEMY SPEED, SPAWNS, PENALTIES, AND THE CLOCK',
-      LOGICAL_WIDTH / 2,
-      150,
-      {
-        size: 13,
-        color: COLORS.foam,
-        alpha: 0.75,
-      },
-    );
-    drawText(ctx, 'VOLUME AND SFX — master audio for every sound cue', LOGICAL_WIDTH / 2, 172, {
+    const help = {
+      coopTankSelect: 'START TANK-SELECT DIVES WITH TWO PLAYERS',
+      difficulty: 'SCALES ENEMY SPEED, SPAWNS, PENALTIES, AND THE CLOCK',
+      volume: 'MASTER AUDIO VOLUME',
+      sfx: 'SOUND EFFECTS ON / OFF',
+      threeD: 'TILT THE WHOLE TANK ONTO A PERSPECTIVE PLANE',
+      firstPerson: 'THE MOUSE LOOKS AROUND A CLOSE-UP VIEW',
+      reduceMotion: 'DAMP THE HORROR TANKS\u2019 SHAKE, ZOOM, AND FLASH',
+      christmas: 'CAROL THEMES AND SLOW SINKING SNOWFLAKES',
+      halloween: 'EERIE THEMES AND DRIFTING AUTUMN LEAVES',
+      newyear: 'PARTY THEMES AND FALLING CONFETTI',
+      eightBit: 'PIXELATED 8-BIT LOOK AND CHIPTUNE SOUND',
+      tracks: 'PLAY ANY LEVEL THEME',
+      theatre: 'REPLAY ANY CUTSCENE',
+      back: 'RETURN TO THE MENU',
+    };
+    const selected = this.menu.selected;
+    drawText(ctx, (selected && help[selected.action]) || '', LOGICAL_WIDTH / 2, 122, {
       size: 13,
       color: COLORS.foam,
-      alpha: 0.75,
+      alpha: 0.85,
     });
-    drawText(
-      ctx,
-      '3D MODE — tilt the whole tank onto a perspective plane',
-      LOGICAL_WIDTH / 2,
-      194,
-      {
-        size: 13,
-        color: COLORS.foam,
-        alpha: 0.75,
-      },
-    );
-    drawText(
-      ctx,
-      'FIRST PERSON MODE — the mouse looks around a close-up view',
-      LOGICAL_WIDTH / 2,
-      216,
-      {
-        size: 13,
-        color: COLORS.foam,
-        alpha: 0.75,
-      },
-    );
 
-    const centerY = LOGICAL_HEIGHT * 0.54;
+    const centerY = LOGICAL_HEIGHT * 0.58;
     this.menu.render(ctx, LOGICAL_WIDTH / 2, centerY);
     const top = centerY - ((this.menu.items.length - 1) * this.menu.spacing) / 2;
     this.renderSwitch(ctx, CONTROLS_X, top, this.settings.coopTankSelect);
@@ -290,7 +324,17 @@ export class SettingsScene extends Scene {
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 3, this.settings.sfx);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 4, this.settings.threeD);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 5, this.settings.firstPerson);
-    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 6, {
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 6, this.settings.reduceMotion);
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 7, this.settings.christmas);
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 8, this.settings.halloween);
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 9, this.settings.newyear);
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 10, this.settings.eightBit);
+    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 11, {
+      size: 13,
+      color: COLORS.textDim,
+      alpha: 0.85,
+    });
+    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 12, {
       size: 13,
       color: COLORS.textDim,
       alpha: 0.85,

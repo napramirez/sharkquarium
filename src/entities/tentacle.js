@@ -5,6 +5,7 @@ import { LABYRINTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 export class Tentacle extends Entity {
   constructor(laneY, index, options = {}) {
     super({ x: 0, y: laneY, radius: LABYRINTH.grabRadius });
+    this.santa = true;
     this.laneY = laneY;
     this.index = index;
     this.flat3D = true;

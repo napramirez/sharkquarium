@@ -1,10 +1,12 @@
-import { Entity } from './entity.js';
+import { Entity, drawSeasonHat } from './entity.js';
+import { currentSeason } from '../engine/season.js';
 import { rand, clamp, TAU } from '../engine/math.js';
 import { EEL, EEL_VARIANTS, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
 
 export class Eel extends Entity {
   constructor(holeX, holeY, variant = 0) {
     super({ x: holeX, y: holeY, radius: EEL.radius });
+    this.santa = true;
     const palette = EEL_VARIANTS[variant % EEL_VARIANTS.length];
     this.bodyColor = palette.body;
     this.ridgeColor = palette.ridge;
@@ -261,6 +263,30 @@ export class Eel extends Entity {
 
   renderHead(ctx, x, y, heading, jawOpen) {
     drawMorayHead(ctx, x, y, heading, EEL.radius, this, jawOpen);
+  }
+
+  santaHat(ctx) {
+    if (this.state === 'hidden' || this.state === 'entering') return;
+    if (this.state === 'peeking' && this.peekProgress <= 0) return;
+    const radius = EEL.radius;
+    let hx;
+    let hy;
+    if (this.state === 'peeking' || (this.state === 'retreating' && this.trail.length < 2)) {
+      hx = this.x;
+      hy = this.y;
+    } else {
+      const head = this.trail[0];
+      if (!head) return;
+      hx = head.x;
+      hy = head.y;
+    }
+    const toHome = Math.hypot(hx - this.homeX, hy - this.homeY);
+    const fade = clamp(toHome / (radius * 1.6), 0, 1);
+    if (fade <= 0.02) return;
+    ctx.save();
+    ctx.globalAlpha *= fade;
+    drawSeasonHat(ctx, hx, hy - radius * 0.72, radius * 0.55, currentSeason());
+    ctx.restore();
   }
 }
 

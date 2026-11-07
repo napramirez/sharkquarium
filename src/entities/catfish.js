@@ -5,6 +5,7 @@ import { CATFISH, FRESHWATER, LOGICAL_HEIGHT, COLORS } from '../config.js';
 export class Catfish extends Entity {
   constructor() {
     super({ x: CATFISH.startX, y: LOGICAL_HEIGHT * 0.55, radius: CATFISH.radius });
+    this.santa = true;
     this.state = 'chase';
     this.stunTimer = 0;
     this.heading = 0;

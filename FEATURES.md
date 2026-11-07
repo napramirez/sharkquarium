@@ -185,8 +185,8 @@ Requirements:
 | LORE          | THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MINIGAMES, THE MODES       | The story codex: every character, level, and mode name with its lore; Left/Right switches sections, Up/Down steps entries (with an n/m counter), and Esc returns to the menu |
 | Shop          | COLOR picker, PLAYPASS, BACK         | Left/Right browses the color catalog; Enter buys/equips with sea coins; the playpass adds MINIGAMES to the menu |
 | Minigames     | COMPETITIONS (2P RACE), RACE (1P), TAG (2P + 5 CPU), TAG SOLO (1P + 5 CPU), PUFFERFISH DODGEBALL (2P), DODGEBALL SOLO (1P), LABYRINTH (2P), LABYRINTH SOLO (1P), PUFFER BALL (2P), PUFFER BALL VS CPU (1P), SCHOOL ROUNDUP (1P), JELLY ASCENT (1P), STEALTH DIVE (2P), STEALTH DIVE SOLO (1P), REEF CLEANUP (2P), REEF CLEANUP SOLO (1P), TRENCH DIVE (1P), TRENCH EXPLORE (1P), BOSS RUSH (1P), MUTATOR: OFF/ON, RECORDS, BACK | Listed when the competitions playpass is owned; every game has a singleplayer variant beside its two-player mode. The arcade games charge a sea-coin ticket on every entry from this menu (the bank and each price are shown); the free games never charge. BOSS RUSH chains every horror boss into one gauntlet (also ticketed), MUTATOR opens the modifier picker, and RECORDS opens the best-time board |
-| Tank select   | CO-OP: OFF/ON, REEF TANK, STINGRAY TANK, DEEP SEA TANK, ARCTIC TANK, KELP FOREST TANK, JELLY TANK, NAUTILUS TANK, FRESHWATER TANK, ABYSS TRENCH TANK, REEF SWARM QUEEN, RAYCAST TANK, MYSTERIOUSLY QUIET TANK, THE ESCAPE, THE WATCHER, THE TRENCH MOUTH, PREHISTORIC TANK, PLAYTOY EXPLORATION, PETS TANK (with playpass 3), EMPTY TANK, MUTATOR: OFF/ON, BACK | ESC or BACK returns to the menu; choosing a tank starts it immediately. ABYSS TRENCH and REEF SWARM QUEEN run boss arenas (the leviathan and the swarm queen), RAYCAST runs the first-person wreck maze, MYSTERIOUSLY QUIET is the horror stealth tank, THE ESCAPE is its standalone escape chase, THE WATCHER is the look-away horror tank, THE TRENCH MOUTH is the anchor-against-the-gulp horror tank, PREHISTORIC TANK is the playable-lungfish chase, and PLAYTOY EXPLORATION is the sunken toy-liner exploration tank (Anchor-Pack tool). MUTATOR opens the modifier picker; each tank card shows your best time/score |
-| Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, 3D MODE switch, FIRST PERSON MODE switch, REDUCE MOTION switch, TRACK PLAYER, CUTSCENE THEATRE, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD/APOCALYPTIC WIPEOUT (Left/Right or click), adjusts master volume plus SFX, renders every object and background in 3D (extruded volumes, sphere bubbles, a perspective floor) and tilts the canvas, and switches every dive and minigame to a fullscreen, pointer-locked first-person raycast view from the selected creature (diver hidden, cursor hidden, mouse looks endlessly, WASD steers, a corner minimap); REDUCE MOTION damps the horror tanks' screen shake, zoom, and flash; opens the track player or the cutscene theatre; preferences persist |
+| Tank select   | CO-OP: OFF/ON, REEF TANK, STINGRAY TANK, DEEP SEA TANK, ARCTIC TANK, KELP FOREST TANK, JELLY TANK, NAUTILUS TANK, FRESHWATER TANK, ABYSS TRENCH TANK, REEF SWARM QUEEN, RAYCAST TANK, MYSTERIOUSLY QUIET TANK, THE ESCAPE, THE WATCHER, THE TRENCH MOUTH, PREHISTORIC TANK, PLAYTOY EXPLORATION, PETS TANK (with playpass 3), EMPTY TANK, MUTATOR: OFF/ON, BACK | ESC or BACK returns to the menu; choosing a tank starts it immediately. ABYSS TRENCH and REEF SWARM QUEEN run boss arenas (the leviathan and the swarm queen), RAYCAST runs the first-person wreck maze, MYSTERIOUSLY QUIET is the horror stealth tank, THE ESCAPE is its standalone escape chase, THE WATCHER is the look-away horror tank, THE TRENCH MOUTH is the anchor-against-the-gulp horror tank, PREHISTORIC TANK is the playable-lungfish chase, and PLAYTOY EXPLORATION is the sunken toy-liner exploration tank (Anchor-Pack tool). The list is long, so it **scrolls in a fixed window** (with up/down caret hints) as you move the selection, keeping the highlighted tank always on screen. MUTATOR opens the modifier picker; each tank card shows your best time/score |
+| Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, 3D MODE switch, FIRST PERSON MODE switch, REDUCE MOTION switch, CHRISTMAS MODE switch, HALLOWEEN MODE switch, NEW YEAR MODE switch, 8-BIT MODE switch, TRACK PLAYER, CUTSCENE THEATRE, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD/APOCALYPTIC WIPEOUT (Left/Right or click), adjusts master volume plus SFX, renders every object and background in 3D (extruded volumes, sphere bubbles, a perspective floor) and tilts the canvas, and switches every dive and minigame to a fullscreen, pointer-locked first-person raycast view from the selected creature (diver hidden, cursor hidden, mouse looks endlessly, WASD steers, a corner minimap); REDUCE MOTION damps the horror tanks' screen shake, zoom, and flash; the three mutually exclusive seasonal modes swap the soundtrack, menu particles, enemy hats, cosmetics, and theatre trailers; 8-BIT MODE renders everything to a tiny blocky pixel buffer with chiptune audio; opens the track player or the cutscene theatre; preferences persist |
 | Track player  | MENU TRACK, REEF TRACK, STINGRAY TRACK, DEEP SEA TRACK, ARCTIC TRACK, KELP TRACK, PETS TRACK, JELLY TRACK, FRESHWATER TRACK, NAUTILUS TRACK, LABYRINTH TRACK, QUIET TRACK, BACK | Plays or stops any level theme through the shared sequencer; the selected track shows its mood and BPM, the playing one shows a live equalizer; ESC returns to settings and the chosen track keeps playing |
 | Cutscene theatre | GAME TRAILER, SHARKQUARIUM: THE MOVIE, ALL-TANK GAMEPLAY, TANK TRAILERS, MINIGAME TRAILERS, SHOP TRAILER, INTRO SPLASH, DESCENT: REEF, DESCENT: STINGRAY, DESCENT: DEEP SEA, DESCENT: ARCTIC, DESCENT: KELP FOREST, DESCENT: JELLY, DESCENT: NAUTILUS, DESCENT: FRESHWATER, DAWN BREAKS, LABYRINTH TRAILER, WRECK ARRIVAL, MEGASQUID ENDING, THE ESCAPE, THE RISING, BACK | Replays any cutscene on demand without reaching it in play; each cutscene returns to the theatre when skipped or finished; SHARKQUARIUM: THE MOVIE is the longest cut — every tank and minigame in one ~55 s feature — ALL-TANK GAMEPLAY cuts the whole gauntlet into one run, TANK TRAILERS opens a nested nine-tank page of three-shot cut-downs, MINIGAME TRAILERS does the same for race, tag, dodgeball, and labyrinth, SHOP TRAILER tours the shop shelves with live-cycling colors, trinkets, trails, buddies, and auras, WRECK ARRIVAL stages the divers' arrival before the MEGASQUID appears on cue, THE ESCAPE replays the flooded-lab glass-shatter finale, and THE RISING replays the megasquid tearing a wreck apart |
 | Dawn cutscene | —                                    | Plays when the freshwater goal is met; ENTER returns to the menu |
@@ -1227,6 +1227,42 @@ Palette:
 | Teleport   | Triangle 200 → 1200 Hz, 0.5 s                                      |
 | Game over  | Triangle arpeggio 392 / 523 / 659 Hz                               |
 
+**Seasonal modes** (mutually exclusive SETTINGS switches — CHRISTMAS, HALLOWEEN, NEW YEAR)
+reseason the world for the holidays:
+
+- **Music** — every looping theme is transparently replaced by a themed score, and the
+  **top-right corner names the song that is playing**:
+  - **CHRISTMAS** carols (public domain): Jingle Bells on the menu, with Deck the Halls,
+    Silent Night, We Wish You a Merry Christmas, Joy to the World, and Angels We Have Heard
+    on High through the tanks. (Twinkle Twinkle Little Star is deliberately not used.)
+  - **HALLOWEEN** originals: Haunted Drift on the menu, with Witches Waltz, Midnight Hunt,
+    and Graveyard Bells through the tanks.
+  - **NEW YEAR**: Auld Lang Syne on the menu, with Firework Finale and Countdown Party
+    through the tanks.
+  - Toggling a season swaps the track already playing immediately (no track-player detour).
+- **Menu ambient** — the rising bubbles are replaced by themed falling particles: slow
+  **snowflakes** (Christmas), drifting **autumn leaves** (Halloween), or **confetti**
+  (New Year).
+- **Enemy hats** — every enemy and boss wears a little seasonal hat (a santa hat, a witch
+  hat, or a party hat); players, collectibles, and scenery do not. The morays' hats ride
+  their heads and fade into the holes as they retreat.
+- **Free cosmetics** — Christmas: **SANTA HAT**, **REINDEER ANTLERS**, **CARROT NOSE**, and
+  the **SNOWFISH** buddy. Halloween: **WITCH HAT**, **PUMPKIN HEAD**, and the **GHOST FISH**
+  buddy. New Year: **NEW YEAR GLASSES** and the **FIREWORK FISH** buddy.
+- **Theatre trailers** — **MERRY CHRISTMAS**, **HAPPY HALLOWEEN**, and **HAPPY NEW YEAR**,
+  each a wholesome holiday greeting from the tank.
+
+**8-bit mode** (a SETTINGS switch) turns the whole game retro:
+
+- **Pixelated rendering** — the game is drawn to a tiny **256×144** buffer and blown up with
+  nearest-neighbour scaling (`imageSmoothingEnabled = false`), so text, creatures, and UI are
+  chunky blocks like an old console. Text switches to a crisp **monospace pixel font** (glow
+  blur is disabled), and the final image gets **CRT scanlines**.
+- **Chiptune audio** — every tone becomes a warm **square-wave pulse** with a soft chiptune
+  envelope, the music's hats become gentle **noise percussion**, and the master is lightly
+  band-limited (low-pass) and softly **bit-crushed** — retro character without the harsh
+  buzz; the themes stay the same but come out as chiptunes.
+
 ## 9. Test Modes
 
 `EMPTY TANK` (tank select) starts a dive with spawning disabled and a 10 second clock. It
@@ -1320,12 +1356,13 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   Because they are living pets, the shop asks you to pick a buddy (`ENTER — PICK`,
   `DIVE BUDDY PICKED`) rather than wear one.
 - AURA — a separate equip slot for full-body rings, browsed on the AURA row: the
-  PLAYPASS 5 **EEL AURA** sends three morays orbiting the diver, and eight coin auras
+  PLAYPASS 5 **EEL AURA** sends three morays orbiting the diver, and nine coin auras
   join it — **BUBBLE AURA** 180 (a ring of rising bubbles), **NEON AURA** 200 (glowing
   streaks), **STINGRAY AURA** 220 (three mini stingrays), **TRIDENT AURA** 240 (three
   pronged spears), **KARAMBIT AURA** 260 (three curved claws), **SHARK AURA** 280 (three mini
-  sharks), **SWORD AURA** 300 (three blades), and **OCTOPUS AURA** 320 (three curling
-  suckered arms). Every aura is fully removable and attachable — NONE takes the ring off
+  sharks), **SWORD AURA** 300 (three blades), **OCTOPUS AURA** 320 (three curling
+  suckered arms), and **SNOWFLAKE AURA** 200 (orbiting six-pointed snow crystals, an icy
+  halo, and drifting sparkles). Every aura is fully removable and attachable — NONE takes the ring off
   and Enter wears it again for free. The rings keep their own palettes and hue-cycle
   with RAINBOW — except the KARAMBIT AURA, whose short, curved blades and loop follow the
   diver's equipped color (the handle stays black): NATURAL gives a silver blade with a

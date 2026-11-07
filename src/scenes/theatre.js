@@ -11,6 +11,24 @@ const CUTSCENES = [
     scene: 'trailer',
   },
   {
+    label: 'MERRY CHRISTMAS',
+    blurb: 'A WHOLESOME HOLIDAY GREETING FROM THE TANK',
+    scene: 'christmastrail',
+    params: { from: 'theatre', season: 'christmas' },
+  },
+  {
+    label: 'HAPPY HALLOWEEN',
+    blurb: 'A SPOOKY HOLIDAY GREETING FROM THE TANK',
+    scene: 'christmastrail',
+    params: { from: 'theatre', season: 'halloween' },
+  },
+  {
+    label: 'HAPPY NEW YEAR',
+    blurb: 'A CONFETTI HOLIDAY GREETING FROM THE TANK',
+    scene: 'christmastrail',
+    params: { from: 'theatre', season: 'newyear' },
+  },
+  {
     label: 'INTRO SPLASH',
     blurb: 'THE STORY CARDS OVER THE AMBIENT SHARK',
     scene: 'intro',

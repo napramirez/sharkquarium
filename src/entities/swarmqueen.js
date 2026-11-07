@@ -5,6 +5,7 @@ import { SWARM_QUEEN, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js
 export class SwarmQueen extends Entity {
   constructor() {
     super({ x: LOGICAL_WIDTH / 2, y: LOGICAL_HEIGHT * 0.3, radius: SWARM_QUEEN.radius });
+    this.santa = true;
     this.maxHp = SWARM_QUEEN.health;
     this.hp = SWARM_QUEEN.health;
     this.phase = 1;

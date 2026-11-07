@@ -93,7 +93,7 @@ export class QuietScene extends MinigameScene {
     this.shop = loadJSON(SHOP_KEY, {});
     this.floodCoop = Boolean(params.coop);
     if (this.game.music) {
-      this.previousTrack = this.game.music.track;
+      this.previousTrack = this.game.music.source ?? this.game.music.track;
       this.previousHold = this.game.music.hold;
       this.game.music.play(QUIET_TRACK);
       this.game.music.hold = false;

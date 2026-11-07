@@ -566,18 +566,130 @@ export class PlayToyScene extends MinigameScene {
     ctx.strokeStyle = gate.type.color;
     ctx.lineWidth = 2.5;
     strokeRoundRect(ctx, gate.x, y, gate.w, h, 4, gate.type.color, 2.5);
-    if (!gate.open) {
-      const pulse = 0.5 + 0.5 * Math.sin(this.time * 4);
-      ctx.globalAlpha = 0.35 + pulse * 0.5;
-      fillCircle(ctx, gate.cx, gate.cy, 13, gate.type.color);
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = '#0b1418';
-      drawText(ctx, gate.type.key === 'bolt' ? 'B' : gate.type.key === 'circuit' ? '~' : 'V', gate.cx, gate.cy + 1, {
-        size: 13,
-        color: gate.type.color,
-      });
-      ctx.globalAlpha = 1;
+    const radius = Math.min(gate.w / 2 - 4, 26);
+    if (gate.type.key === 'valve') {
+      this.drawValveWheel(ctx, gate.cx, gate.cy, radius, gate.type.color, gate.open, this.time);
+    } else if (gate.type.key === 'circuit') {
+      this.drawCircuitPanel(ctx, gate.cx, gate.cy, radius, gate.type.color, gate.open, this.time);
+    } else {
+      this.drawBoltPlate(ctx, gate.cx, gate.cy, radius, gate.type.color, this.time);
     }
+    ctx.restore();
+  }
+
+  drawValveWheel(ctx, cx, cy, radius, color, open, time) {
+    const pulse = 0.5 + 0.5 * Math.sin(time * 4);
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.globalAlpha = 0.28 + pulse * 0.32;
+    fillCircle(ctx, 0, 0, radius + 10, color);
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = '#4a5f64';
+    ctx.lineWidth = 9;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(0, -radius - 26);
+    ctx.lineTo(0, radius + 26);
+    ctx.stroke();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-6, -radius - 30);
+    ctx.lineTo(6, -radius - 30);
+    ctx.moveTo(-6, radius + 30);
+    ctx.lineTo(6, radius + 30);
+    ctx.stroke();
+    ctx.rotate(time * (open ? 7 : 0.4));
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, TAU);
+    ctx.stroke();
+    ctx.lineWidth = 3;
+    for (let i = 0; i < 3; i += 1) {
+      const a = (i / 3) * Math.PI;
+      ctx.beginPath();
+      ctx.moveTo(-Math.cos(a) * radius, -Math.sin(a) * radius);
+      ctx.lineTo(Math.cos(a) * radius, Math.sin(a) * radius);
+      ctx.stroke();
+    }
+    ctx.fillStyle = color;
+    for (let i = 0; i < 6; i += 1) {
+      const a = (i / 6) * TAU;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * radius, Math.sin(a) * radius, 3, 0, TAU);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#0b1418';
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.34, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.34, 0, TAU);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  drawCircuitPanel(ctx, cx, cy, radius, color, open, time) {
+    const pulse = 0.5 + 0.5 * Math.sin(time * 6);
+    ctx.save();
+    ctx.translate(cx, cy);
+    ctx.globalAlpha = 0.28 + pulse * 0.3;
+    fillCircle(ctx, 0, 0, radius + 8, color);
+    ctx.globalAlpha = 1;
+    fillRoundRect(ctx, -radius, -radius, radius * 2, radius * 2, 8, '#101c22');
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    strokeRoundRect(ctx, -radius, -radius, radius * 2, radius * 2, 8, color, 2.5);
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(-radius * 0.6, -radius * 0.2);
+    ctx.lineTo(-radius * 0.2, -radius * 0.6);
+    ctx.lineTo(0, 0);
+    ctx.lineTo(radius * 0.2, -radius * 0.6);
+    ctx.lineTo(radius * 0.6, -radius * 0.2);
+    ctx.stroke();
+    ctx.fillStyle = color;
+    fillCircle(ctx, -radius * 0.6, radius * 0.5, 4, color);
+    fillCircle(ctx, radius * 0.6, radius * 0.5, 4, `rgba(255,255,255,${pulse})`);
+    ctx.restore();
+  }
+
+  drawBoltPlate(ctx, cx, cy, radius, color, time) {
+    ctx.save();
+    ctx.translate(cx, cy);
+    fillRoundRect(ctx, -radius, -radius, radius * 2, radius * 2, 6, '#2e3b40');
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 2.5;
+    strokeRoundRect(ctx, -radius, -radius, radius * 2, radius * 2, 6, color, 2.5);
+    ctx.fillStyle = '#8fa6ad';
+    for (const bx of [-radius * 0.62, radius * 0.62]) {
+      for (const by of [-radius * 0.62, radius * 0.62]) {
+        ctx.beginPath();
+        ctx.arc(bx, by, 4, 0, TAU);
+        ctx.fill();
+        ctx.strokeStyle = '#5b6f76';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(bx - 3.5, by);
+        ctx.lineTo(bx + 3.5, by);
+        ctx.moveTo(bx, by - 3.5);
+        ctx.lineTo(bx, by + 3.5);
+        ctx.stroke();
+        ctx.strokeStyle = color;
+      }
+    }
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 4;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-radius * 0.5, 0);
+    ctx.lineTo(radius * 0.5, 0);
+    ctx.stroke();
+    ctx.fillStyle = '#0b1418';
+    fillCircle(ctx, 0, 0, 4, '#0b1418');
     ctx.restore();
   }
 

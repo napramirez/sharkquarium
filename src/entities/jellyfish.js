@@ -5,6 +5,7 @@ import { HAZARD, LOGICAL_WIDTH, COLORS } from '../config.js';
 export class Jellyfish extends Entity {
   constructor(x, y) {
     super({ x, y, radius: HAZARD.radius });
+    this.santa = true;
     this.baseY = y;
     this.bob = rand(HAZARD.bobMin, HAZARD.bobMax);
     this.bobSpeed = rand(HAZARD.bobSpeedMin, HAZARD.bobSpeedMax);

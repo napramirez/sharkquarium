@@ -1,3 +1,5 @@
+import { is8Bit } from './retro.js';
+
 export class AudioBus {
   constructor() {
     this.context = null;
@@ -8,6 +10,23 @@ export class AudioBus {
     this.baseGain = 0.9;
     this.convolver = null;
     this.reverbWet = null;
+    this.filter = null;
+    this.crusher = null;
+    this.crushCurve = null;
+    this.pulseCache = null;
+  }
+
+  pulseWave(duty = 0.5) {
+    if (this.pulseCache) return this.pulseCache;
+    if (!this.context || typeof this.context.createPeriodicWave !== 'function') return null;
+    const harmonics = 24;
+    const real = new Float32Array(harmonics);
+    const imag = new Float32Array(harmonics);
+    for (let n = 1; n < harmonics; n += 1) {
+      imag[n] = (2 / (n * Math.PI)) * Math.sin(n * Math.PI * duty);
+    }
+    this.pulseCache = this.context.createPeriodicWave(real, imag, { disableNormalization: false });
+    return this.pulseCache;
   }
 
   setVolume(value) {
@@ -29,8 +48,33 @@ export class AudioBus {
     this.context = new AudioContextClass();
     this.master = this.context.createGain();
     this.master.gain.value = this.volume * this.baseGain;
-    this.master.connect(this.context.destination);
+    this.filter = this.context.createBiquadFilter();
+    this.filter.type = 'lowpass';
+    this.filter.Q.value = 0.6;
+    this.crusher = this.context.createWaveShaper();
+    this.master.connect(this.filter);
+    this.filter.connect(this.crusher);
+    this.crusher.connect(this.context.destination);
+    this.applyRetro();
     if (this.context.state === 'suspended') this.context.resume();
+  }
+
+  bitcrushCurve() {
+    if (this.crushCurve) return this.crushCurve;
+    const size = 1024;
+    const curve = new Float32Array(size);
+    for (let i = 0; i < size; i += 1) {
+      const x = (i / (size - 1)) * 2 - 1;
+      curve[i] = Math.round(x * 24) / 24;
+    }
+    this.crushCurve = curve;
+    return curve;
+  }
+
+  applyRetro() {
+    const on = is8Bit();
+    if (this.filter) this.filter.frequency.value = on ? 7000 : 22000;
+    if (this.crusher) this.crusher.curve = on ? this.bitcrushCurve() : null;
   }
 
   panFor(worldX, centerX, width) {
@@ -98,18 +142,31 @@ export class AudioBus {
       pan = 0,
       reverb = 0,
     } = options;
+    const waveType = is8Bit() ? 'square' : type;
     const start = this.context.currentTime + delay;
     const stop = start + duration;
+    const retro = is8Bit();
     const oscillator = this.context.createOscillator();
     const gain = this.context.createGain();
-    oscillator.type = type;
+    const pulse = retro ? this.pulseWave(0.25) : null;
+    if (pulse) oscillator.setPeriodicWave(pulse);
+    else oscillator.type = waveType;
     oscillator.frequency.setValueAtTime(freq, start);
     if (endFreq !== null) {
       oscillator.frequency.exponentialRampToValueAtTime(Math.max(1, endFreq), stop);
     }
-    gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.exponentialRampToValueAtTime(volume, start + duration * 0.12);
-    gain.gain.exponentialRampToValueAtTime(0.0001, stop);
+    if (retro) {
+      const level = volume * 0.85;
+      const attack = Math.min(0.008, duration * 0.4);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.linearRampToValueAtTime(level, start + attack);
+      gain.gain.linearRampToValueAtTime(level * 0.75, start + Math.min(duration * 0.7, attack + 0.08));
+      gain.gain.linearRampToValueAtTime(0.0001, stop);
+    } else {
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.exponentialRampToValueAtTime(volume, start + duration * 0.12);
+      gain.gain.exponentialRampToValueAtTime(0.0001, stop);
+    }
     oscillator.connect(gain);
     this.connectVoice(gain, pan, reverb);
     oscillator.start(start);

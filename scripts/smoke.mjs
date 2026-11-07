@@ -89,6 +89,16 @@ const windowStub = Object.assign(windowTarget, {
 
 const documentStub = {
   getElementById: (id) => (id === 'game' ? canvas : null),
+  createElement: (tag) =>
+    tag === 'canvas'
+      ? {
+          width: 0,
+          height: 0,
+          style: {},
+          getContext: () => drawingContext,
+          getBoundingClientRect: () => ({ left: 0, top: 0, right: 960, bottom: 540, width: 960, height: 540 }),
+        }
+      : null,
   addEventListener: noop,
   removeEventListener: noop,
   hidden: false,
@@ -310,7 +320,18 @@ async function main() {
     'the playtoy exploration tank should join the list',
   );
   assert.equal(game.scene.menu.items[18].label, 'EMPTY TANK', 'the tank list should include every tank');
-  const emptyRow = game.scene.menu.bounds[18];
+  assert.equal(game.scene.menu.visibleCount(), 11, 'the tank list should show a scrolling window');
+  game.scene.menu.setIndex(1, false);
+  assert.equal(game.scene.menu.scroll, 0, 'the first tanks should be visible at the top');
+  assert.ok(
+    game.scene.menu.bounds.some((b) => b.index === 1),
+    'the REEF tank should be reachable without scrolling',
+  );
+  game.scene.menu.setIndex(18, false);
+  await frames(1);
+  assert.ok(game.scene.menu.scroll > 0, 'reaching EMPTY TANK should scroll the list');
+  const emptyRow = game.scene.menu.bounds.find((b) => b.index === 18);
+  assert.ok(emptyRow, 'the EMPTY TANK row should be in the window');
   movePointer(emptyRow.x + emptyRow.width / 2, emptyRow.y + emptyRow.height / 2);
   await frames(2);
   assert.equal(game.scene.menu.index, 18, 'pointer hover should select EMPTY TANK in the list');
@@ -2182,6 +2203,67 @@ async function main() {
   await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
+    'christmas',
+    'settings should offer christmas mode',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.christmas, true, 'christmas mode should turn on');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.settings')).christmas,
+    true,
+    'christmas mode should persist',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.christmas, false, 'christmas mode should turn back off');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
+    'halloween',
+    'settings should offer halloween mode',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.halloween, true, 'halloween mode should turn on');
+  assert.equal(game.scene.settings.christmas, false, 'seasons should be mutually exclusive');
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.halloween, false, 'halloween mode should turn back off');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
+    'newyear',
+    'settings should offer new year mode',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.newyear, true, 'new year mode should turn on');
+  assert.equal(game.scene.settings.halloween, false, 'seasons should stay mutually exclusive');
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.newyear, false, 'new year mode should turn back off');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
+    'eightBit',
+    'settings should offer 8-bit mode',
+  );
+  await tapKey('Enter');
+  await frames(3);
+  assert.equal(game.scene.settings.eightBit, true, '8-bit mode should turn on');
+  assert.ok(game.pixelCanvas, '8-bit mode should create the low-res pixel buffer');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.settings')).eightBit,
+    true,
+    '8-bit mode should persist',
+  );
+  await tapKey('Enter');
+  await frames(3);
+  assert.equal(game.scene.settings.eightBit, false, '8-bit mode should turn back off');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
     'tracks',
     'settings should offer the track player',
   );
@@ -2255,7 +2337,7 @@ async function main() {
   await frames(30);
   assert.ok(game.music.step > heldStep, 'the held track should keep sequencing after leaving');
 
-  for (let i = 0; i < 8; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 12; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
     'theatre',
@@ -2264,9 +2346,9 @@ async function main() {
   await tapKey('Enter');
   await frames(5);
   assert.equal(game.currentSceneName, 'theatre', 'settings should open the theatre');
-  assert.equal(game.scene.menu.items.length, 22, 'the theatre should list every cutscene plus back');
+  assert.equal(game.scene.menu.items.length, 25, 'the theatre should list every cutscene plus back');
   assert.deepEqual(
-    game.scene.menu.items.slice(0, 21).map((item) => item.label),
+    game.scene.menu.items.slice(0, 24).map((item) => item.label),
     [
       'GAME TRAILER',
       'SHARKQUARIUM: THE MOVIE',
@@ -2274,6 +2356,9 @@ async function main() {
       'TANK TRAILERS',
       'MINIGAME TRAILERS',
       'SHOP TRAILER',
+      'MERRY CHRISTMAS',
+      'HAPPY HALLOWEEN',
+      'HAPPY NEW YEAR',
       'INTRO SPLASH',
       'DESCENT: REEF',
       'DESCENT: STINGRAY',
@@ -2645,10 +2730,13 @@ async function main() {
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'INTRO SPLASH',
-    'the theatre should list the intro seventh',
+    'the theatre should list the intro eighth',
   );
   await tapKey('Enter');
   await frames(5);
@@ -2658,6 +2746,9 @@ async function main() {
   await frames(5);
   assert.equal(game.currentSceneName, 'theatre', 'the intro should return to the theatre');
 
+  await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
@@ -2679,7 +2770,7 @@ async function main() {
   await frames(5);
   assert.equal(game.currentSceneName, 'theatre', 'a theatre descent should return to the theatre');
 
-  for (let i = 0; i < 15; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 18; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'DAWN BREAKS',
@@ -2693,7 +2784,7 @@ async function main() {
   await frames(5);
   assert.equal(game.currentSceneName, 'theatre', 'the dawn cutscene should return to the theatre');
 
-  for (let i = 0; i < 16; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 19; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'LABYRINTH TRAILER',
@@ -2717,7 +2808,7 @@ async function main() {
     'a theatre trailer should not count as a minigame round',
   );
 
-  for (let i = 0; i < 17; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 20; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'WRECK ARRIVAL',
@@ -2745,7 +2836,7 @@ async function main() {
     'a theatre arrival should not count as a minigame round',
   );
 
-  for (let i = 0; i < 18; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 21; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].label,
     'MEGASQUID ENDING',
@@ -3341,6 +3432,7 @@ async function main() {
     ['sharkaura', 'SHARK AURA', 280],
     ['swordaura', 'SWORD AURA', 300],
     ['octopusaura', 'OCTOPUS AURA', 320],
+    ['snowflakeaura', 'SNOWFLAKE AURA', 200],
   ]) {
     shop.coins = 400;
     await tapKey('ArrowRight');
@@ -6425,6 +6517,197 @@ async function main() {
   game.setFirstPerson(false);
   await frames(2);
 
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', christmas: true }));
+  game.changeScene('settings');
+  await frames(3);
+  game.music.stop();
+  game.changeScene('menu');
+  await frames(40);
+  assert.equal(
+    game.music.track.name,
+    'jinglebells',
+    'christmas mode should swap the menu theme for Jingle Bells',
+  );
+  assert.ok(
+    game.scene.bubbles.some((ambient) => typeof ambient.fall === 'number'),
+    'christmas mode should sink slow snowflakes instead of bubbles',
+  );
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', christmas: false }));
+  game.changeScene('settings');
+  await frames(3);
+  game.music.stop();
+  game.changeScene('menu');
+  await frames(5);
+  assert.equal(game.music.track.name, 'menu', 'leaving christmas mode should restore the menu theme');
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', christmas: true }));
+  game.changeScene('settings');
+  await frames(3);
+  game.music.stop();
+  game.changeScene('play');
+  await frames(5);
+  assert.equal(
+    game.music.track.name,
+    'deckthehalls',
+    'christmas mode should give the reef level a carol',
+  );
+  assert.equal(
+    game.music.track.title,
+    'DECK THE HALLS',
+    'the now-playing title should name the carol',
+  );
+  game.changeScene('play', { tank: 'deepsea' });
+  await frames(5);
+  assert.equal(
+    game.music.track.name,
+    'silentnight',
+    'a second level should get its own carol in christmas mode',
+  );
+
+  game.changeScene('abyss');
+  await frames(5);
+  assert.equal(game.scene.leviathan.santa, true, 'christmas enemies should wear santa hats');
+  assert.ok(!game.scene.players[0].santa, 'the diver should not wear the enemy santa hat');
+  game.changeScene('reefqueen');
+  await frames(5);
+  assert.equal(game.scene.queen.santa, true, 'bosses should wear santa hats in christmas mode');
+
+  game.changeScene('play', { tank: 'stingray' });
+  await frames(5);
+  const morayEel = game.scene.eels[0];
+  assert.ok(morayEel, 'the stingray tank should place morays');
+  assert.equal(
+    typeof morayEel.santaHat,
+    'function',
+    'morays should own a santaHat hook so the hat follows the head into the hole',
+  );
+  morayEel.state = 'hidden';
+  morayEel.santaHat(game.context);
+  morayEel.state = 'entering';
+  morayEel.santaHat(game.context);
+
+  for (const key of ['santahat', 'reindeer', 'carrot']) {
+    storage.set('sharkquarium.shop', JSON.stringify({ head: key, companion: 'snowfish' }));
+    game.changeScene('menu');
+    await frames(3);
+    assert.equal(game.scene.head.key, key, `the ${key} christmas cosmetic should exist`);
+    assert.equal(game.scene.companion.key, 'snowfish', 'the snowfish dive buddy should exist');
+  }
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', christmas: false }));
+  game.changeScene('settings');
+  await frames(3);
+  game.music.stop();
+  game.changeScene('menu');
+  await frames(5);
+  assert.equal(game.music.track.name, 'menu', 'the menu should hold the normal theme');
+  game.changeScene('settings');
+  await frames(3);
+  const christmasIdx = game.scene.menu.items.findIndex((item) => item.action === 'christmas');
+  game.scene.menu.setIndex(christmasIdx);
+  await tapKey('Enter');
+  await frames(3);
+  assert.equal(game.scene.settings.christmas, true, 'the switch should enable christmas mode');
+  assert.equal(
+    game.music.track.name,
+    'jinglebells',
+    'toggling christmas on should immediately swap the playing track without visiting the track player',
+  );
+  await tapKey('Enter');
+  await frames(3);
+  assert.equal(game.scene.settings.christmas, false, 'the switch should disable christmas mode');
+  assert.equal(
+    game.music.track.name,
+    'menu',
+    'toggling christmas off should restore the held theme',
+  );
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', christmas: true }));
+  game.changeScene('settings');
+  await frames(3);
+  game.music.stop();
+  game.changeScene('menu');
+  await frames(5);
+  game.changeScene('christmastrail');
+  await frames(5);
+  await frames(50);
+  await tapKey('Enter');
+  await frames(5);
+  game.changeScene('settings');
+  await frames(3);
+  const christmasAgain = game.scene.menu.items.findIndex((item) => item.action === 'christmas');
+  game.scene.menu.setIndex(christmasAgain);
+  await tapKey('Enter');
+  await frames(3);
+  assert.equal(game.scene.settings.christmas, false, 'the switch should disable christmas mode again');
+  assert.equal(
+    game.music.track.name,
+    'menu',
+    'turning christmas off after a seasonal scene must restore the normal menu music',
+  );
+
+  game.changeScene('theatre');
+  await frames(5);
+  const merryIdx = game.scene.menu.items.findIndex((item) => item.label === 'MERRY CHRISTMAS');
+  assert.ok(merryIdx >= 0, 'the theatre should offer the christmas trailer');
+  game.scene.menu.setIndex(merryIdx);
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(
+    game.currentSceneName,
+    'christmastrail',
+    'the christmas trailer should play from the theatre',
+  );
+  await frames(50);
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'theatre', 'the christmas trailer should return to the theatre');
+
+  for (const [season, menuSong, menuTitle, head, companion, trailer] of [
+    ['halloween', 'haunteddrift', 'HAUNTED DRIFT', 'witchhat', 'ghostfish', 'HAPPY HALLOWEEN'],
+    ['newyear', 'auldlangsyne', 'AULD LANG SYNE', 'nyglasses', 'fireworkfish', 'HAPPY NEW YEAR'],
+  ]) {
+    storage.set(
+      'sharkquarium.settings',
+      JSON.stringify({ difficulty: 'normal', season }),
+    );
+    game.changeScene('settings');
+    await frames(3);
+    assert.equal(game.scene.settings.season, season, `${season} should apply from settings`);
+    game.music.stop();
+    game.changeScene('menu');
+    await frames(5);
+    assert.equal(game.music.track.name, menuSong, `${season} should give the menu its theme`);
+    assert.equal(game.music.track.title, menuTitle, `${season} should name the playing song`);
+
+    game.changeScene('abyss');
+    await frames(5);
+    assert.equal(game.scene.leviathan.santa, true, `${season} enemies should wear seasonal hats`);
+
+    for (const key of [head, 'pumpkin', 'carrot']) {
+      storage.set('sharkquarium.shop', JSON.stringify({ head: key, companion }));
+      game.changeScene('menu');
+      await frames(3);
+      assert.equal(game.scene.head.key, key, `the ${key} cosmetic should exist`);
+      assert.equal(game.scene.companion.key, companion, `the ${companion} buddy should exist`);
+    }
+
+    game.changeScene('theatre');
+    await frames(5);
+    const idx = game.scene.menu.items.findIndex((item) => item.label === trailer);
+    assert.ok(idx >= 0, `the theatre should offer ${trailer}`);
+    game.scene.menu.setIndex(idx);
+    await tapKey('Enter');
+    await frames(5);
+    assert.equal(game.currentSceneName, 'christmastrail', `${season} trailer should play`);
+    assert.equal(game.scene.season, season, `${season} trailer should use its season`);
+    await frames(50);
+    await tapKey('Enter');
+    await frames(5);
+    assert.equal(game.currentSceneName, 'theatre', `${season} trailer should return to the theatre`);
+  }
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', season: 'none' }));
   game.changeScene('menu');
   await frames(5);
 

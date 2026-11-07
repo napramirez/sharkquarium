@@ -489,6 +489,12 @@ export const ACCESSORIES = [
   { key: 'eelscarf', label: 'EEL SCARF', cost: 140, slot: 'body' },
   { key: 'angelwings', label: 'ANGEL WINGS', cost: 220, slot: 'body' },
   { key: 'stingrayhat', label: 'STINGRAY HAT', cost: 160, slot: 'head' },
+  { key: 'santahat', label: 'SANTA HAT', cost: 0, slot: 'head' },
+  { key: 'reindeer', label: 'REINDEER ANTLERS', cost: 0, slot: 'head' },
+  { key: 'carrot', label: 'CARROT NOSE', cost: 0, slot: 'head' },
+  { key: 'witchhat', label: 'WITCH HAT', cost: 0, slot: 'head' },
+  { key: 'pumpkin', label: 'PUMPKIN HEAD', cost: 0, slot: 'head' },
+  { key: 'nyglasses', label: 'NEW YEAR GLASSES', cost: 0, slot: 'head' },
   { key: 'sharkfin', label: 'SHARK FIN DISH', cost: 130, slot: 'costume' },
   { key: 'sambalstingray', label: 'SAMBAL STINGRAY', cost: 150, slot: 'costume' },
   { key: 'grilledsquid', label: 'GRILLED SQUID', cost: 120, slot: 'costume' },
@@ -506,6 +512,7 @@ export const AURAS = [
   { key: 'sharkaura', label: 'SHARK AURA', cost: 280 },
   { key: 'swordaura', label: 'SWORD AURA', cost: 300 },
   { key: 'octopusaura', label: 'OCTOPUS AURA', cost: 320 },
+  { key: 'snowflakeaura', label: 'SNOWFLAKE AURA', cost: 200 },
 ];
 
 export const TRAILS = [
@@ -519,6 +526,9 @@ export const TRAILS = [
 
 export const COMPANIONS = [
   { key: 'none', label: 'NONE', cost: 0 },
+  { key: 'snowfish', label: 'SNOWFISH', cost: 0 },
+  { key: 'ghostfish', label: 'GHOST FISH', cost: 0 },
+  { key: 'fireworkfish', label: 'FIREWORK FISH', cost: 0 },
   { key: 'bubblepal', label: 'BUBBLE PAL', cost: 0, passOnly: true },
   { key: 'babymoray', label: 'BABY MORAY', cost: 0, passOnly: true },
   { key: 'lanternfish', label: 'LANTERN FISH', cost: 0, passOnly: true },
@@ -1406,6 +1416,22 @@ export const LORE = [
       {
         name: 'THE ANCHOR SWITCH',
         text: 'The PlayToy holds are played from just off the diver\u2019s shoulder, but the FIRST PERSON MODE switch still affects the tank like any other dive. In normal play you swap the ANCHOR-PACK\u2019s three heads with \u2018E\u2019 and aim with the pointer; the same switch that moves you into the diver\u2019s eyes moves the aim into the crosshair.',
+      },
+      {
+        name: 'CHRISTMAS MODE',
+        text: 'A festive switch that swaps every level\u2019s theme for a public-domain carol (Jingle Bells on the menu, with Deck the Halls, Silent Night, We Wish You a Merry Christmas, Joy to the World, and Angels We Have Heard on High through the tanks) and turns the menu\u2019s rising bubbles into slow sinking snowflakes. The top-right corner names the song that is playing. Every enemy and boss wears a little santa hat, and the wardrobe gains free festive gear: a SANTA HAT, REINDEER ANTLERS, a CARROT NOSE, and a SNOWFISH dive buddy. The theatre keeps a wholesome MERRY CHRISTMAS greeting.',
+      },
+      {
+        name: 'HALLOWEEN MODE',
+        text: 'A spooky switch that swaps every level\u2019s theme for an eerie original score (Haunted Drift on the menu, with Witches Waltz, Midnight Hunt, and Graveyard Bells through the tanks) and turns the menu\u2019s bubbles into drifting autumn leaves. The top-right corner names the song that is playing. Enemies wear little witch hats, and the wardrobe gains a WITCH HAT, a PUMPKIN HEAD, and a GHOST FISH buddy. The theatre keeps a HAPPY HALLOWEEN greeting.',
+      },
+      {
+        name: 'NEW YEAR MODE',
+        text: 'A celebratory switch that swaps every level\u2019s theme for a party score (Auld Lang Syne on the menu, with Firework Finale and Countdown Party through the tanks) and turns the menu\u2019s bubbles into falling confetti. The top-right corner names the song that is playing. Enemies wear little party hats, and the wardrobe gains NEW YEAR GLASSES and a FIREWORK FISH buddy. The theatre keeps a HAPPY NEW YEAR greeting.',
+      },
+      {
+        name: '8-BIT MODE',
+        text: 'A retro switch that renders the whole game to a tiny 256\u00d7144 buffer and blows it up with hard pixels, a crisp monospace pixel font, and CRT scanlines \u2014 blocky text, chunky creatures, no smoothing. The audio turns chiptune: every tone becomes a warm square-wave pulse with a soft envelope, hats become gentle noise percussion, and the mix is lightly band-limited and softly bit-crushed \u2014 retro without the earache.',
       },
     ],
   },

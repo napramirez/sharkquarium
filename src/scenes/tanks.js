@@ -61,8 +61,9 @@ export class TankSelectScene extends Scene {
         glowColor: COLORS.bubble,
         accentColor: COLORS.accent,
         color: COLORS.text,
-        spacing: 36,
-        fontSize: 20,
+        spacing: 34,
+        fontSize: 19,
+        visible: 11,
         onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
         onConfirm: (item) => this.choose(item),
       },
@@ -110,7 +111,7 @@ export class TankSelectScene extends Scene {
       glow: COLORS.bubble,
       glowBlur: 22,
     });
-    this.menu.render(ctx, LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.52);
+    this.menu.render(ctx, LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.55);
     this.renderRecords(ctx);
     drawText(ctx, 'ENTER — DIVE      ESC — BACK', LOGICAL_WIDTH / 2, LOGICAL_HEIGHT - 26, {
       size: 12,
@@ -125,20 +126,22 @@ export class TankSelectScene extends Scene {
   }
 
   renderRecords(ctx) {
-    const rows = this.menu.items.length;
-    const top = LOGICAL_HEIGHT * 0.52 - ((rows - 1) * this.menu.spacing) / 2;
-    this.menu.items.forEach((item, index) => {
-      if (item.action !== 'tank') return;
+    const count = this.menu.items.length;
+    const visible = this.menu.visibleCount();
+    const top = LOGICAL_HEIGHT * 0.55 - ((visible - 1) * this.menu.spacing) / 2;
+    for (let row = 0; row < visible; row += 1) {
+      const item = this.menu.items[this.menu.scroll + row];
+      if (item.action !== 'tank') continue;
       const mode = this.modeForParams(item.params);
-      if (!mode) return;
+      if (!mode) continue;
       const rec = formatRecord(mode);
-      if (rec === 'NO RECORD') return;
-      drawText(ctx, rec, LOGICAL_WIDTH / 2 + 210, top + this.menu.spacing * index, {
+      if (rec === 'NO RECORD') continue;
+      drawText(ctx, rec, LOGICAL_WIDTH / 2 + 210, top + this.menu.spacing * row, {
         size: 12,
         color: COLORS.bubble,
         align: 'left',
         alpha: 0.85,
       });
-    });
+    }
   }
 }

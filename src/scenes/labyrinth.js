@@ -105,7 +105,7 @@ export class LabyrinthScene extends Scene {
     this.creatureIndex2 = savedCreature2 >= 0 ? savedCreature2 : 0;
     this.creatureKey2 = DIVE_CREATURES[this.creatureIndex2].key;
     if (this.game.music) {
-      this.previousTrack = this.game.music.track;
+      this.previousTrack = this.game.music.source ?? this.game.music.track;
       this.previousHold = this.game.music.hold;
       this.game.music.play(LABYRINTH_TRACK);
       this.game.music.hold = false;

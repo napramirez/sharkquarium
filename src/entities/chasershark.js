@@ -5,6 +5,7 @@ import { NAUTILUS, LOGICAL_WIDTH, COLORS } from '../config.js';
 export class ChaserShark extends Entity {
   constructor() {
     super({ x: LOGICAL_WIDTH / 2, y: NAUTILUS.sharkStartY, radius: NAUTILUS.sharkRadius });
+    this.santa = true;
     this.state = 'chase';
     this.stunTimer = 0;
     this.heading = Math.PI / 2;

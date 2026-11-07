@@ -2,6 +2,8 @@ import { MusicPlayer } from './music.js';
 import { setMode3D, setHiddenEntity, setFirstPersonMode } from './mode3d.js';
 import { setCoinMultiplier } from './progress.js';
 import { mutatorCoinMult } from './mutators.js';
+import { drawText } from './render.js';
+import { is8Bit, PIXEL_WIDTH, PIXEL_HEIGHT } from './retro.js';
 import { FIRST_PERSON } from '../config.js';
 
 const FIRST_PERSON_SCENES = new Set([
@@ -25,7 +27,9 @@ const FIRST_PERSON_SCENES = new Set([
 ]);
 
 export const FIXED_STEP = 1 / 60;
-export const MAX_FRAME_TIME = 0.25;
+export const MAX_FRAME_TIME = 0.1;
+const MAX_STEPS = 4;
+const MAX_DPR = 1.5;
 
 export class Game {
   constructor({ canvas, width, height, input, audio = null }) {
@@ -142,14 +146,17 @@ export class Game {
     const elapsed = Math.max(0, (timestamp - this.lastTime) / 1000);
     this.lastTime = timestamp;
     this.accumulator += Math.min(elapsed, MAX_FRAME_TIME);
-    while (this.accumulator >= FIXED_STEP) {
+    let steps = 0;
+    while (this.accumulator >= FIXED_STEP && steps < MAX_STEPS) {
       this.applyPending();
       this.updateFirstPerson();
       if (this.scene) this.scene.update(FIXED_STEP);
       if (this.music) this.music.update(FIXED_STEP);
       this.input.update();
       this.accumulator -= FIXED_STEP;
+      steps += 1;
     }
+    if (steps === MAX_STEPS) this.accumulator = 0;
     this.renderFrame();
     requestAnimationFrame(this.tick);
   }
@@ -211,11 +218,56 @@ export class Game {
       const gameplay = this.firstPerson && FIRST_PERSON_SCENES.has(this.currentSceneName);
       const cursor = gameplay ? 'none' : '';
       if (this.canvas.style.cursor !== cursor) this.canvas.style.cursor = cursor;
+      const rendering = is8Bit() ? 'pixelated' : '';
+      if (this.canvas.style.imageRendering !== rendering) this.canvas.style.imageRendering = rendering;
       if (!gameplay && this.pointerLocked()) this.releasePointer();
     }
+    if (is8Bit() && this.ensurePixelBuffer()) {
+      const pctx = this.pixelContext;
+      pctx.setTransform(PIXEL_WIDTH / this.width, 0, 0, PIXEL_HEIGHT / this.height, 0, 0);
+      pctx.imageSmoothingEnabled = false;
+      pctx.fillStyle = '#04101d';
+      pctx.fillRect(0, 0, this.width, this.height);
+      this.renderScene(pctx);
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(this.pixelCanvas, 0, 0, this.canvas.width, this.canvas.height);
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.16)';
+      for (let y = 0; y < this.canvas.height; y += 3) {
+        ctx.fillRect(0, y, this.canvas.width, 1);
+      }
+      return;
+    }
+    ctx.imageSmoothingEnabled = true;
     ctx.setTransform(this.scaleX, 0, 0, this.scaleY, 0, 0);
+    this.renderScene(ctx);
+  }
+
+  renderScene(ctx) {
     if (this.scene) this.scene.render(ctx, this.width, this.height);
     if (this.scene && this.scene.renderMutatorOverlay) this.scene.renderMutatorOverlay(ctx);
+    if (this.music && this.music.track && this.music.track.title) {
+      drawText(ctx, `NOW PLAYING · ${this.music.track.title}`, this.width - 14, 14, {
+        size: 11,
+        color: '#eaf6ff',
+        align: 'right',
+        alpha: 0.92,
+        glow: 'rgba(2, 8, 14, 0.85)',
+        glowBlur: 6,
+      });
+    }
+  }
+
+  ensurePixelBuffer() {
+    if (this.pixelCanvas) return this.pixelCanvas;
+    if (typeof document === 'undefined' || typeof document.createElement !== 'function') return null;
+    const canvas = document.createElement('canvas');
+    if (!canvas || typeof canvas.getContext !== 'function') return null;
+    canvas.width = PIXEL_WIDTH;
+    canvas.height = PIXEL_HEIGHT;
+    this.pixelCanvas = canvas;
+    this.pixelContext = canvas.getContext('2d', { alpha: false });
+    return this.pixelContext ? this.pixelCanvas : null;
   }
 
   set3D(on) {
@@ -248,10 +300,15 @@ export class Game {
   }
 
   resize() {
-    const dpr = window.devicePixelRatio || 1;
     const rect = this.canvas.getBoundingClientRect();
     const cssWidth = this.canvas.clientWidth || rect.width || this.width;
     const cssHeight = this.canvas.clientHeight || rect.height || this.height;
+    const dpr = Math.min(
+      window.devicePixelRatio || 1,
+      MAX_DPR,
+      1920 / Math.max(1, cssWidth),
+      1080 / Math.max(1, cssHeight),
+    );
     const backWidth = Math.max(1, Math.round(cssWidth * dpr));
     const backHeight = Math.max(1, Math.round(cssHeight * dpr));
     if (this.canvas.width !== backWidth || this.canvas.height !== backHeight) {

@@ -184,6 +184,29 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `src/assets/tracks.js` and plays or stops any tank theme through the shared
   `MusicPlayer`; playing sets `music.hold`, so the chosen theme keeps playing after the
   player is left, until it is stopped there or a dive takes over.
+- **Seasonal modes** live in `src/engine/season.js`: `setSeason('none'|'christmas'|'halloween'|'newyear')`
+  flips a module flag (applied on boot from `SETTINGS_KEY.season` and by the mutually
+  exclusive SETTINGS switches), and `resolveSeasonTrack()` swaps any track whose `name` has
+  an entry in that season's `SEASON_TRACKS` map (`src/assets/tracks.js`) for its themed
+  song. `MusicPlayer.play()`/`refresh()` use it, and `refresh()` re-resolves the track
+  already playing so toggling a switch swaps it immediately; `MusicPlayer` keeps the
+  non-seasonal base track in `source` (and clears it on `stop()`) so turning a season off
+  restores the normal theme. `Game.renderFrame()` draws the current track's `title` as a
+  top-right `NOW PLAYING · …` label. `MenuScene.updateAmbient()` spawns
+  `src/entities/snowflake.js` with the season's `kind` (snow/leaf/confetti) instead of
+  bubbles. `Entity`'s render wrapper overlays a seasonal hat on `santa`-flagged enemies via
+  `drawSeasonHat()` (santa/witch/party), and the wardrobe gains each season's accessories
+  and companion. The theatre's MERRY CHRISTMAS / HAPPY HALLOWEEN / HAPPY NEW YEAR rows play
+  `src/scenes/christmastrail.js` with a `season` param.
+- **8-bit mode** lives in `src/engine/retro.js` (`set8Bit()`/`is8Bit()`). `Game.renderFrame()`
+  renders the scene into a fixed 256×144 offscreen canvas (`ensurePixelBuffer()`, drawn with a
+  `PIXEL_WIDTH/width` transform so scenes keep their 960×540 logical coordinates), blits it to
+  the real canvas with `imageSmoothingEnabled = false` and `image-rendering: pixelated`, then
+  overlays CRT scanlines. `drawText()` switches to a monospace pixel font and drops glow blur
+  while the flag is on. `AudioBus` reads the same flag: `unlock()` wires the master through a
+  low-pass `BiquadFilter` and a `WaveShaper` bit-crusher, `applyRetro()` sets their values,
+  `tone()` uses a warm square `createPeriodicWave` pulse with a soft envelope, and
+  `MusicPlayer` turns hats into gentle noise percussion.
 - `TheatreScene` (`theatre`, opened from SETTINGS) lists every `CUTSCENES` entry — the
   game trailer, the
   intro splash, the eight `TANK_INTROS` descents, the dawn cutscene, the labyrinth
@@ -774,13 +797,18 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
 ## 3. Game Loop and Timing
 
 - Fixed timestep: `FIXED_STEP = 1/60`; frame time is clamped to
-  `MAX_FRAME_TIME = 0.25` and fed to an accumulator, so hitches cannot produce
-  catch-up spirals.
-- Rendering happens once per animation frame after all fixed steps for that frame; no
-  interpolation between steps.
-- The canvas backs at device pixel ratio; drawing uses 960×540 logical coordinates and
-  CSS letterboxes the element. Resize is handled with `ResizeObserver` plus a window
-  resize fallback.
+  `MAX_FRAME_TIME = 0.1` and fed to an accumulator. The loop runs at most `MAX_STEPS = 4`
+  fixed steps per animation frame and drops the leftover time when it hits the cap, so a
+  slow frame cannot cascade into a catch-up spiral (the simulation briefly slows rather
+  than stuttering).
+- Rendering happens once per animation frame after the fixed steps for that frame.
+- The canvas backs at `min(devicePixelRatio, 1.5)` and is further capped to a 1920×1080
+  backing store (`Game.resize()`), so high-DPI and 4K displays do not multiply the
+  full-screen gradient fill cost. Drawing uses 960×540 logical coordinates and CSS scales
+  the element. Resize is handled with `ResizeObserver` plus a window resize fallback.
+- `engine/render.js` caches its per-frame gradients (keyed by the canvas backing size and
+  palette) and font strings, so the full-screen water/light/vignette fills do not allocate
+  new gradients every frame.
 
 ## 4. Input
 
@@ -822,7 +850,9 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
 - `SelectList` (`src/engine/selectlist.js`): keyboard navigation with wrapping, pointer
   hover selection, click-to-confirm, disabled entries, highlighted entries, and
   `onChange` / `onConfirm` callbacks. All screens use it, so navigation behavior is
-  implemented once.
+  implemented once. Passing a `visible` count turns it into a scrolling window: it keeps
+  the selected index on screen (`clampScroll`), tags each rendered `bounds` entry with its
+  `index`, and draws caret hints when items sit above or below (used by the tank select).
 - Both are canvas-drawn; there is no DOM UI, which keeps the single-file artifact
   simple.
 

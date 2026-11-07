@@ -5,6 +5,7 @@ import { PLAYTOY_TOYS } from '../config.js';
 export class LivingToy extends Entity {
   constructor(x, y, kindIndex = 0, options = {}) {
     super({ x, y, radius: options.radius ?? 22 });
+    this.santa = true;
     this.kind = PLAYTOY_TOYS[kindIndex % PLAYTOY_TOYS.length];
     this.homeX = x;
     this.homeY = y;

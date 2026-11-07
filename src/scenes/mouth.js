@@ -58,7 +58,7 @@ export class MouthScene extends MinigameScene {
     this.enemyMult = this.mutator ? this.mutator.knobs.enemySpeedScale ?? 1 : 1;
     this.shop = loadJSON(SHOP_KEY, {});
     if (this.game.music) {
-      this.previousTrack = this.game.music.track;
+      this.previousTrack = this.game.music.source ?? this.game.music.track;
       this.previousHold = this.game.music.hold;
       this.game.music.play(QUIET_TRACK);
       this.game.music.hold = false;

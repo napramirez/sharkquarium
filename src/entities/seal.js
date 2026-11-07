@@ -5,6 +5,7 @@ import { SEAL, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 export class Seal extends Entity {
   constructor(perchX, perchY) {
     super({ x: perchX, y: perchY, radius: SEAL.radius });
+    this.santa = true;
     this.perchX = perchX;
     this.perchY = perchY;
     this.state = 'perched';

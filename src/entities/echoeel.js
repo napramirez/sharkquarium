@@ -5,6 +5,7 @@ import { QUIET, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 export class Echoeel extends Entity {
   constructor() {
     super({ x: LOGICAL_WIDTH * 0.72, y: LOGICAL_HEIGHT * 0.4, radius: QUIET.radius });
+    this.santa = true;
     this.state = 'drift';
     this.stateTimer = 0;
     this.targetX = this.x;

@@ -207,6 +207,61 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   low-pass `BiquadFilter` and a `WaveShaper` bit-crusher, `applyRetro()` sets their values,
   `tone()` uses a warm square `createPeriodicWave` pulse with a soft envelope, and
   `MusicPlayer` turns hats into gentle noise percussion.
+- `TrackBuilderScene` (`trackbuilder`, opened from the track player) is a four-track
+  sequencer: a **DRUMS / BASS / SYNTH / PIANO** tab row selects an instrument whose
+  `INSTRUMENTS[i].lines` are drawn as **horizontal lines** (no grid). Clicking a line (or
+  moving the cursor with the arrows and pressing confirm) toggles a note in that
+  instrument's `tracks[key]` note list (`{ col, line, length }`); left/right arrows move a
+  column cursor and the surface scrolls (`scrollCol`) to keep it — or the playhead — in view.
+  A pointer drag (`beginDrag`/`updateDrag`/`endDrag`) stretches a note's `length` as the
+  pointer moves right, and a tap without dragging on an existing block removes it. Every
+  note also renders as a **colored outline** while another tab is active (its line mapped
+  by relative height and its step kept exact), so all four parts are visible at once. `PLAY`
+  runs a `step`/`timer` loop over all four tracks at `beat = 60 / bpm / 2`, sounding drum
+  `noise`/`tone` hits or pitched tones sustained for `length` steps. Entering stashes the
+  current track in `previousTrack` and calls `music.stop()` (silencing the held menu
+  theme); `exit()` restores it. Everything saves to `TRACK_BUILDER_KEY` as `{ bpm, tracks }`.
+- `src/engine/composer.js` owns the shared instrument data (`INSTRUMENTS`, `DRUM_SOUNDS`,
+  `COMPOSER_STEPS`/`COMPOSER_MIN_STEPS`/`COMPOSER_MAX_STEPS`, `midiToFreq`) plus
+  `loadComposer`/`saveComposer`/`composerHasNotes` and `buildCustomTrack()`, which flattens
+  the saved notes into a `byStep` array of concrete sound descriptors. The saved data is
+  `{ bpm, steps, tracks }` (the builder's **L+ / L-** change `steps`, 8–128), and
+  `MusicPlayer.update()` plays `byStep` directly when a track has `custom: true` (looping on
+  `steps`), so the TRACK PLAYER's **MY TRACK** row plays the saved song like any other theme
+  and **RUSH MY TRACK** hands it to `ReefRushScene` as a level; **EDIT MY TRACK** reopens
+  `trackbuilder`.
+- `src/engine/rushcourse.js` owns the REEF RUSH piece format
+  (`{ goal, items: [{ kind, x, h, count, base, form }] }` under `RUSH_BUILDER_KEY`): fifteen kinds
+  (`RUSH_KINDS` = shell/seaweed/ceilshell/ceilweed/rock/ceilrock/pearl/bubble/gravity/gravpad/
+  ceilgravpad/pad/ceilpad/ledge/portal)
+  with `RUSH_META` (size, ground vs air vs ceiling) and `RUSH_HEIGHTS`;
+  `rushItemRect(item, groundY, ceilingY)` turns any item into its collision/draw rect (rocks and
+  ceiling rocks use `count` for stacking, the floating **ledge** sits at any height via `h`,
+  portals use `form`, ceiling pieces hang from `ceilingY`, and a `base` offset lets a shell/weed
+  sit on top of a rock or hang under a ceiling rock). The stingray, jelly, eel, urchin, and fish
+  survive as **portal target modes only** (`RUSH_PORTAL_FORMS`), not hazards; an old save naming
+  one of them as a hazard is migrated to a `portal`. `RushBuilderScene`
+  (`rushbuilder`, opened from MINIGAMES) is the editor: arrows move a cursor, a **vertical
+  scroll list on the right** (scroll with `Q`/`E`, the **mouse wheel**, or click a row, or
+  `1`–`0`) lists the pieces (SHELL/SEAWEED/CEILING SHELL/CEILING WEED/ROCK/CEILING ROCK/PEARL/
+  PRESSURE BUBBLE/GRAVITY BUBBLE/GRAVITY BUBBLE PAD/CEILING GRAVITY BUBBLE PAD/THRUST BUBBLE
+  PAD/CEILING THRUST BUBBLE PAD/FLOATING LEDGE) then the modes
+  (STINGRAY/DART EEL/CRAB/URCHIN/JELLY/FISH), Enter/click places (a portal carries the selected
+  mode's `form`), **clicking a rock or ceiling rock again stacks it**, a **hold + vertical drag
+  resizes a piece**, `X` removes, `C` clears, `G-`/`G+` set the goal; `TEST` launches it with a
+  `fromBuilder` flag, so a crash shows a **BACK TO BUILDING** result action (and Esc returns to
+  the editor) instead of the normal minigame menu, and test runs are not recorded. All
+  edits save immediately.
+- `src/engine/rushlevels.js` holds the **original hand-authored levels** (`RUSH_LEVELS`),
+  the progress store (`RUSH_PROGRESS_KEY`, `{ beaten: [] }`), and `beatLevel()` which records
+  a first clear and adds the level's `skin` to `SHOP_KEY.owned`. `RushLevelsScene`
+  (`rushlevels`) is the **sideways-scrolling** level select (Left/Right scroll, Enter plays;
+  cards show cleared state and a `MY COURSE` card). `ReefRushScene` with `{ level }` builds
+  that level's items (via `buildItems`, offset by a start pad, constant speed); reaching the
+  goal calls `clearLevel()` → `beatLevel()` + `recordWin('reefrushlevel')` → the
+  `RushClearScene` cutscene. `ReefRushScene` with `{ course: true }` runs the player's
+  builder course instead and records under `reefrushcourse`. The game ships only its own
+  original levels; every other course is player-authored.
 - `TheatreScene` (`theatre`, opened from SETTINGS) lists every `CUTSCENES` entry — the
   game trailer, the
   intro splash, the eight `TANK_INTROS` descents, the dawn cutscene, the labyrinth
@@ -296,7 +351,52 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   the fast strike), the long body glides out of the hole behind the head — a
   `paintMorayTrail` ribbon whose span grows with `rise`, clipped at the floor lip — and
   every hole wears the stingray tank's `EEL_VARIANTS` by index (brown, olive, spotted
-  yellow). Fees live in `MINIGAME_FEES` (25–45 coins) and are charged by
+  y). `ReefRushScene` (`reefrush`, solo) is the original rhythm-runner: the reef
+  auto-scrolls (`scrollX`), the fish auto-runs at `REEF_RUSH.playerX`, and one
+  `confirm` press jumps (with coyote time and a jump buffer). Every course is a list of
+  pieces turned into obstacles: `rushItemRect()` gives each a rect, floor **rocks** and
+  ceiling **rocks** (`ceilrock`) are landed on (`count` stacks them) and the floating **ledge**
+  (`ledge`, a thin slab at any `h`) is standable, floor/ceiling shells
+  (`shell`/`ceilshell`) and weeds (`seaweed`/`ceilweed`) are lethal, pearls/bubbles/
+  gravity-bubbles are click pickups, and the **gravity bubble pads** (`gravpad`/`ceilgravpad`)
+  and **thrust bubble pads** (`pad`/`ceilpad`) trigger on **mere overlap**. Gravity is a single signed `dir`
+  (`gravityUp`) that the fish/stingray/eel/jelly physics and the floor/ceiling landings all
+  respect, so **any mode** flips cleanly.
+  **Portal** pieces switch the player's mode: `FORM_PHYSICS` gives `fish` (run/jump, default —
+  a **FISH** portal turns an transformed player back into it),
+  `stingray` (gravity + hold-to-thrust), `eel` (a 45°-ish dart at constant vertical `dart`;
+  **hold** to climb, a **short click** sets `dartTap` (~0.09 s) for a small zig, and with no
+  input it **automatically sinks back down** diagonally — it appends to
+  `dartTrail` for the trailing body), `crab` (each click
+  `flipGravity(true)` snaps it to the
+  ceiling or floor), `urchin` (`flipGravity(false)` + gravity toward `gravityUp`), and `jelly`
+  (gravity + press-only hop with a short cooldown). `enterPortal()` sets `this.form` when the
+  player overlaps a portal of a different form, and `renderPlayer()` draws each mode. The
+  **DART EEL** wears the Nautilus Tank's dart-eel head (`drawDartEelHead()`) but paints its
+  tail with the **moray eel's trail renderer** (`paintMorayTrail()` from `src/entities/eel.js`,
+  given a green dart-eel palette): the last ~34 head positions from `dartTrail` become the
+  spine, so the tapering, ridged body **trails behind the head along the path it has swum**,
+  curving through its previous turns. It draws at a **0.62 scale** (smaller); the other four
+  modes draw at **0.78 scale** so they sit comfortably inside the same hitbox.
+  The **STINGRAY** portal icon and player mode both reuse `drawStingrayBody` from
+  `src/entities/stingray.js` with the **spotted-ray** palette (`SKINS.spottedray`), so they
+  match the Stingray Tank. Air pickups are **pearls**, **pressure bubbles** — a `bubble`
+  overlap with a fresh `jumpPressed` (gated by `bubbleCooldown`) sets `player.vy = -jump*dir`
+  for a free boost that works even in mid-water — and **gravity bubbles**, whose overlap with a
+  fresh `jumpPressed` calls `flipGravity(false)` to turn gravity upside-down **in whatever mode
+  the player is in** (already upside-down, it is a no-op so a second bubble does not flip back).
+  A **gravity bubble pad** flips gravity on **touch** (toggling `gravityUp`, gated by
+  `padCooldown`), and a **thrust bubble pad** fires an automatic extra jump away from its mount
+  (`player.vy = ∓jump*1.25`) on **touch**, like a rhythm-runner jump pad.
+  Four sources feed the same loop — the **original classic course**
+  (`buildClassicCourse()` from `REEF_RUSH.course`), a **level** (`buildItems()` from
+  `RUSH_LEVELS`), **your song** (`{ custom: true }` → `buildCustomCourse()`, drums→shells,
+  bass→rocks, synth/piano→pearls), or **your hand-built course** (`{ course: true }` →
+  `buildItems()` from `RUSH_BUILDER_KEY`). All use `REEF_RUSH_TRACK` at constant speed except
+  the song mode, which plays `buildCustomTrack(composer)`. The run wins at `goalDistance`;
+  level runs go to `RushClearScene`, the others to the results screen. Only original course
+  data ships — the genre's pacing is echoed, never an existing game's layout.
+  Fees live in `MINIGAME_FEES` (25–60 coins) and are charged by
   `MinigamesScene.choose()` on every entry from the menu; `PLAY AGAIN` after a round
   stays inside the paid session.
 - `AbyssScene` (`abyss`) and `RaycastScene` (`raycast`) are the two standalone tanks in

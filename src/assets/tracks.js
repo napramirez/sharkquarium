@@ -373,6 +373,21 @@ export const COUNTDOWN_PARTY_TRACK = seasonal(
   [48, 55, 53, 55, 48, 55, 53, 48],
 );
 
+export const REEF_RUSH_TRACK = {
+  name: 'reefrush',
+  title: 'REEF RUSH',
+  beat: 60 / 150 / 2,
+  hat: true,
+  bass: [
+    45, 45, 0, 45, 41, 41, 0, 41, 43, 43, 0, 43, 40, 40, 0, 40,
+    45, 45, 0, 45, 41, 41, 0, 41, 43, 43, 0, 43, 40, 40, 0, 40,
+  ],
+  lead: [
+    69, 0, 72, 0, 76, 0, 72, 0, 74, 0, 71, 0, 69, 0, 0, 0,
+    67, 0, 71, 0, 74, 0, 71, 0, 72, 0, 69, 0, 67, 0, 0, 0,
+  ],
+};
+
 export const SEASON_TRACKS = {
   christmas: {
     menu: JINGLE_BELLS_TRACK,
@@ -418,7 +433,8 @@ export const SEASON_TRACKS = {
   },
 };
 
-export const TRACK_LIBRARY = [  { key: 'menu', label: 'MENU TRACK', blurb: 'COZY A-MINOR LULLABY — 92 BPM', track: MENU_TRACK },
+export const TRACK_LIBRARY = [
+  { key: 'menu', label: 'MENU TRACK', blurb: 'COZY A-MINOR LULLABY — 92 BPM', track: MENU_TRACK },
   { key: 'reef', label: 'REEF TRACK', blurb: 'BRIGHT C-MAJOR SAUNTER — 104 BPM', track: REEF_TRACK },
   { key: 'stingray', label: 'STINGRAY TRACK', blurb: 'WARM D-MINOR SWAY — 112 BPM', track: STINGRAY_TRACK },
   { key: 'deepsea', label: 'DEEP SEA TRACK', blurb: 'SPARSE C-MINOR DRONE — 90 BPM', track: DEEPSEA_TRACK },
@@ -430,4 +446,5 @@ export const TRACK_LIBRARY = [  { key: 'menu', label: 'MENU TRACK', blurb: 'COZY
   { key: 'nautilus', label: 'NAUTILUS TRACK', blurb: 'E-MINOR DESCENT — 96 BPM', track: NAUTILUS_TRACK },
   { key: 'labyrinth', label: 'LABYRINTH TRACK', blurb: 'MENACING D-MINOR CHASE — 138 BPM', track: LABYRINTH_TRACK },
   { key: 'quiet', label: 'QUIET TRACK', blurb: 'HORROR D-TRITONE DRONE — 64 BPM', track: QUIET_TRACK },
+  { key: 'reefrush', label: 'REEF RUSH TRACK', blurb: 'DRIVING A-MINOR REEF RUN — 150 BPM', track: REEF_RUSH_TRACK },
 ];

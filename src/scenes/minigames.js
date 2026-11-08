@@ -4,6 +4,8 @@ import { drawWater, drawText } from '../engine/render.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
 import { formatRecord } from '../engine/records.js';
 import { mutatorByKey } from '../engine/mutators.js';
+import { loadComposer, composerHasNotes } from '../engine/composer.js';
+import { loadRushCourse, rushCourseHasItems } from '../engine/rushcourse.js';
 import {
   COLORS,
   COINS,
@@ -44,6 +46,11 @@ export class MinigamesScene extends Scene {
       items.push({ label: 'REEF CLEANUP SOLO (1P)', action: 'cleanupSolo', feeKey: 'cleanup' });
       items.push({ label: 'TRENCH DIVE (1P)', action: 'trench', feeKey: 'trench' });
       items.push({ label: 'TRENCH EXPLORE (1P)', action: 'trenchexplore', feeKey: 'trenchexplore' });
+      items.push({ label: 'REEF RUSH — LEVELS', action: 'rushlevels' });
+      items.push({ label: 'REEF RUSH (1P)', action: 'reefrush', feeKey: 'reefrush' });
+      items.push({ label: 'REEF RUSH — MY TRACK (1P)', action: 'reefrushcustom', feeKey: 'reefrush' });
+      items.push({ label: 'REEF RUSH — MY COURSE (1P)', action: 'reefrushcourse', feeKey: 'reefrush' });
+      items.push({ label: 'REEF RUSH — COURSE BUILDER', action: 'rushbuilder' });
       items.push({ label: 'BOSS RUSH (1P)', action: 'bossrush', feeKey: 'bossrush' });
     }
     items.push({
@@ -87,6 +94,26 @@ export class MinigamesScene extends Scene {
       this.game.changeScene('mutators', { from: 'minigames' });
       return;
     }
+    if (item.action === 'reefrushcustom' && !composerHasNotes(loadComposer())) {
+      this.setStatus('NO NOTES YET — OPEN THE TRACK BUILDER');
+      this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.22 });
+      return;
+    }
+    if (item.action === 'rushbuilder') {
+      this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
+      this.game.changeScene('rushbuilder');
+      return;
+    }
+    if (item.action === 'rushlevels') {
+      this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
+      this.game.changeScene('rushlevels');
+      return;
+    }
+    if (item.action === 'reefrushcourse' && !rushCourseHasItems(loadRushCourse())) {
+      this.setStatus('NO COURSE YET — OPEN THE COURSE BUILDER');
+      this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.22 });
+      return;
+    }
     if (item.feeKey) {
       const fee = MINIGAME_FEES[item.feeKey];
       if (this.coins < fee) {
@@ -120,6 +147,9 @@ export class MinigamesScene extends Scene {
     else if (item.action === 'cleanupSolo') this.game.changeScene('cleanup', { solo: true, mutator });
     else if (item.action === 'trench') this.game.changeScene('trench', { mutator });
     else if (item.action === 'trenchexplore') this.game.changeScene('trenchexplore', { mutator });
+    else if (item.action === 'reefrush') this.game.changeScene('reefrush', { mutator });
+    else if (item.action === 'reefrushcustom') this.game.changeScene('reefrush', { custom: true, mutator });
+    else if (item.action === 'reefrushcourse') this.game.changeScene('reefrush', { course: true, mutator });
     else if (item.action === 'bossrush') this.game.changeScene('bossrush', { mutator });
   }
 

@@ -14,6 +14,9 @@ export const AQUARIUM_KEY = 'sharkquarium.aquarium';
 export const LABYRINTH_KEY = 'sharkquarium.labyrinth';
 export const RECORDS_KEY = 'sharkquarium.records';
 export const PLAYTOY_KEY = 'sharkquarium.playtoy';
+export const TRACK_BUILDER_KEY = 'sharkquarium.trackbuilder';
+export const RUSH_BUILDER_KEY = 'sharkquarium.rushcourse';
+export const RUSH_PROGRESS_KEY = 'sharkquarium.rushprogress';
 
 export const COINS = {
   starting: 500,
@@ -617,6 +620,7 @@ export const MINIGAME_FEES = {
   cleanup: 40,
   trench: 45,
   trenchexplore: 50,
+  reefrush: 40,
   bossrush: 60,
 };
 
@@ -659,11 +663,16 @@ export const MODE_LABELS = {
   cleanupSolo: 'REEF CLEANUP SOLO (1P)',
   trench: 'TRENCH DIVE (1P)',
   trenchexplore: 'TRENCH EXPLORE (1P)',
+  reefrush: 'REEF RUSH (1P)',
+  reefrushcustom: 'REEF RUSH — MY TRACK',
+  reefrushcourse: 'REEF RUSH — MY COURSE',
+  reefrushlevel: 'REEF RUSH — LEVEL',
 };
 
 export const SOLO_VARIANT_SCENES = ['tag', 'dodgeball', 'labyrinth', 'pufferball', 'stealth', 'cleanup'];
 
-export const RECORD_GROUPS = [  {
+export const RECORD_GROUPS = [
+  {
     title: 'THE TANKS',
     modes: ['reef', 'stingray', 'deepsea', 'arctic', 'kelp', 'jelly', 'nautilus', 'freshwater', 'pets'],
   },
@@ -675,7 +684,7 @@ export const RECORD_GROUPS = [  {
     title: 'MINIGAMES',
     modes: [
       'raceSolo', 'tagSolo', 'dodgeballSolo', 'labyrinthSolo', 'pufferballSolo', 'roundup',
-      'jellyascent', 'stealthSolo', 'cleanupSolo', 'trench', 'trenchexplore', 'bossrush',
+      'jellyascent', 'stealthSolo', 'cleanupSolo', 'trench', 'trenchexplore', 'reefrush', 'reefrushcustom', 'reefrushcourse', 'reefrushlevel', 'bossrush',
     ],
   },
 ];
@@ -1104,8 +1113,51 @@ export const CLEANUP = {
   retreatEase: 6,
 };
 
-export const LORE = [
-  {
+export const REEF_RUSH = {
+  runSpeed: 250,
+  speedRamp: 120,
+  speedRampDistance: 3200,
+  gravity: 2400,
+  jump: 760,
+  coyote: 0.09,
+  jumpBuffer: 0.12,
+  groundY: 0.8,
+  playerRadius: 16,
+  playerX: 200,
+  goalDistance: 4200,
+  shell: { baseWidth: 34, minHeight: 30, maxHeight: 92, tip: 0.6 },
+  rock: { minSize: 34, maxSize: 54 },
+  pearlChance: 0.5,
+  pearlRadius: 11,
+  motifs: ['shell', 'shellstair', 'rock', 'rockshell', 'rise'],
+  course: [
+    'shell', 'shell', 'rock', 'shellstair',
+    'shell', 'rock', 'rockshell', 'rise',
+    'shellstair', 'rock', 'shell', 'rockshell',
+    'rise', 'shellstair', 'rockshell', 'rise',
+    'shell', 'shellstair', 'rock', 'rise',
+  ],
+  difficultyScale: {
+    easy: { speed: 0.85, gap: 1.25, spike: 0.8 },
+    normal: { speed: 1, gap: 1, spike: 1 },
+    hard: { speed: 1.18, gap: 0.82, spike: 1.15 },
+    apocalyptic: { speed: 1.4, gap: 0.66, spike: 1.3 },
+  },
+  custom: {
+    loops: 3,
+    minGap: 170,
+    spikeCap: 88,
+    rockTopHeight: 0.62,
+  },
+};
+
+export const REEF_RUSH_PALETTE = {
+  top: '#08203a',
+  bottom: '#020911',
+  ray: 'rgba(120, 230, 255, 0.05)',
+};
+
+export const LORE = [  {
     title: 'THE WRECK',
     entries: [
       {
@@ -1380,6 +1432,10 @@ export const LORE = [
         name: 'TRENCH EXPLORE',
         text: 'A timeless buoyancy dive with no clock: kick up with SPACE and sink under your own weight, gathering sea coin bubbles while a surface fishing net drops and you sink beneath its reach. The trench teems with morays, crabs, octopus and squid hunting the darting shrimps, and a rainbow of stingrays you can herd into the net to unlock free colors. Clear four trenches and the MEGASQUID rises, then a chase where you round fish schools into nets to bait and wound it. Costs 50 sea coins at the door.',
       },
+      {
+        name: 'REEF RUSH',
+        text: 'An original rhythm-runner through a neon reef. One left-click jumps; the reef scrolls itself and the course is laid out on the beat of its own driving theme. Cone-shaped SHELLS and low SEAWEED are ground spikes, with matching CEILING SHELLS and CEILING WEEDS hanging from the roof; cube-shaped ROCKS are blocks you land on and can stack, and CEILING ROCKS hang from the roof the same way. PEARLS are collectibles, PRESSURE BUBBLES are air pickups \u2014 click while touching one for a free jump-boost even in mid-water \u2014 GRAVITY BUBBLES turn gravity upside-down whatever mode you are in (a second one keeps you upside-down), GRAVITY BUBBLE PADS and CEILING GRAVITY BUBBLE PADS flip gravity just by touching them (and hold it until you touch another), and THRUST BUBBLE PADS and CEILING THRUST BUBBLE PADS fire an automatic extra jump away from their surface the moment you touch them, like a rhythm-runner jump pad. FLOATING LEDGES are thin platforms you can stand on at any height from just above the floor to just under the roof. PORTALS transform you into one of six swimmer modes \u2014 FISH (a plain portal that turns you back into the normal fish), STINGRAY (hold to fly), DART EEL (the dart-eel head from the Nautilus Tank on a body that trails behind it like the moray eel, following the path it has swum; hold to climb, a short click makes a small zig, and it dives back down on its own), CRAB (each click flips gravity, snapping it to the ceiling or the floor), URCHIN (like the crab but it drifts up instead of snapping), and JELLY (tap to hop up, no holding \u2014 it sinks back, so spam the click to hover) \u2014 each with its own movement, and the fish/stingray/urchin/eel/jelly are modes only, never hazards. REEF RUSH \u2014 LEVELS is a sideways-scrolling shelf of original hand-built courses; clear one and an original cutscene plays, and each first clear unlocks a free skin. Costs 40 sea coins at the door.',
+      },
     ],
   },
   {
@@ -1432,6 +1488,14 @@ export const LORE = [
       {
         name: '8-BIT MODE',
         text: 'A retro switch that renders the whole game to a tiny 256\u00d7144 buffer and blows it up with hard pixels, a crisp monospace pixel font, and CRT scanlines \u2014 blocky text, chunky creatures, no smoothing. The audio turns chiptune: every tone becomes a warm square-wave pulse with a soft envelope, hats become gentle noise percussion, and the mix is lightly band-limited and softly bit-crushed \u2014 retro without the earache.',
+      },
+      {
+        name: 'TRACK BUILDER',
+        text: 'A little four-track sequencer reached from the TRACK PLAYER: tap the DRUMS, BASS, SYNTH, or PIANO tab and click a line to drop a tone block \u2014 higher lines are higher notes, and the bottom line is the lowest \u2014 and blocks can be stacked into chords. Left-click, hold, and drag right to stretch a block longer (a tap on an existing block removes it), and L+ stretches the whole script into a longer song. Blocks on the other tracks show through as colored outlines at the same step and height. The arrow keys slide the script side to side and PLAY loops the loop. Back in the TRACK PLAYER, MY TRACK plays or stops the saved song, RUSH MY TRACK builds a REEF RUSH level from it, and EDIT MY TRACK reopens the builder.',
+      },
+      {
+        name: 'REEF RUSH COURSE BUILDER',
+        text: 'A side-view editor for hand-building your own REEF RUSH run. Slide the cursor along the track with the arrow keys, then pick an item from the scroll-down list on the right \u2014 scroll it with Q and E, the mouse wheel, or click a row (1\u20130 also jumps to a row). The list holds the PIECES (SHELL, SEAWEED, CEILING SHELL, CEILING WEED, ROCK, CEILING ROCK, PEARL, PRESSURE BUBBLE, GRAVITY BUBBLE, GRAVITY BUBBLE PAD, CEILING GRAVITY BUBBLE PAD, THRUST BUBBLE PAD, CEILING THRUST BUBBLE PAD, FLOATING LEDGE) then the MODES (STINGRAY, DART EEL, CRAB, URCHIN, JELLY, FISH \u2014 each drops a portal that transforms you into that swimmer). Press Enter or click to place (X removes, C clears, G- and G+ stretch the goal). Click a rock or ceiling rock again to STACK it, hold and drag up or down to RESIZE a piece, and drop a shell or ceiling shell over a rock or ceiling rock to rest it on top. TEST drops you straight into your course, and ESC saves. Nothing copyrighted ships here \u2014 every course is one you drew yourself.',
       },
     ],
   },

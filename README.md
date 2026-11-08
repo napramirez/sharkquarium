@@ -158,5 +158,14 @@ gates, an anchor that bounces off hull walls, living plush toys, and a persisten
 INVENTORY), and the seasonal modes (CHRISTMAS/HALLOWEEN/NEW YEAR with their own themed
 scores and a NOW PLAYING label, themed menu particles, seasonal enemy hats, free festive
 cosmetics and buddies, and MERRY CHRISTMAS / HAPPY HALLOWEEN / HAPPY NEW YEAR theatre
-trailers), and 8-BIT MODE (a 256×144 pixelated render with chiptune audio) — so code and build regressions surface immediately. The artifact
+trailers), 8-BIT MODE (a 256×144 pixelated render with chiptune audio), and REEF RUSH (an
+original rhythm-runner with original hazards — seaweed/shell spikes on the floor and ceiling,
+stackable floor/ceiling rocks, standable floating ledges, pearls, air-boosting pressure
+bubbles, gravity bubbles and gravity bubble pads, and thrust bubble jump pads on the floor and
+ceiling — plus transformation portals that switch you into six
+swimmer modes (including a fish portal that turns you back), playable on original levels with an end cutscene and skin
+unlocks, on a course built from your own song, or you can design one by hand in the course
+builder with its scrollable item list), and the TRACK BUILDER (a stretchable
+four-track DRUMS/BASS/SYNTH/PIANO tone-block sequencer on horizontal lines, playable and
+editable as MY TRACK from the track player) — so code and build regressions surface immediately. The artifact
 is a single HTML file with no external requests and can be opened from `file://`.

@@ -72,6 +72,69 @@ lore inventory.
 - **Carol accuracy pass** — the seasonal melodies were re-sequenced to follow the real tunes
   more closely (Silent Night in proper 3/4, Joy to the World's descending scale and rising
   answer, Angels We Have Heard on High, and Auld Lang Syne), leaving Jingle Bells as-is.
+- **REEF RUSH** — an original rhythm-runner minigame (its own name, art, music, and course —
+  not a Geometry Dash clone). The reef auto-scrolls and one left-click jumps; cone-shaped
+  **shells** are spikes (resizable per placement) and cube-shaped **rocks** are landable
+  blocks, all placed on the beat of a new original track. It plays an **original
+  hand-authored course** in the classic rhythm-runner pacing (intro → single jumps → stair
+  runs → tighter block-and-shell combos), with spacing clamped so it is always clearable.
+  Collect pearls and reach the distance marker; difficulty renames the tiers
+  CALM / CHOPPY / RIPTIDE / MAELSTROM. Costs 40 sea coins.
+- **REEF RUSH — MY TRACK** — play your saved composer song as a level: its drum hits become
+  shell spikes, bass notes become rock blocks, and synth/piano notes become pearls, laid out
+  on the beat over three loops with a fairness pass so any song stays clearable. Reached from
+  the TRACK PLAYER's **RUSH MY TRACK** and the MINIGAMES menu; it banks its own
+  **REEF RUSH — MY TRACK** record.
+- **REEF RUSH — LEVELS & hazards** — a **sideways-scrolling** shelf of **original hand-built
+  courses** (Left/Right to scroll, Enter to play). Clearing one plays an **end cutscene**
+  (bubbles, confetti, level name, time, pearls) and, on the **first clear, unlocks a free
+  skin** — the more levels beaten, the more skins unlocked. REEF RUSH's hazards and pickups are
+  now **SHELL** and **SEAWEED** (ground spikes) plus matching **CEILING SHELL** and **CEILING
+  WEED** (hanging spikes), floor **ROCK** and hanging **CEILING ROCK**
+  (both stackable blocks), **PEARL** (collectible), the **PRESSURE BUBBLE** — an air pickup that
+  grants a free jump-boost when you click while touching it, even in mid-water, with a generous
+  hitbox — and the **GRAVITY BUBBLE**, which **turns gravity upside-down in whatever mode you
+  are in** (a second one keeps you upside-down), the **GRAVITY BUBBLE PAD** / **CEILING GRAVITY
+  BUBBLE PAD** that flip gravity on **mere touch** until another pad is touched, and the
+  **THRUST BUBBLE PAD** / **CEILING THRUST BUBBLE PAD** — rhythm-runner jump pads that fire an
+  automatic extra jump away from their surface when you touch them — and the **FLOATING LEDGE**,
+  a thin standable slab you can hang at any height from just above the floor to just under the
+  roof. The
+  stingray, jelly, eel, and urchin are no longer hazards: they are portal **swimmer modes** only.
+- **REEF RUSH — swimmer modes** — the portal targets now play distinctly: a **FISH** portal
+  turns a transformed player back into the plain fish, **STINGRAY**
+  (hold to fly), **DART EEL** (the Nautilus Tank's dart-eel head on a body painted with the
+  moray eel's own trail renderer, so the tail trails behind along the path it has swum; hold to
+  climb, a short click makes a small zig, and it dives back down on its own), **CRAB** (each click flips gravity, snapping between floor
+  and ceiling), **URCHIN** (like the crab but it drifts instead of snapping), and **JELLY**
+  (tap to hop, no holding — sinks back, so spam to hover). The HUD names the current mode; the
+  stingray is drawn smaller and uses the game's spotted-ray model/skin.
+- **REEF RUSH — COURSE BUILDER (expanded)** — the editor now shows a **vertical scroll-down
+  item list on the right** of the track: scroll it with `Q`/`E` or the **mouse wheel** (or click
+  a row, or press `1`–`0` to jump to a row). It lists the pieces (SHELL / SEAWEED / CEILING
+  SHELL / CEILING WEED / ROCK / CEILING ROCK / PEARL / PRESSURE BUBBLE / GRAVITY BUBBLE /
+  GRAVITY BUBBLE PAD / CEILING GRAVITY BUBBLE PAD / THRUST BUBBLE PAD / CEILING THRUST BUBBLE
+  PAD / FLOATING LEDGE) then
+  the modes (STINGRAY / DART EEL / CRAB / URCHIN / JELLY / FISH, each placing a portal with that
+  target). **Click a rock or ceiling rock again to stack
+  it**, **hold + drag up/down to resize a piece**, **drop a shell/ceiling shell over a rock or
+  ceiling rock to rest it on top**, and remove with `X`. **TEST** launches the course, and
+  crashing during a test offers **BACK TO BUILDING** on the results screen (Esc returns to the
+  editor too). Courses save to
+  `RUSH_BUILDER_KEY` and run as
+  **REEF RUSH — MY COURSE** with their own record. No third-party level data is included —
+  every course is player-authored.
+- **Track builder** — a four-track sequencer reached from the TRACK PLAYER with **DRUMS /
+  BASS / SYNTH / PIANO tabs** over a **piano-roll surface of horizontal lines** (no grid).
+  Clicking a line places a tone block (higher lines = higher notes, stackable into chords),
+  **left-clicking and dragging right stretches a block longer** (a tap removes one), blocks
+  on the other tracks show through as **colored outlines** at the same step and height, the
+  arrow keys slide the script side to side, PLAY loops it with a sweeping playhead,
+  CLEAR empties the current track, tempo is adjustable, **L+ / L- stretch the script longer or
+  shorter (8–128 steps)**, and the song saves itself. The saved
+  song is a **playable track in the TRACK PLAYER** (**MY TRACK** plays/stops it, **EDIT MY
+  TRACK** reopens the builder). The menu music goes silent while the builder is open and is
+  restored on exit.
 - **Snowflake aura** — a new shop aura that rings the diver with orbiting six-pointed snow
   crystals, a faint icy halo, and drifting sparkles (rainbow-aware like the other auras).
 - **Scrolling tank select** — the tank list is long enough to overflow the screen, so it now

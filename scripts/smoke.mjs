@@ -2277,11 +2277,11 @@ async function main() {
   );
   assert.equal(
     game.scene.menu.items.length,
-    13,
-    'the track player should list every theme plus back',
+    17,
+    'the track player should list every theme plus my track, the rush, the editor, and back',
   );
   assert.deepEqual(
-    game.scene.menu.items.slice(0, 12).map((item) => item.label),
+    game.scene.menu.items.slice(0, 16).map((item) => item.label),
     [
       'MENU TRACK',
       'REEF TRACK',
@@ -2295,6 +2295,10 @@ async function main() {
       'NAUTILUS TRACK',
       'LABYRINTH TRACK',
       'QUIET TRACK',
+      'REEF RUSH TRACK',
+      'MY TRACK',
+      'RUSH MY TRACK',
+      'EDIT MY TRACK',
     ],
     'the track player should list every theme',
   );
@@ -3647,8 +3651,8 @@ async function main() {
   await frames(5);
   assert.equal(
     game.scene.menu.items.length,
-    22,
-    'the pass should unlock every minigame plus boss rush, records, mutator, and back',
+    27,
+    'the pass should unlock every minigame plus reef rush levels/variants, the course builder, boss rush, records, mutator, and back',
   );
   assert.equal(game.scene.menu.items[2].label, 'TAG (2P + 5 CPU)', 'tag should be the third entry');
   storage.set('sharkquarium.coins', '500');
@@ -3658,8 +3662,8 @@ async function main() {
   assert.equal(paid.coins, 500, 'the minigames menu should read the coin bank');
   assert.equal(
     paid.menu.items.filter((item) => item.feeKey).length,
-    11,
-    'eleven paid entries should charge a ticket',
+    14,
+    'fourteen paid entries should charge a ticket',
   );
   paid.coins = 0;
   paid.menu.setIndex(paid.menu.items.findIndex((item) => item.action === 'pufferball'));
@@ -6706,6 +6710,485 @@ async function main() {
     await frames(5);
     assert.equal(game.currentSceneName, 'theatre', `${season} trailer should return to the theatre`);
   }
+
+  game.changeScene('reefrush', { seed: 12345 });
+  await frames(5);
+  assert.equal(game.currentSceneName, 'reefrush', 'reef rush should open');
+  let rush = game.scene;
+  assert.equal(rush.seed, 12345, 'reef rush should use the provided seed');
+  assert.ok(rush.obstacles.length >= 10, 'reef rush should lay out a designed course');
+  const firstCourseCount = rush.obstacles.length;
+  game.changeScene('reefrush', { seed: 999 });
+  await frames(5);
+  assert.equal(
+    game.scene.obstacles.length,
+    firstCourseCount,
+    'the designed course should be the same regardless of seed',
+  );
+  game.changeScene('reefrush', { seed: 12345 });
+  await frames(5);
+  rush = game.scene;
+  rush.player.onGround = true;
+  pressKey('Space');
+  await frames(2);
+  releaseKey('Space');
+  assert.ok(
+    rush.player.vy < 0 || rush.player.y < rush.groundY - rush.player.radius,
+    'jumping should lift the player',
+  );
+  rush.scrollX = 1e6;
+  await frames(3);
+  assert.equal(rush.phase, 'results', 'reaching the marker should win reef rush');
+  assert.equal(rush.won, true, 'reef rush should be a win');
+  const reefRushRecord = JSON.parse(storage.get('sharkquarium.records')).reefrush;
+  assert.ok(reefRushRecord && reefRushRecord.cleared, 'reef rush should bank a record');
+
+  game.changeScene('menu');
+  await frames(5);
+  const musicBeforeBuilder = game.music.track ? game.music.track.name : null;
+  game.changeScene('trackbuilder');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'trackbuilder', 'the track builder should open');
+  assert.equal(game.music.track, null, 'the track builder should silence the menu music');
+  const builder = game.scene;
+  assert.equal(builder.tracks.DRUMS.length, 0, 'a fresh builder should start empty');
+  builder.toggleCell(0, 0);
+  builder.toggleCell(4, 1);
+  assert.equal(builder.tracks.DRUMS.length, 2, 'clicking should place tone blocks');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.trackbuilder')).tracks.DRUMS.length,
+    2,
+    'the custom track should persist',
+  );
+  builder.game.input.pointer.down = true;
+  builder.beginDrag(155, 172);
+  builder.game.input.pointer.x = 305;
+  builder.updateDrag();
+  builder.game.input.pointer.down = false;
+  builder.endDrag();
+  const stretched = builder.tracks.DRUMS.find((note) => note.col === 0 && note.line === 0);
+  assert.ok(stretched && stretched.length === 4, 'dragging right should stretch a block');
+  builder.setLength(40);
+  assert.equal(builder.steps, 40, 'the script should stretch longer');
+  builder.toggleCell(30, 0);
+  assert.ok(
+    builder.tracks.DRUMS.some((note) => note.col === 30),
+    'blocks can be placed in the longer script',
+  );
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.trackbuilder')).steps,
+    40,
+    'the script length should persist',
+  );
+  builder.setLength(16);
+  assert.equal(builder.steps, 16, 'the script should shrink again');
+  assert.ok(
+    !builder.tracks.DRUMS.some((note) => note.col === 30),
+    'shrinking the script should drop out-of-range blocks',
+  );
+  builder.selectTab(1);
+  assert.equal(builder.inst().key, 'BASS', 'tabs should switch instruments');
+  assert.ok(
+    builder.inst().pitches[0] > builder.inst().pitches[builder.inst().pitches.length - 1],
+    'the top line should be the highest note and the bottom the lowest',
+  );
+  builder.toggleCell(2, 0);
+  assert.equal(builder.tracks.BASS.length, 1, 'each track should hold its own blocks');
+  builder.selectTab(0);
+  assert.equal(builder.inst().key, 'DRUMS', 'tabs should switch back');
+  builder.togglePlay();
+  assert.equal(builder.playing, true, 'the builder should play the custom track');
+  await frames(20);
+  assert.ok(builder.step >= 0, 'the playhead should advance');
+  builder.togglePlay();
+  assert.equal(builder.playing, false, 'the builder should stop');
+  canvasPointerDown(242, 503);
+  canvasPointerUp();
+  await frames(3);
+  assert.equal(builder.playing, true, 'clicking the PLAY button should start playback');
+  await frames(20);
+  canvasPointerDown(242, 503);
+  canvasPointerUp();
+  await frames(3);
+  assert.equal(builder.playing, false, 'clicking the PLAY button again should stop playback');
+  builder.clear();
+  assert.equal(builder.tracks.DRUMS.length, 0, 'clear should empty the current track');
+
+  game.changeScene('tracks');
+  await frames(5);
+  assert.equal(
+    game.music.track ? game.music.track.name : null,
+    musicBeforeBuilder,
+    'leaving the track builder should restore the held music',
+  );
+
+  const myTrackIdx = game.scene.menu.items.findIndex((item) => item.action === 'custom');
+  assert.ok(myTrackIdx >= 0, 'the track player should offer MY TRACK');
+  game.scene.menu.setIndex(myTrackIdx);
+  await tapKey('Enter');
+  await frames(5);
+  assert.ok(game.music.track && game.music.track.custom, 'MY TRACK should play the saved composition');
+  assert.equal(game.music.track.name, 'custom', 'the custom track should be named custom');
+  const customNotes = game.music.track.byStep.reduce((sum, step) => sum + step.length, 0);
+  assert.ok(customNotes >= 1, 'the custom track should hold the saved blocks');
+  await tapKey('Enter');
+  await frames(3);
+  assert.equal(game.music.track, null, 'pressing MY TRACK again should stop it');
+
+  game.changeScene('reefrush', { custom: true });
+  await frames(5);
+  assert.equal(game.currentSceneName, 'reefrush', 'custom reef rush should open');
+  const customRush = game.scene;
+  assert.equal(customRush.custom, true, 'custom reef rush should detect the saved song');
+  assert.ok(
+    customRush.obstacles.length > 0 || customRush.pearls.length > 0,
+    'the song should build a course',
+  );
+  assert.ok(customRush.goalDistance > 0, 'the custom course should have a goal');
+  assert.ok(game.music.track && game.music.track.custom, 'custom reef rush should play the saved song');
+  assert.equal(customRush.recordMode(), 'reefrushcustom', 'custom runs should use their own record mode');
+  customRush.scrollX = 1e6;
+  await frames(3);
+  assert.equal(customRush.phase, 'results', 'finishing the custom course should win');
+  const customRecord = JSON.parse(storage.get('sharkquarium.records')).reefrushcustom;
+  assert.ok(customRecord && customRecord.cleared, 'a custom run should bank its own record');
+
+  game.changeScene('rushbuilder');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'rushbuilder', 'the course builder should open');
+  const courseBuilder = game.scene;
+  assert.equal(courseBuilder.items.length, 0, 'a fresh course builder should be empty');
+  const rowY = (index) => 116 + index * 16 + 8;
+  canvasPointerDown(800, rowY(4));
+  canvasPointerUp();
+  await frames(3);
+  assert.equal(courseBuilder.kind(), 'rock', 'clicking the ROCK row should pick that kind');
+  canvasPointerDown(800, rowY(0));
+  canvasPointerUp();
+  await frames(3);
+  assert.equal(courseBuilder.kind(), 'shell', 'clicking the SHELL row should pick that kind');
+  courseBuilder.selectItem(0);
+  courseBuilder.cursorX = 300;
+  courseBuilder.heightIndex.shell = 2;
+  courseBuilder.place();
+  courseBuilder.selectItem(1);
+  courseBuilder.cursorX = 700;
+  courseBuilder.place();
+  courseBuilder.selectItem(2);
+  courseBuilder.cursorX = 1000;
+  courseBuilder.place();
+  assert.equal(courseBuilder.items.length, 3, 'placing should add obstacles');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.rushcourse')).items.length,
+    3,
+    'the course should persist',
+  );
+  courseBuilder.setGoal(5000);
+  assert.equal(courseBuilder.goal, 5000, 'the goal should be adjustable');
+  courseBuilder.cursorX = 1000;
+  courseBuilder.removeNear();
+  assert.equal(courseBuilder.items.length, 2, 'X should remove the obstacle under the cursor');
+  courseBuilder.selectItem(4);
+  courseBuilder.cursorX = 1500;
+  courseBuilder.heightIndex.rock = 0;
+  courseBuilder.place();
+  courseBuilder.place();
+  const stackRock = courseBuilder.items.find((it) => it.kind === 'rock' && it.x === 1500);
+  assert.ok(stackRock && stackRock.count === 2, 'placing a rock twice should stack it');
+  courseBuilder.selectItem(0);
+  courseBuilder.cursorX = 1500;
+  courseBuilder.place();
+  const shellOnRock = courseBuilder.items.find((it) => it.kind === 'shell' && it.x === 1500);
+  assert.ok(shellOnRock && shellOnRock.base > 0, 'a shell should sit on top of a rock');
+  courseBuilder.selectItem(0);
+  courseBuilder.cursorX = 1700;
+  courseBuilder.heightIndex.shell = 0;
+  courseBuilder.place();
+  const spike = courseBuilder.items.find((it) => it.kind === 'shell' && it.x === 1700);
+  const beforeH = spike.h;
+  courseBuilder.drag = { item: spike, startY: 300, startH: beforeH, moved: false, created: false };
+  courseBuilder.updateDrag(200);
+  assert.ok(spike.h > beforeH, 'dragging up should stretch a spike');
+  courseBuilder.game.input.pointer.down = false;
+  courseBuilder.endDrag();
+  courseBuilder.selectItem(14);
+  assert.equal(courseBuilder.kind(), 'portal', 'the item list should offer portals');
+  assert.equal(courseBuilder.form(), 'stingray', 'the stingray row should target the stingray form');
+  courseBuilder.selectItem(15);
+  assert.equal(courseBuilder.form(), 'eel', 'the dart eel row should target the eel form');
+  courseBuilder.selectItem(17);
+  assert.equal(courseBuilder.form(), 'urchin', 'the urchin row should target the urchin form');
+  courseBuilder.selectItem(18);
+  assert.equal(courseBuilder.form(), 'jelly', 'the jelly row should target the jelly form');
+  courseBuilder.selectItem(19);
+  assert.equal(courseBuilder.form(), 'fish', 'the fish row should target the fish form');
+  courseBuilder.selectItem(0);
+  courseBuilder.game.input.wheel = 3;
+  courseBuilder.update(1 / 60);
+  assert.equal(courseBuilder.itemIndex, 3, 'the mouse wheel should scroll the item list');
+  courseBuilder.selectItem(15);
+  courseBuilder.cursorX = 1900;
+  courseBuilder.heightIndex.portal = 0;
+  courseBuilder.place();
+  const portal = courseBuilder.items.find((it) => it.kind === 'portal');
+  assert.ok(portal && portal.form === 'eel', 'a placed portal should carry its target form');
+  courseBuilder.selectItem(7);
+  courseBuilder.cursorX = 2100;
+  courseBuilder.place();
+  const bubble = courseBuilder.items.find((it) => it.kind === 'bubble');
+  assert.ok(bubble && bubble.h >= 60, 'a pressure bubble should sit in mid-water');
+  courseBuilder.selectItem(5);
+  courseBuilder.cursorX = 800;
+  courseBuilder.heightIndex.ceilrock = 0;
+  courseBuilder.place();
+  courseBuilder.place();
+  const ceilStack = courseBuilder.items.find((it) => it.kind === 'ceilrock');
+  assert.ok(ceilStack && ceilStack.count === 2, 'ceiling rocks should stack like floor rocks');
+  courseBuilder.selectItem(2);
+  courseBuilder.cursorX = 800;
+  courseBuilder.place();
+  const ceilShellOnRock = courseBuilder.items.find((it) => it.kind === 'ceilshell' && it.x === 800 && it.base > 0);
+  assert.ok(ceilShellOnRock, 'a ceiling shell should hang under a ceiling rock');
+  courseBuilder.selectItem(2);
+  courseBuilder.cursorX = 940;
+  courseBuilder.place();
+  assert.ok(courseBuilder.items.some((it) => it.kind === 'ceilshell'), 'the builder should offer a ceiling shell');
+  courseBuilder.selectItem(3);
+  courseBuilder.cursorX = 960;
+  courseBuilder.place();
+  assert.ok(courseBuilder.items.some((it) => it.kind === 'ceilweed'), 'the builder should offer ceiling weed');
+  courseBuilder.selectItem(8);
+  courseBuilder.cursorX = 2300;
+  courseBuilder.place();
+  assert.ok(courseBuilder.items.some((it) => it.kind === 'gravity'), 'the builder should offer a gravity bubble');
+  courseBuilder.selectItem(9);
+  courseBuilder.cursorX = 2500;
+  courseBuilder.place();
+  assert.ok(courseBuilder.items.some((it) => it.kind === 'gravpad'), 'the builder should offer a gravity bubble pad');
+  courseBuilder.selectItem(10);
+  courseBuilder.cursorX = 2700;
+  courseBuilder.place();
+  assert.ok(courseBuilder.items.some((it) => it.kind === 'ceilgravpad'), 'the builder should offer a ceiling gravity bubble pad');
+  courseBuilder.selectItem(11);
+  courseBuilder.cursorX = 2900;
+  courseBuilder.place();
+  assert.ok(courseBuilder.items.some((it) => it.kind === 'pad'), 'the builder should offer a thrust bubble pad');
+  courseBuilder.selectItem(12);
+  courseBuilder.cursorX = 3100;
+  courseBuilder.place();
+  assert.ok(courseBuilder.items.some((it) => it.kind === 'ceilpad'), 'the builder should offer a ceiling thrust bubble pad');
+  courseBuilder.selectItem(13);
+  courseBuilder.cursorX = 3300;
+  courseBuilder.heightIndex.ledge = 5;
+  courseBuilder.place();
+  const ledgeItem = courseBuilder.items.find((it) => it.kind === 'ledge');
+  assert.ok(ledgeItem && ledgeItem.h === 230, 'the builder should place a floating ledge at the chosen height');
+
+  courseBuilder.testPlay();
+  await frames(5);
+  const testRun = game.scene;
+  assert.equal(testRun.fromBuilder, true, 'a builder test run should remember it came from the builder');
+  testRun.finish(false);
+  await frames(3);
+  assert.equal(testRun.phase, 'results', 'dying in a test should show the results screen');
+  assert.ok(
+    testRun.resultsMenu.items.some((item) => item.action === 'builder'),
+    'the results screen should offer BACK TO BUILDING',
+  );
+  testRun.chooseResult('builder');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'rushbuilder', 'BACK TO BUILDING should return to the editor');
+
+  game.changeScene('reefrush', { course: true });
+  await frames(5);
+  const courseRun = game.scene;
+  assert.equal(courseRun.course, true, 'the saved course should be detected');
+  assert.ok(courseRun.obstacles.length >= 1, 'the course should build obstacles from the saved items');
+  assert.equal(courseRun.recordMode(), 'reefrushcourse', 'course runs should use their own record mode');
+  const playerOffset = courseRun.player.x - courseRun.scrollX;
+  const runPortal = courseRun.items.find((it) => it.kind === 'portal');
+  assert.ok(runPortal, 'the course should carry the portal');
+  courseRun.scrollX = runPortal.x - playerOffset;
+  courseRun.player.y = courseRun.groundY - runPortal.h;
+  courseRun.player.vy = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.game.input.pressed.add('Enter');
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.form, runPortal.form, 'passing through a portal should change the player mode');
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.ok(courseRun.dartTrail.length > 0, 'the dart eel should trail a body behind it');
+  courseRun.items = [];
+  courseRun.pearls = [];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'eel';
+  courseRun.gravityUp = false;
+  courseRun.dartTap = 0;
+  courseRun.player.vy = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.ok(courseRun.player.vy > 0, 'the dart eel sinks by default');
+  courseRun.game.input.pressed.add('Enter');
+  courseRun.update(1 / 60);
+  assert.ok(courseRun.player.vy < 0, 'a single click sends the dart eel diagonally up at once');
+  courseRun.dartTap = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.ok(courseRun.player.vy > 0, 'the dart eel drops back down after the click');
+  courseRun.items = [{ kind: 'portal', form: 'fish', x: 600, h: 120, count: 1 }];
+  courseRun.pearls = [];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'eel';
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = courseRun.groundY - 120;
+  courseRun.player.vy = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.form, 'fish', 'a fish portal should turn the player back into a fish');
+  courseRun.items = [{ kind: 'bubble', x: 600, h: 120, count: 1 }];
+  courseRun.pearls = [];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.coyote = 0;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = courseRun.groundY - 120;
+  courseRun.player.vy = 200;
+  courseRun.player.onGround = false;
+  courseRun.bubbleCooldown = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.game.input.pressed.add('Enter');
+  courseRun.update(1 / 60);
+  assert.ok(courseRun.player.vy < 0, 'a pressure bubble should boost the swimmer upward on click');
+  courseRun.items = [{ kind: 'gravity', x: 600, h: 120, count: 1 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.gravityUp = false;
+  courseRun.coyote = 0;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = courseRun.groundY - 120;
+  courseRun.player.vy = 100;
+  courseRun.player.onGround = false;
+  courseRun.bubbleCooldown = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.game.input.pressed.add('Enter');
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.gravityUp, true, 'a gravity bubble should flip gravity whatever the mode');
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.ok(courseRun.player.vy < 0, 'gravity should now pull the swimmer toward the ceiling');
+  courseRun.items = [{ kind: 'gravity', x: 600, h: 120, count: 1 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = courseRun.groundY - 120;
+  courseRun.bubbleCooldown = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.game.input.pressed.add('Enter');
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.gravityUp, true, 'a second gravity bubble should keep the player upside down');
+  courseRun.items = [{ kind: 'gravpad', x: 600, h: 20, count: 1 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.gravityUp = false;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = courseRun.groundY - courseRun.player.radius;
+  courseRun.player.vy = 0;
+  courseRun.padCooldown = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.gravityUp, true, 'a gravity bubble pad should flip gravity on mere touch');
+  courseRun.padCooldown = 0;
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.gravityUp, false, 'touching another gravity bubble pad should flip it back');
+  courseRun.items = [{ kind: 'pad', x: 600, h: 20, count: 1 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.gravityUp = false;
+  courseRun.coyote = 0;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = courseRun.groundY - courseRun.player.radius;
+  courseRun.player.vy = 0;
+  courseRun.padCooldown = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.ok(courseRun.player.vy < 0, 'a thrust pad should launch the swimmer up on mere touch');
+  courseRun.items = [{ kind: 'ceilpad', x: 600, h: 20, count: 1 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.gravityUp = true;
+  courseRun.coyote = 0;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = courseRun.player.radius;
+  courseRun.player.vy = 0;
+  courseRun.padCooldown = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.ok(courseRun.player.vy > 0, 'a ceiling thrust pad should launch the swimmer down on mere touch');
+  courseRun.items = [{ kind: 'ledge', x: 600, h: 200, count: 1 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.gravityUp = false;
+  courseRun.coyote = 0;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = 205;
+  courseRun.player.vy = 260;
+  courseRun.player.onGround = false;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.ok(
+    courseRun.player.onGround && courseRun.player.y < courseRun.groundY - 100,
+    'a floating ledge should be standable at its height',
+  );
+  courseRun.form = 'crab';
+  courseRun.gravityUp = false;
+  courseRun.flipGravity(true);
+  assert.equal(courseRun.player.y, courseRun.player.radius, 'a crab click should flip it onto the ceiling');
+  courseRun.flipGravity(true);
+  assert.equal(courseRun.player.y, courseRun.groundY - courseRun.player.radius, 'a second crab click should send it back down');
+  courseRun.scrollX = 1e6;
+  await frames(3);
+  assert.equal(courseRun.phase, 'results', 'finishing the course should win');
+  const courseRecord = JSON.parse(storage.get('sharkquarium.records')).reefrushcourse;
+  assert.ok(courseRecord && courseRecord.cleared, 'a course run should bank its own record');
+
+  storage.set('sharkquarium.shop', JSON.stringify({ passes: ['playpass1'] }));
+  game.changeScene('minigames');
+  await frames(5);
+  assert.ok(
+    game.scene.menu.items.some((item) => item.action === 'rushbuilder'),
+    'the minigames menu should offer the course builder',
+  );
+
+  game.changeScene('rushlevels');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'rushlevels', 'the level select should open');
+  const levelSelect = game.scene;
+  assert.ok(levelSelect.cards.length >= 6, 'the level select should list the levels plus my course');
+  levelSelect.index = 1;
+  levelSelect.choose(levelSelect.cards[1]);
+  await frames(5);
+  assert.equal(game.currentSceneName, 'reefrush', 'choosing a level should start it');
+  const levelRun = game.scene;
+  assert.equal(levelRun.level && levelRun.level.id, 'kelp', 'the chosen level should load');
+  assert.ok(levelRun.obstacles.length + levelRun.pearls.length > 0, 'the level should build a course');
+  levelRun.distance = levelRun.goalDistance;
+  levelRun.scrollX = levelRun.goalDistance;
+  await frames(3);
+  assert.equal(game.currentSceneName, 'rushclear', 'finishing a level should play the end cutscene');
+  assert.equal(game.scene.name, 'KELP CROSSING', 'the cutscene should name the level');
+  assert.ok(
+    JSON.parse(storage.get('sharkquarium.rushprogress')).beaten.includes('kelp'),
+    'beating a level should record progress',
+  );
+  assert.ok(
+    JSON.parse(storage.get('sharkquarium.shop')).owned.includes('tigerray'),
+    'beating a level should unlock its skin',
+  );
+  await frames(120);
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'rushlevels', 'the cutscene should return to the level select');
+  assert.ok(levelSelect.cards, 'the level select should still be available');
 
   storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', season: 'none' }));
   game.changeScene('menu');

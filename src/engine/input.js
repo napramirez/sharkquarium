@@ -22,6 +22,10 @@ export const DEFAULT_BINDINGS = {
   tool: ['KeyF', POINTER_SECONDARY],
   cycleAnchor: ['KeyE'],
   inventory: ['KeyI', 'Tab'],
+  play: ['KeyP'],
+  clear: ['KeyC'],
+  tempoDown: ['BracketLeft'],
+  tempoUp: ['BracketRight'],
 };
 
 export class Input {
@@ -31,6 +35,7 @@ export class Input {
     this.pressed = new Set();
     this.released = new Set();
     this.pointer = { x: 0, y: 0, down: false, moved: false, originX: 0, originY: 0, dragX: 0, dragY: 0, button: 0, lookDX: 0, lookDY: 0 };
+    this.wheel = 0;
     this.canvas = null;
     this.viewWidth = 0;
     this.viewHeight = 0;
@@ -42,6 +47,7 @@ export class Input {
     this.handlePointerDown = this.handlePointerDown.bind(this);
     this.handlePointerUp = this.handlePointerUp.bind(this);
     this.handleContextMenu = this.handleContextMenu.bind(this);
+    this.handleWheel = this.handleWheel.bind(this);
     this.handleBlur = this.handleBlur.bind(this);
 
     window.addEventListener('keydown', this.handleKeyDown);
@@ -58,6 +64,7 @@ export class Input {
     canvas.addEventListener('pointermove', this.handlePointerMove);
     canvas.addEventListener('pointerdown', this.handlePointerDown);
     canvas.addEventListener('contextmenu', this.handleContextMenu);
+    canvas.addEventListener('wheel', this.handleWheel, { passive: false });
   }
 
   isDown(action) {
@@ -76,6 +83,7 @@ export class Input {
     this.pressed.clear();
     this.released.clear();
     this.pointer.moved = false;
+    this.wheel = 0;
   }
 
   destroy() {
@@ -88,6 +96,7 @@ export class Input {
       this.canvas.removeEventListener('pointermove', this.handlePointerMove);
       this.canvas.removeEventListener('pointerdown', this.handlePointerDown);
       this.canvas.removeEventListener('contextmenu', this.handleContextMenu);
+      this.canvas.removeEventListener('wheel', this.handleWheel);
     }
   }
 
@@ -125,6 +134,11 @@ export class Input {
 
   handleContextMenu(event) {
     event.preventDefault();
+  }
+
+  handleWheel(event) {
+    event.preventDefault();
+    this.wheel += Math.sign(event.deltaY);
   }
 
   handlePointerUp() {

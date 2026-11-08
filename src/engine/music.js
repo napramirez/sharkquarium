@@ -53,6 +53,30 @@ export class MusicPlayer {
     if (this.timer > 0) return;
     this.timer += this.track.beat;
     if (this.timer <= 0) this.timer = this.track.beat;
+    if (this.track.custom) {
+      const index = this.step % (this.track.steps || 1);
+      this.step += 1;
+      for (const note of this.track.byStep[index] ?? []) {
+        if (note.kind === 'noise') {
+          this.audio.noise({
+            duration: note.duration,
+            volume: note.volume,
+            type: note.type,
+            filterFreq: note.filterFreq,
+            q: note.q,
+          });
+        } else {
+          this.audio.tone({
+            freq: note.freq,
+            endFreq: note.endFreq ?? null,
+            type: note.type,
+            duration: note.duration,
+            volume: note.volume,
+          });
+        }
+      }
+      return;
+    }
     const index = this.step % this.track.bass.length;
     this.step += 1;
     const { bass, lead } = this.track;

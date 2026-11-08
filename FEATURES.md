@@ -184,10 +184,10 @@ Requirements:
 | Main menu     | START DIVE, CHOOSE TANK, CO-OP DIVE (2P), MINIGAMES (with playpass 1), PETS TANK (with playpass 3), ENDLESS DIVE (with playpass 4), AQUARIUM BUILDER (with playpass 9), SHOP, SETTINGS, HOW TO PLAY, LORE | Story blurb, best score, and sea-coin balance above the list; HOW TO PLAY opens an overlay closed with Enter or Esc |
 | LORE          | THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MINIGAMES, THE MODES       | The story codex: every character, level, and mode name with its lore; Left/Right switches sections, Up/Down steps entries (with an n/m counter), and Esc returns to the menu |
 | Shop          | COLOR picker, PLAYPASS, BACK         | Left/Right browses the color catalog; Enter buys/equips with sea coins; the playpass adds MINIGAMES to the menu |
-| Minigames     | COMPETITIONS (2P RACE), RACE (1P), TAG (2P + 5 CPU), TAG SOLO (1P + 5 CPU), PUFFERFISH DODGEBALL (2P), DODGEBALL SOLO (1P), LABYRINTH (2P), LABYRINTH SOLO (1P), PUFFER BALL (2P), PUFFER BALL VS CPU (1P), SCHOOL ROUNDUP (1P), JELLY ASCENT (1P), STEALTH DIVE (2P), STEALTH DIVE SOLO (1P), REEF CLEANUP (2P), REEF CLEANUP SOLO (1P), TRENCH DIVE (1P), TRENCH EXPLORE (1P), BOSS RUSH (1P), MUTATOR: OFF/ON, RECORDS, BACK | Listed when the competitions playpass is owned; every game has a singleplayer variant beside its two-player mode. The arcade games charge a sea-coin ticket on every entry from this menu (the bank and each price are shown); the free games never charge. BOSS RUSH chains every horror boss into one gauntlet (also ticketed), MUTATOR opens the modifier picker, and RECORDS opens the best-time board |
+| Minigames     | COMPETITIONS (2P RACE), RACE (1P), TAG (2P + 5 CPU), TAG SOLO (1P + 5 CPU), PUFFERFISH DODGEBALL (2P), DODGEBALL SOLO (1P), LABYRINTH (2P), LABYRINTH SOLO (1P), PUFFER BALL (2P), PUFFER BALL VS CPU (1P), SCHOOL ROUNDUP (1P), JELLY ASCENT (1P), STEALTH DIVE (2P), STEALTH DIVE SOLO (1P), REEF CLEANUP (2P), REEF CLEANUP SOLO (1P), TRENCH DIVE (1P), TRENCH EXPLORE (1P), REEF RUSH — LEVELS, REEF RUSH (1P), REEF RUSH — MY TRACK (1P), REEF RUSH — MY COURSE (1P), REEF RUSH — COURSE BUILDER, BOSS RUSH (1P), MUTATOR: OFF/ON, RECORDS, BACK | Listed when the competitions playpass is owned; every game has a singleplayer variant beside its two-player mode. The arcade games charge a sea-coin ticket on every entry from this menu (the bank and each price are shown); the free games never charge. REEF RUSH is the original rhythm-runner (one-click jump, cone-shell spikes, cube-rock blocks, an original hand-authored course in the classic rhythm-runner pacing), REEF RUSH — MY TRACK runs it on a course built from the player's saved composer song, REEF RUSH — LEVELS is a sideways-scrolling shelf of original hand-built levels (each first clear plays an end cutscene and unlocks a free skin), REEF RUSH — MY COURSE runs a hand-built course and COURSE BUILDER is its editor, BOSS RUSH chains every horror boss into one gauntlet (also ticketed), MUTATOR opens the modifier picker, and RECORDS opens the best-time board |
 | Tank select   | CO-OP: OFF/ON, REEF TANK, STINGRAY TANK, DEEP SEA TANK, ARCTIC TANK, KELP FOREST TANK, JELLY TANK, NAUTILUS TANK, FRESHWATER TANK, ABYSS TRENCH TANK, REEF SWARM QUEEN, RAYCAST TANK, MYSTERIOUSLY QUIET TANK, THE ESCAPE, THE WATCHER, THE TRENCH MOUTH, PREHISTORIC TANK, PLAYTOY EXPLORATION, PETS TANK (with playpass 3), EMPTY TANK, MUTATOR: OFF/ON, BACK | ESC or BACK returns to the menu; choosing a tank starts it immediately. ABYSS TRENCH and REEF SWARM QUEEN run boss arenas (the leviathan and the swarm queen), RAYCAST runs the first-person wreck maze, MYSTERIOUSLY QUIET is the horror stealth tank, THE ESCAPE is its standalone escape chase, THE WATCHER is the look-away horror tank, THE TRENCH MOUTH is the anchor-against-the-gulp horror tank, PREHISTORIC TANK is the playable-lungfish chase, and PLAYTOY EXPLORATION is the sunken toy-liner exploration tank (Anchor-Pack tool). The list is long, so it **scrolls in a fixed window** (with up/down caret hints) as you move the selection, keeping the highlighted tank always on screen. MUTATOR opens the modifier picker; each tank card shows your best time/score |
 | Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, 3D MODE switch, FIRST PERSON MODE switch, REDUCE MOTION switch, CHRISTMAS MODE switch, HALLOWEEN MODE switch, NEW YEAR MODE switch, 8-BIT MODE switch, TRACK PLAYER, CUTSCENE THEATRE, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD/APOCALYPTIC WIPEOUT (Left/Right or click), adjusts master volume plus SFX, renders every object and background in 3D (extruded volumes, sphere bubbles, a perspective floor) and tilts the canvas, and switches every dive and minigame to a fullscreen, pointer-locked first-person raycast view from the selected creature (diver hidden, cursor hidden, mouse looks endlessly, WASD steers, a corner minimap); REDUCE MOTION damps the horror tanks' screen shake, zoom, and flash; the three mutually exclusive seasonal modes swap the soundtrack, menu particles, enemy hats, cosmetics, and theatre trailers; 8-BIT MODE renders everything to a tiny blocky pixel buffer with chiptune audio; opens the track player or the cutscene theatre; preferences persist |
-| Track player  | MENU TRACK, REEF TRACK, STINGRAY TRACK, DEEP SEA TRACK, ARCTIC TRACK, KELP TRACK, PETS TRACK, JELLY TRACK, FRESHWATER TRACK, NAUTILUS TRACK, LABYRINTH TRACK, QUIET TRACK, BACK | Plays or stops any level theme through the shared sequencer; the selected track shows its mood and BPM, the playing one shows a live equalizer; ESC returns to settings and the chosen track keeps playing |
+| Track player  | MENU TRACK, REEF TRACK, STINGRAY TRACK, DEEP SEA TRACK, ARCTIC TRACK, KELP TRACK, PETS TRACK, JELLY TRACK, FRESHWATER TRACK, NAUTILUS TRACK, LABYRINTH TRACK, QUIET TRACK, REEF RUSH TRACK, MY TRACK, RUSH MY TRACK, EDIT MY TRACK, BACK | Plays or stops any level theme through the shared sequencer; the selected track shows its mood and BPM, the playing one shows a live equalizer; MY TRACK plays (or stops) the saved composition, RUSH MY TRACK runs REEF RUSH on a course built from it, and EDIT MY TRACK opens the builder; ESC returns to settings and the chosen track keeps playing |
 | Cutscene theatre | GAME TRAILER, SHARKQUARIUM: THE MOVIE, ALL-TANK GAMEPLAY, TANK TRAILERS, MINIGAME TRAILERS, SHOP TRAILER, INTRO SPLASH, DESCENT: REEF, DESCENT: STINGRAY, DESCENT: DEEP SEA, DESCENT: ARCTIC, DESCENT: KELP FOREST, DESCENT: JELLY, DESCENT: NAUTILUS, DESCENT: FRESHWATER, DAWN BREAKS, LABYRINTH TRAILER, WRECK ARRIVAL, MEGASQUID ENDING, THE ESCAPE, THE RISING, BACK | Replays any cutscene on demand without reaching it in play; each cutscene returns to the theatre when skipped or finished; SHARKQUARIUM: THE MOVIE is the longest cut — every tank and minigame in one ~55 s feature — ALL-TANK GAMEPLAY cuts the whole gauntlet into one run, TANK TRAILERS opens a nested nine-tank page of three-shot cut-downs, MINIGAME TRAILERS does the same for race, tag, dodgeball, and labyrinth, SHOP TRAILER tours the shop shelves with live-cycling colors, trinkets, trails, buddies, and auras, WRECK ARRIVAL stages the divers' arrival before the MEGASQUID appears on cue, THE ESCAPE replays the flooded-lab glass-shatter finale, and THE RISING replays the megasquid tearing a wreck apart |
 | Dawn cutscene | —                                    | Plays when the freshwater goal is met; ENTER returns to the menu |
 | Labyrinth arrival | —                                 | Plays once after the labyrinth picker and replays from the theatre: all seven playable creatures swim in to the sunken liner, then the MEGASQUID rises out of the dark and its glowing yellow eye locks onto them; ENTER skips straight into the part |
@@ -1186,6 +1186,23 @@ Palette:
   ends when you stop it in the player or start a dive, which takes over with that tank's
   own theme.
 
+The **TRACK BUILDER** (a row in the track player) is a small four-track sequencer with
+**DRUMS / BASS / SYNTH / PIANO tabs** above a **piano-roll surface of horizontal lines**
+(one line per note or drum, no grid). Clicking a line places or removes a **tone block**
+(higher lines are higher notes, and blocks can be stacked into chords); **left-click, hold,
+and drag right stretches a block longer** (a tap on an existing block removes it). Blocks
+placed on the **other tracks show through as colored outlines** at the same step and height,
+so you can line the parts up. The
+**arrow keys slide the script side to side**, with a sweeping playhead while **PLAY** loops
+it. Each
+track holds its own blocks, **CLEAR** empties the current one, tempo is adjustable
+(60–200 BPM), and the whole song saves to `TRACK_BUILDER_KEY`. **L+ / L- stretch the script
+longer or shorter** (8–128 steps), so you can build a longer song. The saved song is a
+**playable track in the TRACK PLAYER**: the **MY TRACK** row plays or stops it (through the
+shared `MusicPlayer`), and **EDIT MY TRACK** reopens the builder. The menu music **goes
+silent** while the builder is open (restored when you leave) so you can hear only your own
+loop.
+
 | Cue        | Shape                                                              |
 | ---------- | ------------------------------------------------------------------ |
 | UI confirm | Sine 300 → 620 Hz, 0.14–0.16 s (menu choices, pause actions, game over) |
@@ -1596,6 +1613,59 @@ The six arcade games (tickets in the payouts note below):
   (sinking out of sight) before **resurfacing once the diver swims far enough**. The floor is **solid**
   and the coin bubbles have roomy hitboxes.
 
+- REEF RUSH — an **original rhythm-runner** through a neon reef (not a Geometry Dash clone:
+  its own name, art, music, and courses). The reef auto-scrolls and the fish auto-runs; **one
+  left-click (or Space) jumps**. Its hazards and pickups are all original sea pieces, laid out
+  on the beat of its own driving theme: **SHELL** and low **SEAWEED** are ground spikes (with
+  matching **CEILING SHELL** and **CEILING WEED** hanging down from the roof), **ROCK** is a
+  floor block you land on and **CEILING ROCK** is a matching block that hangs from the roof
+  (both stack), **PEARL** is a collectible, the **PRESSURE BUBBLE** is an air pickup — click
+  while touching one for a free jump-boost even in mid-water (it has a generous hitbox) — and
+  the **GRAVITY BUBBLE** is an air pickup that **turns gravity upside-down whatever mode you
+  are in** (click while touching it to reverse which way you fall, and another one keeps you
+  upside-down instead of flipping you back), the **GRAVITY BUBBLE PAD** / **CEILING GRAVITY
+  BUBBLE PAD** flip gravity on **mere touch** (and stay flipped until you touch another), the
+  **THRUST BUBBLE PAD** / **CEILING THRUST BUBBLE PAD** are the rhythm-runner's jump pads
+  (touching one fires an automatic extra jump away from the surface it's mounted on, no click
+  needed), and the **FLOATING LEDGE** is a standable platform you can hang at any height from
+  just above the floor to just under the roof. **PORTAL** pieces transform you into one
+  of six swimmer **modes** — a plain **FISH** portal turns you back into the normal fish —
+  with their own movement — **STINGRAY** (hold to fly up), **DART
+  EEL** (the Nautilus Tank's dart-eel head on a body that trails behind along the path it has
+  swum, rendered with the moray eel's own trail; hold to climb, tap for a small zig, and it
+  dives back down on its own), **CRAB** (each click flips gravity, snapping it to the
+  ceiling or floor), **URCHIN** (like the crab but it drifts up instead of snapping), and
+  **JELLY** (tap to hop; holding does nothing and it sinks back, so spam the click to hover).
+  The **STINGRAY** mode uses the game's own **spotted-ray model** and skin (drawn smaller) so
+  it matches the Stingray Tank, and the HUD shows your current mode. Reach the distance marker
+  to win. Difficulty renames the settings tiers **CALM / CHOPPY / RIPTIDE / MAELSTROM** and
+  scales speed, gap spacing, and spike height. Costs 40 sea coins.
+- **REEF RUSH — LEVELS** is a **sideways-scrolling** shelf of original hand-built courses
+  (scroll with Left/Right, play with Enter). **Clearing a level plays an end cutscene** (bubbles
+  and confetti, the level name, your time and pearls) and, on the **first clear**, **unlocks a
+  free skin**; progress is saved. The more levels cleared, the more skins unlocked.
+- **REEF RUSH — MY TRACK** turns the composer's saved song into a course: **3 loops** of the
+  song are laid out on the beat, with **drum hits as shell spikes**, **bass notes as rock
+  blocks**, and **synth/piano notes as pearls**; a fairness pass nudges spikes apart so any
+  song stays clearable, and the run plays your song. It banks its own record.
+- **REEF RUSH — COURSE BUILDER** lets the player design their own course by hand (no
+  copyrighted layout is shipped): move a cursor along the track with the arrows (hold Shift to
+  skip), **scroll the vertical item list on the right with `Q`/`E` or the mouse wheel** (or
+  `1`–`0`) and click a row to pick it. The list holds the **pieces** — SHELL / SEAWEED /
+  CEILING SHELL / CEILING WEED / ROCK / CEILING ROCK / PEARL / PRESSURE BUBBLE / GRAVITY
+  BUBBLE / GRAVITY BUBBLE PAD / CEILING GRAVITY BUBBLE PAD / THRUST BUBBLE PAD / CEILING
+  THRUST BUBBLE PAD / FLOATING LEDGE — then the **modes** — STINGRAY /
+  DART EEL / CRAB / URCHIN / JELLY / FISH (each places a
+  portal with that target). Press Enter or click to place at the
+  cursor (X removes, C clears, G-/G+ set the goal). **Clicking a rock or ceiling rock again
+  stacks it**, **holding and dragging up/down resizes a piece**, and a **shell or ceiling shell
+  placed over a rock or ceiling rock rests on it** (its hitbox lifts onto the block). **TEST**
+  (or `P`) launches the
+  course; when you crash during a test the results screen adds a **BACK TO BUILDING** button (and
+  `ESC` returns you to the editor too). `ESC` saves. Courses
+  save to `RUSH_BUILDER_KEY` and run from **REEF RUSH — MY COURSE**, banking a
+  **REEF RUSH — MY COURSE** record. Every course is player-authored.
+
 Minigames pay sea coins — 30 for finishing plus a 60-coin win bonus (the race isn't a
 tie or beats its solo target, a CPU is still it in tag, dodgeball isn't a double KO,
 solo dodgeball survives its 45-second target, or labyrinth escapes all seven parts) — and count in
@@ -1603,7 +1673,7 @@ solo dodgeball survives its 45-second target, or labyrinth escapes all seven par
 `w/t MINIGAMES WON`. They never touch the best score or the dive stats.
 
 The arcade games charge a ticket at the door: **PUFFER BALL 25, SCHOOL ROUNDUP 30,
-JELLY ASCENT 30, STEALTH DIVE 35, REEF CLEANUP 40, TRENCH DIVE 45, TRENCH EXPLORE 50** sea coins
+JELLY ASCENT 30, STEALTH DIVE 35, REEF CLEANUP 40, TRENCH DIVE 45, TRENCH EXPLORE 50, REEF RUSH 40** sea coins
 (`MINIGAME_FEES`). The ticket is charged by the MINIGAMES menu on **every entry** — exit
 to the menu and entering again pays again; `PLAY AGAIN` after a round stays inside the
 paid session. The menu shows the bank, each price (red when unaffordable), and quotes the

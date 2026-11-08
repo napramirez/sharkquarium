@@ -40,16 +40,22 @@ export function drawDartEel(ctx, radius, pose) {
   const direction = pose.direction ?? 1;
   const age = pose.age ?? 0;
   const wavePhase = pose.wavePhase ?? 0;
-  const count = 16;
   const spine = [];
-  for (let i = 0; i < count; i += 1) {
-    const t = i / (count - 1);
-    spine.push({
-      x: -direction * t * radius * 0.5625 * (count - 1),
-      y: Math.sin(age * 11 + wavePhase - i * 0.5) * radius * (0.14 + t * 0.55),
-      t,
-    });
+  if (Array.isArray(pose.points) && pose.points.length >= 2) {
+    for (const point of pose.points) spine.push({ x: point.x, y: point.y, t: 0 });
+  } else {
+    const steps = 16;
+    for (let i = 0; i < steps; i += 1) {
+      const t = i / (steps - 1);
+      spine.push({
+        x: -direction * t * radius * 0.5625 * (steps - 1),
+        y: Math.sin(age * 11 + wavePhase - i * 0.5) * radius * (0.14 + t * 0.55),
+        t,
+      });
+    }
   }
+  const count = spine.length;
+  for (let i = 0; i < count; i += 1) spine[i].t = i / (count - 1);
   const left = [];
   const right = [];
   for (let i = 0; i < count; i += 1) {
@@ -94,6 +100,12 @@ export function drawDartEel(ctx, radius, pose) {
   const head = spine[0];
   ctx.save();
   ctx.translate(head.x, head.y);
+  drawDartEelHead(ctx, radius, direction);
+  ctx.restore();
+}
+
+export function drawDartEelHead(ctx, radius, direction = 1) {
+  ctx.save();
   ctx.scale(direction, 1);
 
   ctx.save();

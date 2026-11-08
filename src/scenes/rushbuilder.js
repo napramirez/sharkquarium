@@ -54,10 +54,11 @@ const ITEM_LIST = [
 const PLAY_W = PANEL_X;
 
 const ACTIONS = {
-  test: { x: 150, y: 496, w: 96, h: 30 },
-  clear: { x: 254, y: 496, w: 92, h: 30 },
-  goalDown: { x: 356, y: 496, w: 40, h: 30 },
-  goalUp: { x: 400, y: 496, w: 40, h: 30 },
+  test: { x: 120, y: 496, w: 80, h: 30 },
+  testHere: { x: 206, y: 496, w: 108, h: 30 },
+  clear: { x: 320, y: 496, w: 80, h: 30 },
+  goalDown: { x: 406, y: 496, w: 36, h: 30 },
+  goalUp: { x: 446, y: 496, w: 36, h: 30 },
 };
 
 const PORTAL_COLORS = {
@@ -267,14 +268,16 @@ export class RushBuilderScene extends Scene {
     );
   }
 
-  testPlay() {
+  testPlay(startX = 0) {
     if (this.items.length === 0) {
       this.setStatus('PLACE SOME OBSTACLES FIRST');
       this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.18, volume: 0.2 });
       return;
     }
     this.save();
-    this.game.changeScene('reefrush', { course: true, fromBuilder: true });
+    const start = clamp(Math.round(startX), 0, this.goal);
+    if (start > 0) this.setStatus(`TESTING FROM ${start}...`);
+    this.game.changeScene('reefrush', { course: true, fromBuilder: true, startX: start });
   }
 
   handlePointerDown(x, y) {
@@ -286,7 +289,8 @@ export class RushBuilderScene extends Scene {
     const action = this.actionAt(x, y);
     if (action) {
       const name = action[0];
-      if (name === 'test') this.testPlay();
+      if (name === 'test') this.testPlay(0);
+      else if (name === 'testHere') this.testPlay(this.snapped());
       else if (name === 'clear') this.clear();
       else if (name === 'goalDown') this.setGoal(this.goal - 200);
       else if (name === 'goalUp') this.setGoal(this.goal + 200);
@@ -338,7 +342,8 @@ export class RushBuilderScene extends Scene {
       this.game.changeScene('minigames');
       return;
     }
-    if (input.wasPressed('play')) this.testPlay();
+    if (input.wasPressed('play')) this.testPlay(0);
+    if (input.wasPressed('KeyT')) this.testPlay(this.snapped());
     if (input.wasPressed('clear')) this.clear();
     if (input.wasPressed('Minus')) this.setGoal(this.goal - 200);
     if (input.wasPressed('Equal')) this.setGoal(this.goal + 200);
@@ -705,10 +710,11 @@ export class RushBuilderScene extends Scene {
     this.renderList(ctx);
 
     this.renderButton(ctx, ACTIONS.test, 'TEST', false);
+    this.renderButton(ctx, ACTIONS.testHere, 'TEST HERE', false);
     this.renderButton(ctx, ACTIONS.clear, 'CLEAR', false);
     this.renderButton(ctx, ACTIONS.goalDown, 'G-', false);
     this.renderButton(ctx, ACTIONS.goalUp, 'G+', false);
-    drawText(ctx, `GOAL ${this.goal}`, 454, 511, { size: 12, color: COLORS.accent, align: 'left' });
+    drawText(ctx, `GOAL ${this.goal}`, 492, 511, { size: 12, color: COLORS.accent, align: 'left' });
     drawText(ctx, `X ${Math.round(this.cursorX)}  ·  ${this.items.length} BLOCKS  ·  H ${Math.round(this.height())}`, PLAY_W / 2, 484, {
       size: 12,
       color: COLORS.textDim,
@@ -723,7 +729,7 @@ export class RushBuilderScene extends Scene {
     }
     drawText(
       ctx,
-      'ARROWS — MOVE / SIZE      Q/E — SCROLL ITEMS      ENTER/CLICK — PLACE (CLICK ROCK AGAIN STACKS)      DRAG UP/DOWN — RESIZE      X — REMOVE      P — TEST      C — CLEAR      ESC — SAVE',
+      'ARROWS — MOVE / SIZE      Q/E — SCROLL ITEMS      ENTER/CLICK — PLACE (CLICK ROCK AGAIN STACKS)      DRAG UP/DOWN — RESIZE      X — REMOVE      P — TEST      T — TEST HERE      C — CLEAR      ESC — SAVE',
       PLAY_W / 2,
       H - 10,
       { size: 9, color: COLORS.textDim, alpha: 0.75 },

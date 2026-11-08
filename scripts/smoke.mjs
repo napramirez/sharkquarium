@@ -7016,6 +7016,7 @@ async function main() {
   await frames(5);
   const testRun = game.scene;
   assert.equal(testRun.fromBuilder, true, 'a builder test run should remember it came from the builder');
+  assert.equal(testRun.testStart, 0, 'a plain TEST should start at the beginning');
   testRun.finish(false);
   await frames(3);
   assert.equal(testRun.phase, 'results', 'dying in a test should show the results screen');
@@ -7026,6 +7027,19 @@ async function main() {
   testRun.chooseResult('builder');
   await frames(5);
   assert.equal(game.currentSceneName, 'rushbuilder', 'BACK TO BUILDING should return to the editor');
+
+  const builder2 = game.scene;
+  builder2.cursorX = 2000;
+  builder2.testPlay(builder2.snapped());
+  await frames(5);
+  const hereRun = game.scene;
+  assert.ok(hereRun.fromBuilder && hereRun.testStart === 2000, 'TEST HERE should start at the chosen part');
+  assert.ok(hereRun.scrollX > 1900, 'the test should begin part-way through the course');
+  hereRun.finish(false);
+  await frames(2);
+  hereRun.chooseResult('builder');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'rushbuilder', 'a mid-course test should return to the editor');
 
   game.changeScene('reefrush', { course: true });
   await frames(5);
@@ -7188,6 +7202,19 @@ async function main() {
   assert.equal(courseRun.player.y, courseRun.player.radius, 'a crab click should flip it onto the ceiling');
   courseRun.flipGravity(true);
   assert.equal(courseRun.player.y, courseRun.groundY - courseRun.player.radius, 'a second crab click should send it back down');
+  courseRun.items = [{ kind: 'ledge', x: 600, h: 200, count: 1 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'crab';
+  courseRun.gravityUp = false;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = courseRun.groundY - courseRun.player.radius;
+  courseRun.update(1 / 60);
+  courseRun.flipGravity(true);
+  assert.equal(
+    courseRun.player.y,
+    courseRun.groundY - 200 + 16 + courseRun.player.radius,
+    'a crab should land under a floating ledge',
+  );
   courseRun.scrollX = 1e6;
   await frames(3);
   assert.equal(courseRun.phase, 'results', 'finishing the course should win');

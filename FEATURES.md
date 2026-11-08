@@ -1634,8 +1634,9 @@ The six arcade games (tickets in the payouts note below):
   with their own movement — **STINGRAY** (hold to fly up), **DART
   EEL** (the Nautilus Tank's dart-eel head on a body that trails behind along the path it has
   swum, rendered with the moray eel's own trail; hold to climb, tap for a small zig, and it
-  dives back down on its own), **CRAB** (each click flips gravity, snapping it to the
-  ceiling or floor), **URCHIN** (like the crab but it drifts up instead of snapping), and
+  dives back down on its own), **CRAB** (each click flips gravity, snapping it to the nearest
+  landable surface — floor, ceiling, rock, or floating ledge — so it can hop between ledges),
+  **URCHIN** (like the crab but it drifts up instead of snapping), and
   **JELLY** (tap to hop; holding does nothing and it sinks back, so spam the click to hover).
   The **STINGRAY** mode uses the game's own **spotted-ray model** and skin (drawn smaller) so
   it matches the Stingray Tank, and the HUD shows your current mode. Reach the distance marker
@@ -1660,11 +1661,11 @@ The six arcade games (tickets in the payouts note below):
   portal with that target). Press Enter or click to place at the
   cursor (X removes, C clears, G-/G+ set the goal). **Clicking a rock or ceiling rock again
   stacks it**, **holding and dragging up/down resizes a piece**, and a **shell, ceiling shell,
-  or bubble pad placed over a rock, ceiling rock, or floating ledge rests on it** (its hitbox
-  lifts onto the block). **TEST**
-  (or `P`) launches the
-  course; when you crash during a test the results screen adds a **BACK TO BUILDING** button (and
-  `ESC` returns you to the editor too). `ESC` saves. Courses
+  or bubble pad   placed over a rock, ceiling rock, or floating ledge rests on it** (its hitbox
+  lifts onto the block). **TEST** (or `P`) launches the course from the start, and **TEST
+  HERE** (or `T`) launches it from the cursor so you can try any part; when you crash during a
+  test the results screen adds a **BACK TO BUILDING** button (and `ESC` returns you to the
+  editor too). `ESC` saves. Courses
   save to `RUSH_BUILDER_KEY` and run from **REEF RUSH — MY COURSE**, banking a
   **REEF RUSH — MY COURSE** record. Every course is player-authored.
 

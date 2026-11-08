@@ -73,6 +73,7 @@ export class ReefRushScene extends MinigameScene {
     this.rushCourse = Boolean(params.course) ? loadRushCourse() : null;
     this.course = Boolean(this.rushCourse) && rushCourseHasItems(this.rushCourse);
     this.fromBuilder = Boolean(params.fromBuilder);
+    this.testStart = Number.isFinite(params.startX) ? Math.max(0, params.startX) : 0;
     this.level = params.level ? rushLevelById(params.level) : null;
     this.playTrack = this.custom ? buildCustomTrack(this.composer) : REEF_RUSH_TRACK;
     this.beat = this.playTrack.beat;
@@ -145,6 +146,12 @@ export class ReefRushScene extends MinigameScene {
         : this.course
           ? this.buildItems(this.rushCourse.items, this.rushCourse.goal)
           : this.buildClassicCourse();
+    if (this.course && this.testStart > 0) {
+      const startWorld = Math.min(this.testStart + W * 0.6, this.goalDistance - 200);
+      this.scrollX = Math.max(0, startWorld);
+      this.distance = this.scrollX;
+      this.player.x = this.scrollX + REEF_RUSH.playerX;
+    }
     this.buildBackdrop();
   }
 
@@ -521,10 +528,32 @@ export class ReefRushScene extends MinigameScene {
     }
   }
 
+  nearestSurfaceY(up) {
+    const player = this.player;
+    const r = player.radius;
+    let best = up ? 0 : this.groundY;
+    for (const item of this.items) {
+      if (item.kind !== 'rock' && item.kind !== 'ceilrock' && item.kind !== 'ledge') continue;
+      const rect = rushItemRect(item, this.groundY);
+      if (player.x + r < rect.x || player.x - r > rect.x + rect.w) continue;
+      if (up) {
+        const bottom = rect.y + rect.h;
+        if (bottom <= player.y - r + 1 && bottom > best) best = bottom;
+      } else {
+        const top = rect.y;
+        if (top >= player.y + r - 1 && top < best) best = top;
+      }
+    }
+    return best;
+  }
+
   flipGravity(snap) {
     this.gravityUp = !this.gravityUp;
     const player = this.player;
-    if (snap) player.y = this.gravityUp ? player.radius : this.groundY - player.radius;
+    if (snap) {
+      const surface = this.nearestSurfaceY(this.gravityUp);
+      player.y = this.gravityUp ? surface + player.radius : surface - player.radius;
+    }
     player.vy = 0;
     this.flash = 0.25;
     this.game.audio.tone({ freq: this.gravityUp ? 520 : 260, endFreq: this.gravityUp ? 780 : 180, type: 'square', duration: 0.1, volume: 0.16 });

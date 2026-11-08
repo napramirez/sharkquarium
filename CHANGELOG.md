@@ -107,8 +107,9 @@ lore inventory.
   turns a transformed player back into the plain fish, **STINGRAY**
   (hold to fly), **DART EEL** (the Nautilus Tank's dart-eel head on a body painted with the
   moray eel's own trail renderer, so the tail trails behind along the path it has swum; hold to
-  climb, a short click makes a small zig, and it dives back down on its own), **CRAB** (each click flips gravity, snapping between floor
-  and ceiling), **URCHIN** (like the crab but it drifts instead of snapping), and **JELLY**
+  climb, a short click makes a small zig, and it dives back down on its own), **CRAB** (each
+  click flips gravity, snapping to the nearest landable surface — floor, ceiling, rock, or
+  floating ledge), **URCHIN** (like the crab but it drifts instead of snapping), and **JELLY**
   (tap to hop, no holding — sinks back, so spam to hover). The HUD names the current mode; the
   stingray is drawn smaller and uses the game's spotted-ray model/skin.
 - **REEF RUSH — COURSE BUILDER (expanded)** — the editor now shows a **vertical scroll-down
@@ -120,8 +121,9 @@ lore inventory.
   the modes (STINGRAY / DART EEL / CRAB / URCHIN / JELLY / FISH, each placing a portal with that
   target). **Click a rock or ceiling rock again to stack
   it**, **hold + drag up/down to resize a piece**, **drop a shell/ceiling shell or a bubble pad
-  over a rock, ceiling rock, or floating ledge to rest it on top**, and remove with `X`. **TEST** launches the course, and
-  crashing during a test offers **BACK TO BUILDING** on the results screen (Esc returns to the
+  over a rock, ceiling rock, or floating ledge to rest it on top**, and remove with `X`. **TEST**
+  launches the course from the start and **TEST HERE** (`T`) launches it from the cursor so you
+  can try any stretch; crashing during a test offers **BACK TO BUILDING** on the results screen (Esc returns to the
   editor too). Courses save to
   `RUSH_BUILDER_KEY` and run as
   **REEF RUSH — MY COURSE** with their own record. No third-party level data is included —

@@ -248,7 +248,9 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   PAD/CEILING THRUST BUBBLE PAD/FLOATING LEDGE/SLOPE UP/SLOPE DOWN) then the modes
   (STINGRAY/DART EEL/CRAB/URCHIN/JELLY/FISH), Enter/click places (a portal carries the selected
   mode's `form`), **clicking a rock or ceiling rock again stacks it**, a **hold + vertical drag
-  resizes a piece**, `X` removes, `C` clears, `G-`/`G+` set the goal; `TEST` launches it with a
+  resizes a piece**, `X` removes, `C` clears, `G-`/`G+` set the goal; `TEST` launches it from the
+  start and `TEST HERE` (`T`) launches it from the cursor as `{ startX }`, which `buildRound()`
+  turns into a starting `scrollX` so any stretch of the course can be tried, with a
   `fromBuilder` flag, so a crash shows a **BACK TO BUILDING** result action (and Esc returns to
   the editor) instead of the normal minigame menu, and test runs are not recorded. All
   edits save immediately.
@@ -369,8 +371,8 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   **hold** to climb, a **short click** sets `dartTap` (~0.09 s) for a small zig, and with no
   input it **automatically sinks back down** diagonally — it appends to
   `dartTrail` for the trailing body), `crab` (each click
-  `flipGravity(true)` snaps it to the
-  ceiling or floor), `urchin` (`flipGravity(false)` + gravity toward `gravityUp`), and `jelly`
+  `flipGravity(true)` snaps it to the nearest landable surface — floor, ceiling, rock, or
+  floating ledge, found by `nearestSurfaceY()`), `urchin` (`flipGravity(false)` + gravity toward `gravityUp`), and `jelly`
   (gravity + press-only hop with a short cooldown). `enterPortal()` sets `this.form` when the
   player overlaps a portal of a different form, and `renderPlayer()` draws each mode. The
   **DART EEL** wears the Nautilus Tank's dart-eel head (`drawDartEelHead()`) but paints its

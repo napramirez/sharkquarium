@@ -6900,6 +6900,16 @@ async function main() {
   courseBuilder.place();
   const shellOnRock = courseBuilder.items.find((it) => it.kind === 'shell' && it.x === 1500);
   assert.ok(shellOnRock && shellOnRock.base > 0, 'a shell should sit on top of a rock');
+  courseBuilder.selectItem(11);
+  courseBuilder.cursorX = 1500;
+  courseBuilder.place();
+  const padOnRock = courseBuilder.items.find((it) => it.kind === 'pad' && it.x === 1500);
+  assert.ok(padOnRock && padOnRock.base > 0, 'a thrust bubble pad should rest on a rock stack');
+  courseBuilder.selectItem(9);
+  courseBuilder.cursorX = 1500;
+  courseBuilder.place();
+  const gravPadOnRock = courseBuilder.items.find((it) => it.kind === 'gravpad' && it.x === 1500);
+  assert.ok(gravPadOnRock && gravPadOnRock.base > 0, 'a gravity bubble pad should rest on a rock stack');
   courseBuilder.selectItem(0);
   courseBuilder.cursorX = 1700;
   courseBuilder.heightIndex.shell = 0;
@@ -6949,6 +6959,11 @@ async function main() {
   courseBuilder.place();
   const ceilShellOnRock = courseBuilder.items.find((it) => it.kind === 'ceilshell' && it.x === 800 && it.base > 0);
   assert.ok(ceilShellOnRock, 'a ceiling shell should hang under a ceiling rock');
+  courseBuilder.selectItem(12);
+  courseBuilder.cursorX = 800;
+  courseBuilder.place();
+  const ceilPadOnRock = courseBuilder.items.find((it) => it.kind === 'ceilpad' && it.x === 800 && it.base > 0);
+  assert.ok(ceilPadOnRock, 'a ceiling thrust bubble pad should hang under a ceiling rock');
   courseBuilder.selectItem(2);
   courseBuilder.cursorX = 940;
   courseBuilder.place();

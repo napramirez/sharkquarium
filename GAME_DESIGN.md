@@ -238,7 +238,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `rushItemRect(item, groundY, ceilingY)` turns any item into its collision/draw rect (rocks and
   ceiling rocks use `count` for stacking, the floating **ledge** sits at any height via `h`,
   portals use `form`, ceiling pieces hang from `ceilingY`, and a `base` offset lets a shell/weed
-  sit on top of a rock or hang under a ceiling rock). The stingray, jelly, eel, urchin, and fish
+  or a bubble pad sit on top of a rock or hang under a ceiling rock). The stingray, jelly, eel, urchin, and fish
   survive as **portal target modes only** (`RUSH_PORTAL_FORMS`), not hazards; an old save naming
   one of them as a hazard is migrated to a `portal`. `RushBuilderScene`
   (`rushbuilder`, opened from MINIGAMES) is the editor: arrows move a cursor, a **vertical

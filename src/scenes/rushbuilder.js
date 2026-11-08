@@ -170,12 +170,16 @@ export class RushBuilderScene extends Scene {
   }
 
   baseFor(kind, x) {
+    const near = (k) => this.items.find((it) => it.kind === k && Math.abs(it.x - x) < RUSH_GRID * 0.6);
     if (kind === 'shell' || kind === 'seaweed' || kind === 'pad' || kind === 'gravpad') {
-      const rock = this.items.find((it) => it.kind === 'rock' && Math.abs(it.x - x) < RUSH_GRID * 0.6);
-      return rock ? (rock.count || 1) * rock.h * 0.85 : 0;
+      const rock = near('rock');
+      const ledge = near('ledge');
+      const rockBase = rock ? (rock.count || 1) * rock.h * 0.85 : 0;
+      const ledgeBase = ledge ? ledge.h : 0;
+      return Math.max(rockBase, ledgeBase);
     }
     if (kind === 'ceilshell' || kind === 'ceilweed' || kind === 'ceilpad' || kind === 'ceilgravpad') {
-      const rock = this.items.find((it) => it.kind === 'ceilrock' && Math.abs(it.x - x) < RUSH_GRID * 0.6);
+      const rock = near('ceilrock');
       return rock ? (rock.count || 1) * rock.h * 0.85 : 0;
     }
     return 0;

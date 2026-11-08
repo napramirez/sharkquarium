@@ -1660,8 +1660,8 @@ The six arcade games (tickets in the payouts note below):
   portal with that target). Press Enter or click to place at the
   cursor (X removes, C clears, G-/G+ set the goal). **Clicking a rock or ceiling rock again
   stacks it**, **holding and dragging up/down resizes a piece**, and a **shell, ceiling shell,
-  or bubble pad placed over a rock or ceiling rock rests on it** (its hitbox lifts onto the
-  block). **TEST**
+  or bubble pad placed over a rock, ceiling rock, or floating ledge rests on it** (its hitbox
+  lifts onto the block). **TEST**
   (or `P`) launches the
   course; when you crash during a test the results screen adds a **BACK TO BUILDING** button (and
   `ESC` returns you to the editor too). `ESC` saves. Courses

@@ -118,7 +118,7 @@ lore inventory.
   the modes (STINGRAY / DART EEL / CRAB / URCHIN / JELLY / FISH, each placing a portal with that
   target). **Click a rock or ceiling rock again to stack
   it**, **hold + drag up/down to resize a piece**, **drop a shell/ceiling shell or a bubble pad
-  over a rock or ceiling rock to rest it on top**, and remove with `X`. **TEST** launches the course, and
+  over a rock, ceiling rock, or floating ledge to rest it on top**, and remove with `X`. **TEST** launches the course, and
   crashing during a test offers **BACK TO BUILDING** on the results screen (Esc returns to the
   editor too). Courses save to
   `RUSH_BUILDER_KEY` and run as

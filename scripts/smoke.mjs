@@ -6998,6 +6998,11 @@ async function main() {
   courseBuilder.place();
   const ledgeItem = courseBuilder.items.find((it) => it.kind === 'ledge');
   assert.ok(ledgeItem && ledgeItem.h === 230, 'the builder should place a floating ledge at the chosen height');
+  courseBuilder.selectItem(11);
+  courseBuilder.cursorX = 3300;
+  courseBuilder.place();
+  const padOnLedge = courseBuilder.items.find((it) => it.kind === 'pad' && it.x === 3300);
+  assert.ok(padOnLedge && padOnLedge.base === 230, 'a thrust bubble pad should rest on a floating ledge');
   courseBuilder.selectItem(14);
   courseBuilder.cursorX = 3500;
   courseBuilder.place();

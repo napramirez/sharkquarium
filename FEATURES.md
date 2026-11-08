@@ -1627,8 +1627,9 @@ The six arcade games (tickets in the payouts note below):
   BUBBLE PAD** flip gravity on **mere touch** (and stay flipped until you touch another), the
   **THRUST BUBBLE PAD** / **CEILING THRUST BUBBLE PAD** are the rhythm-runner's jump pads
   (touching one fires an automatic extra jump away from the surface it's mounted on, no click
-  needed), and the **FLOATING LEDGE** is a standable platform you can hang at any height from
-  just above the floor to just under the roof. **PORTAL** pieces transform you into one
+  needed), the **FLOATING LEDGE** is a standable platform you can hang at any height from
+  just above the floor to just under the roof, and the **SLOPE UP** / **SLOPE DOWN** ramps
+  carry the swimmer smoothly uphill or downhill. **PORTAL** pieces transform you into one
   of six swimmer **modes** — a plain **FISH** portal turns you back into the normal fish —
   with their own movement — **STINGRAY** (hold to fly up), **DART
   EEL** (the Nautilus Tank's dart-eel head on a body that trails behind along the path it has
@@ -1654,7 +1655,7 @@ The six arcade games (tickets in the payouts note below):
   `1`–`0`) and click a row to pick it. The list holds the **pieces** — SHELL / SEAWEED /
   CEILING SHELL / CEILING WEED / ROCK / CEILING ROCK / PEARL / PRESSURE BUBBLE / GRAVITY
   BUBBLE / GRAVITY BUBBLE PAD / CEILING GRAVITY BUBBLE PAD / THRUST BUBBLE PAD / CEILING
-  THRUST BUBBLE PAD / FLOATING LEDGE — then the **modes** — STINGRAY /
+  THRUST BUBBLE PAD / FLOATING LEDGE / SLOPE UP / SLOPE DOWN — then the **modes** — STINGRAY /
   DART EEL / CRAB / URCHIN / JELLY / FISH (each places a
   portal with that target). Press Enter or click to place at the
   cursor (X removes, C clears, G-/G+ set the goal). **Clicking a rock or ceiling rock again

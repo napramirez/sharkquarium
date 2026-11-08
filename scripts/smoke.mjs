@@ -6858,7 +6858,7 @@ async function main() {
   assert.equal(game.currentSceneName, 'rushbuilder', 'the course builder should open');
   const courseBuilder = game.scene;
   assert.equal(courseBuilder.items.length, 0, 'a fresh course builder should be empty');
-  const rowY = (index) => 116 + index * 16 + 8;
+  const rowY = (index) => 112 + index * 15 + 7;
   canvasPointerDown(800, rowY(4));
   canvasPointerUp();
   await frames(3);
@@ -6911,22 +6911,22 @@ async function main() {
   assert.ok(spike.h > beforeH, 'dragging up should stretch a spike');
   courseBuilder.game.input.pointer.down = false;
   courseBuilder.endDrag();
-  courseBuilder.selectItem(14);
+  courseBuilder.selectItem(16);
   assert.equal(courseBuilder.kind(), 'portal', 'the item list should offer portals');
   assert.equal(courseBuilder.form(), 'stingray', 'the stingray row should target the stingray form');
-  courseBuilder.selectItem(15);
-  assert.equal(courseBuilder.form(), 'eel', 'the dart eel row should target the eel form');
   courseBuilder.selectItem(17);
-  assert.equal(courseBuilder.form(), 'urchin', 'the urchin row should target the urchin form');
-  courseBuilder.selectItem(18);
-  assert.equal(courseBuilder.form(), 'jelly', 'the jelly row should target the jelly form');
+  assert.equal(courseBuilder.form(), 'eel', 'the dart eel row should target the eel form');
   courseBuilder.selectItem(19);
+  assert.equal(courseBuilder.form(), 'urchin', 'the urchin row should target the urchin form');
+  courseBuilder.selectItem(20);
+  assert.equal(courseBuilder.form(), 'jelly', 'the jelly row should target the jelly form');
+  courseBuilder.selectItem(21);
   assert.equal(courseBuilder.form(), 'fish', 'the fish row should target the fish form');
   courseBuilder.selectItem(0);
   courseBuilder.game.input.wheel = 3;
   courseBuilder.update(1 / 60);
   assert.equal(courseBuilder.itemIndex, 3, 'the mouse wheel should scroll the item list');
-  courseBuilder.selectItem(15);
+  courseBuilder.selectItem(17);
   courseBuilder.cursorX = 1900;
   courseBuilder.heightIndex.portal = 0;
   courseBuilder.place();
@@ -6983,6 +6983,14 @@ async function main() {
   courseBuilder.place();
   const ledgeItem = courseBuilder.items.find((it) => it.kind === 'ledge');
   assert.ok(ledgeItem && ledgeItem.h === 230, 'the builder should place a floating ledge at the chosen height');
+  courseBuilder.selectItem(14);
+  courseBuilder.cursorX = 3500;
+  courseBuilder.place();
+  assert.ok(courseBuilder.items.some((it) => it.kind === 'slopeup'), 'the builder should offer a slope up');
+  courseBuilder.selectItem(15);
+  courseBuilder.cursorX = 3700;
+  courseBuilder.place();
+  assert.ok(courseBuilder.items.some((it) => it.kind === 'slopedown'), 'the builder should offer a slope down');
 
   courseBuilder.testPlay();
   await frames(5);
@@ -7138,6 +7146,21 @@ async function main() {
   assert.ok(
     courseRun.player.onGround && courseRun.player.y < courseRun.groundY - 100,
     'a floating ledge should be standable at its height',
+  );
+  courseRun.items = [{ kind: 'slopeup', x: 600, h: 100, count: 1 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.gravityUp = false;
+  courseRun.coyote = 0;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = courseRun.groundY - courseRun.player.radius;
+  courseRun.player.vy = 0;
+  courseRun.player.onGround = true;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.ok(
+    courseRun.player.onGround && courseRun.player.y < courseRun.groundY - courseRun.player.radius - 2,
+    'a slope should carry the swimmer uphill',
   );
   courseRun.form = 'crab';
   courseRun.gravityUp = false;

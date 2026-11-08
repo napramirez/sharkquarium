@@ -231,9 +231,9 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   and **RUSH MY TRACK** hands it to `ReefRushScene` as a level; **EDIT MY TRACK** reopens
   `trackbuilder`.
 - `src/engine/rushcourse.js` owns the REEF RUSH piece format
-  (`{ goal, items: [{ kind, x, h, count, base, form }] }` under `RUSH_BUILDER_KEY`): fifteen kinds
+  (`{ goal, items: [{ kind, x, h, count, base, form }] }` under `RUSH_BUILDER_KEY`): seventeen kinds
   (`RUSH_KINDS` = shell/seaweed/ceilshell/ceilweed/rock/ceilrock/pearl/bubble/gravity/gravpad/
-  ceilgravpad/pad/ceilpad/ledge/portal)
+  ceilgravpad/pad/ceilpad/ledge/slopeup/slopedown/portal)
   with `RUSH_META` (size, ground vs air vs ceiling) and `RUSH_HEIGHTS`;
   `rushItemRect(item, groundY, ceilingY)` turns any item into its collision/draw rect (rocks and
   ceiling rocks use `count` for stacking, the floating **ledge** sits at any height via `h`,
@@ -245,7 +245,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   scroll list on the right** (scroll with `Q`/`E`, the **mouse wheel**, or click a row, or
   `1`–`0`) lists the pieces (SHELL/SEAWEED/CEILING SHELL/CEILING WEED/ROCK/CEILING ROCK/PEARL/
   PRESSURE BUBBLE/GRAVITY BUBBLE/GRAVITY BUBBLE PAD/CEILING GRAVITY BUBBLE PAD/THRUST BUBBLE
-  PAD/CEILING THRUST BUBBLE PAD/FLOATING LEDGE) then the modes
+  PAD/CEILING THRUST BUBBLE PAD/FLOATING LEDGE/SLOPE UP/SLOPE DOWN) then the modes
   (STINGRAY/DART EEL/CRAB/URCHIN/JELLY/FISH), Enter/click places (a portal carries the selected
   mode's `form`), **clicking a rock or ceiling rock again stacks it**, a **hold + vertical drag
   resizes a piece**, `X` removes, `C` clears, `G-`/`G+` set the goal; `TEST` launches it with a
@@ -356,7 +356,8 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `confirm` press jumps (with coyote time and a jump buffer). Every course is a list of
   pieces turned into obstacles: `rushItemRect()` gives each a rect, floor **rocks** and
   ceiling **rocks** (`ceilrock`) are landed on (`count` stacks them) and the floating **ledge**
-  (`ledge`, a thin slab at any `h`) is standable, floor/ceiling shells
+  (`ledge`, a thin slab at any `h`) is standable, and **slopes** (`slopeup`/`slopedown`, `w`=150)
+  carry the swimmer up/down by snapping `player.y` to the sloped surface at the player's x; floor/ceiling shells
   (`shell`/`ceilshell`) and weeds (`seaweed`/`ceilweed`) are lethal, pearls/bubbles/
   gravity-bubbles are click pickups, and the **gravity bubble pads** (`gravpad`/`ceilgravpad`)
   and **thrust bubble pads** (`pad`/`ceilpad`) trigger on **mere overlap**. Gravity is a single signed `dir`

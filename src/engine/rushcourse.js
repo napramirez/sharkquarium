@@ -2,7 +2,7 @@ import { clamp } from './math.js';
 import { loadJSON, saveJSON } from './storage.js';
 import { RUSH_BUILDER_KEY } from '../config.js';
 
-export const RUSH_KINDS = ['shell', 'seaweed', 'rock', 'ceilrock', 'ceilshell', 'ceilweed', 'pearl', 'bubble', 'gravity', 'gravpad', 'ceilgravpad', 'pad', 'ceilpad', 'ledge', 'portal'];
+export const RUSH_KINDS = ['shell', 'seaweed', 'rock', 'ceilrock', 'ceilshell', 'ceilweed', 'pearl', 'bubble', 'gravity', 'gravpad', 'ceilgravpad', 'pad', 'ceilpad', 'ledge', 'slopeup', 'slopedown', 'portal'];
 
 export const RUSH_PORTAL_FORMS = ['fish', 'stingray', 'eel', 'crab', 'urchin', 'jelly'];
 
@@ -21,6 +21,8 @@ export const RUSH_KIND_LABELS = {
   pad: 'THRUST BUBBLE PAD',
   ceilpad: 'CEILING THRUST BUBBLE PAD',
   ledge: 'FLOATING LEDGE',
+  slopeup: 'SLOPE UP',
+  slopedown: 'SLOPE DOWN',
   portal: 'PORTAL',
   fish: 'FISH',
   stingray: 'STINGRAY',
@@ -45,6 +47,8 @@ export const RUSH_META = {
   pad: { w: 46, ground: true },
   ceilpad: { w: 46, ceiling: true },
   ledge: { w: 96, t: 16, ground: false },
+  slopeup: { w: 150, ground: true },
+  slopedown: { w: 150, ground: true },
   portal: { w: 64, h: 96, ground: false },
 };
 
@@ -63,6 +67,8 @@ export const RUSH_HEIGHTS = {
   pad: [14, 20, 28],
   ceilpad: [14, 20, 28],
   ledge: [30, 70, 110, 150, 190, 230, 270, 310, 350, 390],
+  slopeup: [40, 70, 100, 130],
+  slopedown: [40, 70, 100, 130],
   portal: [90, 130, 170],
 };
 

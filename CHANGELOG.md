@@ -97,9 +97,9 @@ lore inventory.
   are in** (a second one keeps you upside-down), the **GRAVITY BUBBLE PAD** / **CEILING GRAVITY
   BUBBLE PAD** that flip gravity on **mere touch** until another pad is touched, and the
   **THRUST BUBBLE PAD** / **CEILING THRUST BUBBLE PAD** — rhythm-runner jump pads that fire an
-  automatic extra jump away from their surface when you touch them — and the **FLOATING LEDGE**,
+  automatic extra jump away from their surface when you touch them — the **FLOATING LEDGE**,
   a thin standable slab you can hang at any height from just above the floor to just under the
-  roof. The
+  roof, and the **SLOPE UP** / **SLOPE DOWN** ramps that carry the swimmer up and down. The
   stingray, jelly, eel, and urchin are no longer hazards: they are portal **swimmer modes** only.
 - **REEF RUSH — swimmer modes** — the portal targets now play distinctly: a **FISH** portal
   turns a transformed player back into the plain fish, **STINGRAY**
@@ -114,7 +114,7 @@ lore inventory.
   a row, or press `1`–`0` to jump to a row). It lists the pieces (SHELL / SEAWEED / CEILING
   SHELL / CEILING WEED / ROCK / CEILING ROCK / PEARL / PRESSURE BUBBLE / GRAVITY BUBBLE /
   GRAVITY BUBBLE PAD / CEILING GRAVITY BUBBLE PAD / THRUST BUBBLE PAD / CEILING THRUST BUBBLE
-  PAD / FLOATING LEDGE) then
+  PAD / FLOATING LEDGE / SLOPE UP / SLOPE DOWN) then
   the modes (STINGRAY / DART EEL / CRAB / URCHIN / JELLY / FISH, each placing a portal with that
   target). **Click a rock or ceiling rock again to stack
   it**, **hold + drag up/down to resize a piece**, **drop a shell/ceiling shell over a rock or

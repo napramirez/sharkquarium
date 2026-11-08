@@ -452,6 +452,18 @@ export class ReefRushScene extends MinigameScene {
         }
         continue;
       }
+      if (item.kind === 'slopeup' || item.kind === 'slopedown') {
+        if (dir > 0 && player.x >= rect.x && player.x <= rect.x + rect.w) {
+          const t = (player.x - rect.x) / rect.w;
+          const surf = item.kind === 'slopeup' ? this.groundY - t * rect.h : this.groundY - (1 - t) * rect.h;
+          if (player.y + player.radius >= surf - 1) {
+            player.y = surf - player.radius;
+            if (player.vy > 0) player.vy = 0;
+            player.onGround = true;
+          }
+        }
+        continue;
+      }
       if (item.kind === 'rock' || item.kind === 'ceilrock' || item.kind === 'ledge') {
         const overlapX = player.x + player.radius > rect.x + 4 && player.x - player.radius < rect.x + rect.w - 4;
         if (overlapX) {
@@ -684,6 +696,37 @@ export class ReefRushScene extends MinigameScene {
     ctx.fillRect(rect.x + 3, rect.y + 3, rect.w - 6, 3);
   }
 
+  renderSlope(ctx, rect, up) {
+    const base = this.groundY;
+    ctx.beginPath();
+    if (up) {
+      ctx.moveTo(rect.x, base);
+      ctx.lineTo(rect.x + rect.w, rect.y);
+      ctx.lineTo(rect.x + rect.w, base);
+    } else {
+      ctx.moveTo(rect.x, rect.y);
+      ctx.lineTo(rect.x + rect.w, base);
+      ctx.lineTo(rect.x, base);
+    }
+    ctx.closePath();
+    ctx.fillStyle = '#55697a';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(20, 30, 40, 0.85)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    if (up) {
+      ctx.moveTo(rect.x + 4, base - 2);
+      ctx.lineTo(rect.x + rect.w - 4, rect.y + 2);
+    } else {
+      ctx.moveTo(rect.x + 4, rect.y + 2);
+      ctx.lineTo(rect.x + rect.w - 4, base - 2);
+    }
+    ctx.stroke();
+  }
+
   renderThrustPad(ctx, rect, up, gravity = false) {
     const w = rect.w;
     const h = rect.h;
@@ -800,6 +843,10 @@ export class ReefRushScene extends MinigameScene {
         break;
       case 'ledge':
         this.renderLedge(ctx, rect);
+        break;
+      case 'slopeup':
+      case 'slopedown':
+        this.renderSlope(ctx, rect, item.kind === 'slopeup');
         break;
       case 'portal':
         this.renderPortal(ctx, rect, item);

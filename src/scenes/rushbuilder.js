@@ -21,9 +21,9 @@ const AREA_BOTTOM = 470;
 const PANEL_X = 716;
 const PANEL_W = 228;
 const PANEL_TOP = AREA_TOP;
-const LIST_TOP = 116;
-const ROW_H = 16;
-const VISIBLE_ROWS = 20;
+const LIST_TOP = 112;
+const ROW_H = 15;
+const VISIBLE_ROWS = 22;
 const PANEL_BOTTOM = LIST_TOP + VISIBLE_ROWS * ROW_H + 26;
 
 const ITEM_LIST = [
@@ -41,6 +41,8 @@ const ITEM_LIST = [
   { label: 'THRUST BUBBLE PAD', kind: 'pad', group: 'piece' },
   { label: 'CEILING THRUST BUBBLE PAD', kind: 'ceilpad', group: 'piece' },
   { label: 'FLOATING LEDGE', kind: 'ledge', group: 'piece' },
+  { label: 'SLOPE UP', kind: 'slopeup', group: 'piece' },
+  { label: 'SLOPE DOWN', kind: 'slopedown', group: 'piece' },
   { label: 'STINGRAY', kind: 'portal', form: 'stingray', group: 'mode' },
   { label: 'DART EEL', kind: 'portal', form: 'eel', group: 'mode' },
   { label: 'CRAB', kind: 'portal', form: 'crab', group: 'mode' },
@@ -528,6 +530,24 @@ export class RushBuilderScene extends Scene {
       strokeRoundRect(ctx, rect.x, rect.y, rect.w, rect.h, 5, 'rgba(20, 30, 40, 0.85)', 2);
       ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
       ctx.fillRect(rect.x + 3, rect.y + 3, rect.w - 6, 3);
+    } else if (item.kind === 'slopeup' || item.kind === 'slopedown') {
+      const base = GROUND_Y;
+      ctx.beginPath();
+      if (item.kind === 'slopeup') {
+        ctx.moveTo(rect.x, base);
+        ctx.lineTo(rect.x + rect.w, rect.y);
+        ctx.lineTo(rect.x + rect.w, base);
+      } else {
+        ctx.moveTo(rect.x, rect.y);
+        ctx.lineTo(rect.x + rect.w, base);
+        ctx.lineTo(rect.x, base);
+      }
+      ctx.closePath();
+      ctx.fillStyle = '#55697a';
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(20, 30, 40, 0.85)';
+      ctx.lineWidth = 2;
+      ctx.stroke();
     } else if (item.kind === 'portal') {
       const cx = rect.x + rect.w / 2;
       const cy = rect.y + rect.h / 2;
@@ -579,7 +599,7 @@ export class RushBuilderScene extends Scene {
   renderList(ctx) {
     fillRoundRect(ctx, PANEL_X, PANEL_TOP, PANEL_W, PANEL_BOTTOM - PANEL_TOP, 14, 'rgba(8, 28, 40, 0.92)');
     strokeRoundRect(ctx, PANEL_X, PANEL_TOP, PANEL_W, PANEL_BOTTOM - PANEL_TOP, 14, 'rgba(207, 239, 255, 0.25)', 2);
-    drawText(ctx, 'ITEMS', PANEL_X + PANEL_W / 2, PANEL_TOP + 10, {
+    drawText(ctx, 'ITEMS', PANEL_X + PANEL_W / 2, PANEL_TOP + 8, {
       size: 10,
       color: COLORS.text,
       glow: COLORS.bubble,

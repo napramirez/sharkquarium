@@ -1663,7 +1663,8 @@ The six arcade games (tickets in the payouts note below):
   stacks it**, **holding and dragging up/down resizes a piece**, and a **shell, ceiling shell,
   or bubble pad   placed over a rock, ceiling rock, or floating ledge rests on it** (its hitbox
   lifts onto the block). **TEST** (or `P`) launches the course from the start, and **TEST
-  HERE** (or `T`) launches it from the cursor so you can try any part; when you crash during a
+  HERE** (or `T`) launches it from the cursor — spawning the fish on the nearest landable
+  surface (ground, rock, or floating ledge) at that spot — so you can try any part; when you crash during a
   test the results screen adds a **BACK TO BUILDING** button (and `ESC` returns you to the
   editor too). `ESC` saves. Courses
   save to `RUSH_BUILDER_KEY` and run from **REEF RUSH — MY COURSE**, banking a

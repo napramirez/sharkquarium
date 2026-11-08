@@ -122,7 +122,8 @@ lore inventory.
   target). **Click a rock or ceiling rock again to stack
   it**, **hold + drag up/down to resize a piece**, **drop a shell/ceiling shell or a bubble pad
   over a rock, ceiling rock, or floating ledge to rest it on top**, and remove with `X`. **TEST**
-  launches the course from the start and **TEST HERE** (`T`) launches it from the cursor so you
+  launches the course from the start and **TEST HERE** (`T`) launches it from the cursor, standing
+  the fish on the nearest landable surface there, so you
   can try any stretch; crashing during a test offers **BACK TO BUILDING** on the results screen (Esc returns to the
   editor too). Courses save to
   `RUSH_BUILDER_KEY` and run as

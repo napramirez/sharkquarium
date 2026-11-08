@@ -147,12 +147,31 @@ export class ReefRushScene extends MinigameScene {
           ? this.buildItems(this.rushCourse.items, this.rushCourse.goal)
           : this.buildClassicCourse();
     if (this.course && this.testStart > 0) {
-      const startWorld = Math.min(this.testStart + W * 0.6, this.goalDistance - 200);
+      const startWorld = Math.min(this.testStart + W * 0.6 - REEF_RUSH.playerX, this.goalDistance - W);
       this.scrollX = Math.max(0, startWorld);
       this.distance = this.scrollX;
       this.player.x = this.scrollX + REEF_RUSH.playerX;
+      const surface = this.spawnSurfaceAt(this.player.x);
+      this.player.y = surface - this.player.radius;
     }
     this.buildBackdrop();
+  }
+
+  spawnSurfaceAt(px) {
+    const r = this.player.radius;
+    let surface = this.groundY;
+    let found = false;
+    for (const item of this.items) {
+      if (item.kind !== 'rock' && item.kind !== 'ledge') continue;
+      const rect = rushItemRect(item, this.groundY);
+      if (px + r < rect.x || px - r > rect.x + rect.w) continue;
+      const top = rect.y;
+      if (top < this.groundY && (!found || top > surface)) {
+        surface = top;
+        found = true;
+      }
+    }
+    return surface;
   }
 
   buildBackdrop() {

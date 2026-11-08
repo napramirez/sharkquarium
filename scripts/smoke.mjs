@@ -7041,6 +7041,26 @@ async function main() {
   await frames(5);
   assert.equal(game.currentSceneName, 'rushbuilder', 'a mid-course test should return to the editor');
 
+  const builder3 = game.scene;
+  builder3.selectItem(4);
+  builder3.cursorX = 4000;
+  builder3.heightIndex.rock = 0;
+  builder3.place();
+  builder3.testPlay(4000);
+  await frames(5);
+  const surfaceRun = game.scene;
+  const rockTop = surfaceRun.groundY - 40 * 0.85;
+  assert.ok(
+    Math.abs(surfaceRun.player.y - (rockTop - surfaceRun.player.radius)) < 2,
+    'TEST HERE should spawn the fish on the nearest landable surface',
+  );
+  assert.equal(surfaceRun.dying, 0, 'the spawn should not overlap the piece');
+  surfaceRun.finish(false);
+  await frames(2);
+  surfaceRun.chooseResult('builder');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'rushbuilder', 'the surface test should return to the editor');
+
   game.changeScene('reefrush', { course: true });
   await frames(5);
   const courseRun = game.scene;

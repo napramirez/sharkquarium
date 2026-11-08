@@ -250,7 +250,8 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   mode's `form`), **clicking a rock or ceiling rock again stacks it**, a **hold + vertical drag
   resizes a piece**, `X` removes, `C` clears, `G-`/`G+` set the goal; `TEST` launches it from the
   start and `TEST HERE` (`T`) launches it from the cursor as `{ startX }`, which `buildRound()`
-  turns into a starting `scrollX` so any stretch of the course can be tried, with a
+  turns into a starting `scrollX` and calls `spawnSurfaceAt()` to stand the fish on the nearest
+  landable surface (ground, rock, or ledge) so any stretch of the course can be tried, with a
   `fromBuilder` flag, so a crash shows a **BACK TO BUILDING** result action (and Esc returns to
   the editor) instead of the normal minigame menu, and test runs are not recorded. All
   edits save immediately.

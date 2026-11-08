@@ -9,7 +9,7 @@ import {
   composerHasNotes,
   buildCustomTrack,
 } from '../engine/composer.js';
-import { loadRushCourse, rushCourseHasItems, rushItemRect } from '../engine/rushcourse.js';
+import { loadRushCourse, rushCourseHasItems, rushItemRect, RUSH_KINDS } from '../engine/rushcourse.js';
 import { rushLevelById, beatLevel } from '../engine/rushlevels.js';
 import { drawStingrayBody } from '../entities/stingray.js';
 import { drawDartEelHead } from '../entities/darteel.js';
@@ -160,10 +160,11 @@ export class ReefRushScene extends MinigameScene {
   buildItems(items, goal) {
     const startPad = W * 0.6;
     for (const item of items) {
-      if (item.kind === 'pearl') {
+      const kind = RUSH_KINDS.includes(item.kind) ? item.kind : 'shell';
+      if (kind === 'pearl') {
         this.pearls.push({ x: item.x + startPad, y: this.groundY - item.h, taken: false, phase: rand(0, TAU) });
       } else {
-        this.items.push({ ...item, x: item.x + startPad, phase: rand(0, TAU) });
+        this.items.push({ ...item, kind, x: item.x + startPad, phase: rand(0, TAU) });
       }
     }
     return goal + startPad + W;

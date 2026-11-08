@@ -88,7 +88,9 @@ lore inventory.
 - **REEF RUSH — LEVELS & hazards** — a **sideways-scrolling** shelf of **original hand-built
   courses** (Left/Right to scroll, Enter to play). Clearing one plays an **end cutscene**
   (bubbles, confetti, level name, time, pearls) and, on the **first clear, unlocks a free
-  skin** — the more levels beaten, the more skins unlocked. REEF RUSH's hazards and pickups are
+  skin** — the more levels beaten, the more skins unlocked. The original levels were rebuilt on
+  the current piece set (no removed hazard kinds, and no rock stack taller than the fish can
+  jump). REEF RUSH's hazards and pickups are
   now **SHELL** and **SEAWEED** (ground spikes) plus matching **CEILING SHELL** and **CEILING
   WEED** (hanging spikes), floor **ROCK** and hanging **CEILING ROCK**
   (both stackable blocks), **PEARL** (collectible), the **PRESSURE BUBBLE** — an air pickup that

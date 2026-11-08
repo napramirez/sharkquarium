@@ -7202,6 +7202,25 @@ async function main() {
     'the minigames menu should offer the course builder',
   );
 
+  const levelKinds = ['shell', 'seaweed', 'rock', 'ceilrock', 'ceilshell', 'ceilweed', 'pearl', 'bubble', 'gravity', 'gravpad', 'ceilgravpad', 'pad', 'ceilpad', 'ledge', 'slopeup', 'slopedown', 'portal'];
+  for (const levelId of ['sunlit', 'kelp', 'stingray', 'jelly', 'current']) {
+    game.changeScene('reefrush', { level: levelId });
+    await frames(5);
+    const inspected = game.scene;
+    assert.ok(
+      inspected.items.every((it) => levelKinds.includes(it.kind)),
+      `level ${levelId} should only use pieces that render`,
+    );
+    for (const it of inspected.items) {
+      if (it.kind === 'rock' || it.kind === 'ceilrock') {
+        assert.ok(
+          (it.count || 1) * it.h * 0.85 <= 110,
+          `level ${levelId} should not stack blocks taller than a jump`,
+        );
+      }
+    }
+  }
+
   game.changeScene('rushlevels');
   await frames(5);
   assert.equal(game.currentSceneName, 'rushlevels', 'the level select should open');

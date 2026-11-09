@@ -19,21 +19,27 @@ export class PresentWrapScene extends MinigameScene {
     applyWardrobe(this.shop, 0);
     const colors = ['#e2602e', '#3fa79b', '#c94b4b', '#a06fd0', '#d9a93c', '#5a8fd6'];
     const shapes = ['square', 'circle', 'triangle', 'star', 'heart', 'diamond'];
-    this.presents = [];
-    for (let row = 0; row < 2; row += 1) {
-      for (let col = 0; col < 5; col += 1) {
-        const index = row * 5 + col;
-        this.presents.push({
-          x: 150 + col * 82 + row * 22,
-          y: 258 + row * 150,
-          shape: shapes[index % shapes.length],
-          color: colors[index % colors.length],
-          wrapped: false,
-          held: false,
-          wrap: 0,
-        });
-      }
-    }
+    const spots = [
+      { x: 130, y: 240 },
+      { x: 262, y: 302 },
+      { x: 420, y: 246 },
+      { x: 560, y: 322 },
+      { x: 150, y: 430 },
+      { x: 300, y: 462 },
+      { x: 452, y: 404 },
+      { x: 604, y: 452 },
+      { x: 360, y: 342 },
+      { x: 214, y: 360 },
+    ];
+    this.presents = spots.map((spot, index) => ({
+      x: spot.x,
+      y: spot.y,
+      shape: shapes[index % shapes.length],
+      color: colors[index % colors.length],
+      wrapped: false,
+      held: false,
+      wrap: 0,
+    }));
     this.held = -1;
     this.timeLeft = 120;
     this.status = '';

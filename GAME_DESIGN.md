@@ -259,7 +259,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   the progress store (`RUSH_PROGRESS_KEY`, `{ beaten: [] }`), and `beatLevel()` which records
   a first clear and adds the level's `skin` to `SHOP_KEY.owned`. `RushLevelsScene`
   (`rushlevels`) is the **sideways-scrolling** level select (Left/Right scroll, Enter plays;
-  cards show cleared state and a `MY COURSE` card). `ReefRushScene` with `{ level }` builds
+  cards show cleared state and a `MY COURSE` card). Each level declares a `form` (sunlit→fish,
+  kelp→eel, stingray→stingray, jelly→jelly, current→urchin) that `buildRound()` sets as the
+  starting swimmer; the level data builds mode-specific geometry with `pillar()` (a ceiling-rock
+  stack and a rock stack with a hole between them) and `eelGate()` (a hanging weed and a ground
+  rock with a vertical gap). `ReefRushScene` with `{ level }` builds
   that level's items (via `buildItems`, offset by a start pad, constant speed); reaching the
   goal calls `clearLevel()` → `beatLevel()` + `recordWin('reefrushlevel')` → the
   `RushClearScene` cutscene. `ReefRushScene` with `{ course: true }` runs the player's

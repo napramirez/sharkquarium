@@ -7307,12 +7307,15 @@ async function main() {
       inspected.items.every((it) => levelKinds.includes(it.kind)),
       `level ${levelId} should only use pieces that render`,
     );
-    for (const it of inspected.items) {
-      if (it.kind === 'rock' || it.kind === 'ceilrock') {
-        assert.ok(
-          (it.count || 1) * it.h * 0.85 <= 110,
-          `level ${levelId} should not stack blocks taller than a jump`,
-        );
+    assert.ok(inspected.form, `level ${levelId} should declare a swimmer form`);
+    if (levelId === 'sunlit') {
+      for (const it of inspected.items) {
+        if (it.kind === 'rock' || it.kind === 'ceilrock') {
+          assert.ok(
+            (it.count || 1) * it.h * 0.85 <= 110,
+            'the fish level should not stack blocks taller than a jump',
+          );
+        }
       }
     }
   }

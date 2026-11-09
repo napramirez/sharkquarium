@@ -1656,7 +1656,11 @@ The six arcade games (tickets in the payouts note below):
 - **REEF RUSH — LEVELS** is a **sideways-scrolling** shelf of original hand-built courses
   (scroll with Left/Right, play with Enter). **Clearing a level plays an end cutscene** (bubbles
   and confetti, the level name, your time and pearls) and, on the **first clear**, **unlocks a
-  free skin**; progress is saved. The more levels cleared, the more skins unlocked.
+  free skin**; progress is saved. The more levels cleared, the more skins unlocked. Each level
+  is a mode showcase: **SUNLIT REEF** (fish — simple shell jumps), **KELP CROSSING** (dart eel —
+  tight weed-and-rock gates), **STINGRAY ALLEY** and **JELLY BLOOM** (those swimmers — pillars of
+  ceiling rocks and rocks with a hole to thread), and **DEEP CURRENT** (urchin pillars then a
+  crab section of ceiling shells and shells with gaps, via portals).
 - **REEF RUSH — MY TRACK** turns the composer's saved song into a course: **3 loops** of the
   song are laid out on the beat, with **drum hits as shell spikes**, **bass notes as rock
   blocks** (sometimes a two-high stack), and **synth/piano notes as pearls**, plus **hanging

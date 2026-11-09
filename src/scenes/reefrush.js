@@ -126,7 +126,7 @@ export class ReefRushScene extends MinigameScene {
     this.dying = 0;
     this.jumpBuffer = 0;
     this.coyote = REEF_RUSH.coyote;
-    this.form = 'fish';
+    this.form = this.level?.form ?? 'fish';
     this.jumpCooldown = 0;
     this.gravityUp = false;
     this.dartTap = 0;

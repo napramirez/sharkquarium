@@ -7,6 +7,7 @@ import { mutatorByKey } from '../engine/mutators.js';
 import { loadComposer, composerHasNotes } from '../engine/composer.js';
 import { loadRushCourse, rushCourseHasItems } from '../engine/rushcourse.js';
 import { currentSeason } from '../engine/season.js';
+import { isMobilite } from '../engine/mobilite.js';
 import {
   COLORS,
   COINS,
@@ -51,7 +52,7 @@ export class MinigamesScene extends Scene {
       items.push({ label: 'REEF RUSH (1P)', action: 'reefrush', feeKey: 'reefrush' });
       items.push({ label: 'REEF RUSH — MY TRACK (1P)', action: 'reefrushcustom', feeKey: 'reefrush' });
       items.push({ label: 'REEF RUSH — MY COURSE (1P)', action: 'reefrushcourse', feeKey: 'reefrush' });
-      items.push({ label: 'REEF RUSH — COURSE BUILDER', action: 'rushbuilder' });
+      if (!isMobilite()) items.push({ label: 'REEF RUSH — COURSE BUILDER', action: 'rushbuilder' });
       items.push({ label: 'BOSS RUSH (1P)', action: 'bossrush', feeKey: 'bossrush' });
     }
     if (currentSeason() === 'christmas') {
@@ -127,6 +128,11 @@ export class MinigamesScene extends Scene {
       return;
     }
     if (item.action === 'rushbuilder') {
+      if (isMobilite()) {
+        this.setStatus('MOBILITE MODE — COURSE BUILDER IS DISABLED');
+        this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.16, volume: 0.2 });
+        return;
+      }
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
       this.game.changeScene('rushbuilder');
       return;

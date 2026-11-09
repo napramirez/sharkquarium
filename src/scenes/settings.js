@@ -7,6 +7,7 @@ import { setReducedMotion } from '../engine/motion.js';
 import { setSeason, SEASONS } from '../engine/season.js';
 import { set8Bit } from '../engine/retro.js';
 import { setMeme } from '../engine/meme.js';
+import { setMobilite } from '../engine/mobilite.js';
 import {
   AUDIO,
   COLORS,
@@ -44,6 +45,7 @@ export class SettingsScene extends Scene {
       newyear: false,
       eightBit: false,
       meme: false,
+      mobilite: false,
       ...saved,
     };
     this.settings.season = saved.season !== undefined
@@ -60,6 +62,19 @@ export class SettingsScene extends Scene {
     setSeason(this.settings.season);
     set8Bit(this.settings.eightBit);
     setMeme(this.settings.meme);
+    if (this.settings.mobilite) {
+      this.settings.threeD = false;
+      this.settings.firstPerson = false;
+      this.settings.eightBit = false;
+      this.game.set3D(false);
+      this.game.setFirstPerson(false);
+      set8Bit(false);
+      if (this.game.audio) this.game.audio.applyRetro();
+      saveJSON(SETTINGS_KEY, this.settings);
+    }
+    setMobilite(this.settings.mobilite);
+    this.notice = null;
+    this.noticeTimer = 0;
     this.menu = new SelectList(
       [
         { label: 'CO-OP TANK SELECT', action: 'coopTankSelect' },
@@ -74,6 +89,7 @@ export class SettingsScene extends Scene {
         { label: 'NEW YEAR MODE', action: 'newyear' },
         { label: '8-BIT MODE', action: 'eightBit' },
         { label: 'MEME MODE', action: 'meme' },
+        { label: 'MOBILITE MODE', action: 'mobilite' },
         { label: 'TRACK PLAYER', action: 'tracks' },
         { label: 'CUTSCENE THEATRE', action: 'theatre' },
         { label: 'BACK', action: 'back' },
@@ -146,6 +162,12 @@ export class SettingsScene extends Scene {
   }
 
   choose(item) {
+    if (this.settings.mobilite && (item.action === 'threeD' || item.action === 'firstPerson' || item.action === 'eightBit')) {
+      this.notice = 'MOBILITE MODE — THAT MODE NEEDS A KEYBOARD';
+      this.noticeTimer = 2.6;
+      this.game.audio.tone({ freq: 180, endFreq: 90, type: 'square', duration: 0.16, volume: 0.2 });
+      return;
+    }
     if (item.action === 'back') {
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.14, volume: 0.2 });
       this.game.changeScene('menu');
@@ -231,6 +253,28 @@ export class SettingsScene extends Scene {
       });
       return;
     }
+    if (item.action === 'mobilite') {
+      this.settings.mobilite = !this.settings.mobilite;
+      setMobilite(this.settings.mobilite);
+      if (this.settings.mobilite) {
+        this.settings.threeD = false;
+        this.settings.firstPerson = false;
+        this.settings.eightBit = false;
+        this.game.set3D(false);
+        this.game.setFirstPerson(false);
+        set8Bit(false);
+        if (this.game.audio) this.game.audio.applyRetro();
+      }
+      saveJSON(SETTINGS_KEY, this.settings);
+      this.game.audio.tone({
+        freq: this.settings.mobilite ? 700 : 300,
+        endFreq: this.settings.mobilite ? 1100 : 180,
+        type: 'triangle',
+        duration: 0.14,
+        volume: 0.2,
+      });
+      return;
+    }
     if (item.action === 'meme') {
       this.settings.meme = !this.settings.meme;
       setMeme(this.settings.meme);
@@ -273,6 +317,7 @@ export class SettingsScene extends Scene {
 
   update(dt) {
     this.time += dt;
+    this.noticeTimer = Math.max(0, this.noticeTimer - dt);
     const input = this.game.input;
     if (input.wasPressed('back')) {
       this.game.changeScene('menu');
@@ -322,6 +367,7 @@ export class SettingsScene extends Scene {
       newyear: 'PARTY THEMES AND FALLING CONFETTI',
       eightBit: 'PIXELATED 8-BIT LOOK AND CHIPTUNE SOUND',
       meme: 'SILLY COMIC POP-UPS AND CAPTIONS EVERYWHERE',
+      mobilite: 'ON-SCREEN WASD, SPACE, E AND ESC BUTTONS; DISABLES 3D, FIRST PERSON, 8-BIT AND THE COURSE BUILDER',
       tracks: 'PLAY ANY LEVEL THEME',
       theatre: 'REPLAY ANY CUTSCENE',
       back: 'RETURN TO THE MENU',
@@ -332,6 +378,13 @@ export class SettingsScene extends Scene {
       color: COLORS.foam,
       alpha: 0.85,
     });
+    if (this.noticeTimer > 0 && this.notice) {
+      drawText(ctx, this.notice, LOGICAL_WIDTH / 2, 146, {
+        size: 13,
+        color: COLORS.danger,
+        alpha: Math.min(1, this.noticeTimer),
+      });
+    }
 
     const centerY = LOGICAL_HEIGHT * 0.58;
     this.menu.render(ctx, LOGICAL_WIDTH / 2, centerY);
@@ -348,12 +401,13 @@ export class SettingsScene extends Scene {
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 9, this.settings.newyear);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 10, this.settings.eightBit);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 11, this.settings.meme);
-    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 13, {
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 12, this.settings.mobilite);
+    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 14, {
       size: 13,
       color: COLORS.textDim,
       alpha: 0.85,
     });
-    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 12, {
+    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 13, {
       size: 13,
       color: COLORS.textDim,
       alpha: 0.85,

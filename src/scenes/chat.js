@@ -1,6 +1,7 @@
 import { Scene } from '../engine/scene.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect, fillCircle, measureTextWidth } from '../engine/render.js';
 import { COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE } from '../config.js';
+import { isMobilite } from '../engine/mobilite.js';
 
 const BUBBLE_MAX = 430;
 const MSG_SIZE = 16;
@@ -34,7 +35,7 @@ const TOPICS =
 const KNOWLEDGE = [
   { keys: ["control", "controls", "how do i move", "move around", "steer", "movement", "keyboard", "what are the keys"], answer: "Use WASD, the arrow keys, or drag with the mouse to swim. In menus, use the arrows and Enter and Esc to go back. In Reef Rush a click or Space jumps." },
   { keys: ["how do i play", "how to play", "start", "begin", "get started"], answer: "From the menu pick START DIVE for the endless dive, or CHOOSE TANK to pick a tank. MINIGAMES needs the competitions playpass (or a free game), and the SHOP spends sea coins." },
-  { keys: ["reef rush", "rhythm runner", "rhythm"], answer: "REEF RUSH is an original one-click rhythm-runner. You auto-run; click or Space to jump shells, seaweed and rocks. Later versions add floating ledges, slopes, pressure bubbles, gravity bubbles/pads and thrust pads, plus portals that turn you into a stingray, dart eel, crab, urchin or jelly. It has level courses, a hand-built course, and MY TRACK from your own song." },
+  { keys: ["reef rush", "rhythm runner", "rhythm"], answer: "REEF RUSH is an original one-click rhythm-runner. You auto-run; click or Space to jump shells, seaweed and rocks. Later versions add floating ledges, slopes, pressure bubbles, gravity bubbles/pads and thrust pads, plus portals that turn you into a stingray, dart eel, crab, urchin, jelly, nautilus or mantis shrimp. It has demonstration levels, hand-built courses, a course builder, and MY TRACK from your own song." },
   { keys: ["tag"], answer: "TAG is one player plus five CPU swimmers (or two players). Touch passes the tag; whoever is IT when the 60 seconds end loses. You can pick a fish costume and color on the name screen. The results show best tagger and best runner, saved to the TAG LEADERBOARD." },
   { keys: ["dodgeball", "pufferfish dodgeball"], answer: "PUFFERFISH DODGEBALL gives each side three lives and no clock. Bounce pufferfish at the other player (or the CPU) until they are out. Movement and timing matter more than speed." },
   { keys: ["labyrinth", "megasquid", "seven parts"], answer: "LABYRINTH is a seven-part shipwreck escape. You can drop into any of the seven stretches and cycle the seven playable creatures (shark, stingray, squid, shrimp, crab, jelly, nautilus). It ends with the MEGASQUID; solo or co-op." },
@@ -77,7 +78,7 @@ const KNOWLEDGE = [
   { keys: ["emote", "press v", "v key", "chain fin transform"], answer: "EMOTES are cheap one-shot performances. Equip one on the shop EMOTES row, then press V in any dive to play it. CHAIN-FIN TRANSFORM reaches a fin to your tummy rip cord and slides the chainsaw visor on (and off after three seconds). Others are SPIN BARREL ROLL, BOOP, TAIL WIGGLE and BUBBLE BLOW." },
   { keys: ["playpass", "pass"], answer: "PLAYPASSES unlock content: minigames, cosmetics, the pets tank, the endless dive, the plushie pack, pet play, trails and dive buddies, and the aquarium builder. They are one-time purchases in the shop." },
   { keys: ["difficulty", "easy", "normal", "hard", "apocalyptic", "frenzy"], answer: "Difficulty runs EASY, NORMAL, HARD, APOCALYPTIC WIPEOUT and FRENZY DOMINANCE. Higher tiers speed enemies, shorten clocks and add hazards, but pay more coins. FRENZY DOMINANCE is the deliberately absurd top tier." },
-  { keys: ["settings", "3d", "first person", "reduce motion", "8-bit", "8 bit", "volume", "sfx"], answer: "SETTINGS toggles co-op tank select, difficulty, volume, SFX, 3D MODE, FIRST PERSON MODE, REDUCE MOTION, the three seasonal modes, and 8-BIT MODE, plus the TRACK PLAYER and CUTSCENE THEATRE." },
+  { keys: ["settings", "3d", "first person", "reduce motion", "8-bit", "8 bit", "volume", "sfx"], answer: "SETTINGS toggles co-op tank select, difficulty, volume, SFX, 3D MODE, FIRST PERSON MODE, REDUCE MOTION, the three seasonal modes, 8-BIT MODE, MEME MODE and MOBILITE MODE (on-screen WASD/SPACE/E/ESC buttons that disable 3D, first person, 8-bit and the course builder), plus the TRACK PLAYER and CUTSCENE THEATRE." },
   { keys: ["christmas", "season", "seasonal", "halloween", "new year"], answer: "The seasonal switches reskin the game. CHRISTMAS swaps in carols, snow, santa hats and festive cosmetics; HALLOWEEN brings an eerie score, leaves and witch hats; NEW YEAR adds a party score, confetti and party hats. Each also adds exclusive minigames." },
   { keys: ["wrap the presents", "present", "presents"], answer: "WRAP THE PRESENTS (Christmas) hides ten gifts around the lounge. Swim with WASD, press E near a present, then hold left-click and sweep the cursor to wrap it before the timer runs out." },
   { keys: ["santa", "santa's net", "santas net", "peek"], answer: "SANTA'S NET (Christmas) hangs sixteen gifts behind a fast camera. Hold E to peek in short bursts, click the wishlist to study your shapes, then click matching presents to sneak them out while avoiding the camera." },
@@ -111,12 +112,12 @@ const KNOWLEDGE = [
   { keys: ["how to beat the watcher", "watcher", "look away", "stare"], answer: "THE WATCHER: your gaze is the light and weapon. Keep watchers in your beam to freeze them, watch the stare meter, blink briefly, and move when they are petrified." },
   { keys: ["how to beat the trench mouth", "trench mouth", "gulp", "anchor"], answer: "THE TRENCH MOUTH: the floor is a maw. Brace on ceiling anchors with SPACE, cross between anchors, and never linger on the open floor when it breathes." },
   { keys: ["minigame", "minigames", "arcade", "games", "game list"], answer: "Minigames: RACE/COMPETITIONS, TAG, PUFFERFISH DODGEBALL, LABYRINTH, PUFFER BALL, SCHOOL ROUNDUP, JELLY ASCENT, STEALTH DIVE, REEF CLEANUP, TRENCH DIVE, TRENCH EXPLORE, REEF RUSH, BOSS RUSH, plus AI CHAT and the seasonal games." },
-  { keys: ["reef rush levels", "levels", "level select", "clear a level"], answer: "REEF RUSH - LEVELS is a sideways-scrolling shelf of five original courses. Clearing one plays an end cutscene and, on the first clear, unlocks a free skin." },
-  { keys: ["course builder", "build course", "make a course", "my course", "test here"], answer: "REEF RUSH - COURSE BUILDER is a side-view editor: arrows move the cursor, Q/E or the mouse wheel scroll the item list, Enter/click places, click a rock again to stack, drag to resize, X removes, and TEST (P) or TEST HERE (T) tries it. It runs as MY COURSE." },
+  { keys: ["reef rush levels", "levels", "level select", "clear a level"], answer: "REEF RUSH - LEVELS is a sideways-scrolling shelf that opens with eight demonstration levels (one per portal mode - fish, stingray, dart eel, crab, urchin, jelly, nautilus, shrimp) plus five original courses. Every level shows paged instructions first: turn pages with Left/Right and press Enter to advance, and the last page starts the run. Clearing one plays an end cutscene and, on the first clear, unlocks a free skin." },
+  { keys: ["course builder", "build course", "make a course", "my course", "test here"], answer: "REEF RUSH - COURSE BUILDER is a side-view editor: arrows move the cursor, Q/E or the mouse wheel scroll the item list, Enter/click places, click a rock again to stack, drag to resize, X removes, and TEST (P) or TEST HERE (T) tries it. The top course bar keeps several named courses: < > (or [ ]) switch between them, R renames the current one, and N saves it and starts another. The active course runs as MY COURSE." },
   { keys: ["about", "what is sharkquarium", "this game", "what is this"], answer: "SHARKQUARIUM is a cozy-to-creepy aquarium game: an endless dive, many tanks with their own creatures and bosses, a big minigame shelf, a shop full of cosmetics, a composer, a cutscene theatre, and a lore codex." },
   { keys: ["hazard", "enemy", "predator", "danger", "avoid"], answer: "Hazards range from jellyfish and anglerfish to moray eels, seals, pufferfish, and the horror bosses. Watch telegraphs, use cover, and keep your air up." },
-  { keys: ["what's new", "new content", "latest", "recent"], answer: "Recent additions: REEF RUSH with levels and a course builder, the tone-block TRACK BUILDER, seasonal games (Wrap the Presents, Santa's Net, Jack-o'-Lantern Hunt, Spectre Sweep, Midnight Fireworks, Confetti Rush), cheap EMOTES, and me, AI CHAT." },
-  { keys: ["how many tanks", "how many minigames", "how many levels"], answer: "There are eighteen tanks, a dozen-plus minigames, and five REEF RUSH levels plus your own track and course. The menu and codex list them all." },
+  { keys: ["what's new", "new content", "latest", "recent"], answer: "Recent additions: REEF RUSH demonstration levels with paged briefings and a full course builder, the tone-block TRACK BUILDER, MEME MODE, MOBILITE MODE with on-screen controls (and a keyboard for chat and tag names), paged LORE, seasonal games (Wrap the Presents, Santa's Net, Jack-o'-Lantern Hunt, Spectre Sweep, Midnight Fireworks, Confetti Rush), cheap EMOTES, and me, AI CHAT." },
+  { keys: ["how many tanks", "how many minigames", "how many levels"], answer: "There are eighteen tanks, a dozen-plus minigames, and eight REEF RUSH demonstration levels plus five courses, your own track and your own course. The menu and codex list them all." },
   { keys: ["pearl", "pearls", "what do pearls do"], answer: "In REEF RUSH, pearls are collectibles along the course that add to your run's pearl count. They show on the results and the end cutscene." },
   { keys: ["jump", "jump button", "how to jump"], answer: "In REEF RUSH click (or press Space) to jump; with portal modes each click does that mode's move (crab flips gravity, eel climbs, jelly hops). In other dives you swim with WASD/arrows or the mouse." },
   { keys: ["favourite tank", "favorite tank", "best tank", "which tank is best"], answer: "The NAUTILUS TANK, no contest. Whale bones, dart eels, one very rude chaser shark, and a tunnel that feels like flying. I would live there if I were not already everywhere." },
@@ -142,6 +143,7 @@ export class ChatScene extends Scene {
     this.replyTimer = 0;
     this.replyIndex = 0;
     this.cursorVisible = 0;
+    this.mobile = isMobilite();
   }
 
   update(dt) {
@@ -251,7 +253,7 @@ export class ChatScene extends Scene {
   }
 
   renderMessages(ctx) {
-    let y = CHAT_BOTTOM;
+    let y = this.mobile ? LOGICAL_HEIGHT - 268 : CHAT_BOTTOM;
     for (let i = this.messages.length - 1; i >= 0; i -= 1) {
       const message = this.messages[i];
       const lines = wrapText(ctx, message.text, BUBBLE_MAX, MSG_SIZE);
@@ -281,7 +283,7 @@ export class ChatScene extends Scene {
 
   renderInput(ctx) {
     const x = 70;
-    const y = LOGICAL_HEIGHT - 62;
+    const y = this.mobile ? LOGICAL_HEIGHT - 250 : LOGICAL_HEIGHT - 62;
     const w = LOGICAL_WIDTH - 140;
     const h = 34;
     fillRoundRect(ctx, x, y, w, h, 12, 'rgba(10, 39, 64, 0.9)');

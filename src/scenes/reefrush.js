@@ -1,7 +1,7 @@
 import { MinigameScene } from '../engine/minigame.js';
 import { drawText, fillCircle, fillRoundRect, strokeRoundRect } from '../engine/render.js';
 import { circleOverlap } from '../engine/collision.js';
-import { clamp, rand, TAU } from '../engine/math.js';
+import { clamp, lerp, rand, TAU } from '../engine/math.js';
 import { REEF_RUSH_TRACK } from '../assets/tracks.js';
 import {
   INSTRUMENTS,
@@ -15,7 +15,7 @@ import { drawStingrayBody } from '../entities/stingray.js';
 import { drawDartEelHead } from '../entities/darteel.js';
 import { paintMorayTrail } from '../entities/eel.js';
 import { drawNautilusBody } from '../entities/nautilus.js';
-import { drawArcticShrimpBody } from '../entities/arcticshrimp.js';
+import { drawMantisShrimpBody } from '../entities/mantisshrimp.js';
 import { recordWin } from '../engine/records.js';
 import { REEF_RUSH, COLORS, SKINS, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
 
@@ -36,7 +36,7 @@ const FORM_PHYSICS = {
   crab: {},
   urchin: { drift: 900 },
   jelly: { gravity: 0.62, hop: 540, cooldown: 0.1 },
-  nautilus: { gravity: 0.9, drift: 700, noContact: true },
+  nautilus: { gravity: 0.42, drift: 380, noContact: true },
   shrimp: { gravity: 1, low: 0.55, high: 1.6, chargeTime: 0.45 },
 };
 
@@ -48,7 +48,7 @@ const PORTAL_COLORS = {
   urchin: '#7a5b96',
   jelly: '#c9a6ff',
   nautilus: '#d9a93c',
-  shrimp: '#ff8f7a',
+  shrimp: '#8fe14a',
 };
 
 const SPOTTED_RAY = SKINS.find((skin) => skin.key === 'spottedray') ?? {};
@@ -141,12 +141,23 @@ export class ReefRushScene extends MinigameScene {
     this.bubbleCooldown = 0;
     this.padCooldown = 0;
     this.robotCharge = 0;
+    this.nautilusTilt = 0;
+    this.nautilusJet = 0;
+    this.nautilusJetDir = 1;
+    this.buildOffset = 0;
+    this.telemetry = this.fromBuilder ? { trail: [], jumps: [], landings: [], death: null } : null;
+    if (this.telemetry) this.game.rushDebug = this.telemetry;
+    this.groundPrev = true;
     this.rndState = this.seed || 1;
     this.player.x = REEF_RUSH.playerX;
     this.player.y = this.groundY - this.player.radius;
     this.player.vx = 0;
     this.player.vy = 0;
     this.player.onGround = true;
+    if (FORM_PHYSICS[this.form]?.noContact) {
+      this.player.y = H * 0.4;
+      this.player.onGround = false;
+    }
     this.goalDistance = this.level
       ? this.buildItems(this.level.items, this.level.goal)
       : this.custom
@@ -193,6 +204,7 @@ export class ReefRushScene extends MinigameScene {
 
   buildItems(items, goal) {
     const startPad = W * 0.6;
+    this.buildOffset = startPad;
     for (const item of items) {
       const kind = RUSH_KINDS.includes(item.kind) ? item.kind : 'shell';
       if (kind === 'pearl') {
@@ -338,6 +350,7 @@ export class ReefRushScene extends MinigameScene {
 
   kill() {
     if (this.dying > 0) return;
+    if (this.telemetry && !this.telemetry.death) this.telemetry.death = { x: this.player.x - this.buildOffset, y: this.player.y };
     this.dying = 0.7;
     this.flash = 0.7;
     this.shake = 0.7;
@@ -388,10 +401,24 @@ export class ReefRushScene extends MinigameScene {
       else if (this.dartTap > 0) player.vy = -form.dart * dir;
       else player.vy = form.dart * dir;
     } else if (this.form === 'nautilus') {
-      if (jumpPressed) this.flipGravity(false);
+      if (jumpPressed) {
+        this.flipGravity(false);
+        this.nautilusJet = 1;
+        const jetDir = this.gravityUp ? 1 : -1;
+        this.particles.burst(player.x - player.radius * 0.66, player.y + player.radius * 0.36, {
+          count: 10,
+          speed: 170,
+          life: 0.5,
+          colors: ['#cfefff', '#8fd0ef'],
+          buoyancy: jetDir < 0 ? -40 : 40,
+        });
+      }
+      this.nautilusJetDir = this.gravityUp ? 1 : -1;
+      this.nautilusJet = Math.max(0.35, this.nautilusJet - dt * 2);
       player.vy += cfg.gravity * form.gravity * dir * dt;
-      player.vy *= 1 - 0.8 * dt;
-      player.vy = clamp(player.vy, -720, 720);
+      player.vy *= 1 - 1.0 * dt;
+      player.vy = clamp(player.vy, -form.drift, form.drift);
+      this.nautilusTilt = lerp(this.nautilusTilt, clamp(player.vy / (form.drift * 2), -0.6, 0.6), 1 - Math.exp(-9 * dt));
     } else if (this.form === 'shrimp') {
       const canJump = player.onGround || this.coyote > 0;
       if (jumpHeld && canJump) {
@@ -404,6 +431,7 @@ export class ReefRushScene extends MinigameScene {
           player.onGround = false;
           this.coyote = 0;
           this.jumpBuffer = 0;
+          if (this.telemetry) this.telemetry.jumps.push({ x: player.x - this.buildOffset, y: player.y + player.radius });
           this.robotCharge = 0;
           this.game.audio.tone({ freq: 360, endFreq: 820, type: 'square', duration: 0.1, volume: 0.16 });
           this.particles.burst(player.x, player.y - player.radius * dir, {
@@ -443,6 +471,7 @@ export class ReefRushScene extends MinigameScene {
         player.onGround = false;
         this.coyote = 0;
         this.jumpBuffer = 0;
+        if (this.telemetry) this.telemetry.jumps.push({ x: player.x - this.buildOffset, y: player.y + player.radius });
         this.game.audio.tone({ freq: 420, endFreq: 720, type: 'square', duration: 0.09, volume: 0.14 });
         this.particles.burst(player.x, player.y - player.radius * dir, {
           count: 6,
@@ -493,6 +522,7 @@ export class ReefRushScene extends MinigameScene {
 
     for (const item of this.items) {
       const rect = rushItemRect(item, this.groundY);
+      if (item.kind === 'fakerock' || item.kind === 'ceilfakerock') continue;
       if (item.kind === 'portal') {
         if (this.form !== item.form && this.circleRect(player, rect)) this.enterPortal(item);
         continue;
@@ -593,7 +623,8 @@ export class ReefRushScene extends MinigameScene {
       if (item.kind === 'slopeup' || item.kind === 'slopedown') {
         if (dir > 0 && player.x >= rect.x && player.x <= rect.x + rect.w) {
           const t = (player.x - rect.x) / rect.w;
-          const surf = item.kind === 'slopeup' ? this.groundY - t * rect.h : this.groundY - (1 - t) * rect.h;
+          const rampBase = rect.y + rect.h;
+          const surf = item.kind === 'slopeup' ? rampBase - t * rect.h : rampBase - (1 - t) * rect.h;
           if (player.y + player.radius >= surf - 1) {
             player.y = surf - player.radius;
             if (player.vy > 0) player.vy = 0;
@@ -631,6 +662,20 @@ export class ReefRushScene extends MinigameScene {
     }
     this.items = this.items.filter((item) => item.x + 120 > this.scrollX - 120);
     this.obstacles = this.items;
+
+    if (this.telemetry) {
+      const trail = this.telemetry.trail;
+      const px = player.x - this.buildOffset;
+      const last = trail[trail.length - 1];
+      if (!last || Math.abs(last.x - px) + Math.abs(last.y - player.y) > 8) {
+        trail.push({ x: px, y: player.y });
+        if (trail.length > 1200) trail.shift();
+      }
+      if (player.onGround && !this.groundPrev) {
+        this.telemetry.landings.push({ x: px, y: player.y + player.radius });
+      }
+      this.groundPrev = player.onGround;
+    }
 
     for (const pearl of this.pearls) {
       if (pearl.taken) continue;
@@ -702,6 +747,9 @@ export class ReefRushScene extends MinigameScene {
     this.gravityUp = false;
     this.dartTap = 0;
     this.robotCharge = 0;
+    this.nautilusTilt = 0;
+    this.nautilusJet = 0;
+    this.nautilusJetDir = 1;
     this.flash = 0.4;
     this.jumpBuffer = 0;
     this.jumpCooldown = 0;
@@ -850,6 +898,27 @@ export class ReefRushScene extends MinigameScene {
     ctx.restore();
   }
 
+  renderFakeRock(ctx, rect, ceiling) {
+    const size = rect.w;
+    const count = Math.max(1, Math.round(rect.h / (size * 0.85)));
+    ctx.save();
+    ctx.globalAlpha = 0.9;
+    for (let i = 0; i < count; i += 1) {
+      const y = rect.y + i * size * 0.85;
+      fillRoundRect(ctx, rect.x, y, size, size * 0.85, 6, ceiling ? '#27333d' : '#2f3b46');
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.12)';
+      ctx.fillRect(rect.x + 4, y + 4, size - 8, 3);
+    }
+    ctx.restore();
+    ctx.save();
+    ctx.setLineDash([6, 4]);
+    for (let i = 0; i < count; i += 1) {
+      const y = rect.y + i * size * 0.85;
+      strokeRoundRect(ctx, rect.x, y, size, size * 0.85, 6, 'rgba(207, 239, 255, 0.7)', 2);
+    }
+    ctx.restore();
+  }
+
   renderLedge(ctx, rect) {
     fillRoundRect(ctx, rect.x, rect.y, rect.w, rect.h, 5, '#5a6b7c');
     strokeRoundRect(ctx, rect.x, rect.y, rect.w, rect.h, 5, 'rgba(20, 30, 40, 0.85)', 2);
@@ -858,7 +927,7 @@ export class ReefRushScene extends MinigameScene {
   }
 
   renderSlope(ctx, rect, up) {
-    const base = this.groundY;
+    const base = rect.y + rect.h;
     ctx.beginPath();
     if (up) {
       ctx.moveTo(rect.x, base);
@@ -952,7 +1021,7 @@ export class ReefRushScene extends MinigameScene {
     const size = rect.w;
     const count = Math.max(1, Math.round(rect.h / (size * 0.85)));
     for (let i = 0; i < count; i += 1) {
-      const y = this.groundY - (i + 1) * size * 0.85;
+      const y = rect.y + i * size * 0.85;
       fillRoundRect(ctx, rect.x, y, size, size * 0.85, 6, '#4a5b6b');
       ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
       ctx.fillRect(rect.x + 4, y + 4, size - 8, 4);
@@ -983,6 +1052,12 @@ export class ReefRushScene extends MinigameScene {
         break;
       case 'ceilrock':
         this.renderCeilingRock(ctx, rect);
+        break;
+      case 'fakerock':
+        this.renderFakeRock(ctx, rect, false);
+        break;
+      case 'ceilfakerock':
+        this.renderFakeRock(ctx, rect, true);
         break;
       case 'bubble':
         this.renderBubble(ctx, rect, item);
@@ -1164,15 +1239,15 @@ export class ReefRushScene extends MinigameScene {
 
     ctx.save();
     ctx.translate(p.x, p.y);
-    const tilt = clamp(p.vy / 1100, -0.6, 0.6);
+    const tilt = this.form === 'nautilus' ? this.nautilusTilt ?? 0 : clamp(p.vy / 1100, -0.6, 0.6);
     ctx.rotate(tilt);
-    if (this.gravityUp && this.form !== 'crab' && this.form !== 'urchin') ctx.scale(1, -1);
+    if (this.gravityUp && this.form !== 'crab' && this.form !== 'urchin' && this.form !== 'nautilus') ctx.scale(1, -1);
     if (this.form === 'stingray') {
       drawSpottedRay(ctx, r * 0.85, this.time);
     } else if (this.form === 'nautilus') {
-      drawNautilusBody(ctx, r * 0.95, { age: this.time });
+      drawNautilusBody(ctx, r * 0.95, { age: this.time, natural: true, jet: { strength: this.nautilusJet, dir: this.nautilusJetDir } });
     } else if (this.form === 'shrimp') {
-      drawArcticShrimpBody(ctx, r * 0.95, { armPhase: this.time * 8 });
+      drawMantisShrimpBody(ctx, r * 0.95, { armPhase: this.time * 8 });
       if (this.robotCharge > 0.05) {
         ctx.save();
         ctx.globalAlpha = 0.35 + this.robotCharge * 0.4;
@@ -1414,7 +1489,7 @@ export class ReefRushScene extends MinigameScene {
   chooseResult(action) {
     if (action === 'builder') {
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
-      this.game.changeScene('rushbuilder');
+      this.game.changeScene('rushbuilder', { telemetry: this.telemetry });
       return;
     }
     super.chooseResult(action);

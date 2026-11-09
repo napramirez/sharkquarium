@@ -252,6 +252,31 @@ async function main() {
   assert.equal(game.scene.section.title, 'THE MINIGAMES', 'the codex should list the minigames');
   await tapKey('ArrowLeft');
   assert.equal(game.scene.section.title, 'THE HAZARDS', 'left should step back through sections');
+
+  const lorePaged = game.scene;
+  let pagedEntry = false;
+  for (let sIdx = 0; sIdx < 8 && !pagedEntry; sIdx += 1) {
+    const count = lorePaged.section.entries.length;
+    for (let eIdx = 0; eIdx < count && !pagedEntry; eIdx += 1) {
+      lorePaged.page = 0;
+      await tapKey('Enter');
+      await frames(1);
+      if (lorePaged.page > 0) {
+        pagedEntry = true;
+        break;
+      }
+      lorePaged.moveEntry(1);
+      await frames(1);
+    }
+    if (!pagedEntry) {
+      lorePaged.moveSection(1);
+      await frames(1);
+    }
+  }
+  assert.ok(pagedEntry, 'an overfilled lore entry should split onto a second page');
+  lorePaged.moveEntry(1);
+  assert.equal(lorePaged.page, 0, 'changing entries should reset to the first page');
+
   await tapKey('Escape');
   await frames(5);
   assert.equal(game.currentSceneName, 'menu', 'escape should leave the lore codex');
@@ -2297,6 +2322,23 @@ async function main() {
   await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
+    'mobilite',
+    'settings should offer mobilité mode',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.mobilite, true, 'mobilité mode should turn on');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.settings')).mobilite,
+    true,
+    'mobilité mode should persist',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.mobilite, false, 'mobilité mode should turn back off');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
     'tracks',
     'settings should offer the track player',
   );
@@ -2374,7 +2416,7 @@ async function main() {
   await frames(30);
   assert.ok(game.music.step > heldStep, 'the held track should keep sequencing after leaving');
 
-  for (let i = 0; i < 13; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 14; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
     'theatre',
@@ -7430,6 +7472,192 @@ async function main() {
   courseBuilder.cursorX = 3700;
   courseBuilder.place();
   assert.ok(courseBuilder.items.some((it) => it.kind === 'slopedown'), 'the builder should offer a slope down');
+  courseBuilder.selectItem(26);
+  assert.equal(courseBuilder.kind(), 'fakerock', 'the builder should offer a fake rock');
+  courseBuilder.cursorX = 1500;
+  courseBuilder.heightIndex.fakerock = 0;
+  courseBuilder.place();
+  const fakeOnRock = courseBuilder.items.find((it) => it.kind === 'fakerock');
+  assert.ok(fakeOnRock && fakeOnRock.base > 0, 'a fake rock should stack on a normal rock');
+  courseBuilder.selectItem(27);
+  assert.equal(courseBuilder.kind(), 'ceilfakerock', 'the builder should offer a ceiling fake rock');
+  courseBuilder.cursorX = 800;
+  courseBuilder.heightIndex.ceilfakerock = 0;
+  courseBuilder.place();
+  const ceilFake = courseBuilder.items.find((it) => it.kind === 'ceilfakerock');
+  assert.ok(ceilFake && ceilFake.base > 0, 'a ceiling fake rock should hang under a ceiling rock');
+
+  courseBuilder.selectItem(26);
+  courseBuilder.cursorX = 4600;
+  courseBuilder.heightIndex.fakerock = 0;
+  courseBuilder.place();
+  courseBuilder.selectItem(4);
+  courseBuilder.cursorX = 4600;
+  courseBuilder.heightIndex.rock = 0;
+  courseBuilder.place();
+  const rockOnFake = courseBuilder.items.find((it) => it.kind === 'rock' && it.x === 4600);
+  assert.ok(rockOnFake && rockOnFake.base > 0, 'a normal rock should stack on a fake rock');
+
+  courseBuilder.selectItem(27);
+  courseBuilder.cursorX = 4800;
+  courseBuilder.heightIndex.ceilfakerock = 0;
+  courseBuilder.place();
+  courseBuilder.selectItem(5);
+  courseBuilder.cursorX = 4800;
+  courseBuilder.heightIndex.ceilrock = 0;
+  courseBuilder.place();
+  const ceilRockOnFake = courseBuilder.items.find((it) => it.kind === 'ceilrock' && it.x === 4800);
+  assert.ok(ceilRockOnFake && ceilRockOnFake.base > 0, 'a ceiling rock should hang under a ceiling fake rock');
+
+  courseBuilder.selectItem(0);
+  const pointerLift = courseBuilder.pointerLift(6000, 200);
+  assert.ok(pointerLift > 0, 'clicking above the ground should lift a piece');
+  courseBuilder.selectItem(0);
+  courseBuilder.cursorLift = 150;
+  courseBuilder.cursorX = 5200;
+  courseBuilder.heightIndex.shell = 0;
+  courseBuilder.place();
+  const liftedShell = courseBuilder.items.find((it) => it.kind === 'shell' && it.x === 5200);
+  assert.ok(liftedShell && liftedShell.lift === 150, 'placed pieces should store their lift');
+  assert.equal(courseBuilder.cursorLift, 0, 'placing a piece should reset the placement lift');
+  const savedLift = JSON.parse(storage.get('sharkquarium.rushcourse')).items.find((it) => it.x === 5200);
+  assert.equal(savedLift.lift, 150, 'the lift should persist');
+  assert.ok(
+    courseBuilder.pointerLift(6000, 300) < pointerLift,
+    'clicking lower should reduce the lift',
+  );
+  courseBuilder.cursorLift = 0;
+
+  courseBuilder.selectItem(0);
+  courseBuilder.cursorX = 6000;
+  courseBuilder.heightIndex.shell = 0;
+  courseBuilder.place();
+  const groundedShell = courseBuilder.items.find((it) => it.kind === 'shell' && it.x === 6000);
+  assert.ok(
+    groundedShell && groundedShell.lift === 0 && groundedShell.base === 0,
+    'a shell should sit on the ground, not float',
+  );
+  courseBuilder.selectItem(2);
+  courseBuilder.cursorX = 6200;
+  courseBuilder.heightIndex.ceilshell = 0;
+  courseBuilder.place();
+  const ceilingShell = courseBuilder.items.find((it) => it.kind === 'ceilshell' && it.x === 6200);
+  assert.ok(
+    ceilingShell && ceilingShell.lift === 0 && ceilingShell.base === 0,
+    'a ceiling shell should hang from the ceiling at a visible height',
+  );
+  courseBuilder.cursorLift = 250;
+  courseBuilder.selectItem(1);
+  assert.equal(courseBuilder.cursorLift, 0, 'selecting a different item should clear the lift');
+
+  courseBuilder.selectItem(27);
+  courseBuilder.cursorX = 5000;
+  courseBuilder.heightIndex.ceilfakerock = 0;
+  courseBuilder.place();
+  courseBuilder.selectItem(4);
+  courseBuilder.cursorX = 5000;
+  courseBuilder.heightIndex.rock = 0;
+  courseBuilder.place();
+  const rockOnCeilFake = courseBuilder.items.find((it) => it.kind === 'rock' && it.x === 5000);
+  assert.ok(rockOnCeilFake && rockOnCeilFake.base > 0, 'a rock can rest on a ceiling fake rock');
+
+  courseBuilder.selectItem(26);
+  courseBuilder.cursorX = 5600;
+  courseBuilder.heightIndex.fakerock = 0;
+  courseBuilder.place();
+  courseBuilder.selectItem(5);
+  courseBuilder.cursorX = 5600;
+  courseBuilder.heightIndex.ceilrock = 0;
+  courseBuilder.place();
+  const ceilRockOnFakeRock = courseBuilder.items.find((it) => it.kind === 'ceilrock' && it.x === 5600);
+  assert.ok(ceilRockOnFakeRock && ceilRockOnFakeRock.base > 0, 'a ceiling rock can rest on a fake rock');
+
+  assert.equal(courseBuilder.fitMode, true, 'the builder should default to a whole-level fit');
+  assert.equal(courseBuilder.panelOpen, true, 'the item panel should start open');
+  const fitScale = courseBuilder.viewScale();
+  courseBuilder.fitMode = false;
+  const detailScale = courseBuilder.viewScale();
+  courseBuilder.fitMode = true;
+  assert.ok(fitScale < detailScale, 'fit should zoom out to show the whole level');
+  const fitOffset = courseBuilder.viewOffset();
+  const probeScreen = fitOffset.x + 400 * fitScale;
+  assert.ok(
+    Math.abs(courseBuilder.screenToWorldX(probeScreen) - 400) < 0.5,
+    'screen-to-world should invert the fit transform',
+  );
+  courseBuilder.toggleZoom();
+  assert.equal(courseBuilder.fitMode, false, 'ZOOM should switch to 1:1 detail');
+  courseBuilder.toggleZoom();
+  assert.equal(courseBuilder.fitMode, true, 'ZOOM should switch back to the whole level');
+
+  courseBuilder.fitMode = false;
+  courseBuilder.zoom = 1;
+  courseBuilder.nudgeZoom(2);
+  assert.equal(courseBuilder.fitMode, false, 'manual zooming should leave fit mode');
+  assert.ok(Math.abs(courseBuilder.viewScale() - 2) < 0.001, 'zooming in should increase the scale');
+  courseBuilder.nudgeZoom(0.25);
+  assert.ok(Math.abs(courseBuilder.viewScale() - 0.5) < 0.001, 'zooming out should decrease the scale');
+  courseBuilder.nudgeZoom(0.001);
+  assert.ok(courseBuilder.viewScale() >= 0.15, 'zoom should stop at the minimum');
+  courseBuilder.nudgeZoom(100);
+  assert.ok(courseBuilder.viewScale() <= 4, 'zoom should stop at the maximum');
+  courseBuilder.fitMode = true;
+
+  assert.equal(courseBuilder.panelOpen, true, 'the item shelf should start out');
+  assert.ok(courseBuilder.handleHit(958, 230), 'the right-edge triangle should be clickable');
+  courseBuilder.handlePointerDown(958, 230);
+  assert.equal(courseBuilder.panelOpen, false, 'pressing the triangle should slide the shelf away');
+  for (let i = 0; i < 90; i += 1) courseBuilder.update(1 / 60);
+  assert.ok(courseBuilder.panelX() > 900, 'the shelf should slide off to the right');
+  assert.equal(courseBuilder.listRowAt(800, 120), -1, 'a hidden shelf should not accept row clicks');
+  courseBuilder.handlePointerDown(958, 230);
+  assert.equal(courseBuilder.panelOpen, true, 'pressing the triangle again should bring the shelf back');
+  for (let i = 0; i < 90; i += 1) courseBuilder.update(1 / 60);
+  assert.ok(Math.abs(courseBuilder.panelX() - 716) < 2, 'the shelf should slide back into place');
+
+  assert.equal(courseBuilder.courses.length, 1, 'the builder should start with one saved course');
+  assert.equal(courseBuilder.courseName, 'MY COURSE', 'the first course should be named MY COURSE');
+  const originalCourseItems = courseBuilder.items.length;
+  courseBuilder.startRename();
+  courseBuilder.renameText = 'REEF RUN';
+  courseBuilder.finishRename(true);
+  assert.equal(courseBuilder.courseName, 'REEF RUN', 'renaming should update the current course');
+  const savedCoursesAfterRename = JSON.parse(storage.get('sharkquarium.rushcourses'));
+  assert.equal(savedCoursesAfterRename.courses[0].name, 'REEF RUN', 'the renamed course should persist');
+
+  courseBuilder.newCourse();
+  assert.equal(courseBuilder.courses.length, 2, 'creating a course should add a second one');
+  assert.equal(courseBuilder.items.length, 0, 'the new course should start empty');
+  assert.notEqual(courseBuilder.courseName, 'REEF RUN', 'the builder should switch to the new course');
+  courseBuilder.selectItem(0);
+  courseBuilder.cursorX = 400;
+  courseBuilder.place();
+  assert.equal(courseBuilder.items.length, 1, 'the new course should accept placements');
+  const newCourseName = courseBuilder.courseName;
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.rushcourse')).items.length,
+    1,
+    'the active course should mirror into the legacy save',
+  );
+
+  courseBuilder.switchCourse(-1);
+  assert.equal(courseBuilder.courseName, 'REEF RUN', 'switching should load the previous saved course');
+  assert.equal(
+    courseBuilder.items.length,
+    originalCourseItems,
+    'the previous course should come back with its items',
+  );
+  courseBuilder.switchCourse(1);
+  assert.equal(courseBuilder.courseName, newCourseName, 'switching forward should return to the new course');
+  assert.equal(courseBuilder.items.length, 1, 'the new course should keep its own items');
+  courseBuilder.switchCourse(-1);
+  assert.equal(courseBuilder.courseName, 'REEF RUN', 'the builder should leave the original course active');
+  const savedCourses = JSON.parse(storage.get('sharkquarium.rushcourses'));
+  assert.equal(savedCourses.courses.length, 2, 'both courses should persist');
+  assert.ok(
+    savedCourses.courses.some((course) => course.name === newCourseName),
+    'the new course should persist under its own name',
+  );
 
   courseBuilder.testPlay();
   await frames(5);
@@ -7479,6 +7707,34 @@ async function main() {
   surfaceRun.chooseResult('builder');
   await frames(5);
   assert.equal(game.currentSceneName, 'rushbuilder', 'the surface test should return to the editor');
+
+  const debugBuilder = game.scene;
+  assert.ok(debugBuilder.telemetry, 'the builder should keep the last test run telemetry');
+  assert.ok(debugBuilder.telemetry.trail.length > 0, 'the telemetry should include a trajectory line');
+
+  game.changeScene('reefrush', { course: true, fromBuilder: true });
+  await frames(5);
+  const deathRun = game.scene;
+  deathRun.items = [{ kind: 'shell', x: deathRun.player.x + 60, h: 70, count: 1 }];
+  deathRun.obstacles = deathRun.items;
+  deathRun.player.y = deathRun.groundY - deathRun.player.radius;
+  deathRun.player.vy = 0;
+  for (let i = 0; i < 60 && deathRun.dying <= 0; i += 1) deathRun.update(1 / 60);
+  assert.ok(deathRun.dying > 0, 'the debug run should crash into the shell');
+  assert.ok(deathRun.telemetry.death, 'a crash should record the death point');
+  assert.ok(deathRun.buildOffset > 0, 'the run should remember the course lead-in offset');
+  assert.ok(
+    Math.abs(deathRun.telemetry.death.x - (deathRun.player.x - deathRun.buildOffset)) < 1,
+    'the death marker should be recorded in builder coordinates',
+  );
+  assert.ok(Array.isArray(deathRun.telemetry.jumps), 'the debug should track jump markers');
+  assert.ok(Array.isArray(deathRun.telemetry.landings), 'the debug should track landing markers');
+  deathRun.finish(false);
+  await frames(2);
+  deathRun.chooseResult('builder');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'rushbuilder', 'the crash run should return to the editor');
+  assert.ok(game.scene.telemetry && game.scene.telemetry.death, 'the builder should receive the death marker');
 
   game.changeScene('reefrush', { course: true });
   await frames(5);
@@ -7631,11 +7887,18 @@ async function main() {
   courseRun.game.input.pressed.clear();
   courseRun.update(1 / 60);
   assert.equal(courseRun.form, 'nautilus', 'a nautilus portal should switch to the swing mode');
+  courseRun.form = 'nautilus';
+  courseRun.gravityUp = false;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.nautilusJetDir, -1, 'a fall-bound swing should jet water upward');
   courseRun.gravityUp = false;
   courseRun.game.input.pressed.clear();
   courseRun.game.input.pressed.add('Enter');
   courseRun.update(1 / 60);
   assert.equal(courseRun.gravityUp, true, 'a click should flip the swing nautilus');
+  assert.equal(courseRun.nautilusJetDir, 1, 'a rise-bound swing should jet water downward');
+  assert.ok(courseRun.nautilusJet > 0.5, 'a flip should puff the water jet');
   courseRun.form = 'nautilus';
   courseRun.dying = 0;
   courseRun.gravityUp = false;
@@ -7681,6 +7944,30 @@ async function main() {
     holdJump < tapJump,
     'a held robot click should jump higher than a short tap',
   );
+
+  courseRun.items = [{ kind: 'fakerock', x: 600, h: 64, count: 1, base: 0 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.dying = 0;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.x = 600;
+  courseRun.player.y = courseRun.groundY - 32;
+  courseRun.player.vy = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.dying, 0, 'a fake rock should not hurt the player');
+
+  courseRun.items = [{ kind: 'ceilfakerock', x: 600, h: 64, count: 1, base: 0 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.dying = 0;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.x = 600;
+  courseRun.player.y = 32;
+  courseRun.player.vy = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.dying, 0, 'a ceiling fake rock should not hurt the player');
   courseRun.items = [{ kind: 'ledge', x: 600, h: 200, count: 1 }];
   courseRun.obstacles = courseRun.items;
   courseRun.form = 'fish';
@@ -7771,10 +8058,39 @@ async function main() {
   assert.equal(game.currentSceneName, 'rushlevels', 'the level select should open');
   const levelSelect = game.scene;
   assert.ok(levelSelect.cards.length >= 6, 'the level select should list the levels plus my course');
-  levelSelect.index = 1;
-  levelSelect.choose(levelSelect.cards[1]);
+  for (const tf of ['fish', 'stingray', 'eel', 'crab', 'urchin', 'jelly', 'nautilus', 'shrimp']) {
+    assert.ok(
+      levelSelect.cards.some((card) => card.tutorial && card.form === tf),
+      `there should be a demonstration level for the ${tf} mode`,
+    );
+  }
+  const nautCard = levelSelect.cards.find((card) => card.id === 'tut-nautilus');
+  levelSelect.choose(nautCard);
   await frames(5);
-  assert.equal(game.currentSceneName, 'reefrush', 'choosing a level should start it');
+  assert.equal(game.currentSceneName, 'rushbrief', 'choosing a level should open its pages first');
+  const nautBrief = game.scene;
+  assert.ok(nautBrief.pages.length >= 2, 'a demonstration level should teach across pages');
+  assert.ok(nautBrief.pages.every((page) => page.lines.length > 0), 'every page should explain controls');
+  nautBrief.page = nautBrief.pages.length - 1;
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'reefrush', 'the last page should start the level');
+  const nautRun = game.scene;
+  assert.equal(nautRun.form, 'nautilus', 'the nautilus demo should start in swing mode');
+  assert.ok(nautRun.player.y < nautRun.groundY - 100, 'the swing demo should start airborne');
+
+  game.changeScene('rushlevels');
+  await frames(5);
+  const kelpIndex = levelSelect.cards.findIndex((card) => card.id === 'kelp');
+  assert.ok(kelpIndex > 0, 'the level select should still list KELP CROSSING');
+  levelSelect.index = kelpIndex;
+  levelSelect.choose(levelSelect.cards[kelpIndex]);
+  await frames(5);
+  assert.equal(game.currentSceneName, 'rushbrief', 'a normal level should brief first too');
+  game.scene.page = game.scene.pages.length - 1;
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'reefrush', 'the briefing should start the level');
   const levelRun = game.scene;
   assert.equal(levelRun.level && levelRun.level.id, 'kelp', 'the chosen level should load');
   assert.ok(levelRun.obstacles.length + levelRun.pearls.length > 0, 'the level should build a course');
@@ -7796,6 +8112,80 @@ async function main() {
   await frames(5);
   assert.equal(game.currentSceneName, 'rushlevels', 'the cutscene should return to the level select');
   assert.ok(levelSelect.cards, 'the level select should still be available');
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', season: 'none', mobilite: true }));
+  game.changeScene('settings');
+  await frames(5);
+  const mob = game.scene;
+  assert.equal(mob.settings.mobilite, true, 'mobilité should load from settings');
+  assert.equal(mob.settings.threeD, false, 'mobilité should force 3D off');
+  assert.equal(mob.settings.firstPerson, false, 'mobilité should force first person off');
+  assert.equal(mob.settings.eightBit, false, 'mobilité should force 8-bit off');
+  assert.equal(game.threeD, false, 'the game should not be in 3D under mobilité');
+  assert.equal(game.firstPerson, false, 'the game should not be in first person under mobilité');
+  mob.menu.setIndex(mob.menu.items.findIndex((item) => item.action === 'threeD'), false);
+  mob.choose(mob.menu.selected);
+  await frames(2);
+  assert.equal(mob.settings.threeD, false, 'mobilité should block the 3D toggle');
+  assert.equal(
+    mob.notice,
+    'MOBILITE MODE — THAT MODE NEEDS A KEYBOARD',
+    'mobilité should explain the block',
+  );
+
+  game.changeScene('minigames');
+  await frames(5);
+  assert.ok(
+    !game.scene.menu.items.some((item) => item.action === 'rushbuilder'),
+    'mobilité should hide the course builder',
+  );
+
+  game.changeScene('reefrush', { level: 'sunlit' });
+  await frames(3);
+  const mobRun = game.scene;
+  mobRun.player.y = mobRun.groundY - mobRun.player.radius;
+  mobRun.player.vy = 0;
+  mobRun.player.onGround = true;
+  mobRun.coyote = 0.09;
+  canvasPointerDown(300, 515);
+  await frames(3);
+  const mobJumped = mobRun.player.vy < 0;
+  canvasPointerUp();
+  assert.ok(mobJumped, 'the on-screen SPACE button should trigger the jump');
+
+  game.changeScene('chat');
+  await frames(5);
+  const mobChat = game.scene;
+  assert.equal(mobChat.mobile, true, 'chat should know mobilité is active');
+  canvasPointerDown(521, 437);
+  await frames(2);
+  canvasPointerUp();
+  await frames(2);
+  assert.ok(mobChat.inputText.includes('h'), 'the mobilité keyboard should type into chat');
+  canvasPointerDown(540, 507);
+  await frames(2);
+  canvasPointerUp();
+  await frames(2);
+  assert.equal(mobChat.inputText, '', 'the mobilité ENTER key should send the message');
+  assert.ok(mobChat.messages.length >= 2, 'the sent message should appear in chat');
+
+  game.changeScene('tag', { solo: true });
+  await frames(5);
+  const mobTag = game.scene;
+  assert.equal(mobTag.phase, 'names', 'tag should start at name entry');
+  canvasPointerDown(521, 437);
+  await frames(2);
+  canvasPointerUp();
+  await frames(2);
+  assert.ok(mobTag.inputText[0].includes('H'), 'the mobilité keyboard should type a tag name');
+  canvasPointerDown(540, 507);
+  await frames(3);
+  canvasPointerUp();
+  await frames(3);
+  assert.ok(
+    mobTag.names[0].includes('H') || mobTag.phase !== 'names',
+    'the mobilité ENTER key should start the tag round',
+  );
 
   storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', season: 'none' }));
   game.changeScene('menu');

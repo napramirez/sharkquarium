@@ -180,10 +180,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   white dot eyes on the shrimp, stingray, and nautilus via `shadowEyeColor()`) and
   RAINBOW (hue cycling) work across every creature.
 - `LoreScene` (`lore`, opened from the menu's LORE row) is the codex: it reads the
-  `LORE` catalog — THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, and THE MINIGAMES,
-  forty-four named entries in all — and renders Left/Right section tabs, an Up/Down
-  entry list with a centered window and `n/m` counters, and the wrapped story text in a
-  side panel.
+  `LORE` catalog — THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MINIGAMES, and
+  THE MODES, eighty-four named entries in all — and renders Left/Right section tabs, an Up/Down
+  entry list with a centered window and `n/m` counters, and the wrapped story text in a side
+  panel. Overlong entries are split by `paginate()` after the last complete sentence that fits
+  (ENTER turns pages, and the panel shows `PAGE n/m`).
 - `TrackPlayerScene` (`tracks`, opened from SETTINGS) lists `TRACK_LIBRARY` from
   `src/assets/tracks.js` and plays or stops any tank theme through the shared
   `MusicPlayer`; playing sets `music.hold`, so the chosen theme keeps playing after the
@@ -235,6 +236,13 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   cosmetic, all-original overlay: comic words from a local list, radiating speed lines, a bottom
   caption bar, and a corner badge, cycling every 1.7 s with deterministic hashing. No third-party
   meme assets are used.
+- **Mobilite mode** lives in `src/engine/mobilite.js` (`setMobilite()`/`isMobilite()`). `Game`
+  calls `updateMobilite()` before each scene step and `renderMobilite()` after the meme overlay to
+  draw large on-screen key buttons (W/A/S/D, SPACE, E, ESC); in `chat`, and in `tag` while
+  `phase === 'names'`, the pad becomes a **full QWERTY + ENTER keyboard**, and REEF RUSH shows only
+  SPACE + ESC. A press injects the matching key into `Input` (`pressed`/`down`/`released`) and
+  captures the pointer away from the scene. It forces 3D, first person and 8-bit off, and
+  `MinigamesScene` hides the course builder while it is on.
 - `TrackBuilderScene` (`trackbuilder`, opened from the track player) is a four-track
   sequencer: a **DRUMS / BASS / SYNTH / PIANO** tab row selects an instrument whose
   `INSTRUMENTS[i].lines` are drawn as **horizontal lines** (no grid). Clicking a line (or
@@ -259,23 +267,27 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   and **RUSH MY TRACK** hands it to `ReefRushScene` as a level; **EDIT MY TRACK** reopens
   `trackbuilder`.
 - `src/engine/rushcourse.js` owns the REEF RUSH piece format
-  (`{ goal, items: [{ kind, x, h, count, base, form }] }` under `RUSH_BUILDER_KEY`): nineteen kinds
-  (`RUSH_KINDS` = shell/seaweed/ceilshell/ceilweed/rock/ceilrock/pearl/bubble/gravity/gravpad/
-  ceilgravpad/pad/ceilpad/ledge/slopeup/slopedown/portal/gravup/gravdown)
+  (`{ goal, items: [{ kind, x, h, count, base, lift, form }] }`; named courses live in
+  `RUSH_COURSES_KEY` as `{ activeId, courses: [{ id, name, goal, items }] }` and the active one
+  mirrors to `RUSH_BUILDER_KEY`): twenty-one kinds
+  (`RUSH_KINDS` = shell/seaweed/ceilshell/ceilweed/rock/ceilrock/fakerock/ceilfakerock/pearl/
+  bubble/gravity/gravpad/ceilgravpad/pad/ceilpad/ledge/slopeup/slopedown/portal/gravup/gravdown)
   with `RUSH_META` (size, ground vs air vs ceiling) and `RUSH_HEIGHTS`;
   `rushItemRect(item, groundY, ceilingY)` turns any item into its collision/draw rect (rocks and
   ceiling rocks use `count` for stacking, the floating **ledge** sits at any height via `h`,
-  portals use `form`, ceiling pieces hang from `ceilingY`, and a `base` offset lets a shell/weed
-  or a bubble pad sit on top of a rock, a floating ledge, or hang under a ceiling rock). The stingray, jelly, eel, urchin, and fish
-  survive as **portal target modes only** (`RUSH_PORTAL_FORMS`), not hazards; an old save naming
+  portals use `form`, ceiling pieces hang from `ceilingY`, a `base` offset lets a shell/weed,
+  bubble pad, or a (fake or real) rock sit on top of a rock or ledge / hang under a ceiling rock,
+  and a `lift` offset places any piece at any height). The eight portal forms
+  (`RUSH_PORTAL_FORMS` = fish/stingray/eel/crab/urchin/jelly/nautilus/shrimp) are **modes only**,
+  not hazards; an old save naming
   one of them as a hazard is migrated to a `portal`. `RushBuilderScene`
   (`rushbuilder`, opened from MINIGAMES) is the editor: arrows move a cursor, a **scrub slider**
   along the bottom of the track drags the cursor across the whole course (with a goal tick), a **vertical
   scroll list on the right** (scroll with `Q`/`E`, the **mouse wheel**, or click a row, or
   `1`–`0`) lists the pieces (SHELL/SEAWEED/CEILING SHELL/CEILING WEED/ROCK/CEILING ROCK/PEARL/
   PRESSURE BUBBLE/GRAVITY BUBBLE/GRAVITY BUBBLE PAD/CEILING GRAVITY BUBBLE PAD/THRUST BUBBLE
-  PAD/CEILING THRUST BUBBLE PAD/FLOATING LEDGE/SLOPE UP/SLOPE DOWN) then the modes
-  (STINGRAY/DART EEL/CRAB/URCHIN/JELLY/FISH) and the gravity portals (GRAVITY PORTAL flips gravity,
+  PAD/CEILING THRUST BUBBLE PAD/FLOATING LEDGE/SLOPE UP/SLOPE DOWN/FAKE ROCK/CEILING FAKE ROCK)
+  then the modes (STINGRAY/DART EEL/CRAB/URCHIN/JELLY/FISH/NAUTILUS/SHRIMP) and the gravity portals (GRAVITY PORTAL flips gravity,
   NORMAL GRAVITY PORTAL restores it in any mode), Enter/click places (a portal carries the selected
   mode's `form`), **clicking a rock or ceiling rock again stacks it**, a **hold + vertical drag
   resizes a piece**, `X` removes, `C` clears, `G-`/`G+` set the goal; `TEST` launches it from the
@@ -283,13 +295,21 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   turns into a starting `scrollX` and calls `spawnSurfaceAt()` to stand the fish on the nearest
   landable surface (ground, rock, or ledge) so any stretch of the course can be tried, with a
   `fromBuilder` flag, so a crash shows a **BACK TO BUILDING** result action (and Esc returns to
-  the editor) instead of the normal minigame menu, and test runs are not recorded. All
-  edits save immediately.
+  the editor) instead of the normal minigame menu, and test runs are not recorded. Returning to
+  the editor draws that run's **debug overlay** (a dashed trajectory, a blinking death circle,
+  jump triangles and landing squares), recorded in builder coordinates. The course view fills the
+  whole canvas: it opens in a **FIT** zoom showing the whole level, `Z` / the FIT button toggles
+  to 1:1, `-`/`=` and Shift+wheel zoom freely (15%–400%), and a right-edge triangle slides the
+  item shelf away. `Shift+Up/Down` sets a per-piece `lift` for free-height placement. All edits
+  save immediately.
 - `src/engine/rushlevels.js` holds the **original hand-authored levels** (`RUSH_LEVELS`),
   the progress store (`RUSH_PROGRESS_KEY`, `{ beaten: [] }`), and `beatLevel()` which records
   a first clear and adds the level's `skin` to `SHOP_KEY.owned`. `RushLevelsScene`
   (`rushlevels`) is the **sideways-scrolling** level select (Left/Right scroll, Enter plays;
-  cards show cleared state and a `MY COURSE` card). Each level declares a `form` (sunlit→fish,
+  cards show cleared state and a `MY COURSE` card). It opens with eight **demonstration levels**
+  (one per portal mode) that teach their mode through a **paged briefing** before the run —
+  `RushBriefScene` (`rushbrief`) shows a generic course page plus a mode page, turned with
+  Left/Right and started on the last page. Each level declares a `form` (sunlit→fish,
   kelp→eel, stingray→stingray, jelly→jelly, current→urchin) that `buildRound()` sets as the
   starting swimmer; the level data builds mode-specific geometry with `pillar()` (a ceiling-rock
   stack and a rock stack with a hole between them) and `eelGate()` (a hanging weed and a ground
@@ -410,7 +430,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   floating ledge, found by `nearestSurfaceY()`), `urchin` (`flipGravity(false)` + gravity toward `gravityUp`), `jelly`
   (gravity + press-only hop with a short cooldown), `nautilus` (a **swing**: `flipGravity(false)` on
   each click + damped drift, with `noContact` so touching the floor/ceiling or any obstacle calls
-  `kill()` instead of landing), and `shrimp` (a **robot**: holding on the ground builds
+  `kill()` instead of landing), and `shrimp` (a **jumper** \u2014 no robot, it just leaps high \u2014: holding on the ground builds
   `robotCharge`, releasing launches `vy = -jump * (low + charge*(high-low))` — a tap is a low hop). `enterPortal()` sets `this.form` when the
   player overlaps a portal of a different form, and `renderPlayer()` draws each mode. The
   **DART EEL** wears the Nautilus Tank's dart-eel head (`drawDartEelHead()`) but paints its

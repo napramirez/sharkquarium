@@ -5,6 +5,7 @@ import { mutatorCoinMult } from './mutators.js';
 import { drawText } from './render.js';
 import { is8Bit, PIXEL_WIDTH, PIXEL_HEIGHT } from './retro.js';
 import { drawMemeOverlay } from './meme.js';
+import { isMobilite, renderMobilite, updateMobilite } from './mobilite.js';
 import { FIRST_PERSON } from '../config.js';
 
 const FIRST_PERSON_SCENES = new Set([
@@ -52,6 +53,8 @@ export class Game {
     this.scaleY = 1;
     this.threeD = false;
     this.firstPerson = false;
+    this.mobiliteHeld = new Set();
+    this.mobilitePointerDown = false;
     this.resize = this.resize.bind(this);
     this.tick = this.tick.bind(this);
     this.handleFirstPersonGesture = this.handleFirstPersonGesture.bind(this);
@@ -151,6 +154,11 @@ export class Game {
     while (this.accumulator >= FIXED_STEP && steps < MAX_STEPS) {
       this.applyPending();
       this.updateFirstPerson();
+      if (isMobilite()) {
+        if (this.input.pressed.has('PointerPrimary')) this.mobilitePointerDown = true;
+        if (this.input.released.has('PointerPrimary')) this.mobilitePointerDown = false;
+        updateMobilite(this.input, this.currentSceneName, this.scene, this.mobiliteHeld, this.mobilitePointerDown);
+      }
       if (this.scene) this.scene.update(FIXED_STEP);
       if (this.music) this.music.update(FIXED_STEP);
       this.input.update();
@@ -239,12 +247,14 @@ export class Game {
       }
       ctx.setTransform(this.scaleX, 0, 0, this.scaleY, 0, 0);
       drawMemeOverlay(ctx, this.scene ? this.scene.time : 0, this.width, this.height);
+      renderMobilite(ctx, this.input, this.currentSceneName, this.scene, this.mobilitePointerDown);
       return;
     }
     ctx.imageSmoothingEnabled = true;
     ctx.setTransform(this.scaleX, 0, 0, this.scaleY, 0, 0);
     this.renderScene(ctx);
     drawMemeOverlay(ctx, this.scene ? this.scene.time : 0, this.width, this.height);
+    renderMobilite(ctx, this.input, this.currentSceneName);
   }
 
   renderScene(ctx) {

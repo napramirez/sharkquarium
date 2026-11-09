@@ -5,6 +5,7 @@ import { LORE, COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE } from '../c
 
 const VISIBLE = 9;
 const LINE_WIDTH = 44;
+const LINES_PER_PAGE = 10;
 
 function wrap(text) {
   const words = text.split(' ');
@@ -23,11 +24,40 @@ function wrap(text) {
   return lines;
 }
 
+function paginate(text) {
+  const sentences = text.match(/[^.!?]+[.!?]*/g) ?? [text];
+  const pages = [];
+  let page = [];
+  for (const raw of sentences) {
+    const sentence = raw.trim();
+    if (!sentence) continue;
+    const lines = wrap(sentence);
+    if (page.length > 0 && page.length + lines.length > LINES_PER_PAGE) {
+      pages.push(page);
+      page = [];
+    }
+    if (lines.length > LINES_PER_PAGE) {
+      for (const line of lines) {
+        if (page.length >= LINES_PER_PAGE) {
+          pages.push(page);
+          page = [];
+        }
+        page.push(line);
+      }
+    } else {
+      page.push(...lines);
+    }
+  }
+  if (page.length) pages.push(page);
+  return pages.length ? pages : [['']];
+}
+
 export class LoreScene extends Scene {
   enter() {
     this.time = 0;
     this.sectionIndex = 0;
     this.entryIndex = 0;
+    this.page = 0;
   }
 
   get section() {
@@ -42,12 +72,14 @@ export class LoreScene extends Scene {
     const count = LORE.length;
     this.sectionIndex = (this.sectionIndex + step + count) % count;
     this.entryIndex = 0;
+    this.page = 0;
     this.game.audio.tone({ freq: 480 + this.sectionIndex * 60, duration: 0.06, volume: 0.14 });
   }
 
   moveEntry(step) {
     const count = this.section.entries.length;
     this.entryIndex = (this.entryIndex + step + count) % count;
+    this.page = 0;
     this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.1 });
   }
 
@@ -62,6 +94,13 @@ export class LoreScene extends Scene {
     if (input.wasPressed('right')) this.moveSection(1);
     if (input.wasPressed('up')) this.moveEntry(-1);
     if (input.wasPressed('down')) this.moveEntry(1);
+    if (input.wasPressed('confirm')) {
+      const pages = paginate(this.entry.text).length;
+      if (pages > 1) {
+        this.page = (this.page + 1) % pages;
+        this.game.audio.tone({ freq: 560, duration: 0.05, volume: 0.1 });
+      }
+    }
   }
 
   renderTabs(ctx) {
@@ -128,7 +167,9 @@ export class LoreScene extends Scene {
     ctx.moveTo(480, 216);
     ctx.lineTo(832, 216);
     ctx.stroke();
-    const lines = wrap(this.entry.text);
+    const pages = paginate(this.entry.text);
+    const page = Math.min(this.page, pages.length - 1);
+    const lines = pages[page];
     lines.forEach((line, index) => {
       drawText(ctx, line, 480, 244 + index * 22, {
         size: 13,
@@ -137,6 +178,14 @@ export class LoreScene extends Scene {
         alpha: 0.92,
       });
     });
+    if (pages.length > 1) {
+      drawText(ctx, `PAGE ${page + 1}/${pages.length}    ENTER — NEXT PAGE`, 832, 456, {
+        size: 11,
+        color: COLORS.accent,
+        align: 'right',
+        alpha: 0.85,
+      });
+    }
   }
 
   render(ctx) {
@@ -157,7 +206,7 @@ export class LoreScene extends Scene {
     this.renderPanel(ctx);
     drawText(
       ctx,
-      'LEFT/RIGHT — SECTION      UP/DOWN — ENTRY      ESC — BACK',
+      'LEFT/RIGHT — SECTION      UP/DOWN — ENTRY      ENTER — NEXT PAGE      ESC — BACK',
       LOGICAL_WIDTH / 2,
       LOGICAL_HEIGHT - 16,
       { size: 12, color: COLORS.textDim, alpha: 0.75 },

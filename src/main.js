@@ -6,6 +6,7 @@ import { setSeason } from './engine/season.js';
 import { set8Bit } from './engine/retro.js';
 import { setActiveEmote } from './engine/emotes.js';
 import { setMeme } from './engine/meme.js';
+import { setMobilite } from './engine/mobilite.js';
 import { BootScene } from './scenes/boot.js';
 import { IntroScene } from './scenes/intro.js';
 import { TeleportScene } from './scenes/teleport.js';
@@ -53,6 +54,7 @@ import { ReefRushScene } from './scenes/reefrush.js';
 import { RushBuilderScene } from './scenes/rushbuilder.js';
 import { RushLevelsScene } from './scenes/rushlevels.js';
 import { RushClearScene } from './scenes/rushclear.js';
+import { RushBriefScene } from './scenes/rushbrief.js';
 import { TrackBuilderScene } from './scenes/trackbuilder.js';
 import { PlayScene } from './scenes/play.js';
 import { GameOverScene } from './scenes/gameover.js';
@@ -92,6 +94,13 @@ game.setFirstPerson(savedSettings.firstPerson ?? false);
 setSeason(savedSettings.season ?? (savedSettings.christmas ? 'christmas' : 'none'));
 set8Bit(savedSettings.eightBit ?? false);
 setMeme(savedSettings.meme ?? false);
+setMobilite(savedSettings.mobilite ?? false);
+if (savedSettings.mobilite) {
+  game.set3D(false);
+  game.setFirstPerson(false);
+  set8Bit(false);
+  audio.applyRetro();
+}
 setActiveEmote(loadJSON(SHOP_KEY, {}).emote ?? 'none');
 
 game.register('boot', new BootScene());
@@ -142,6 +151,7 @@ game.register('reefrush', new ReefRushScene());
 game.register('rushbuilder', new RushBuilderScene());
 game.register('rushlevels', new RushLevelsScene());
 game.register('rushclear', new RushClearScene());
+game.register('rushbrief', new RushBriefScene());
 game.register('trackbuilder', new TrackBuilderScene());
 game.register('play', new PlayScene());
 game.register('gameover', new GameOverScene());

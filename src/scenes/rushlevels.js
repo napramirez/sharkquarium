@@ -19,6 +19,8 @@ export class RushLevelsScene extends Scene {
       label: level.name,
       blurb: level.blurb,
       skin: level.skin,
+      form: level.form,
+      tutorial: Boolean(level.tutorial),
       kind: 'level',
       beaten: isLevelBeaten(level.id),
     }));
@@ -62,7 +64,7 @@ export class RushLevelsScene extends Scene {
       this.game.changeScene('reefrush', { course: true });
       return;
     }
-    this.game.changeScene('reefrush', { level: card.id });
+    this.game.changeScene('rushbrief', { level: card.id });
   }
 
   update(dt) {
@@ -107,7 +109,10 @@ export class RushLevelsScene extends Scene {
     fillRoundRect(ctx, x, top, CARD_W, 240, 20, gradient);
     strokeRoundRect(ctx, x, top, CARD_W, 240, 20, active ? COLORS.accent : 'rgba(207, 239, 255, 0.25)', active ? 3 : 1.5);
     if (card.kind === 'level') {
-      drawText(ctx, `LEVEL`, x + CARD_W / 2, top + 30, { size: 12, color: COLORS.textDim });
+      drawText(ctx, card.tutorial ? 'TUTORIAL' : 'LEVEL', x + CARD_W / 2, top + 30, {
+        size: 12,
+        color: card.tutorial ? COLORS.accent : COLORS.textDim,
+      });
     } else {
       drawText(ctx, `CUSTOM`, x + CARD_W / 2, top + 30, { size: 12, color: COLORS.textDim });
     }

@@ -30,7 +30,7 @@ index.html           dev entry that loads the ES modules
 styles/main.css      page shell styles
 src/engine/          reusable engine (loop, scenes, input, audio, rendering, UI widgets)
 src/ui/              game HUD
-src/scenes/          boot, intro, menu, tank select, settings, shop, minigames, tag, AI chat (FINN the CPU), dodgeball, labyrinth, puffer ball, school roundup, stealth dive, trench dive, trench explore, jelly ascent, reef cleanup, abyss boss, reef swarm queen, raycast maze, mysteriously quiet horror tank, the escape chase, the watcher look-away horror tank, the trench mouth anchor-against-the-gulp horror tank, the prehistoric lungfish chase tank, the playtoy toy-liner exploration tank, mutators screen, boss rush gauntlet, records board, track player, cutscene theatre, game trailer, movie and shop trailers, lore codex, aquarium builder and dive, play, game over, descent, dawn cutscene
+src/scenes/          boot, intro, menu, tank select, settings, shop, minigames, tag, AI chat (FINN the CPU), dodgeball, labyrinth, puffer ball, school roundup, stealth dive, trench dive, trench explore, jelly ascent, reef cleanup, abyss boss, reef swarm queen, raycast maze, mysteriously quiet horror tank, the escape chase, the watcher look-away horror tank, the trench mouth anchor-against-the-gulp horror tank, the prehistoric lungfish chase tank, the playtoy toy-liner exploration tank, mutators screen, boss rush gauntlet, records board, REEF RUSH levels, paged briefings and course builder, track player, cutscene theatre, game trailer, movie and shop trailers, lore codex, aquarium builder and dive, play, game over, descent, dawn cutscene
 src/entities/        each tank's player creatures, hazards, and collectibles
 src/config.js        all game tuning and palette
 src/assets/          image manifest (data URIs) + tank music tracks
@@ -136,7 +136,7 @@ including the MINI MEGASQUID — and
 head/body trinket slots plus the COSTUMES row and cheap EMOTES (equip one, press V in a dive on any creature —
 CHAIN-FIN TRANSFORM reaches a fin/tentacle to the tummy rip cord to slide the chainsaw visor on and off, plus SPIN BARREL ROLL, BOOP, TAIL WIGGLE, and BUBBLE BLOW), the 2P
 wardrobe with its PLAYER row and per-player buddy,
-trail, and aura slots, the lore codex with its five sections, the playerless pets tank
+trail, and aura slots, the lore codex with its six sections (and auto-paged long entries), the playerless pets tank
 with its snack-feeding (clicks and on-screen buttons),
 despawn lures, saved progress, pet tricks, toys, postcards, and meal packs, and
 cross-level enemy waves (jellyfish, turtle, pufferfish, anglerfish, and morays) that bite the pets and drain the tally, minigame
@@ -165,12 +165,12 @@ trailers, and mode-exclusive minigames — Christmas: WRAP THE PRESENTS, SANTA'S
 JACK-O'-LANTERN HUNT, SPECTRE SWEEP; New Year: MIDNIGHT FIREWORKS, CONFETTI RUSH — on a
 scrollable minigame list), 8-BIT MODE
 (a 256×144 pixelated render with chiptune audio), MEME MODE (all-original comic pop-up words,
-speed lines and goofy captions over every screen), and REEF RUSH (an
+speed lines and goofy captions over every screen), MOBILITE MODE (large on-screen W/A/S/D, SPACE, E and ESC buttons — plus a full keyboard for chat and tag names — that disables 3D, first person, 8-bit and the course builder), and REEF RUSH (an
 original rhythm-runner with original hazards — seaweed/shell spikes on the floor and ceiling,
 stackable floor/ceiling rocks, standable floating ledges, runnable slopes, pearls, air-boosting
 pressure bubbles, gravity bubbles and gravity bubble pads, and thrust bubble jump pads on the
 floor and ceiling — plus transformation portals that switch you into eight
-swimmer modes (including a fish portal that turns you back, a swing nautilus that dies on contact, and a charge-jump shrimp robot), playable on original levels with an end cutscene and skin
+swimmer modes (including a fish portal that turns you back, a swing nautilus that dies on contact, and a charge-jump mantis shrimp), playable on original levels with an end cutscene and skin
 unlocks, on a course built from your own song, or you can design one by hand in the course
 builder with its scrollable item list), and the TRACK BUILDER (a stretchable
 four-track DRUMS/BASS/SYNTH/PIANO tone-block sequencer on horizontal lines, playable and

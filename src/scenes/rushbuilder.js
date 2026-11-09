@@ -6,9 +6,14 @@ import {
   RUSH_MAX_X,
   RUSH_HEIGHTS,
   RUSH_KIND_LABELS,
+  RUSH_META,
+  RUSH_MAX_LIFT,
   rushItemRect,
-  loadRushCourse,
+  loadRushCourses,
   saveRushCourse,
+  createRushCourse,
+  renameRushCourse,
+  setActiveRushCourse,
 } from '../engine/rushcourse.js';
 import { drawStingrayBody } from '../entities/stingray.js';
 import { REEF_RUSH, COLORS, SKINS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE } from '../config.js';
@@ -52,11 +57,27 @@ const ITEM_LIST = [
   { label: 'GRAVITY PORTAL', kind: 'gravup', group: 'mode', color: '#b07bff' },
   { label: 'NORMAL GRAVITY PORTAL', kind: 'gravdown', group: 'mode', color: '#63e6ff' },
   { label: 'NAUTILUS', kind: 'portal', form: 'nautilus', group: 'mode', color: '#d9a93c' },
-  { label: 'SHRIMP', kind: 'portal', form: 'shrimp', group: 'mode', color: '#ff8f7a' },
+  { label: 'SHRIMP', kind: 'portal', form: 'shrimp', group: 'mode', color: '#8fe14a' },
+  { label: 'FAKE ROCK', kind: 'fakerock', group: 'piece' },
+  { label: 'CEILING FAKE ROCK', kind: 'ceilfakerock', group: 'piece' },
 ];
 
 const PLAY_W = PANEL_X;
+const VIEW_W = LOGICAL_WIDTH;
+const VIEW_H = LOGICAL_HEIGHT;
 const SLIDER = { x: 24, y: 456, w: PANEL_X - 48, h: 10 };
+
+const COURSE_BAR = { x: 8, y: 12, w: PLAY_W - 16, h: 24 };
+const COURSE_ACTIONS = {
+  prev: { x: 452, y: 14, w: 24, h: 20 },
+  next: { x: 480, y: 14, w: 24, h: 20 },
+  rename: { x: 510, y: 14, w: 78, h: 20 },
+  new: { x: 594, y: 14, w: 66, h: 20 },
+  zoom: { x: 660, y: 14, w: 48, h: 20 },
+};
+const KEY_LETTER = /^Key[A-Z]$/;
+const KEY_DIGIT = /^Digit[0-9]$/;
+const NAME_MAX = 20;
 
 const ACTIONS = {
   test: { x: 120, y: 496, w: 80, h: 30 },
@@ -73,7 +94,7 @@ const PORTAL_COLORS = {
   urchin: '#7a5b96',
   jelly: '#c9a6ff',
   nautilus: '#d9a93c',
-  shrimp: '#ff8f7a',
+  shrimp: '#8fe14a',
 };
 
 const SPOTTED_RAY = SKINS.find((skin) => skin.key === 'spottedray') ?? {};
@@ -91,9 +112,15 @@ function drawSpottedRay(ctx, radius, time) {
 }
 
 export class RushBuilderScene extends Scene {
-  enter() {
+  enter(params = {}) {
     this.time = 0;
-    const course = loadRushCourse();
+    this.telemetry = params.telemetry ?? this.game.rushDebug ?? null;
+    this.game.rushDebug = null;
+    const state = loadRushCourses();
+    const course = state.courses.find((entry) => entry.id === state.activeId) ?? state.courses[0];
+    this.courses = state.courses;
+    this.courseId = course.id;
+    this.courseName = course.name;
     this.goal = course.goal;
     this.items = course.items;
     this.cursorX = 300;
@@ -103,12 +130,20 @@ export class RushBuilderScene extends Scene {
     for (const entry of ITEM_LIST) this.heightIndex[entry.kind] = 1;
     this.drag = null;
     this.sliderDrag = false;
+    this.cursorLift = 0;
+    this.fitMode = true;
+    this.zoom = 1;
+    this.panelOpen = true;
+    this.panelShift = 0;
+    this.renaming = false;
+    this.renameText = '';
     this.status = 'PICK AN ITEM, MOVE WITH ARROWS, ENTER OR CLICK TO PLACE';
     this.statusTimer = 3.6;
   }
 
   exit() {
     this.save();
+    this.game.rushDebug = null;
   }
 
   entry() {
@@ -135,6 +170,125 @@ export class RushBuilderScene extends Scene {
 
   save() {
     saveRushCourse({ goal: this.goal, items: this.items });
+    this.syncCourses();
+  }
+
+  syncCourses() {
+    const state = loadRushCourses();
+    this.courses = state.courses;
+    const course = state.courses.find((entry) => entry.id === state.activeId) ?? state.courses[0];
+    if (course) {
+      this.courseId = course.id;
+      this.courseName = course.name;
+    }
+  }
+
+  courseIndex() {
+    const index = this.courses.findIndex((course) => course.id === this.courseId);
+    return index < 0 ? 0 : index;
+  }
+
+  loadCourse(course) {
+    this.courseId = course.id;
+    this.courseName = course.name;
+    this.goal = course.goal;
+    this.items = course.items;
+    this.cursorX = 300;
+    this.cursorLift = 0;
+    this.drag = null;
+  }
+
+  switchCourse(step) {
+    if (this.courses.length < 2) {
+      this.setStatus('ONLY ONE COURSE — PRESS N TO START ANOTHER');
+      return;
+    }
+    this.save();
+    const index = this.courseIndex();
+    const next = this.courses[(index + step + this.courses.length) % this.courses.length];
+    const course = setActiveRushCourse(next.id);
+    this.loadCourse(course);
+    this.syncCourses();
+    this.setStatus(`LOADED "${course.name}"`);
+    this.game.audio.tone({ freq: 460, endFreq: 640, duration: 0.08, volume: 0.14 });
+  }
+
+  newCourse() {
+    this.save();
+    const course = createRushCourse('');
+    this.loadCourse(course);
+    this.syncCourses();
+    this.setStatus(`NEW COURSE "${course.name}" — PRESS R TO RENAME`);
+    this.game.audio.tone({ freq: 320, endFreq: 660, duration: 0.14, volume: 0.16 });
+  }
+
+  startRename() {
+    this.renaming = true;
+    this.renameText = this.courseName;
+    this.status = 'TYPE A COURSE NAME — ENTER SAVES — ESC CANCELS';
+    this.statusTimer = 999;
+    this.game.audio.tone({ freq: 560, duration: 0.05, volume: 0.12 });
+  }
+
+  updateRename() {
+    const input = this.game.input;
+    for (const code of input.pressed) {
+      if (KEY_LETTER.test(code)) {
+        if (this.renameText.length < NAME_MAX) this.renameText += code.slice(3);
+      } else if (KEY_DIGIT.test(code)) {
+        if (this.renameText.length < NAME_MAX) this.renameText += code.slice(5);
+      } else if (code === 'Space') {
+        if (this.renameText.length < NAME_MAX) this.renameText += ' ';
+      } else if (code === 'Backspace') {
+        this.renameText = this.renameText.slice(0, -1);
+      } else if (code === 'Enter' || code === 'NumpadEnter') {
+        this.finishRename(true);
+        return;
+      } else if (code === 'Escape') {
+        this.finishRename(false);
+        return;
+      }
+    }
+    this.statusTimer = 999;
+  }
+
+  finishRename(commit) {
+    if (commit) {
+      const name = this.renameText.trim();
+      const course = name ? renameRushCourse(name) : null;
+      if (course) this.courseName = course.name;
+      if (name) this.setStatus(`RENAMED TO "${this.courseName}"`);
+      else this.setStatus('NAME EMPTY — KEPT THE OLD NAME');
+      this.game.audio.tone({ freq: 620, endFreq: 820, duration: 0.08, volume: 0.14 });
+    } else {
+      this.setStatus('RENAME CANCELLED');
+      this.game.audio.tone({ freq: 240, endFreq: 180, duration: 0.08, volume: 0.12 });
+    }
+    this.syncCourses();
+    this.renaming = false;
+    this.renameText = '';
+    this.statusTimer = 2.6;
+  }
+
+  toggleZoom() {
+    this.fitMode = !this.fitMode;
+    if (!this.fitMode) this.zoom = 1;
+    this.setStatus(this.fitMode ? 'ZOOM — WHOLE LEVEL' : 'ZOOM — 1:1 DETAIL');
+    this.game.audio.tone({ freq: this.fitMode ? 380 : 640, duration: 0.06, volume: 0.12 });
+  }
+
+  nudgeZoom(factor) {
+    const base = this.fitMode ? (factor >= 1 ? 1 : this.viewScale()) : this.zoom;
+    this.fitMode = false;
+    this.zoom = clamp(base * factor, 0.15, 4);
+    this.setStatus(`ZOOM ${Math.round(this.zoom * 100)}%`);
+    this.game.audio.tone({ freq: 420 + this.zoom * 120, duration: 0.04, volume: 0.1 });
+  }
+
+  courseActionAt(x, y) {
+    return Object.entries(COURSE_ACTIONS).find(
+      ([, r]) => x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h,
+    );
   }
 
   setStatus(text) {
@@ -142,8 +296,58 @@ export class RushBuilderScene extends Scene {
     this.statusTimer = 2.6;
   }
 
-  cameraX() {
-    return clamp(this.cursorX - PLAY_W * 0.4, 0, RUSH_MAX_X - PLAY_W);
+  panelX() {
+    return PANEL_X + this.panelShift * (PANEL_W + 16);
+  }
+
+  handleRect() {
+    return { x: VIEW_W - 30, y: 200, w: 30, h: 72 };
+  }
+
+  handleHit(x, y) {
+    const r = this.handleRect();
+    return x >= r.x - 8 && x <= r.x + r.w + 8 && y >= r.y && y <= r.y + r.h;
+  }
+
+  worldEnd() {
+    let maxX = this.goal;
+    for (const item of this.items) maxX = Math.max(maxX, item.x + 160);
+    return Math.max(maxX, 2400);
+  }
+
+  viewScale() {
+    if (!this.fitMode) return this.zoom;
+    const worldEnd = this.worldEnd();
+    const worldH = GROUND_Y - AREA_TOP;
+    const availH = VIEW_H - 120;
+    const scale = Math.min((VIEW_W * 0.97) / worldEnd, availH / worldH);
+    return clamp(scale, 0.02, 1);
+  }
+
+  viewOffset() {
+    const scale = this.viewScale();
+    const worldH = GROUND_Y - AREA_TOP;
+    if (!this.fitMode) {
+      const visible = VIEW_W / scale;
+      const cam = clamp(this.cursorX - visible * 0.35, 0, Math.max(0, this.worldEnd() - visible));
+      return { x: -cam * scale, y: 60 + (VIEW_H - 120 - worldH * scale) / 2 - AREA_TOP * scale };
+    }
+    const worldEnd = this.worldEnd();
+    const availH = VIEW_H - 120;
+    return {
+      x: (VIEW_W - worldEnd * scale) / 2,
+      y: 60 + (availH - worldH * scale) / 2 - AREA_TOP * scale,
+    };
+  }
+
+  screenToWorldX(px) {
+    const scale = this.viewScale();
+    return (px - this.viewOffset().x) / scale;
+  }
+
+  screenToWorldY(py) {
+    const scale = this.viewScale();
+    return (py - this.viewOffset().y) / scale;
   }
 
   snapped() {
@@ -158,6 +362,7 @@ export class RushBuilderScene extends Scene {
 
   selectItem(index) {
     this.itemIndex = clamp(index, 0, ITEM_LIST.length - 1);
+    this.cursorLift = 0;
     this.drag = null;
     this.clampList();
     this.game.audio.tone({ freq: 420 + this.itemIndex * 40, duration: 0.06, volume: 0.12 });
@@ -180,23 +385,43 @@ export class RushBuilderScene extends Scene {
 
   baseFor(kind, x) {
     const near = (k) => this.items.find((it) => it.kind === k && Math.abs(it.x - x) < RUSH_GRID * 0.6);
-    if (kind === 'shell' || kind === 'seaweed' || kind === 'pad' || kind === 'gravpad') {
+    if (kind === 'rock') {
+      const fake = near('fakerock') ?? near('ceilfakerock');
+      if (!fake) return 0;
+      return Math.max(0, Math.round(GROUND_Y - rushItemRect(fake, GROUND_Y, AREA_TOP).y));
+    }
+    if (kind === 'ceilrock') {
+      const fake = near('ceilfakerock');
+      if (fake) {
+        const rect = rushItemRect(fake, GROUND_Y, AREA_TOP);
+        return Math.max(0, Math.round(rect.y + rect.h - AREA_TOP));
+      }
+      const groundFake = near('fakerock');
+      if (groundFake) {
+        const top = rushItemRect(groundFake, GROUND_Y, AREA_TOP).y;
+        return Math.max(0, Math.round(top - AREA_TOP - this.height() * 0.85));
+      }
+      return 0;
+    }
+    if (kind === 'shell' || kind === 'seaweed' || kind === 'pad' || kind === 'gravpad' || kind === 'fakerock') {
       const rock = near('rock');
       const ledge = near('ledge');
-      const rockBase = rock ? (rock.count || 1) * rock.h * 0.85 : 0;
+      const rockBase = rock ? (rock.base || 0) + (rock.count || 1) * rock.h * 0.85 : 0;
       const ledgeBase = ledge ? ledge.h : 0;
       return Math.max(rockBase, ledgeBase);
     }
-    if (kind === 'ceilshell' || kind === 'ceilweed' || kind === 'ceilpad' || kind === 'ceilgravpad') {
+    if (kind === 'ceilshell' || kind === 'ceilweed' || kind === 'ceilpad' || kind === 'ceilgravpad' || kind === 'ceilfakerock') {
       const rock = near('ceilrock');
-      return rock ? (rock.count || 1) * rock.h * 0.85 : 0;
+      return rock ? (rock.base || 0) + (rock.count || 1) * rock.h * 0.85 : 0;
     }
     return 0;
   }
 
   place(x = this.snapped()) {
+    const lift = this.cursorLift;
+    this.cursorLift = 0;
     const kind = this.kind();
-    if (kind === 'rock' || kind === 'ceilrock') {
+    if (kind === 'rock' || kind === 'ceilrock' || kind === 'fakerock' || kind === 'ceilfakerock') {
       const existing = this.items.find((it) => it.kind === kind && Math.abs(it.x - x) < RUSH_GRID * 0.6);
       if (existing && (existing.count || 1) < 8) {
         existing.count = (existing.count || 1) + 1;
@@ -206,7 +431,7 @@ export class RushBuilderScene extends Scene {
         return existing;
       }
     }
-    const item = { kind, x, h: this.height(), count: 1 };
+    const item = { kind, x, h: this.height(), count: 1, lift };
     if (kind === 'portal') item.form = this.form();
     if (kind === 'bubble' || kind === 'gravity') item.h = Math.max(60, item.h);
     item.base = this.baseFor(kind, x);
@@ -233,7 +458,7 @@ export class RushBuilderScene extends Scene {
       return;
     }
     const item = this.items[best];
-    if ((item.kind === 'rock' || item.kind === 'ceilrock') && (item.count || 1) > 1) {
+    if ((item.kind === 'rock' || item.kind === 'ceilrock' || item.kind === 'fakerock' || item.kind === 'ceilfakerock') && (item.count || 1) > 1) {
       item.count -= 1;
       this.setStatus(`UNSTACKED ${RUSH_KIND_LABELS[item.kind]} x${item.count}`);
     } else {
@@ -257,6 +482,26 @@ export class RushBuilderScene extends Scene {
     this.game.audio.tone({ freq: 480, duration: 0.05, volume: 0.12 });
   }
 
+  adjustLift(step) {
+    this.cursorLift = clamp(this.cursorLift + step, -RUSH_MAX_LIFT, RUSH_MAX_LIFT);
+    this.game.audio.tone({ freq: 460 + this.cursorLift, duration: 0.04, volume: 0.1 });
+  }
+
+  pointerLift(x, y) {
+    const kind = this.kind();
+    const meta = RUSH_META[kind] ?? RUSH_META.shell;
+    const natural = rushItemRect(
+      { kind, x, h: this.height(), count: 1, base: this.baseFor(kind, x), lift: 0 },
+      GROUND_Y,
+      AREA_TOP,
+    );
+    let lift;
+    if (meta.ceiling) lift = natural.y - y;
+    else if (meta.ground) lift = natural.y + natural.h - y;
+    else lift = natural.y + natural.h / 2 - y;
+    return clamp(lift, -RUSH_MAX_LIFT, RUSH_MAX_LIFT);
+  }
+
   cycHeight(step) {
     const list = RUSH_HEIGHTS[this.kind()];
     this.heightIndex[this.kind()] = clamp(this.heightIndex[this.kind()] + step, 0, list.length - 1);
@@ -264,7 +509,9 @@ export class RushBuilderScene extends Scene {
   }
 
   listRowAt(x, y) {
-    if (x < PANEL_X + 8 || x > PANEL_X + PANEL_W - 8 || y < LIST_TOP || y > LIST_TOP + VISIBLE_ROWS * ROW_H) {
+    if (!this.panelOpen || this.panelShift > 0.25) return -1;
+    const px = this.panelX();
+    if (x < px + 8 || x > px + PANEL_W - 8 || y < LIST_TOP || y > LIST_TOP + VISIBLE_ROWS * ROW_H) {
       return -1;
     }
     return this.itemScroll + Math.floor((y - LIST_TOP) / ROW_H);
@@ -305,6 +552,22 @@ export class RushBuilderScene extends Scene {
   }
 
   handlePointerDown(x, y) {
+    if (this.handleHit(x, y)) {
+      this.panelOpen = !this.panelOpen;
+      this.setStatus(this.panelOpen ? 'ITEM SHELF OUT' : 'ITEM SHELF SLID AWAY');
+      this.game.audio.tone({ freq: this.panelOpen ? 520 : 300, duration: 0.06, volume: 0.12 });
+      return;
+    }
+    const courseAction = this.courseActionAt(x, y);
+    if (courseAction) {
+      const name = courseAction[0];
+      if (name === 'prev') this.switchCourse(-1);
+      else if (name === 'next') this.switchCourse(1);
+      else if (name === 'rename') this.startRename();
+      else if (name === 'new') this.newCourse();
+      else if (name === 'zoom') this.toggleZoom();
+      return;
+    }
     if (this.sliderHit(x, y)) {
       this.sliderDrag = true;
       this.cursorX = this.sliderValue(x);
@@ -325,15 +588,19 @@ export class RushBuilderScene extends Scene {
       else if (name === 'goalUp') this.setGoal(this.goal + 200);
       return;
     }
-    if (x < PLAY_W && y > AREA_TOP - 10 && y < AREA_BOTTOM) {
-      const existing = this.itemAt(this.cameraX() + x, y);
+    const px = this.panelX();
+    const overPanel = x >= px && x <= px + PANEL_W && y >= PANEL_TOP && y <= PANEL_BOTTOM;
+    if (y > 56 && y < VIEW_H && !overPanel) {
+      const worldX = this.screenToWorldX(x);
+      const worldY = this.screenToWorldY(y);
+      const existing = this.itemAt(worldX, worldY);
       if (existing) {
         this.cursorX = existing.x;
         this.drag = { item: existing, startY: y, startH: existing.h, moved: false, created: false };
         this.setStatus('HOLD + DRAG UP/DOWN TO RESIZE — TAP TO REMOVE');
         return;
       }
-      const wx = clamp(this.cameraX() + x, RUSH_GRID, RUSH_MAX_X);
+      const wx = clamp(worldX, RUSH_GRID, RUSH_MAX_X);
       this.cursorX = Math.round(wx / RUSH_GRID) * RUSH_GRID;
       const item = this.place(this.cursorX);
       this.drag = { item, startY: y, startH: item.h, moved: false, created: true };
@@ -344,7 +611,7 @@ export class RushBuilderScene extends Scene {
     if (!this.drag) return;
     const item = this.drag.item;
     const [minH, maxH] = this.heightRange(item.kind);
-    const next = clamp(this.drag.startH + (this.drag.startY - y) * 1.2, minH, maxH);
+    const next = clamp(this.drag.startH + ((this.drag.startY - y) / this.viewScale()) * 1.2, minH, maxH);
     if (Math.abs(next - item.h) > 0.5) {
       item.h = next;
       if (Math.abs(next - this.drag.startH) > 2) this.drag.moved = true;
@@ -355,7 +622,7 @@ export class RushBuilderScene extends Scene {
     if (!this.drag) return;
     if (!this.drag.moved && !this.drag.created) {
       const item = this.drag.item;
-      if ((item.kind === 'rock' || item.kind === 'ceilrock') && (item.count || 1) > 1) item.count -= 1;
+      if ((item.kind === 'rock' || item.kind === 'ceilrock' || item.kind === 'fakerock' || item.kind === 'ceilfakerock') && (item.count || 1) > 1) item.count -= 1;
       else this.items = this.items.filter((it) => it !== item);
       this.game.audio.tone({ freq: 300, endFreq: 200, type: 'square', duration: 0.06, volume: 0.12 });
     }
@@ -367,18 +634,53 @@ export class RushBuilderScene extends Scene {
     this.time += dt;
     this.statusTimer = Math.max(0, this.statusTimer - dt);
     const input = this.game.input;
+    const targetShift = this.panelOpen ? 0 : 1;
+    this.panelShift += (targetShift - this.panelShift) * (1 - Math.exp(-14 * dt));
+    if (Math.abs(targetShift - this.panelShift) < 0.002) this.panelShift = targetShift;
+    if (this.renaming) {
+      this.updateRename();
+      return;
+    }
     if (input.wasPressed('back')) {
       this.game.changeScene('minigames');
+      return;
+    }
+    if (input.wasPressed('KeyN')) {
+      this.newCourse();
+      return;
+    }
+    if (input.wasPressed('KeyR')) {
+      this.startRename();
+      return;
+    }
+    if (input.wasPressed('BracketLeft')) {
+      this.switchCourse(-1);
+      return;
+    }
+    if (input.wasPressed('BracketRight')) {
+      this.switchCourse(1);
+      return;
+    }
+    if (input.wasPressed('KeyZ')) {
+      this.toggleZoom();
+      return;
+    }
+    if (input.wasPressed('Tab')) {
+      this.panelOpen = !this.panelOpen;
+      this.setStatus(this.panelOpen ? 'ITEM PANEL SHOWN' : 'ITEM PANEL HIDDEN');
       return;
     }
     if (input.wasPressed('play')) this.testPlay(0);
     if (input.wasPressed('KeyT')) this.testPlay(this.snapped());
     if (input.wasPressed('clear')) this.clear();
-    if (input.wasPressed('Minus')) this.setGoal(this.goal - 200);
-    if (input.wasPressed('Equal')) this.setGoal(this.goal + 200);
+    if (input.wasPressed('Minus')) this.nudgeZoom(0.8);
+    if (input.wasPressed('Equal')) this.nudgeZoom(1.25);
     if (input.wasPressed('KeyQ')) this.moveItem(-1);
     if (input.wasPressed('KeyE')) this.moveItem(1);
-    if (input.wheel) this.moveItem(Math.sign(input.wheel) * Math.min(4, Math.abs(input.wheel)));
+    if (input.wheel) {
+      if (input.isDown('hide')) this.nudgeZoom(input.wheel > 0 ? 0.85 : 1.18);
+      else this.moveItem(Math.sign(input.wheel) * Math.min(4, Math.abs(input.wheel)));
+    }
     for (let i = 1; i <= 9; i += 1) {
       if (input.wasPressed(`Digit${i}`)) this.selectItem(i - 1);
     }
@@ -387,8 +689,15 @@ export class RushBuilderScene extends Scene {
     const step = input.isDown('hide') ? RUSH_GRID * 5 : RUSH_GRID;
     if (input.wasPressed('left')) this.cursorX = Math.max(RUSH_GRID, this.cursorX - step);
     if (input.wasPressed('right')) this.cursorX = Math.min(RUSH_MAX_X, this.cursorX + step);
-    if (input.wasPressed('up')) this.cycHeight(1);
-    if (input.wasPressed('down')) this.cycHeight(-1);
+    const lifting = input.isDown('hide');
+    if (input.wasPressed('up')) {
+      if (lifting) this.adjustLift(20);
+      else this.cycHeight(1);
+    }
+    if (input.wasPressed('down')) {
+      if (lifting) this.adjustLift(-20);
+      else this.cycHeight(-1);
+    }
 
     const pointerPressed = input.pressed && input.pressed.has('PointerPrimary');
     if (input.wasPressed('confirm') && pointerPressed) {
@@ -411,6 +720,13 @@ export class RushBuilderScene extends Scene {
 
   drawItem(ctx, item, ghost = false) {
     const rect = rushItemRect(item, GROUND_Y, AREA_TOP);
+    if (this.overview) {
+      this.drawItemSimple(ctx, item, rect, ghost);
+      if (this.drag && this.drag.item === item) {
+        strokeRoundRect(ctx, rect.x - 4, rect.y - 4, rect.w + 8, rect.h + 8, 8, COLORS.accent, 2 / this.viewScale());
+      }
+      return;
+    }
     ctx.save();
     ctx.globalAlpha = ghost ? 0.5 : 1;
     if (item.kind === 'shell') {
@@ -473,7 +789,7 @@ export class RushBuilderScene extends Scene {
       const size = rect.w;
       const count = Math.max(1, item.count || 1);
       for (let i = 0; i < count; i += 1) {
-        const y = GROUND_Y - (i + 1) * size * 0.85;
+        const y = rect.y + i * size * 0.85;
         fillRoundRect(ctx, rect.x, y, size, size * 0.85, 6, '#4a5b6b');
         ctx.fillStyle = 'rgba(255, 255, 255, 0.08)';
         ctx.fillRect(rect.x + 4, y + 4, size - 8, 4);
@@ -493,6 +809,23 @@ export class RushBuilderScene extends Scene {
         ctx.lineWidth = 2;
         strokeRoundRect(ctx, rect.x, y, size, size * 0.85, 6, 'rgba(20, 30, 40, 0.8)', 2);
       }
+    } else if (item.kind === 'fakerock' || item.kind === 'ceilfakerock') {
+      const size = rect.w;
+      const ceiling = item.kind === 'ceilfakerock';
+      const count = Math.max(1, Math.round(rect.h / (size * 0.85)));
+      for (let i = 0; i < count; i += 1) {
+        const y = rect.y + i * size * 0.85;
+        ctx.globalAlpha = (ghost ? 0.5 : 1) * 0.9;
+        fillRoundRect(ctx, rect.x, y, size, size * 0.85, 6, ceiling ? '#27333d' : '#2f3b46');
+        ctx.globalAlpha = 1;
+      }
+      ctx.save();
+      ctx.setLineDash([6, 4]);
+      for (let i = 0; i < count; i += 1) {
+        const y = rect.y + i * size * 0.85;
+        strokeRoundRect(ctx, rect.x, y, size, size * 0.85, 6, 'rgba(207, 239, 255, 0.7)', 2);
+      }
+      ctx.restore();
     } else if (item.kind === 'pearl') {
       const cx = rect.x + rect.w / 2;
       const cy = rect.y + rect.h / 2;
@@ -574,7 +907,7 @@ export class RushBuilderScene extends Scene {
       ctx.fillStyle = 'rgba(255, 255, 255, 0.14)';
       ctx.fillRect(rect.x + 3, rect.y + 3, rect.w - 6, 3);
     } else if (item.kind === 'slopeup' || item.kind === 'slopedown') {
-      const base = GROUND_Y;
+      const base = rect.y + rect.h;
       ctx.beginPath();
       if (item.kind === 'slopeup') {
         ctx.moveTo(rect.x, base);
@@ -665,6 +998,121 @@ export class RushBuilderScene extends Scene {
     }
   }
 
+  renderDebug(ctx) {
+    const debug = this.telemetry;
+    ctx.save();
+    if (debug.trail.length > 1) {
+      ctx.strokeStyle = 'rgba(255, 96, 112, 0.8)';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([9, 6]);
+      ctx.beginPath();
+      debug.trail.forEach((pt, i) => (i === 0 ? ctx.moveTo(pt.x, pt.y) : ctx.lineTo(pt.x, pt.y)));
+      ctx.stroke();
+      ctx.setLineDash([]);
+    }
+    for (const jump of debug.jumps) {
+      ctx.fillStyle = '#ff3b4e';
+      ctx.beginPath();
+      ctx.moveTo(jump.x, jump.y - 30);
+      ctx.lineTo(jump.x - 10, jump.y - 10);
+      ctx.lineTo(jump.x + 10, jump.y - 10);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+    }
+    for (const land of debug.landings) {
+      ctx.fillStyle = 'rgba(255, 59, 78, 0.9)';
+      ctx.fillRect(land.x - 8, land.y - 8, 16, 16);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.85)';
+      ctx.lineWidth = 1.5;
+      ctx.strokeRect(land.x - 8, land.y - 8, 16, 16);
+    }
+    if (debug.death) {
+      const pulse = 0.4 + 0.6 * Math.abs(Math.sin(this.time * 4));
+      ctx.globalAlpha = pulse;
+      ctx.fillStyle = 'rgba(255, 45, 63, 0.2)';
+      ctx.beginPath();
+      ctx.arc(debug.death.x, debug.death.y, 42, 0, TAU);
+      ctx.fill();
+      ctx.strokeStyle = '#ff2d3f';
+      ctx.lineWidth = 5;
+      ctx.stroke();
+      ctx.globalAlpha = 1;
+    }
+    ctx.restore();
+  }
+
+  drawItemSimple(ctx, item, rect, ghost = false) {
+    ctx.save();
+    ctx.globalAlpha = ghost ? 0.5 : 1;
+    const kind = item.kind;
+    const fill = (color) => {
+      ctx.fillStyle = color;
+      ctx.fillRect(rect.x, rect.y, Math.max(rect.w, 1), Math.max(rect.h, 1));
+    };
+    if (kind === 'pearl') {
+      fillCircle(ctx, rect.x + rect.w / 2, rect.y + rect.h / 2, Math.max(2, rect.w / 2), '#ffd166');
+    } else if (kind === 'bubble') {
+      fillCircle(ctx, rect.x + rect.w / 2, rect.y + rect.h / 2, Math.max(2, rect.w / 2), '#8fd0ef');
+    } else if (kind === 'gravity') {
+      fillCircle(ctx, rect.x + rect.w / 2, rect.y + rect.h / 2, Math.max(2, rect.w / 2), '#b07bff');
+    } else if (kind === 'portal') {
+      ctx.fillStyle = PORTAL_COLORS[item.form] ?? COLORS.bubble;
+      ctx.fillRect(rect.x, rect.y, Math.max(rect.w, 1), Math.max(rect.h, 1));
+    } else {
+      const colors = {
+        shell: '#ff8f5e',
+        ceilshell: '#ff8f5e',
+        seaweed: '#3f9d63',
+        ceilweed: '#3f9d63',
+        rock: '#4a5b6b',
+        ceilrock: '#3f4f5e',
+        fakerock: '#2f3b46',
+        ceilfakerock: '#27333d',
+        gravpad: '#7a4fd6',
+        ceilgravpad: '#5f3aa8',
+        pad: '#3f8fb5',
+        ceilpad: '#2f6f8f',
+        ledge: '#5a6b7c',
+        slopeup: '#55697a',
+        slopedown: '#55697a',
+        gravup: '#b07bff',
+        gravdown: '#63e6ff',
+      };
+      fill(colors[kind] ?? COLORS.bubble);
+    }
+    ctx.restore();
+  }
+
+  renderHandle(ctx) {
+    const r = this.handleRect();
+    const open = this.panelOpen;
+    fillRoundRect(ctx, r.x, r.y, r.w, r.h, 10, open ? 'rgba(255, 209, 102, 0.9)' : 'rgba(10, 39, 64, 0.92)');
+    strokeRoundRect(ctx, r.x, r.y, r.w, r.h, 10, 'rgba(207, 239, 255, 0.45)', 2);
+    const cx = r.x + r.w * 0.42;
+    const cy = r.y + r.h / 2;
+    ctx.fillStyle = open ? '#10233a' : COLORS.accent;
+    ctx.beginPath();
+    if (open) {
+      ctx.moveTo(cx - 7, cy - 12);
+      ctx.lineTo(cx + 7, cy);
+      ctx.lineTo(cx - 7, cy + 12);
+    } else {
+      ctx.moveTo(cx + 7, cy - 12);
+      ctx.lineTo(cx - 7, cy);
+      ctx.lineTo(cx + 7, cy + 12);
+    }
+    ctx.closePath();
+    ctx.fill();
+    drawText(ctx, open ? 'ITEMS' : 'ITEM', r.x + r.w / 2, r.y - 8, {
+      size: 8,
+      color: COLORS.textDim,
+      alpha: 0.8,
+    });
+  }
+
   renderSlider(ctx) {
     const { x, y, w, h } = SLIDER;
     fillRoundRect(ctx, x, y, w, h, h / 2, 'rgba(4, 16, 29, 0.72)');
@@ -691,10 +1139,47 @@ export class RushBuilderScene extends Scene {
     });
   }
 
+  renderSmallButton(ctx, rect, label, active = false) {
+    fillRoundRect(ctx, rect.x, rect.y, rect.w, rect.h, 6, active ? 'rgba(255, 209, 102, 0.9)' : 'rgba(10, 39, 64, 0.9)');
+    strokeRoundRect(ctx, rect.x, rect.y, rect.w, rect.h, 6, 'rgba(207, 239, 255, 0.35)', 1.2);
+    drawText(ctx, label, rect.x + rect.w / 2, rect.y + rect.h / 2, {
+      size: 9,
+      color: active ? '#10233a' : COLORS.text,
+    });
+  }
+
+  renderCourseBar(ctx) {
+    fillRoundRect(ctx, COURSE_BAR.x, COURSE_BAR.y, COURSE_BAR.w, COURSE_BAR.h, 10, 'rgba(8, 28, 40, 0.88)');
+    strokeRoundRect(ctx, COURSE_BAR.x, COURSE_BAR.y, COURSE_BAR.w, COURSE_BAR.h, 10, 'rgba(207, 239, 255, 0.22)', 1.5);
+    if (this.renaming) {
+      const caret = this.time % 1 < 0.5 ? '_' : ' ';
+      drawText(ctx, `NAME: ${this.renameText}${caret}`, 18, COURSE_BAR.y + COURSE_BAR.h / 2, {
+        size: 11,
+        color: COLORS.accent,
+        align: 'left',
+        glow: COLORS.bubble,
+        glowBlur: 8,
+      });
+    } else {
+      drawText(ctx, `COURSE ${this.courseIndex() + 1}/${this.courses.length} — ${this.courseName}`, 18, COURSE_BAR.y + COURSE_BAR.h / 2, {
+        size: 11,
+        color: COLORS.accent,
+        align: 'left',
+      });
+    }
+    this.renderSmallButton(ctx, COURSE_ACTIONS.prev, '<');
+    this.renderSmallButton(ctx, COURSE_ACTIONS.next, '>');
+    this.renderSmallButton(ctx, COURSE_ACTIONS.rename, 'RENAME', this.renaming);
+    this.renderSmallButton(ctx, COURSE_ACTIONS.new, 'NEW');
+    this.renderSmallButton(ctx, COURSE_ACTIONS.zoom, this.fitMode ? 'FIT' : `${Math.round(this.zoom * 100)}%`, this.fitMode);
+  }
+
   renderList(ctx) {
-    fillRoundRect(ctx, PANEL_X, PANEL_TOP, PANEL_W, PANEL_BOTTOM - PANEL_TOP, 14, 'rgba(8, 28, 40, 0.92)');
-    strokeRoundRect(ctx, PANEL_X, PANEL_TOP, PANEL_W, PANEL_BOTTOM - PANEL_TOP, 14, 'rgba(207, 239, 255, 0.25)', 2);
-    drawText(ctx, 'ITEMS', PANEL_X + PANEL_W / 2, PANEL_TOP + 8, {
+    if (this.panelShift > 0.995) return;
+    const px = this.panelX();
+    fillRoundRect(ctx, px, PANEL_TOP, PANEL_W, PANEL_BOTTOM - PANEL_TOP, 14, 'rgba(8, 28, 40, 0.95)');
+    strokeRoundRect(ctx, px, PANEL_TOP, PANEL_W, PANEL_BOTTOM - PANEL_TOP, 14, 'rgba(207, 239, 255, 0.25)', 2);
+    drawText(ctx, 'ITEMS', px + PANEL_W / 2, PANEL_TOP + 8, {
       size: 10,
       color: COLORS.text,
       glow: COLORS.bubble,
@@ -706,20 +1191,20 @@ export class RushBuilderScene extends Scene {
       const item = ITEM_LIST[index];
       const y = LIST_TOP + row * ROW_H;
       const active = index === this.itemIndex;
-      if (active) fillRoundRect(ctx, PANEL_X + 8, y + 2, PANEL_W - 16, ROW_H - 4, 6, 'rgba(255, 209, 102, 0.18)');
-      drawText(ctx, item.label, PANEL_X + 16, y + ROW_H / 2, {
+      if (active) fillRoundRect(ctx, px + 8, y + 2, PANEL_W - 16, ROW_H - 4, 6, 'rgba(255, 209, 102, 0.18)');
+      drawText(ctx, item.label, px + 16, y + ROW_H / 2, {
         size: 10,
         color: active ? COLORS.accent : item.group === 'mode' ? COLORS.foam : COLORS.text,
         align: 'left',
         alpha: active ? 1 : 0.85,
       });
       if (item.group === 'mode') {
-        fillCircle(ctx, PANEL_X + PANEL_W - 16, y + ROW_H / 2, 3, item.color ?? PORTAL_COLORS[item.form] ?? COLORS.bubble);
+        fillCircle(ctx, px + PANEL_W - 16, y + ROW_H / 2, 3, item.color ?? PORTAL_COLORS[item.form] ?? COLORS.bubble);
       }
     }
-    const cx = PANEL_X + PANEL_W / 2;
+    const cx = px + PANEL_W / 2;
     if (ITEM_LIST.length > VISIBLE_ROWS) {
-      const trackX = PANEL_X + PANEL_W - 7;
+      const trackX = px + PANEL_W - 7;
       const trackTop = LIST_TOP;
       const trackH = VISIBLE_ROWS * ROW_H;
       const maxScroll = ITEM_LIST.length - VISIBLE_ROWS;
@@ -751,49 +1236,63 @@ export class RushBuilderScene extends Scene {
     });
   }
 
+
   render(ctx) {
     drawWater(ctx, LOGICAL_WIDTH, H, this.time, WATER_PALETTE);
-    drawText(ctx, 'REEF RUSH — COURSE BUILDER', PLAY_W / 2, 48, {
+    this.renderCourseBar(ctx);
+    drawText(ctx, 'REEF RUSH — COURSE BUILDER', VIEW_W / 2, 56, {
       size: 28,
       color: COLORS.text,
       glow: COLORS.bubble,
       glowBlur: 20,
     });
-    drawText(ctx, 'PIECES ARE HAZARDS/BLOCKS/PICKUPS — MODES ARE PORTALS THAT CHANGE YOUR SWIMMER', PLAY_W / 2, 78, {
+    drawText(ctx, 'PIECES ARE HAZARDS/BLOCKS/PICKUPS — MODES ARE PORTALS THAT CHANGE YOUR SWIMMER', VIEW_W / 2, 82, {
       size: 10,
       color: COLORS.foam,
       alpha: 0.85,
     });
 
+    const scale = this.viewScale();
+    const offset = this.viewOffset();
+    const worldLeft = (0 - offset.x) / scale;
+    const worldRight = (VIEW_W - offset.x) / scale;
+    this.overview = scale < 0.55;
+
     ctx.save();
     ctx.beginPath();
-    ctx.rect(0, AREA_TOP, PLAY_W, AREA_BOTTOM - AREA_TOP);
+    ctx.rect(0, 0, VIEW_W, VIEW_H);
     ctx.clip();
-    const cam = this.cameraX();
-    ctx.translate(-cam, 0);
-    ctx.fillStyle = 'rgba(6, 26, 38, 0.9)';
-    ctx.fillRect(cam, GROUND_Y, PLAY_W, H - GROUND_Y);
+    ctx.translate(offset.x, offset.y);
+    ctx.scale(scale, scale);
+    ctx.fillStyle = 'rgba(6, 26, 38, 0.55)';
+    ctx.fillRect(worldLeft, GROUND_Y, worldRight - worldLeft, H - GROUND_Y);
     ctx.strokeStyle = 'rgba(120, 220, 230, 0.35)';
-    ctx.lineWidth = 3;
+    ctx.lineWidth = 3 / scale;
     ctx.beginPath();
-    ctx.moveTo(cam, GROUND_Y);
-    ctx.lineTo(cam + PLAY_W, GROUND_Y);
+    ctx.moveTo(worldLeft, GROUND_Y);
+    ctx.lineTo(worldRight, GROUND_Y);
     ctx.stroke();
-    for (const item of this.items) this.drawItem(ctx, item);
-    const ghost = { kind: this.kind(), x: this.cursorX, h: this.height(), count: 1, form: this.form(), base: this.baseFor(this.kind(), this.cursorX) };
+    for (const item of this.items) {
+      const rect = rushItemRect(item, GROUND_Y, AREA_TOP);
+      if (rect.x + rect.w < worldLeft - 60 || rect.x > worldRight + 60) continue;
+      this.drawItem(ctx, item);
+    }
+    const ghost = { kind: this.kind(), x: this.cursorX, h: this.height(), count: 1, form: this.form(), base: this.baseFor(this.kind(), this.cursorX), lift: this.cursorLift };
     this.drawItem(ctx, ghost, true);
     ctx.strokeStyle = 'rgba(99, 230, 255, 0.7)';
-    ctx.lineWidth = 1.5;
-    ctx.setLineDash([6, 6]);
+    ctx.lineWidth = 1.5 / scale;
+    ctx.setLineDash([6 / scale, 6 / scale]);
     ctx.beginPath();
     ctx.moveTo(this.cursorX, AREA_TOP);
     ctx.lineTo(this.cursorX, GROUND_Y + 10);
     ctx.stroke();
     ctx.setLineDash([]);
+    if (this.telemetry) this.renderDebug(ctx);
     ctx.restore();
-    strokeRoundRect(ctx, 0, AREA_TOP, PLAY_W, AREA_BOTTOM - AREA_TOP, 0, 'rgba(207, 239, 255, 0.18)', 1.5);
+    strokeRoundRect(ctx, 0, 0, VIEW_W, VIEW_H, 0, 'rgba(207, 239, 255, 0.18)', 1.5);
 
     this.renderList(ctx);
+    this.renderHandle(ctx);
 
     this.renderSlider(ctx);
 
@@ -803,13 +1302,13 @@ export class RushBuilderScene extends Scene {
     this.renderButton(ctx, ACTIONS.goalDown, 'G-', false);
     this.renderButton(ctx, ACTIONS.goalUp, 'G+', false);
     drawText(ctx, `GOAL ${this.goal}`, 492, 511, { size: 12, color: COLORS.accent, align: 'left' });
-    drawText(ctx, `X ${Math.round(this.cursorX)}  ·  ${this.items.length} BLOCKS  ·  H ${Math.round(this.height())}`, PLAY_W / 2, 484, {
+    drawText(ctx, `X ${Math.round(this.cursorX)}  ·  ${this.items.length} BLOCKS  ·  H ${Math.round(this.height())}  ·  LIFT ${Math.round(this.cursorLift)}  ·  ${this.fitMode ? 'FIT' : '1:1'}`, VIEW_W / 2, 500, {
       size: 12,
       color: COLORS.textDim,
     });
 
     if (this.statusTimer > 0 && this.status) {
-      drawText(ctx, this.status, PLAY_W / 2, 118, {
+      drawText(ctx, this.status, VIEW_W / 2, 124, {
         size: 12,
         color: COLORS.text,
         alpha: Math.min(1, this.statusTimer),
@@ -817,8 +1316,8 @@ export class RushBuilderScene extends Scene {
     }
     drawText(
       ctx,
-      'ARROWS — MOVE / SIZE      Q/E — SCROLL ITEMS      ENTER/CLICK — PLACE (CLICK ROCK AGAIN STACKS)      DRAG UP/DOWN — RESIZE      X — REMOVE      P — TEST      T — TEST HERE      C — CLEAR      ESC — SAVE',
-      PLAY_W / 2,
+      'ARROWS — MOVE / SIZE      SHIFT+UP/DOWN — LIFT      -/=  &  SHIFT+WHEEL — ZOOM      Z — FIT      Q/E — ITEMS      ENTER/CLICK — PLACE      DRAG — RESIZE      X — REMOVE      P/T — TEST      C — CLEAR      N/R — NEW/RENAME      TAB — PANEL      ESC — SAVE',
+      VIEW_W / 2,
       H - 10,
       { size: 9, color: COLORS.textDim, alpha: 0.75 },
     );

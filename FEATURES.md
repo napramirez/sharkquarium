@@ -1353,9 +1353,10 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
 - **EMOTES** — a cheap one-slot collection of little performances, each **15 or fewer sea
   coins**, bought and equipped on the shop's EMOTES row. Equipping one demos it on the shop
   preview, and pressing **V** in any dive plays it on your creature. **CHAIN-FIN TRANSFORM**
-  (15): the creature yanks the **rip cord on its underside**, the **chain-fin chainsaw visor
-  slides on** with its running chain, holds for three seconds, then yanks the belly cord again
-  and slides back off to normal.
+  (15): the creature **stands up on its tail** (vertically if it has no tail) and **reaches down
+  with a fin/tentacle to yank the rip cord on its underside**, the **chain-fin chainsaw visor
+  slides on** with its running chain, it holds for **three seconds**, then reaches down with the
+  fin/tentacle again to **pull the cord and slide back to normal**.
 - TRAIL — a separate equip slot for swim wakes, browsed on the TRAIL row with its
   PLAYPASS 7 catalog: **BUBBLE STREAM** (wobbling bubbles), **STARDUST** (twinkling
   gold sparks), **INK PUFF** (dark spreading clouds), **ELECTRIC CRACKLE** (three-layer

@@ -1,6 +1,7 @@
 import { EMOTES } from '../config.js';
 import { drawRagdollRipcord } from './ripcord.js';
 import { drawChainFin } from './chainfin.js';
+import { TAU } from './math.js';
 
 const catalog = new Map(EMOTES.map((emote) => [emote.key, emote]));
 
@@ -40,27 +41,50 @@ export function updateEmote(entity, dt) {
   if (entity._emote.t >= EMOTE_DURATION) entity._emote = null;
 }
 
+export function emoteProgress(entity) {
+  if (!entity || !entity._emote) return 0;
+  return Math.min(1, entity._emote.t / EMOTE_DURATION);
+}
+
+function standAmount(progress) {
+  if (progress < 0.14) return progress / 0.14;
+  if (progress < 0.86) return 1;
+  return Math.max(0, (1 - progress) / 0.14);
+}
+
+function pullAmount(progress) {
+  const a = Math.max(0, 1 - Math.abs(progress - 0.07) / 0.11);
+  const b = Math.max(0, 1 - Math.abs(progress - 0.9) / 0.11);
+  return Math.min(1, a + b);
+}
+
+export function emoteStand(entity) {
+  if (!entity || !entity._emote || entity._emote.key !== 'chainfin') return 0;
+  return standAmount(emoteProgress(entity));
+}
+
 export function drawEmote(ctx, entity, radius, time) {
   const emote = entity && entity._emote;
   if (!emote) return;
-  const progress = Math.min(1, emote.t / EMOTE_DURATION);
+  const progress = emoteProgress(entity);
   if (emote.key === 'chainfin') drawChainFinEmote(ctx, entity, radius, time, progress);
 }
 
 function drawChainFinEmote(ctx, entity, radius, time, progress) {
-  const pulling = progress < 0.16 || progress > 0.84;
-  const pull = progress < 0.16 ? progress / 0.16 : progress > 0.84 ? (1 - progress) / 0.16 : 0;
+  const pull = pullAmount(progress);
 
   drawRagdollRipcord(ctx, entity, time, {
     anchorX: 0,
-    anchorY: radius * (0.9 - pull * 0.7),
-    length: radius * 1.5,
+    anchorY: radius * (0.95 - pull * 0.5),
+    length: radius * 1.4,
     segments: 6,
     cordColor: '#2a2f36',
     handleColor: '#c7ccd2',
     handleW: radius * 0.3,
     handleH: radius * 0.44,
   });
+
+  drawFinArm(ctx, entity.color ?? '#63e6ff', radius, pull);
 
   let slide;
   let alpha;
@@ -71,11 +95,11 @@ function drawChainFinEmote(ctx, entity, radius, time, progress) {
     const k = (progress - 0.16) / 0.26;
     slide = 1 - k;
     alpha = k;
-  } else if (progress < 0.78) {
+  } else if (progress < 0.84) {
     slide = 0;
     alpha = 1;
   } else {
-    const k = (progress - 0.78) / 0.22;
+    const k = (progress - 0.84) / 0.16;
     slide = k;
     alpha = 1 - k;
   }
@@ -86,14 +110,36 @@ function drawChainFinEmote(ctx, entity, radius, time, progress) {
   drawChainFin(ctx, radius, time, { ventColor: entity.color ?? '#6f7c86' });
   ctx.restore();
 
-  if (pulling) {
+  if (pull > 0.02) {
     ctx.save();
-    ctx.globalAlpha = 0.55 * (0.4 + pull);
+    ctx.globalAlpha = 0.5 * pull;
     ctx.strokeStyle = 'rgba(255, 225, 120, 0.8)';
     ctx.lineWidth = 2;
     ctx.beginPath();
-    ctx.arc(0, radius * 0.9, radius * (0.95 - pull * 0.5), 0, Math.PI);
+    ctx.arc(0, radius * 0.95, radius * (0.95 - pull * 0.5), 0, Math.PI);
     ctx.stroke();
     ctx.restore();
   }
+}
+
+function drawFinArm(ctx, color, radius, reach) {
+  const extended = 0.25 + reach * 0.75;
+  const tipX = radius * 0.05;
+  const tipY = radius * (0.45 + extended * 0.65);
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = radius * 0.2;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(radius * 0.15, radius * 0.02);
+  ctx.quadraticCurveTo(radius * 0.7, radius * 0.45, tipX, tipY);
+  ctx.stroke();
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.ellipse(tipX, tipY, radius * 0.2, radius * 0.11, 0.7, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(10, 20, 30, 0.35)';
+  ctx.lineWidth = 1.5;
+  ctx.stroke();
+  ctx.restore();
 }

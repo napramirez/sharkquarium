@@ -3,7 +3,7 @@ import { clamp, lerp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, PLAYER, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 import { playerColor } from '../engine/skin.js';
 import { drawAccessory } from '../engine/accessory.js';
-import { drawEmote, startEmote, updateEmote } from '../engine/emotes.js';
+import { drawEmote, emoteStand, startEmote, updateEmote } from '../engine/emotes.js';
 
 export class Shark extends Entity {
   constructor(x, y, options = {}) {
@@ -57,6 +57,8 @@ export class Shark extends Entity {
     ctx.translate(this.x, this.y);
     if (flash) ctx.globalAlpha = 0.4;
     ctx.scale(this.facing, 1);
+    const stand = emoteStand(this);
+    if (stand > 0) ctx.rotate(-this.facing * (Math.PI / 2) * stand);
     drawSharkBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
     drawEmote(ctx, this, radius, this.age);

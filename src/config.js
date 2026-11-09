@@ -1468,7 +1468,7 @@ export const LORE = [  {
       },
       {
         name: 'EMOTES',
-        text: 'A cheap shelf of little performances, bought on the shop\u2019s EMOTES row for 15 sea coins or less. Equip one to see it play on the shop preview, then press V in any dive to perform it on your creature. CHAIN-FIN TRANSFORM: the creature pulls the rip cord on its underside, the chain-fin chainsaw visor slides on with its running chain, holds for three seconds, then pulls the cord again and slides back to normal.',
+        text: 'A cheap shelf of little performances, bought on the shop\u2019s EMOTES row for 15 sea coins or less. Equip one to see it play on the shop preview, then press V in any dive to perform it on your creature. CHAIN-FIN TRANSFORM: the creature stands up on its tail (or straight up if it has none), reaches a fin or tentacle down to pull the rip cord on its underside, the chain-fin chainsaw visor slides on with its running chain, holds for three seconds, then the fin or tentacle pulls the cord again and it slides back to normal.',
       },
       {
         name: 'MUTATORS',

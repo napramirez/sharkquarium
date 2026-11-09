@@ -23,6 +23,7 @@ import {
   drawEmote,
   emoteByKey,
   emoteCatalog,
+  emoteStand,
   isEmoting,
   setActiveEmote,
   startEmote,
@@ -782,7 +783,10 @@ export class ShopScene extends Scene {
     if (entity.constructor.name !== 'Shark' && entity._emote) {
       ctx.save();
       ctx.translate(entity.x, entity.y);
-      ctx.scale(entity.facing ?? 1, 1);
+      const facing = entity.facing ?? 1;
+      ctx.scale(facing, 1);
+      const stand = emoteStand(entity);
+      if (stand > 0) ctx.rotate(-facing * (Math.PI / 2) * stand);
       drawEmote(ctx, entity, entity.radius, this.time);
       ctx.restore();
     }

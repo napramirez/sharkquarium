@@ -18,7 +18,7 @@ export function drawChainFin(ctx, radius, time, options = {}) {
 
   const span = bodyEnd - bx;
   const spacing = len / 6;
-  const offset = (time * 90) % spacing;
+  const offset = (time * 200) % spacing;
   ctx.fillStyle = '#c9d2da';
   for (let k = 0; k < 6; k += 1) {
     const px = bx + ((k * spacing + offset) % span);
@@ -38,7 +38,7 @@ export function drawChainFin(ctx, radius, time, options = {}) {
   }
 
   const tipCount = 5;
-  const tipFrac = ((time * 0.9) % 1 + 1) % 1;
+  const tipFrac = ((time * 2.4) % 1 + 1) % 1;
   for (let k = 0; k < tipCount; k += 1) {
     const ang = -Math.PI / 2 + ((k + tipFrac) / tipCount) * Math.PI;
     const tx = bodyEnd + Math.cos(ang) * (cap + radius * 0.06);

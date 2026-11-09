@@ -165,6 +165,17 @@ lore inventory.
   study **four** wished shapes, then click the **eight** matching presents to sneak them out
   while dodging the camera — the net is full of **near-identical flawed decoys** (a short-pointed
   star, lopsided heart, skewed triangle) that are refused.
+- **Halloween & New Year exclusive minigames** — two games each, shown in MINIGAMES only in
+  their mode, with the seasonal room backdrops in `src/engine/seasonroom.js`. **HALLOWEEN —
+  JACK-O'-LANTERN HUNT**: a dark crypt; swim with WASD and E/click to light eight jack-o'-lanterns
+  while ghost jellies snuff your light. **SPECTRE SWEEP**: click 12 rising spectres to banish
+  them; escaped spectres or clicking the friendly ghostfish cost a strike. **NEW YEAR —
+  MIDNIGHT FIREWORKS**: click to launch rockets and click again to burst them in a glowing band,
+  chaining combos for 10 hits. **CONFETTI RUSH**: an auto-swim dash steering your shark to
+  collect 25 stars while dodging party poppers.
+- **Scrolling minigame menu** — the MINIGAMES list now uses a fixed 15-row window that scrolls
+  with the arrow keys **and the mouse wheel** (`SelectList` gained an opt-in `wheel` option), with
+  fee/record labels following the scroll.
 - **Track builder** — a four-track sequencer reached from the TRACK PLAYER with **DRUMS /
   BASS / SYNTH / PIANO tabs** over a **piano-roll surface of horizontal lines** (no grid).
   Clicking a line places a tone block (higher lines = higher notes, stackable into chords),

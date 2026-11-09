@@ -58,6 +58,14 @@ export class MinigamesScene extends Scene {
       items.push({ label: 'WRAP THE PRESENTS (1P)', action: 'presentwrap', highlight: true });
       items.push({ label: "SANTA'S NET (1P)", action: 'santapeek', highlight: true });
     }
+    if (currentSeason() === 'halloween') {
+      items.push({ label: "JACK-O'-LANTERN HUNT (1P)", action: 'jackhunt', highlight: true });
+      items.push({ label: 'SPECTRE SWEEP (1P)', action: 'spectresweep', highlight: true });
+    }
+    if (currentSeason() === 'newyear') {
+      items.push({ label: 'MIDNIGHT FIREWORKS (1P)', action: 'fireworks', highlight: true });
+      items.push({ label: 'CONFETTI RUSH (1P)', action: 'confettirush', highlight: true });
+    }
     items.push({
       label: `MUTATOR: ${this.mutator.key === 'none' ? 'OFF' : this.mutator.label}`,
       action: 'mutators',
@@ -70,9 +78,11 @@ export class MinigamesScene extends Scene {
       glowColor: COLORS.bubble,
       accentColor: COLORS.accent,
       color: COLORS.text,
-      spacing: items.length > 20 ? 21 : 24,
+      spacing: 24,
       fontSize: 16,
-      width: 520,
+      width: 560,
+      visible: 15,
+      wheel: true,
       onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
       onConfirm: (item) => this.choose(item),
     });
@@ -120,7 +130,14 @@ export class MinigamesScene extends Scene {
       this.game.changeScene('rushlevels');
       return;
     }
-    if (item.action === 'presentwrap' || item.action === 'santapeek') {
+    if (
+      item.action === 'presentwrap' ||
+      item.action === 'santapeek' ||
+      item.action === 'jackhunt' ||
+      item.action === 'spectresweep' ||
+      item.action === 'fireworks' ||
+      item.action === 'confettirush'
+    ) {
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
       this.game.changeScene(item.action);
       return;
@@ -214,41 +231,50 @@ export class MinigamesScene extends Scene {
     );
     drawText(
       ctx,
-      'P1 — WASD   P2 — ARROWS   SOLO — WASD   DIFFICULTY SCALES EVERY GAME   ESC — BACK',
+      'ARROWS / MOUSE WHEEL — SCROLL   ENTER — PLAY   DIFFICULTY SCALES EVERY GAME   ESC — BACK',
       LOGICAL_WIDTH / 2,
       LOGICAL_HEIGHT - 10,
       { size: 11, color: COLORS.textDim, alpha: 0.7 },
     );
   }
 
+  windowRows() {
+    const visible = this.menu.visibleCount();
+    const top = 306 - ((visible - 1) * this.menu.spacing) / 2;
+    return { visible, top };
+  }
+
   renderFees(ctx) {
-    const rows = this.menu.items.length;
-    const top = 306 - ((rows - 1) * this.menu.spacing) / 2;
-    this.menu.items.forEach((item, index) => {
-      if (!item.feeKey) return;
+    const { visible, top } = this.windowRows();
+    for (let row = 0; row < visible; row += 1) {
+      const index = this.menu.scroll + row;
+      const item = this.menu.items[index];
+      if (!item || !item.feeKey) continue;
       const fee = MINIGAME_FEES[item.feeKey];
-      drawText(ctx, `${fee} COINS`, 640, top + this.menu.spacing * index, {
+      drawText(ctx, `${fee} COINS`, 690, top + this.menu.spacing * row, {
         size: 12,
         color: this.coins >= fee ? COLORS.accent : COLORS.danger,
         align: 'left',
         alpha: 0.9,
       });
-    });
+    }
   }
 
   renderRecords(ctx) {
-    const rows = this.menu.items.length;
-    const top = 306 - ((rows - 1) * this.menu.spacing) / 2;
-    this.menu.items.forEach((item, index) => {
+    const { visible, top } = this.windowRows();
+    for (let row = 0; row < visible; row += 1) {
+      const index = this.menu.scroll + row;
+      const item = this.menu.items[index];
+      if (!item) continue;
       const mode = item.action === 'jelly' ? 'jellyascent' : item.action;
       const rec = formatRecord(mode);
-      if (rec === 'NO RECORD') return;
-      drawText(ctx, rec, 136, top + this.menu.spacing * index, {
+      if (rec === 'NO RECORD') continue;
+      drawText(ctx, rec, 120, top + this.menu.spacing * row, {
         size: 12,
         color: COLORS.bubble,
         align: 'right',
         alpha: 0.85,
       });
-    });
+    }
   }
 }

@@ -1490,6 +1490,10 @@ export const LORE = [  {
         text: 'A celebratory switch that swaps every level\u2019s theme for a party score (Auld Lang Syne on the menu, with Firework Finale and Countdown Party through the tanks) and turns the menu\u2019s bubbles into falling confetti. The top-right corner names the song that is playing. Enemies wear little party hats, and the wardrobe gains NEW YEAR GLASSES and a FIREWORK FISH buddy. The theatre keeps a HAPPY NEW YEAR greeting.',
       },
       {
+        name: 'SEASONAL MINIGAMES',
+        text: 'Each seasonal mode adds exclusive one-player games to the MINIGAMES menu (which now scrolls with the arrow keys and the mouse wheel). CHRISTMAS: WRAP THE PRESENTS (find hidden gifts around the flooded lounge, take one with E, and hold left-click while sweeping the cursor to wrap it) and SANTA\u2019S NET (peek in short bursts, study the wishlist, and sneak the right shapes past a fast camera). HALLOWEEN: JACK-O\u2019-LANTERN HUNT (light eight lanterns in a dark crypt while avoiding ghost jellies) and SPECTRE SWEEP (click rising spectres to banish them, but leave the friendly ghostfish alone). NEW YEAR: MIDNIGHT FIREWORKS (launch and burst rockets inside the glowing band for combos) and CONFETTI RUSH (an auto-swim dash collecting stars and dodging poppers).',
+      },
+      {
         name: '8-BIT MODE',
         text: 'A retro switch that renders the whole game to a tiny 256\u00d7144 buffer and blows it up with hard pixels, a crisp monospace pixel font, and CRT scanlines \u2014 blocky text, chunky creatures, no smoothing. The audio turns chiptune: every tone becomes a warm square-wave pulse with a soft envelope, hats become gentle noise percussion, and the mix is lightly band-limited and softly bit-crushed \u2014 retro without the earache.',
       },
@@ -1838,6 +1842,7 @@ export const TAG = {
   p1Color: '#ffd166',
   p2Color: '#cfefff',
   cpuColors: [
+    '#e23b3b',
     '#7bdff2',
     '#c1a3ff',
     '#9be564',

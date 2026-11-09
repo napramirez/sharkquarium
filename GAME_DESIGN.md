@@ -211,6 +211,12 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `eyesOpen` (holding E with the peek meter off its full end); the flawed near-match shapes
   (`star_flaw`, `heart_flaw`, `triangle_flaw`) are drawn by the same `drawGiftShape()` but are
   excluded from the wishlist, and the camera sweeps quickly enough that steals must be timed.
+  Halloween and New Year add their own pairs, gated on `currentSeason()`: `JackHuntScene`
+  (`jackhunt`), `SpectreSweepScene` (`spectresweep`), `FireworksScene` (`fireworks`), and
+  `ConfettiRushScene` (`confettirush`), all `MinigameScene`s sharing
+  `src/engine/seasonroom.js` (`drawSeasonRoom()` draws the crypt or the party deck) and, where
+  the shark is visible, `applyWardrobe()` + `Shark`. The MINIGAMES list itself is a windowed
+  `SelectList` (`visible: 15`, `wheel: true`), and `SelectList` now scrolls on `Input.wheel`.
 - **8-bit mode** lives in `src/engine/retro.js` (`set8Bit()`/`is8Bit()`). `Game.renderFrame()`
   renders the scene into a fixed 256×144 offscreen canvas (`ensurePixelBuffer()`, drawn with a
   `PIXEL_WIDTH/width` transform so scenes keep their 960×540 logical coordinates), blits it to

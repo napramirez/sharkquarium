@@ -14,6 +14,7 @@ export class SelectList {
     this.accentColor = options.accentColor ?? '#ffd166';
     this.glowColor = options.glowColor ?? null;
     this.visible = options.visible ?? null;
+    this.wheel = options.wheel ?? false;
     this.scroll = 0;
     this.onChange = options.onChange ?? null;
     this.onConfirm = options.onConfirm ?? null;
@@ -79,6 +80,9 @@ export class SelectList {
     if (input.pointer.moved) this.applyHover(input.pointer, true);
     if (input.wasPressed('up')) this.move(-1);
     if (input.wasPressed('down')) this.move(1);
+    if (this.wheel && input.wheel) {
+      this.move(Math.sign(input.wheel) * Math.min(4, Math.abs(input.wheel)));
+    }
     if (input.wasPressed('confirm')) {
       if (input.pointer.down) this.applyHover(input.pointer, false);
       const item = this.selected;

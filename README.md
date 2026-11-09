@@ -159,7 +159,9 @@ gates, an anchor that bounces off hull walls, living plush toys, and a persisten
 INVENTORY), and the seasonal modes (CHRISTMAS/HALLOWEEN/NEW YEAR with their own themed
 scores and a NOW PLAYING label, themed menu particles, seasonal enemy hats, free festive
 cosmetics and buddies, MERRY CHRISTMAS / HAPPY HALLOWEEN / HAPPY NEW YEAR theatre
-trailers, and two Christmas-only minigames — WRAP THE PRESENTS and SANTA'S NET), 8-BIT MODE
+trailers, and mode-exclusive minigames — Christmas: WRAP THE PRESENTS, SANTA'S NET; Halloween:
+JACK-O'-LANTERN HUNT, SPECTRE SWEEP; New Year: MIDNIGHT FIREWORKS, CONFETTI RUSH — on a
+scrollable minigame list), 8-BIT MODE
 (a 256×144 pixelated render with chiptune audio), and REEF RUSH (an
 original rhythm-runner with original hazards — seaweed/shell spikes on the floor and ceiling,
 stackable floor/ceiling rocks, standable floating ledges, runnable slopes, pearls, air-boosting

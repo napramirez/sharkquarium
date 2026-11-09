@@ -3495,6 +3495,7 @@ async function main() {
     [2, 'sambalstingray', 'SAMBAL STINGRAY'],
     [3, 'grilledsquid', 'GRILLED SQUID'],
     [4, 'prawncrackers', 'PRAWN CRACKERS'],
+    [5, 'chainfin', 'CHAIN-FIN'],
   ]) {
     shop.costumeIndex = index;
     assert.equal(shop.costume.key, key, `the costume catalog should include ${label}`);
@@ -6738,6 +6739,125 @@ async function main() {
     !game.scene.menu.items.some((item) => item.action === 'presentwrap' || item.action === 'santapeek'),
     'the christmas minigames should be exclusive to christmas mode',
   );
+
+  const savedShop = storage.get('sharkquarium.shop');
+  storage.set('sharkquarium.shop', JSON.stringify({ passes: ['playpass1'], owned: ['natural'], accessories: [] }));
+  game.changeScene('minigames');
+  await frames(3);
+  const scrollMenu = game.scene.menu;
+  assert.ok(scrollMenu.items.length > 15, 'the full minigame menu should overflow the window');
+  assert.equal(scrollMenu.visible, 15, 'the minigame menu should use a scrolling window');
+  assert.equal(scrollMenu.wheel, true, 'the minigame menu should accept the mouse wheel');
+  scrollMenu.setIndex(scrollMenu.items.length - 1);
+  assert.ok(scrollMenu.scroll > 0, 'reaching a low row should scroll the window');
+  scrollMenu.setIndex(0);
+  scrollMenu.scroll = 0;
+  game.input.wheel = 3;
+  scrollMenu.update(1 / 60, game.input);
+  assert.equal(scrollMenu.index, 3, 'the mouse wheel should scroll the minigame menu');
+  storage.set('sharkquarium.shop', savedShop ?? '{}');
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', season: 'halloween', halloween: true }));
+  game.changeScene('settings');
+  await frames(3);
+  game.changeScene('minigames');
+  await frames(3);
+  assert.ok(
+    game.scene.menu.items.some((item) => item.action === 'jackhunt') &&
+      game.scene.menu.items.some((item) => item.action === 'spectresweep'),
+    'halloween mode should list its exclusive minigames',
+  );
+  assert.ok(
+    !game.scene.menu.items.some((item) => item.action === 'fireworks'),
+    'new year games should not appear in halloween mode',
+  );
+
+  game.changeScene('jackhunt');
+  await frames(3);
+  const hunt = game.scene;
+  assert.equal(hunt.lanterns.length, 8, 'the hunt should scatter eight lanterns');
+  hunt.shark.x = hunt.lanterns[0].x;
+  hunt.shark.y = hunt.lanterns[0].y;
+  await tapKey('KeyE');
+  assert.equal(hunt.lanterns[0].lit, true, 'E should light a nearby lantern');
+  for (let i = 1; i < hunt.lanterns.length; i += 1) hunt.lanterns[i].lit = true;
+  hunt.lanterns[0].lit = false;
+  hunt.shark.x = hunt.lanterns[0].x;
+  hunt.shark.y = hunt.lanterns[0].y;
+  await tapKey('KeyE');
+  await frames(2);
+  assert.equal(hunt.phase, 'results', 'lighting every lantern should win the hunt');
+  assert.equal(hunt.won, true, 'the hunt should count as a win');
+
+  game.changeScene('spectresweep');
+  await frames(3);
+  const spectreRun = game.scene;
+  spectreRun.spectres = [{ x: 300, t: 0.45, life: 2, friendly: false, gone: false }];
+  const spectreY = spectreRun.spectreY(spectreRun.spectres[0]);
+  canvasPointerDown(300, spectreY);
+  canvasPointerUp();
+  await frames(2);
+  assert.equal(spectreRun.banished, 1, 'clicking a spectre should banish it');
+  spectreRun.banished = 11;
+  spectreRun.spectres = [{ x: 340, t: 0.45, life: 2, friendly: false, gone: false }];
+  const spectreY2 = spectreRun.spectreY(spectreRun.spectres[0]);
+  canvasPointerDown(340, spectreY2);
+  canvasPointerUp();
+  await frames(2);
+  assert.equal(spectreRun.phase, 'results', 'banishing the goal should win');
+  assert.equal(spectreRun.won, true, 'spectre sweep should count as a win');
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', season: 'newyear', newyear: true }));
+  game.changeScene('settings');
+  await frames(3);
+  game.changeScene('minigames');
+  await frames(3);
+  assert.ok(
+    game.scene.menu.items.some((item) => item.action === 'fireworks') &&
+      game.scene.menu.items.some((item) => item.action === 'confettirush'),
+    'new year mode should list its exclusive minigames',
+  );
+  assert.ok(
+    !game.scene.menu.items.some((item) => item.action === 'jackhunt'),
+    'halloween games should not appear in new year mode',
+  );
+
+  game.changeScene('fireworks');
+  await frames(3);
+  const fireRun = game.scene;
+  canvasPointerDown(480, 300);
+  canvasPointerUp();
+  await frames(1);
+  assert.ok(fireRun.rocket, 'clicking should launch a rocket');
+  fireRun.rocket.y = fireRun.targetY;
+  canvasPointerDown(480, 200);
+  canvasPointerUp();
+  await frames(2);
+  assert.equal(fireRun.successes, 1, 'bursting inside the band should score');
+  fireRun.successes = 9;
+  canvasPointerDown(480, 300);
+  canvasPointerUp();
+  await frames(1);
+  fireRun.rocket.y = fireRun.targetY;
+  canvasPointerDown(480, 200);
+  canvasPointerUp();
+  await frames(2);
+  assert.equal(fireRun.phase, 'results', 'enough perfect bursts should win');
+  assert.equal(fireRun.won, true, 'fireworks should count as a win');
+
+  game.changeScene('confettirush');
+  await frames(3);
+  const rushRun = game.scene;
+  rushRun.items = [{ x: rushRun.shark.x, y: rushRun.shark.y, vy: 0, popper: false, spin: 0 }];
+  await frames(1);
+  assert.ok(rushRun.collected >= 1, 'touching a star should collect it');
+  rushRun.collected = 24;
+  rushRun.items = [{ x: rushRun.shark.x, y: rushRun.shark.y, vy: 0, popper: false, spin: 0 }];
+  await frames(1);
+  assert.equal(rushRun.phase, 'results', 'enough stars should win confetti rush');
+  assert.equal(rushRun.won, true, 'confetti rush should count as a win');
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal' }));
   game.changeScene('settings');
   await frames(3);
   const christmasIdx = game.scene.menu.items.findIndex((item) => item.action === 'christmas');

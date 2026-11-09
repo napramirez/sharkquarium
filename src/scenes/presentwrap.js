@@ -1,5 +1,5 @@
 import { MinigameScene } from '../engine/minigame.js';
-import { drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
+import { drawText, fillRoundRect, strokeRoundRect, fillCircle } from '../engine/render.js';
 import { clamp } from '../engine/math.js';
 import { drawGiftShape } from '../engine/giftshapes.js';
 import { drawWreckLounge } from '../engine/lounge.js';
@@ -113,6 +113,7 @@ export class PresentWrapScene extends MinigameScene {
   renderRound(ctx) {
     drawWreckLounge(ctx, this.time);
 
+    const shark = this.shark;
     for (const gift of this.presents) {
       if (gift.held) continue;
       if (gift.wrapped) {
@@ -128,12 +129,22 @@ export class PresentWrapScene extends MinigameScene {
         ctx.stroke();
         drawText(ctx, '✓', gift.x, gift.y - 30, { size: 16, color: COLORS.accent });
       } else {
-        drawGiftShape(ctx, gift.x, gift.y, 20, gift.shape, gift.color);
-        drawText(ctx, 'E', gift.x, gift.y + 34, { size: 11, color: COLORS.textDim, alpha: 0.7 });
+        const dist = Math.hypot(gift.x - shark.x, gift.y - shark.y);
+        if (dist < 230) {
+          const alpha = clamp(1 - (dist - 40) / 190, 0.12, 1);
+          ctx.globalAlpha = alpha;
+          drawGiftShape(ctx, gift.x, gift.y, 18, gift.shape, gift.color);
+          if (dist < 90) drawText(ctx, 'E', gift.x, gift.y + 32, { size: 11, color: COLORS.textDim, alpha: 0.7 });
+          ctx.globalAlpha = 1;
+        } else {
+          const pulse = 0.5 + 0.5 * Math.sin(this.time * 3 + gift.x);
+          ctx.globalAlpha = 0.06 + 0.05 * pulse;
+          fillCircle(ctx, gift.x, gift.y, 3, '#cfefff');
+          ctx.globalAlpha = 1;
+        }
       }
     }
 
-    const shark = this.shark;
     shark.render(ctx);
     drawSkinAura(ctx, shark);
     drawTrail(ctx, shark);
@@ -152,7 +163,7 @@ export class PresentWrapScene extends MinigameScene {
       glow: COLORS.bubble,
       glowBlur: 18,
     });
-    drawText(ctx, 'WASD — SWIM      E — TAKE A PRESENT      HOLD LEFT-CLICK + MOVE — WRAP', LOGICAL_WIDTH / 2, 72, {
+    drawText(ctx, 'SWIM AROUND TO FIND THE HIDDEN PRESENTS — E TAKES ONE — HOLD LEFT-CLICK + MOVE TO WRAP', LOGICAL_WIDTH / 2, 72, {
       size: 11,
       color: COLORS.foam,
       alpha: 0.85,

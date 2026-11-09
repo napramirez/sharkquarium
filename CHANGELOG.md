@@ -153,9 +153,10 @@ lore inventory.
   CHRISTMAS MODE is on, both set in a **flooded cruise-shipwreck lounge** (wood panelling,
   portholes, armchairs, a rug, a chandelier, and a fireplace full of glowing **bioluminescent
   squids instead of fire**) with the player rendered as their **current shark, skin, and
-  wardrobe**. **WRAP THE PRESENTS**: swim with WASD, take one of **ten** presents with E, then
-  hold left-click and sweep the cursor to wrap it, ticking a two-column top-right checklist
-  (tick box + present picture) before a slow timer runs out. **SANTA'S NET**: you sleep as your
+  wardrobe**. **WRAP THE PRESENTS**: **ten presents are hidden around the lounge** (faint glints
+  in the gloom that fade in when you swim close); swim with WASD, take one with E, then hold
+  left-click and sweep the cursor to wrap it, ticking a two-column top-right checklist (tick
+  box + present picture) before a slow timer runs out. **SANTA'S NET**: you sleep as your
   shark under a dense net of **sixteen** gifts watched by a **fast** camera; presents stay hidden
   until you peek, and holding E fills a peek meter that **closes your eyes when it is near
   full** (releasing also closes them), so you peek in short bursts. Click the wishlist slate to

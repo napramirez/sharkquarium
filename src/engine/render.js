@@ -19,6 +19,14 @@ function fontFor(weight, size) {
   return font;
 }
 
+export function measureTextWidth(ctx, text, size, weight = 700) {
+  ctx.save();
+  ctx.font = fontFor(weight, size);
+  const width = ctx.measureText(text).width;
+  ctx.restore();
+  return width;
+}
+
 function cachedGradient(ctx, key, factory) {
   let map = gradientCache.get(ctx);
   if (!map) {

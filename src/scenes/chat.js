@@ -1,6 +1,6 @@
 import { Scene } from '../engine/scene.js';
-import { drawWater, drawText, fillRoundRect, strokeRoundRect, fillCircle } from '../engine/render.js';
-import { FONT, COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE } from '../config.js';
+import { drawWater, drawText, fillRoundRect, strokeRoundRect, fillCircle, measureTextWidth } from '../engine/render.js';
+import { COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE } from '../config.js';
 
 const BUBBLE_MAX = 430;
 const MSG_SIZE = 16;
@@ -18,6 +18,15 @@ const FALLBACKS = [
   "I am listening. Try asking how to play tag or how coins work.",
   "That sounds like a reef thing. Want a tip instead?",
   "I am nodding. You cannot see it, but I am.",
+];
+const FREE_ANSWERS = [
+  "Honestly? I think yes. But I am a shark-shaped CPU, so take that with a grain of salt.",
+  "Ooh, good one. My gut says no, but my gut is mostly seawater.",
+  "I have absolutely no idea, and I love that for us. My best guess is bubbles.",
+  "Hmm. Ask me again after a barrel roll. Still no idea. But I am having fun.",
+  "I am going to answer with confidence anyway: yes, definitely, maybe, no.",
+  "If it helps, I once tried that and a jellyfish judged me.",
+  "You know what? Sure. Why not. The reef is chaos and so am I.",
 ];
 const TOPICS =
   "I can explain: the tanks (reef, stingray, deep sea, arctic, kelp, jelly, nautilus, freshwater, abyss, quiet, watcher, trench mouth, prehistoric, playtoy, pets), the minigames (race, tag, dodgeball, labyrinth, reef rush, boss rush, cleanup, stealth, trench dive, and the seasonal games), the shop (colors, trinkets, costumes, trails, buddies, auras, emotes), difficulty, settings, and how coins work.";
@@ -84,6 +93,32 @@ const KNOWLEDGE = [
   { keys: ["golden bubble", "rare bubble", "gold bubble"], answer: "GOLDEN BUBBLES are rare collectibles worth a big bonus and a refill. Grab them when they drift through the tank." },
   { keys: ["mutator", "handicap"], answer: "MUTATORS are optional handicaps you enable before a run: FAST, ONE HIT, NO AIR, LIGHTS OUT, GOLD RUSH, GLASS and TIME PRESSURE. They harden the run but pay more coins and score." },
   { keys: ["best", "tip", "advice", "help me"], answer: "My best tips: stay near cover in dark tanks, watch the beat in Reef Rush, and never chase a golden bubble into a hazard. Also, the RIP CORD emote is the best fifteen coins in the shop." },
+  { keys: ["unlock", "unlock tank", "more tanks", "get tanks", "which tanks"], answer: "Most tanks are open from CHOOSE TANK right away. The PETS TANK needs the pets playpass, the AQUARIUM BUILDER is a shop pass, and REEF RUSH skins unlock by clearing levels." },
+  { keys: ["skin", "unlock skin", "skins", "gold ray", "tiger ray", "catch"], answer: "Skins (colors) come from the SHOP (coin colors and pass colors), Reef Rush level first-clears (free ray skins), and TRENCH EXPLORE catches like the gold ray." },
+  { keys: ["co-op", "coop", "two player", "2p", "second player", "local multiplayer"], answer: "Turn on CO-OP TANK SELECT in SETTINGS or the tank list to dive with two players: P1 uses WASD, P2 uses the arrow keys. Some minigames also have a 2P version." },
+  { keys: ["8-bit", "8 bit", "retro", "pixel", "chiptune"], answer: "8-BIT MODE renders the whole game to a 256x144 pixel buffer with chunky pixels, a pixel font and CRT scanlines, and swaps the audio to chiptune square waves." },
+  { keys: ["3d", "three d", "3 d", "volumetric"], answer: "3D MODE extrudes everything into volumes with sphere bubbles and a perspective floor, and tilts the canvas. A toggle in SETTINGS." },
+  { keys: ["first person", "first-person", "pointer lock", "raycast view", "fps"], answer: "FIRST PERSON MODE switches every dive and minigame to a fullscreen pointer-locked raycast view from your creature; WASD steers, the mouse looks, and a corner minimap helps." },
+  { keys: ["volume", "sfx", "mute", "sound", "audio"], answer: "SETTINGS has a stepped master VOLUME slider and an SFX switch. Music and effects are separate so you can mute one or both." },
+  { keys: ["reduce motion", "motion", "shake", "flash", "accessibility"], answer: "REDUCE MOTION damps the horror tanks' screen shake, zoom and flashes. It is in SETTINGS." },
+  { keys: ["save", "progress", "persist", "high score", "best", "saved"], answer: "Progress saves automatically: best score, coins, shop items, tanks and minigame records, Reef Rush progress, aquarium layouts, PlayToy notes, and settings all persist." },
+  { keys: ["goal", "objective", "win", "how do i win", "what do i do"], answer: "In a dive, survive and score by collecting bubbles and dodging hazards; in minigames, win the round's objective; in Reef Rush, reach the distance marker. Records and coins follow." },
+  { keys: ["fee", "ticket", "entry cost", "price", "expensive", "cost"], answer: "Paid minigames charge a sea-coin ticket on every entry (the bank and price show in the menu), and wins pay a bonus that can cover it. Free games never charge." },
+  { keys: ["reward", "payout", "win bonus", "earn", "coins fast", "farm coins", "more coins"], answer: "Coins come from dives, minigame wins, and records. Higher difficulty and longer runs pay more. Quickest: a clean high-scoring dive on a higher tier, or farming a minigame you are good at." },
+  { keys: ["boss", "bosses", "who are the bosses", "all bosses"], answer: "There are five horror bosses: the ECHOEEL in the quiet lab, the WATCHER, the TRENCH MOUTH, the MEGASQUID in the labyrinth, and the TITANOBA in the prehistoric tank. BOSS RUSH chains them all." },
+  { keys: ["megasquid", "squid boss", "beat the megasquid"], answer: "The MEGASQUID lurks in the LABYRINTH. Keep moving, use cover between its tentacle sweeps, and strike when it recoils." },
+  { keys: ["echoeel", "blind one", "quiet lab", "how to beat the echoeel", "noise"], answer: "The ECHOEEL is blind and hunts by sound. Move slowly, avoid loud jets and slamming doors, hide in alcoves, and reach the hatch. THE ESCAPE is the pure dash version." },
+  { keys: ["how to beat the watcher", "watcher", "look away", "stare"], answer: "THE WATCHER: your gaze is the light and weapon. Keep watchers in your beam to freeze them, watch the stare meter, blink briefly, and move when they are petrified." },
+  { keys: ["how to beat the trench mouth", "trench mouth", "gulp", "anchor"], answer: "THE TRENCH MOUTH: the floor is a maw. Brace on ceiling anchors with SPACE, cross between anchors, and never linger on the open floor when it breathes." },
+  { keys: ["minigame", "minigames", "arcade", "games", "game list"], answer: "Minigames: RACE/COMPETITIONS, TAG, PUFFERFISH DODGEBALL, LABYRINTH, PUFFER BALL, SCHOOL ROUNDUP, JELLY ASCENT, STEALTH DIVE, REEF CLEANUP, TRENCH DIVE, TRENCH EXPLORE, REEF RUSH, BOSS RUSH, plus AI CHAT and the seasonal games." },
+  { keys: ["reef rush levels", "levels", "level select", "clear a level"], answer: "REEF RUSH - LEVELS is a sideways-scrolling shelf of five original courses. Clearing one plays an end cutscene and, on the first clear, unlocks a free skin." },
+  { keys: ["course builder", "build course", "make a course", "my course", "test here"], answer: "REEF RUSH - COURSE BUILDER is a side-view editor: arrows move the cursor, Q/E or the mouse wheel scroll the item list, Enter/click places, click a rock again to stack, drag to resize, X removes, and TEST (P) or TEST HERE (T) tries it. It runs as MY COURSE." },
+  { keys: ["about", "what is sharkquarium", "this game", "what is this"], answer: "SHARKQUARIUM is a cozy-to-creepy aquarium game: an endless dive, many tanks with their own creatures and bosses, a big minigame shelf, a shop full of cosmetics, a composer, a cutscene theatre, and a lore codex." },
+  { keys: ["hazard", "enemy", "predator", "danger", "avoid"], answer: "Hazards range from jellyfish and anglerfish to moray eels, seals, pufferfish, and the horror bosses. Watch telegraphs, use cover, and keep your air up." },
+  { keys: ["what's new", "new content", "latest", "recent"], answer: "Recent additions: REEF RUSH with levels and a course builder, the tone-block TRACK BUILDER, seasonal games (Wrap the Presents, Santa's Net, Jack-o'-Lantern Hunt, Spectre Sweep, Midnight Fireworks, Confetti Rush), cheap EMOTES, and me, AI CHAT." },
+  { keys: ["how many tanks", "how many minigames", "how many levels"], answer: "There are eighteen tanks, a dozen-plus minigames, and five REEF RUSH levels plus your own track and course. The menu and codex list them all." },
+  { keys: ["pearl", "pearls", "what do pearls do"], answer: "In REEF RUSH, pearls are collectibles along the course that add to your run's pearl count. They show on the results and the end cutscene." },
+  { keys: ["jump", "jump button", "how to jump"], answer: "In REEF RUSH click (or press Space) to jump; with portal modes each click does that mode's move (crab flips gravity, eel climbs, jelly hops). In other dives you swim with WASD/arrows or the mouse." },
 ];
 
 const KEY_LETTER = /^Key[A-Z]$/;
@@ -173,9 +208,7 @@ export class ChatScene extends Scene {
       }
     }
     if (best && bestScore > 0) return best.answer;
-    if (raw.endsWith('?')) {
-      return 'I am not sure about that one. Try asking about a tank (reef, arctic, quiet, watcher), a minigame (tag, reef rush, labyrinth), difficulty, or the shop.';
-    }
+    if (raw.endsWith('?')) return pick(FREE_ANSWERS);
     return pick(FALLBACKS);
   }
 
@@ -215,7 +248,7 @@ export class ChatScene extends Scene {
     for (let i = this.messages.length - 1; i >= 0; i -= 1) {
       const message = this.messages[i];
       const lines = wrapText(ctx, message.text, BUBBLE_MAX, MSG_SIZE);
-      const width = Math.min(BUBBLE_MAX, Math.max(...lines.map((line) => measure(ctx, line, MSG_SIZE)))) + 30;
+      const width = Math.min(BUBBLE_MAX, Math.max(...lines.map((line) => measureTextWidth(ctx, line, MSG_SIZE)))) + 30;
       const height = lines.length * LINE + 18;
       if (y - height < CHAT_TOP) break;
       const cpu = message.from === 'cpu';
@@ -254,29 +287,20 @@ export class ChatScene extends Scene {
       alpha: this.inputText ? 1 : 0.6,
     });
     if (this.cursorVisible % 1 < 0.5) {
-      const width = this.inputText ? measure(ctx, this.inputText, 15) : 0;
+      const width = this.inputText ? measureTextWidth(ctx, this.inputText, 15) : 0;
       fillRoundRect(ctx, x + 16 + width + 1, y + 8, 2, h - 16, 1, COLORS.accent);
     }
   }
 }
 
-function measure(ctx, text, size) {
-  ctx.save();
-  ctx.font = `700 ${size}px ${FONT}`;
-  const width = ctx.measureText(text).width;
-  ctx.restore();
-  return width;
-}
 
 function wrapText(ctx, text, maxWidth, size) {
-  ctx.save();
-  ctx.font = `700 ${size}px ${FONT}`;
   const words = text.split(' ');
   const lines = [];
   let line = '';
   for (const word of words) {
     const test = line ? `${line} ${word}` : word;
-    if (ctx.measureText(test).width > maxWidth && line) {
+    if (measureTextWidth(ctx, test, size) > maxWidth && line) {
       lines.push(line);
       line = word;
     } else {
@@ -284,7 +308,6 @@ function wrapText(ctx, text, maxWidth, size) {
     }
   }
   if (line) lines.push(line);
-  ctx.restore();
   return lines;
 }
 

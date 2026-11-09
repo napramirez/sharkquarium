@@ -2,19 +2,28 @@ import { MinigameScene } from '../engine/minigame.js';
 import { drawText, fillRoundRect, strokeRoundRect, fillCircle } from '../engine/render.js';
 import { clamp, TAU } from '../engine/math.js';
 import { drawGiftShape } from '../engine/giftshapes.js';
+import { drawWreckLounge } from '../engine/lounge.js';
+import { applyWardrobe } from '../engine/wardrobe.js';
+import { drawSkinAura } from '../engine/skin.js';
+import { drawTrail } from '../engine/trail.js';
+import { drawCompanion } from '../engine/companion.js';
+import { Shark } from '../entities/shark.js';
 import { COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
 
-const NET_Y = 172;
-const PLAYER = { x: 480, y: 486 };
-const WISHLIST = { x: 300, y: 404, w: 360, h: 64 };
+const NET_Y = 158;
+const PLAYER = { x: 480, y: 480 };
+const WISHLIST = { x: 300, y: 404, w: 360, h: 62 };
 
 export class SantaPeekScene extends MinigameScene {
   buildRound() {
     this.phase = 'play';
+    this.shark = new Shark(PLAYER.x, PLAYER.y, { pointer: false });
+    this.shark.facing = 1;
+    applyWardrobe(this.shop, 0);
     this.wishlist = ['star', 'heart', 'triangle'];
-    const shapes = ['star', 'square', 'heart', 'circle', 'triangle', 'diamond', 'square', 'circle'];
+    const shapes = ['star', 'square', 'heart', 'circle', 'triangle', 'diamond', 'square', 'circle', 'heart', 'star', 'triangle', 'diamond'];
     this.presents = shapes.map((shape, i) => ({
-      x: 190 + i * 84,
+      x: 172 + i * 56,
       y: NET_Y,
       shape,
       taken: false,
@@ -23,11 +32,11 @@ export class SantaPeekScene extends MinigameScene {
     this.collected = 0;
     this.peek = 0;
     this.inspecting = 0;
-    this.cameraX = 200;
+    this.cameraX = 220;
     this.cameraDir = 1;
-    this.cameraSpeed = 135;
-    this.cameraR = 78;
-    this.timeLeft = 110;
+    this.cameraSpeed = 150;
+    this.cameraR = 68;
+    this.timeLeft = 120;
     this.status = '';
     this.statusTimer = 0;
     this.caught = false;
@@ -42,16 +51,17 @@ export class SantaPeekScene extends MinigameScene {
     this.timeLeft -= dt;
     this.statusTimer = Math.max(0, this.statusTimer - dt);
     this.inspecting = Math.max(0, this.inspecting - dt);
+    this.shark.age += dt;
 
     const peeking = input.isDown('KeyE');
     this.peek = clamp(this.peek + (peeking ? 55 : -32) * dt, 0, 100);
 
     this.cameraX += this.cameraDir * this.cameraSpeed * dt;
-    if (this.cameraX > 810) {
-      this.cameraX = 810;
+    if (this.cameraX > 800) {
+      this.cameraX = 800;
       this.cameraDir = -1;
-    } else if (this.cameraX < 150) {
-      this.cameraX = 150;
+    } else if (this.cameraX < 160) {
+      this.cameraX = 160;
       this.cameraDir = 1;
     }
 
@@ -76,7 +86,7 @@ export class SantaPeekScene extends MinigameScene {
     let hit = -1;
     this.presents.forEach((gift, i) => {
       if (gift.taken) return;
-      if (Math.hypot(gift.x - x, gift.y - y) < 36) hit = i;
+      if (Math.hypot(gift.x - x, gift.y - y) < 30) hit = i;
     });
     if (hit < 0) return;
     const gift = this.presents[hit];
@@ -103,18 +113,20 @@ export class SantaPeekScene extends MinigameScene {
   }
 
   renderRound(ctx) {
-    ctx.strokeStyle = 'rgba(180, 200, 210, 0.35)';
+    drawWreckLounge(ctx, this.time);
+
+    ctx.strokeStyle = 'rgba(180, 200, 210, 0.4)';
     ctx.lineWidth = 2;
-    for (let i = 0; i < 9; i += 1) {
+    for (let i = 0; i < 13; i += 1) {
       ctx.beginPath();
-      ctx.moveTo(150 + i * 82, NET_Y - 60);
-      ctx.lineTo(150 + i * 82, NET_Y + 50);
+      ctx.moveTo(160 + i * 54, NET_Y - 56);
+      ctx.lineTo(160 + i * 54, NET_Y + 46);
       ctx.stroke();
     }
     for (let j = 0; j < 4; j += 1) {
       ctx.beginPath();
-      ctx.moveTo(150, NET_Y - 60 + j * 36);
-      ctx.lineTo(806, NET_Y - 60 + j * 36);
+      ctx.moveTo(160, NET_Y - 56 + j * 34);
+      ctx.lineTo(808, NET_Y - 56 + j * 34);
       ctx.stroke();
     }
 
@@ -125,88 +137,71 @@ export class SantaPeekScene extends MinigameScene {
         ctx,
         gift.x,
         gift.y,
-        18,
+        15,
         visible ? gift.shape : 'square',
         visible ? (this.wishlist.includes(gift.shape) ? '#ffd166' : '#8b98a5') : '#3a4a52',
       );
     }
 
-    const sweep = (this.cameraX - 150) / 660;
     ctx.fillStyle = 'rgba(255, 90, 90, 0.14)';
     ctx.beginPath();
-    ctx.arc(this.cameraX, NET_Y + 20, this.cameraR, 0, TAU);
+    ctx.arc(this.cameraX, NET_Y + 16, this.cameraR, 0, TAU);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 107, 129, 0.5)';
+    ctx.strokeStyle = 'rgba(255, 107, 129, 0.55)';
     ctx.lineWidth = 2;
     ctx.stroke();
-    fillRoundRect(ctx, this.cameraX - 16, NET_Y - 92, 32, 26, 6, '#39434c');
-    fillCircle(ctx, this.cameraX, NET_Y - 72, 6, '#ff6b81');
-    drawText(ctx, 'CAMERA', this.cameraX, NET_Y - 104, { size: 10, color: COLORS.danger, alpha: 0.8 });
+    fillRoundRect(ctx, this.cameraX - 15, NET_Y - 86, 30, 24, 6, '#39434c');
+    fillCircle(ctx, this.cameraX, NET_Y - 68, 5, '#ff6b81');
+    drawText(ctx, 'CAMERA', this.cameraX, NET_Y - 98, { size: 10, color: COLORS.danger, alpha: 0.85 });
 
-    fillRoundRect(ctx, WISHLIST.x, WISHLIST.y, WISHLIST.w, WISHLIST.h, 14, 'rgba(10, 39, 64, 0.85)');
+    this.shark.render(ctx);
+    drawSkinAura(ctx, this.shark);
+    drawTrail(ctx, this.shark);
+    drawCompanion(ctx, this.shark);
+    if (this.peek <= 5) {
+      drawText(ctx, 'Z z z', PLAYER.x + 40, PLAYER.y - 34, { size: 12, color: COLORS.textDim, alpha: 0.7 });
+    }
+
+    fillRoundRect(ctx, WISHLIST.x, WISHLIST.y, WISHLIST.w, WISHLIST.h, 14, 'rgba(8, 26, 34, 0.88)');
     strokeRoundRect(ctx, WISHLIST.x, WISHLIST.y, WISHLIST.w, WISHLIST.h, 14, 'rgba(207, 239, 255, 0.35)', 2);
-    drawText(ctx, 'WISHLIST', WISHLIST.x + 54, WISHLIST.y + 32, { size: 12, color: COLORS.accent });
+    drawText(ctx, 'WISHLIST', WISHLIST.x + 52, WISHLIST.y + 31, { size: 12, color: COLORS.accent });
     this.wishlist.forEach((shape, i) => {
-      drawGiftShape(ctx, WISHLIST.x + 130 + i * 70, WISHLIST.y + 32, 18, shape, '#ffd166');
+      drawGiftShape(ctx, WISHLIST.x + 130 + i * 70, WISHLIST.y + 31, 17, shape, '#ffd166');
     });
     if (this.inspecting > 0) {
       this.wishlist.forEach((shape, i) => {
-        drawGiftShape(ctx, 360 + i * 120, 340, 30, shape, '#ffd166');
+        drawGiftShape(ctx, 360 + i * 120, 344, 30, shape, '#ffd166');
       });
-      drawText(ctx, 'THESE ARE YOURS', LOGICAL_WIDTH / 2, 296, { size: 14, color: COLORS.accent, alpha: Math.min(1, this.inspecting) });
+      drawText(ctx, 'THESE ARE YOURS', LOGICAL_WIDTH / 2, 300, {
+        size: 14,
+        color: COLORS.accent,
+        alpha: Math.min(1, this.inspecting),
+      });
     }
 
-    this.renderSleeper(ctx);
-
-    drawText(ctx, "SANTA'S NET", LOGICAL_WIDTH / 2, 46, {
-      size: 28,
+    drawText(ctx, "SANTA'S NET", LOGICAL_WIDTH / 2, 34, {
+      size: 26,
       color: COLORS.text,
       glow: COLORS.bubble,
       glowBlur: 18,
     });
-    drawText(ctx, 'HOLD E — PEEK      CLICK THE WISHLIST — STUDY THE SHAPES      CLICK A PRESENT — SNEAK IT OUT (AVOID THE CAMERA)', LOGICAL_WIDTH / 2, 80, {
-      size: 11,
+    drawText(ctx, 'HOLD E — PEEK      CLICK THE WISHLIST — STUDY THE SHAPES      CLICK A PRESENT — SNEAK IT OUT (AVOID THE CAMERA)', LOGICAL_WIDTH / 2, 62, {
+      size: 10,
       color: COLORS.foam,
       alpha: 0.85,
     });
 
-    fillRoundRect(ctx, 60, LOGICAL_HEIGHT - 78, 200, 12, 6, 'rgba(4, 16, 29, 0.6)');
-    fillRoundRect(ctx, 60, LOGICAL_HEIGHT - 78, 200 * (this.peek / 100), 12, 6, this.peek > 5 ? COLORS.bubble : COLORS.textDim);
-    drawText(ctx, 'PEEK', 160, LOGICAL_HEIGHT - 90, { size: 10, color: COLORS.textDim });
+    fillRoundRect(ctx, 60, LOGICAL_HEIGHT - 34, 200, 10, 5, 'rgba(4, 16, 29, 0.65)');
+    fillRoundRect(ctx, 60, LOGICAL_HEIGHT - 34, 200 * (this.peek / 100), 10, 5, this.peek > 5 ? COLORS.bubble : COLORS.textDim);
+    drawText(ctx, 'PEEK', 160, LOGICAL_HEIGHT - 46, { size: 10, color: COLORS.textDim });
 
-    const ratio = Math.max(0, this.timeLeft / 110);
-    fillRoundRect(ctx, 330, LOGICAL_HEIGHT - 78, LOGICAL_WIDTH - 430, 12, 6, 'rgba(4, 16, 29, 0.6)');
-    fillRoundRect(ctx, 330, LOGICAL_HEIGHT - 78, (LOGICAL_WIDTH - 430) * ratio, 12, 6, ratio < 0.2 ? COLORS.danger : COLORS.accent);
-    drawText(ctx, `${Math.ceil(this.timeLeft)}s`, LOGICAL_WIDTH - 90, LOGICAL_HEIGHT - 90, { size: 10, color: COLORS.textDim });
+    const ratio = Math.max(0, this.timeLeft / 120);
+    fillRoundRect(ctx, 330, LOGICAL_HEIGHT - 34, LOGICAL_WIDTH - 430, 10, 5, 'rgba(4, 16, 29, 0.65)');
+    fillRoundRect(ctx, 330, LOGICAL_HEIGHT - 34, (LOGICAL_WIDTH - 430) * ratio, 10, 5, ratio < 0.2 ? COLORS.danger : COLORS.accent);
+    drawText(ctx, `${Math.ceil(this.timeLeft)}s`, LOGICAL_WIDTH - 90, LOGICAL_HEIGHT - 46, { size: 10, color: COLORS.textDim });
 
     if (this.statusTimer > 0 && this.status) {
-      drawText(ctx, this.status, LOGICAL_WIDTH / 2, 360, { size: 14, color: COLORS.accent, alpha: Math.min(1, this.statusTimer) });
-    }
-  }
-
-  renderSleeper(ctx) {
-    const awake = this.peek > 5;
-    fillCircle(ctx, PLAYER.x, PLAYER.y, 22, COLORS.accent);
-    ctx.fillStyle = COLORS.accent;
-    ctx.beginPath();
-    ctx.moveTo(PLAYER.x - 20, PLAYER.y);
-    ctx.lineTo(PLAYER.x - 40, PLAYER.y - 12);
-    ctx.lineTo(PLAYER.x - 40, PLAYER.y + 12);
-    ctx.closePath();
-    ctx.fill();
-    if (awake) {
-      fillCircle(ctx, PLAYER.x + 6, PLAYER.y - 5, 4, '#10233a');
-      fillCircle(ctx, PLAYER.x + 16, PLAYER.y - 5, 4, '#10233a');
-    } else {
-      ctx.strokeStyle = '#10233a';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      ctx.moveTo(PLAYER.x + 2, PLAYER.y - 5);
-      ctx.lineTo(PLAYER.x + 10, PLAYER.y - 5);
-      ctx.moveTo(PLAYER.x + 12, PLAYER.y - 5);
-      ctx.lineTo(PLAYER.x + 20, PLAYER.y - 5);
-      ctx.stroke();
-      drawText(ctx, 'Z z z', PLAYER.x + 34, PLAYER.y - 30, { size: 12, color: COLORS.textDim, alpha: 0.7 });
+      drawText(ctx, this.status, LOGICAL_WIDTH / 2, 360, { size: 13, color: COLORS.accent, alpha: Math.min(1, this.statusTimer) });
     }
   }
 

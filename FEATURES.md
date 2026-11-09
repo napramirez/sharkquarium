@@ -1478,17 +1478,19 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   **BEST RUNNER** (least times IT), records both on a persistent **TAG LEADERBOARD**
   (`LEADERBOARD` on the results, or the MINIGAMES **TAG LEADERBOARD** row), and offers
   PLAY AGAIN (same names and costumes, fresh CPUs) or MINIGAMES.
-- **WRAP THE PRESENTS** (Christmas-exclusive) — a cozy gift-wrapping room with a slow
-  draining timer bar and a top-right checklist of presents (a tick box plus a little picture of
-  each). **WASD** moves the diver; **E** picks up a nearby unwrapped present; then **hold
-  left-click and sweep the cursor** to wind the paper around it — the checklist row ticks as
-  each is finished. Wrap them all before the timer runs out.
-- **SANTA'S NET** (Christmas-exclusive) — you are asleep on the seabed while Santa's gift net
-  hangs overhead, watched by a sweeping camera. **Hold E** to peek (the peek meter drains when
-  you let go), **left-click the wishlist slate** on the sand to study the three shapes that are
-  yours, then **left-click matching presents** in the net to sneak them out — but only while the
-  camera's red detection ring is away, or you are caught. Wrong shapes are refused ("not
-  yours"). Collect all the wished gifts to win.
+- **WRAP THE PRESENTS** (Christmas-exclusive) — set in a **flooded cruise-shipwreck lounge**
+  (wood panelling, portholes, a bar, velvet armchairs, a rug, a tilted chandelier, and a
+  fireplace that holds four **bioluminescent squids instead of fire**). You play as your **own
+  shark in its current skin and wardrobe**. **Ten presents** are scattered through the lounge;
+  **WASD** swims, **E** takes a nearby unwrapped one, then **hold left-click and sweep the
+  cursor** to wind the paper — a top-right **checklist (tick box + present picture, two columns)**
+  ticks off as each is finished, and a slow timer bar runs down. Wrap all ten to win.
+- **SANTA'S NET** (Christmas-exclusive) — the same **sunken cruise lounge**, where you sleep as
+  your **current shark** under a net of **twelve gifts**, watched by a sweeping camera. **Hold
+  E** to peek (the peek meter drains when you let go), **left-click the wishlist slate** on the
+  rug to study the three shapes that are yours, then **left-click matching presents** in the net
+  to sneak them out (six wished gifts) — but only while the camera's red detection ring is away,
+  or you are caught. Wrong shapes are refused ("not yours").
 - LABYRINTH — a seven-part shipwreck escape split into 1500 px sections, played by two
   players or LABYRINTH SOLO (1P). Every run opens with a picker: a `PART: n/7` row lets
   you drop straight into any of the seven stretches (it defaults to your saved progress,

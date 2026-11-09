@@ -6661,10 +6661,10 @@ async function main() {
   game.changeScene('presentwrap');
   await frames(3);
   const presentWrap = game.scene;
-  assert.equal(presentWrap.presents.length, 5, 'the wrap game should scatter five presents');
+  assert.equal(presentWrap.presents.length, 10, 'the wrap game should scatter ten presents');
   assert.ok(presentWrap.timeLeft > 85, 'the wrap timer should be slow');
-  presentWrap.player.x = presentWrap.presents[0].x;
-  presentWrap.player.y = presentWrap.presents[0].y;
+  presentWrap.shark.x = presentWrap.presents[0].x;
+  presentWrap.shark.y = presentWrap.presents[0].y;
   await tapKey('KeyE');
   assert.equal(presentWrap.held, 0, 'E should pick up a nearby present');
   presentWrap.game.input.pointer.down = true;
@@ -6674,10 +6674,10 @@ async function main() {
   }
   presentWrap.game.input.pointer.down = false;
   assert.ok(presentWrap.presents[0].wrapped, 'moving the cursor while held wraps the present');
-  for (let i = 0; i < 4; i += 1) presentWrap.presents[i].wrapped = true;
+  for (let i = 0; i < 9; i += 1) presentWrap.presents[i].wrapped = true;
   presentWrap.held = -1;
-  presentWrap.player.x = presentWrap.presents[4].x;
-  presentWrap.player.y = presentWrap.presents[4].y;
+  presentWrap.shark.x = presentWrap.presents[9].x;
+  presentWrap.shark.y = presentWrap.presents[9].y;
   await tapKey('KeyE');
   presentWrap.game.input.pointer.down = true;
   for (let i = 0; i < 16; i += 1) {
@@ -6692,7 +6692,7 @@ async function main() {
   game.changeScene('santapeek');
   await frames(3);
   const santaPeek = game.scene;
-  assert.equal(santaPeek.correctTotal, 3, 'the wishlist should match three net presents');
+  assert.equal(santaPeek.correctTotal, 6, 'the wishlist should match six net presents');
   pressKey('KeyE');
   await frames(8);
   releaseKey('KeyE');

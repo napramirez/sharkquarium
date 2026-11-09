@@ -1,28 +1,41 @@
 import { MinigameScene } from '../engine/minigame.js';
-import { drawText, fillRoundRect, strokeRoundRect, fillCircle } from '../engine/render.js';
+import { drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
 import { clamp } from '../engine/math.js';
 import { drawGiftShape } from '../engine/giftshapes.js';
+import { drawWreckLounge } from '../engine/lounge.js';
+import { applyWardrobe } from '../engine/wardrobe.js';
+import { drawSkinAura } from '../engine/skin.js';
+import { drawTrail } from '../engine/trail.js';
+import { drawCompanion } from '../engine/companion.js';
+import { Shark } from '../entities/shark.js';
 import { COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
 
-const AREA = { x: 60, y: 120, w: 610, h: 340 };
+const FIELD = { x: 70, y: 190, w: 590, h: 300 };
 
 export class PresentWrapScene extends MinigameScene {
   buildRound() {
     this.phase = 'play';
-    this.player = { x: AREA.x + 100, y: AREA.y + AREA.h - 60, speed: 240 };
-    const colors = ['#e2602e', '#3fa79b', '#c94b4b', '#a06fd0', '#d9a93c'];
-    const shapes = ['square', 'circle', 'triangle', 'star', 'heart'];
-    this.presents = shapes.map((shape, i) => ({
-      x: AREA.x + 80 + i * 112,
-      y: AREA.y + 80 + (i % 2) * 95,
-      shape,
-      color: colors[i],
-      wrapped: false,
-      held: false,
-      wrap: 0,
-    }));
+    this.shark = new Shark(FIELD.x + 120, FIELD.y + FIELD.h - 50, { pointer: false });
+    applyWardrobe(this.shop, 0);
+    const colors = ['#e2602e', '#3fa79b', '#c94b4b', '#a06fd0', '#d9a93c', '#5a8fd6'];
+    const shapes = ['square', 'circle', 'triangle', 'star', 'heart', 'diamond'];
+    this.presents = [];
+    for (let row = 0; row < 2; row += 1) {
+      for (let col = 0; col < 5; col += 1) {
+        const index = row * 5 + col;
+        this.presents.push({
+          x: 150 + col * 82 + row * 22,
+          y: 258 + row * 150,
+          shape: shapes[index % shapes.length],
+          color: colors[index % colors.length],
+          wrapped: false,
+          held: false,
+          wrap: 0,
+        });
+      }
+    }
     this.held = -1;
-    this.timeLeft = 90;
+    this.timeLeft = 120;
     this.status = '';
     this.statusTimer = 0;
     this.lastPX = this.game.input.pointer.x;
@@ -41,18 +54,23 @@ export class PresentWrapScene extends MinigameScene {
   updateRound(dt, input) {
     this.timeLeft -= dt;
     this.statusTimer = Math.max(0, this.statusTimer - dt);
-    const p = this.player;
+    const shark = this.shark;
     const dx = (input.isDown('right') ? 1 : 0) - (input.isDown('left') ? 1 : 0);
     const dy = (input.isDown('down') ? 1 : 0) - (input.isDown('up') ? 1 : 0);
     const len = Math.hypot(dx, dy) || 1;
-    p.x = clamp(p.x + (dx / len) * p.speed * dt, AREA.x + 20, AREA.x + AREA.w - 20);
-    p.y = clamp(p.y + (dy / len) * p.speed * dt, AREA.y + 20, AREA.y + AREA.h - 20);
+    const speed = 220;
+    shark.x = clamp(shark.x + (dx / len) * speed * dt, FIELD.x + 26, FIELD.x + FIELD.w - 26);
+    shark.y = clamp(shark.y + (dy / len) * speed * dt, FIELD.y + 26, FIELD.y + FIELD.h - 26);
+    if (dx !== 0) shark.facing = dx > 0 ? 1 : -1;
+    if (dx !== 0 || dy !== 0) shark.heading = Math.atan2(dy, dx);
+    shark.age += dt;
+
     if (input.wasPressed('KeyE') && this.held < 0) {
       let best = -1;
-      let bestDist = 70;
+      let bestDist = 74;
       this.presents.forEach((gift, i) => {
         if (gift.wrapped || gift.held) return;
-        const dist = Math.hypot(gift.x - p.x, gift.y - p.y);
+        const dist = Math.hypot(gift.x - shark.x, gift.y - shark.y);
         if (dist < bestDist) {
           bestDist = dist;
           best = i;
@@ -63,15 +81,13 @@ export class PresentWrapScene extends MinigameScene {
         this.presents[best].held = true;
         this.setStatus('HOLD LEFT-CLICK AND MOVE TO WRAP');
       } else {
-        this.setStatus('MOVE CLOSER TO A PRESENT');
+        this.setStatus('SWIM CLOSER TO A PRESENT');
       }
     }
     if (this.held >= 0) {
       const gift = this.presents[this.held];
       if (input.pointer.down) {
-        const mx = input.pointer.x - this.lastPX;
-        const my = input.pointer.y - this.lastPY;
-        const moved = Math.hypot(mx, my);
+        const moved = Math.hypot(input.pointer.x - this.lastPX, input.pointer.y - this.lastPY);
         if (moved > 0) gift.wrap = Math.min(100, gift.wrap + moved * 0.5);
       }
       if (gift.wrap >= 100) {
@@ -95,11 +111,10 @@ export class PresentWrapScene extends MinigameScene {
   }
 
   renderRound(ctx) {
-    fillRoundRect(ctx, AREA.x, AREA.y, AREA.w, AREA.h, 24, 'rgba(10, 32, 48, 0.55)');
-    strokeRoundRect(ctx, AREA.x, AREA.y, AREA.w, AREA.h, 24, 'rgba(207, 239, 255, 0.22)', 2);
-    fillRoundRect(ctx, AREA.x + 8, AREA.y + AREA.h - 46, AREA.w - 16, 38, 16, 'rgba(196, 175, 135, 0.4)');
+    drawWreckLounge(ctx, this.time);
 
     for (const gift of this.presents) {
+      if (gift.held) continue;
       if (gift.wrapped) {
         fillRoundRect(ctx, gift.x - 20, gift.y - 18, 40, 36, 8, gift.color);
         strokeRoundRect(ctx, gift.x - 20, gift.y - 18, 40, 36, 8, '#ffe089', 3);
@@ -111,79 +126,72 @@ export class PresentWrapScene extends MinigameScene {
         ctx.moveTo(gift.x + 20, gift.y - 18);
         ctx.lineTo(gift.x - 20, gift.y + 18);
         ctx.stroke();
-        drawText(ctx, '✓', gift.x, gift.y - 30, { size: 18, color: COLORS.accent });
-      } else if (!gift.held) {
+        drawText(ctx, '✓', gift.x, gift.y - 30, { size: 16, color: COLORS.accent });
+      } else {
         drawGiftShape(ctx, gift.x, gift.y, 20, gift.shape, gift.color);
-        drawText(ctx, 'E', gift.x, gift.y + 34, { size: 12, color: COLORS.textDim, alpha: 0.7 });
+        drawText(ctx, 'E', gift.x, gift.y + 34, { size: 11, color: COLORS.textDim, alpha: 0.7 });
       }
     }
 
-    const p = this.player;
-    fillCircle(ctx, p.x, p.y, 14, COLORS.accent);
-    fillCircle(ctx, p.x - 5, p.y - 4, 3, '#10233a');
-    fillCircle(ctx, p.x + 5, p.y - 4, 3, '#10233a');
+    const shark = this.shark;
+    shark.render(ctx);
+    drawSkinAura(ctx, shark);
+    drawTrail(ctx, shark);
+    drawCompanion(ctx, shark);
+
     if (this.held >= 0) {
       const gift = this.presents[this.held];
-      drawGiftShape(ctx, p.x, p.y - 42, 18, gift.shape, gift.color);
-      fillRoundRect(ctx, p.x - 34, p.y - 74, 68, 8, 4, 'rgba(4, 16, 29, 0.6)');
-      fillRoundRect(ctx, p.x - 34, p.y - 74, 68 * (gift.wrap / 100), 8, 4, COLORS.accent);
+      drawGiftShape(ctx, shark.x, shark.y - 46, 18, gift.shape, gift.color);
+      fillRoundRect(ctx, shark.x - 34, shark.y - 78, 68, 8, 4, 'rgba(4, 16, 29, 0.6)');
+      fillRoundRect(ctx, shark.x - 34, shark.y - 78, 68 * (gift.wrap / 100), 8, 4, COLORS.accent);
     }
 
-    drawText(ctx, 'WRAP THE PRESENTS', LOGICAL_WIDTH / 2, 52, {
-      size: 30,
+    drawText(ctx, 'WRAP THE PRESENTS', LOGICAL_WIDTH / 2, 40, {
+      size: 28,
       color: COLORS.text,
       glow: COLORS.bubble,
       glowBlur: 18,
     });
-    drawText(ctx, 'WASD — MOVE      E — TAKE A PRESENT      HOLD LEFT-CLICK + MOVE — WRAP', LOGICAL_WIDTH / 2, 86, {
-      size: 12,
+    drawText(ctx, 'WASD — SWIM      E — TAKE A PRESENT      HOLD LEFT-CLICK + MOVE — WRAP', LOGICAL_WIDTH / 2, 72, {
+      size: 11,
       color: COLORS.foam,
       alpha: 0.85,
     });
 
     if (this.statusTimer > 0 && this.status) {
-      drawText(ctx, this.status, LOGICAL_WIDTH / 2, AREA.y + AREA.h + 40, {
-        size: 14,
-        color: COLORS.accent,
-        alpha: Math.min(1, this.statusTimer),
-      });
+      drawText(ctx, this.status, 330, 176, { size: 13, color: COLORS.accent, alpha: Math.min(1, this.statusTimer) });
     }
 
-    const ratio = Math.max(0, this.timeLeft / 90);
-    fillRoundRect(ctx, 60, LOGICAL_HEIGHT - 44, LOGICAL_WIDTH - 120, 10, 5, 'rgba(4, 16, 29, 0.6)');
-    fillRoundRect(ctx, 60, LOGICAL_HEIGHT - 44, (LOGICAL_WIDTH - 120) * ratio, 10, 5, ratio < 0.2 ? COLORS.danger : COLORS.accent);
-    drawText(ctx, `${Math.ceil(this.timeLeft)}s`, LOGICAL_WIDTH / 2, LOGICAL_HEIGHT - 24, {
-      size: 12,
-      color: COLORS.textDim,
-    });
+    const ratio = Math.max(0, this.timeLeft / 120);
+    fillRoundRect(ctx, 70, LOGICAL_HEIGHT - 40, 540, 10, 5, 'rgba(4, 16, 29, 0.65)');
+    fillRoundRect(ctx, 70, LOGICAL_HEIGHT - 40, 540 * ratio, 10, 5, ratio < 0.2 ? COLORS.danger : COLORS.accent);
+    drawText(ctx, `${Math.ceil(this.timeLeft)}s`, 340, LOGICAL_HEIGHT - 22, { size: 11, color: COLORS.textDim });
 
     this.renderChecklist(ctx);
   }
 
   renderChecklist(ctx) {
-    const x = 706;
-    const y = 120;
-    fillRoundRect(ctx, x, y, 232, 340, 18, 'rgba(10, 39, 64, 0.9)');
-    strokeRoundRect(ctx, x, y, 232, 340, 18, 'rgba(207, 239, 255, 0.28)', 2);
-    drawText(ctx, 'PRESENTS', x + 116, y + 24, { size: 16, color: COLORS.accent, glow: '#ffd16666', glowBlur: 10 });
-    drawText(ctx, `${this.wrappedCount()} / ${this.presents.length} WRAPPED`, x + 116, y + 48, {
-      size: 12,
+    const x = 700;
+    const y = 96;
+    const w = 244;
+    const h = 388;
+    fillRoundRect(ctx, x, y, w, h, 16, 'rgba(8, 26, 34, 0.9)');
+    strokeRoundRect(ctx, x, y, w, h, 16, 'rgba(207, 239, 255, 0.28)', 2);
+    drawText(ctx, 'PRESENTS', x + w / 2, y + 24, { size: 16, color: COLORS.accent, glow: '#ffd16666', glowBlur: 10 });
+    drawText(ctx, `${this.wrappedCount()} / ${this.presents.length} WRAPPED`, x + w / 2, y + 46, {
+      size: 11,
       color: COLORS.textDim,
     });
     this.presents.forEach((gift, i) => {
-      const rowY = y + 82 + i * 50;
-      fillRoundRect(ctx, x + 16, rowY - 16, 22, 22, 5, gift.wrapped ? COLORS.accent : 'rgba(4, 16, 29, 0.6)');
-      strokeRoundRect(ctx, x + 16, rowY - 16, 22, 22, 5, 'rgba(207, 239, 255, 0.5)', 1.5);
-      if (gift.wrapped) {
-        drawText(ctx, '✓', x + 27, rowY - 5, { size: 16, color: '#10233a' });
-      }
-      drawGiftShape(ctx, x + 78, rowY - 5, 15, gift.shape, gift.color);
-      drawText(ctx, gift.wrapped ? 'WRAPPED' : gift.held ? 'WRAPPING' : 'TO WRAP', x + 118, rowY - 5, {
-        size: 12,
-        color: gift.wrapped ? COLORS.accent : COLORS.textDim,
-        align: 'left',
-        alpha: 0.9,
-      });
+      const col = i % 2;
+      const row = Math.floor(i / 2);
+      const cx = x + 22 + col * 112;
+      const cy = y + 78 + row * 58;
+      fillRoundRect(ctx, cx, cy, 20, 20, 5, gift.wrapped ? COLORS.accent : 'rgba(4, 16, 29, 0.6)');
+      strokeRoundRect(ctx, cx, cy, 20, 20, 5, 'rgba(207, 239, 255, 0.5)', 1.5);
+      if (gift.wrapped) drawText(ctx, '✓', cx + 10, cy + 10, { size: 14, color: '#10233a' });
+      fillRoundRect(ctx, cx + 28, cy - 4, 40, 28, 6, 'rgba(4, 16, 29, 0.5)');
+      drawGiftShape(ctx, cx + 48, cy + 10, 11, gift.shape, gift.color);
     });
   }
 

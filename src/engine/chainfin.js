@@ -17,39 +17,34 @@ export function drawChainFin(ctx, radius, time, options = {}) {
   ctx.fill();
 
   const span = bodyEnd - bx;
+  const tipLen = Math.PI * cap;
+  const loopLen = span * 2 + tipLen;
   const spacing = len / 6;
-  const offset = (time * 200) % spacing;
-  ctx.fillStyle = '#c9d2da';
-  for (let k = 0; k < 6; k += 1) {
-    const px = bx + ((k * spacing + offset) % span);
-    ctx.beginPath();
-    ctx.moveTo(px, -radius * 0.25);
-    ctx.lineTo(px + spacing * 0.5, -radius * 0.56);
-    ctx.lineTo(px + spacing, -radius * 0.25);
-    ctx.closePath();
-    ctx.fill();
-    const bx2 = px + spacing * 0.5;
-    ctx.beginPath();
-    ctx.moveTo(bx2, radius * 0.25);
-    ctx.lineTo(bx2 + spacing * 0.5, radius * 0.56);
-    ctx.lineTo(bx2 + spacing, radius * 0.25);
-    ctx.closePath();
-    ctx.fill();
-  }
+  const toothH = radius * 0.34;
+  const toothW = spacing * 0.62;
+  const phase = ((time * 260) % spacing + spacing) % spacing;
+  const sample = (s) => {
+    if (s < span) {
+      return { x: bx + s, y: -radius * 0.25, angle: -Math.PI / 2 };
+    }
+    if (s < span + tipLen) {
+      const ang = -Math.PI / 2 + ((s - span) / tipLen) * Math.PI;
+      return { x: bodyEnd + Math.cos(ang) * cap, y: Math.sin(ang) * cap, angle: ang };
+    }
+    const d = s - (span + tipLen);
+    return { x: bodyEnd - d, y: radius * 0.25, angle: Math.PI / 2 };
+  };
 
-  const tipCount = 5;
-  const tipFrac = ((time * 2.4) % 1 + 1) % 1;
-  for (let k = 0; k < tipCount; k += 1) {
-    const ang = -Math.PI / 2 + ((k + tipFrac) / tipCount) * Math.PI;
-    const tx = bodyEnd + Math.cos(ang) * (cap + radius * 0.06);
-    const ty = Math.sin(ang) * (cap + radius * 0.06);
+  ctx.fillStyle = '#c9d2da';
+  for (let s = phase; s < loopLen; s += spacing) {
+    const point = sample(s);
     ctx.save();
-    ctx.translate(tx, ty);
-    ctx.rotate(ang);
+    ctx.translate(point.x, point.y);
+    ctx.rotate(point.angle);
     ctx.beginPath();
-    ctx.moveTo(0, -radius * 0.12);
-    ctx.lineTo(radius * 0.22, 0);
-    ctx.lineTo(0, radius * 0.12);
+    ctx.moveTo(0, -toothW / 2);
+    ctx.lineTo(toothH, 0);
+    ctx.lineTo(0, toothW / 2);
     ctx.closePath();
     ctx.fill();
     ctx.restore();

@@ -1489,9 +1489,9 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   **checklist (tick box + present picture, two columns)** ticks off as each is finished, and a
   slow timer bar runs down. Wrap all ten to win.
 - **SANTA'S NET** (Christmas-exclusive) — the same **sunken cruise lounge**, where you sleep as
-  your **current shark** under a dense net of **sixteen gifts**, watched by a **fast** sweeping
-  camera. The presents are **hidden until you peek** (dim shapes show only while your eyes are
-  open). **Hold E** to open your eyes — but the peek meter fills, and while it is **near full
+  your **current shark** under a **draped net bag** holding **sixteen gifts** scattered through
+  it (not a neat row), watched by a **fast** sweeping camera. The presents are **hidden until you
+  peek** (dim shapes show only while your eyes are open). **Hold E** to open your eyes — but the peek meter fills, and while it is **near full
   your eyes close again**; release E and they close too, so you must peek in short bursts.
   **Left-click the wishlist slate** on the rug to study the **four wished shapes**, then
   **left-click matching presents** (eight of them) to sneak them out — but only while the

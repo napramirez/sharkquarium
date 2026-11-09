@@ -26,8 +26,8 @@ export class SantaPeekScene extends MinigameScene {
       'diamond', 'star', 'square', 'heart_flaw', 'circle', 'triangle', 'diamond', 'heart',
     ];
     this.presents = shapes.map((shape, i) => ({
-      x: 168 + i * 53,
-      y: NET_Y,
+      x: 172 + i * 41,
+      y: 130 + ((i * 53) % 78),
       shape,
       taken: false,
     }));
@@ -141,20 +141,33 @@ export class SantaPeekScene extends MinigameScene {
       }
     }
 
-    ctx.strokeStyle = 'rgba(180, 200, 210, 0.45)';
+    ctx.strokeStyle = 'rgba(180, 200, 210, 0.4)';
     ctx.lineWidth = 2;
-    for (let i = 0; i < 13; i += 1) {
+    ctx.beginPath();
+    ctx.moveTo(138, 82);
+    ctx.quadraticCurveTo(480, 108, 822, 82);
+    ctx.stroke();
+    for (let i = 0; i <= 16; i += 1) {
+      const topX = 150 + i * 41;
+      const drift = (topX - 480) * 0.12;
       ctx.beginPath();
-      ctx.moveTo(160 + i * 54, NET_Y - 56);
-      ctx.lineTo(160 + i * 54, NET_Y + 46);
+      ctx.moveTo(topX, 86);
+      ctx.quadraticCurveTo(topX + drift * 0.4, 164, topX + drift, 232);
       ctx.stroke();
     }
-    for (let j = 0; j < 4; j += 1) {
+    for (let j = 0; j <= 5; j += 1) {
+      const y = 96 + j * 28;
+      const sag = 10 + j * 4;
       ctx.beginPath();
-      ctx.moveTo(160, NET_Y - 56 + j * 34);
-      ctx.lineTo(808, NET_Y - 56 + j * 34);
+      ctx.moveTo(146 - j * 3, y);
+      ctx.quadraticCurveTo(480, y + sag, 814 + j * 3, y);
       ctx.stroke();
     }
+    ctx.strokeStyle = 'rgba(180, 200, 210, 0.28)';
+    ctx.beginPath();
+    ctx.moveTo(150, 232);
+    ctx.quadraticCurveTo(480, 268, 810, 232);
+    ctx.stroke();
 
     ctx.fillStyle = 'rgba(255, 90, 90, 0.16)';
     ctx.beginPath();

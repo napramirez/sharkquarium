@@ -158,7 +158,7 @@ lore inventory.
   portholes, in the corners), only fading into view very close up; swim with WASD, take one with
   E, then hold left-click and sweep the cursor to wrap it, ticking a two-column top-right
   checklist (tick box + present picture) before a slow timer runs out. **SANTA'S NET**: you sleep as your
-  shark under a dense net of **sixteen** gifts watched by a **fast** camera; presents stay hidden
+  shark under a draped net bag of **sixteen** gifts scattered through it, watched by a **fast** camera; presents stay hidden
   until you peek, and holding E fills a peek meter that **closes your eyes when it is near
   full** (releasing also closes them), so you peek in short bursts. Click the wishlist slate to
   study **four** wished shapes, then click the **eight** matching presents to sneak them out

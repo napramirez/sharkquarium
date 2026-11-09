@@ -6647,6 +6647,80 @@ async function main() {
     assert.equal(game.scene.companion.key, 'snowfish', 'the snowfish dive buddy should exist');
   }
 
+  game.changeScene('minigames');
+  await frames(3);
+  assert.ok(
+    game.scene.menu.items.some((item) => item.action === 'presentwrap'),
+    'christmas mode should list WRAP THE PRESENTS',
+  );
+  assert.ok(
+    game.scene.menu.items.some((item) => item.action === 'santapeek'),
+    "christmas mode should list SANTA'S NET",
+  );
+
+  game.changeScene('presentwrap');
+  await frames(3);
+  const presentWrap = game.scene;
+  assert.equal(presentWrap.presents.length, 5, 'the wrap game should scatter five presents');
+  assert.ok(presentWrap.timeLeft > 85, 'the wrap timer should be slow');
+  presentWrap.player.x = presentWrap.presents[0].x;
+  presentWrap.player.y = presentWrap.presents[0].y;
+  await tapKey('KeyE');
+  assert.equal(presentWrap.held, 0, 'E should pick up a nearby present');
+  presentWrap.game.input.pointer.down = true;
+  for (let i = 0; i < 16; i += 1) {
+    presentWrap.game.input.pointer.x += 40;
+    await frames(1);
+  }
+  presentWrap.game.input.pointer.down = false;
+  assert.ok(presentWrap.presents[0].wrapped, 'moving the cursor while held wraps the present');
+  for (let i = 0; i < 4; i += 1) presentWrap.presents[i].wrapped = true;
+  presentWrap.held = -1;
+  presentWrap.player.x = presentWrap.presents[4].x;
+  presentWrap.player.y = presentWrap.presents[4].y;
+  await tapKey('KeyE');
+  presentWrap.game.input.pointer.down = true;
+  for (let i = 0; i < 16; i += 1) {
+    presentWrap.game.input.pointer.x += 40;
+    await frames(1);
+  }
+  presentWrap.game.input.pointer.down = false;
+  await frames(3);
+  assert.equal(presentWrap.phase, 'results', 'wrapping every present should win');
+  assert.equal(presentWrap.won, true, 'the wrap game should count as a win');
+
+  game.changeScene('santapeek');
+  await frames(3);
+  const santaPeek = game.scene;
+  assert.equal(santaPeek.correctTotal, 3, 'the wishlist should match three net presents');
+  pressKey('KeyE');
+  await frames(8);
+  releaseKey('KeyE');
+  assert.ok(santaPeek.peek > 0, 'holding E should build the peek meter');
+  santaPeek.peek = 100;
+  santaPeek.cameraX = 150;
+  const peekWantedIdx = santaPeek.presents.findIndex((gift) => santaPeek.wishlist.includes(gift.shape));
+  const peekWanted = santaPeek.presents[peekWantedIdx];
+  santaPeek.cameraX = peekWanted.x < 480 ? 810 : 150;
+  canvasPointerDown(peekWanted.x, peekWanted.y);
+  canvasPointerUp();
+  await frames(2);
+  assert.ok(peekWanted.taken, 'clicking a wished-shape present should sneak it out');
+  assert.equal(santaPeek.collected, 1, 'the sneak should be counted');
+  canvasPointerDown(400, 430);
+  canvasPointerUp();
+  await frames(2);
+  assert.ok(santaPeek.inspecting > 0, 'clicking the wishlist should study the shapes');
+  santaPeek.peek = 100;
+  const peekVictimIdx = santaPeek.presents.findIndex((gift) => santaPeek.wishlist.includes(gift.shape) && !gift.taken);
+  const peekVictim = santaPeek.presents[peekVictimIdx];
+  santaPeek.cameraX = peekVictim.x;
+  canvasPointerDown(peekVictim.x, peekVictim.y);
+  canvasPointerUp();
+  await frames(2);
+  assert.equal(santaPeek.caught, true, 'stealing under the camera should be caught');
+  assert.equal(santaPeek.phase, 'results', 'getting caught should end the round');
+
   storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', christmas: false }));
   game.changeScene('settings');
   await frames(3);
@@ -6654,6 +6728,12 @@ async function main() {
   game.changeScene('menu');
   await frames(5);
   assert.equal(game.music.track.name, 'menu', 'the menu should hold the normal theme');
+  game.changeScene('minigames');
+  await frames(3);
+  assert.ok(
+    !game.scene.menu.items.some((item) => item.action === 'presentwrap' || item.action === 'santapeek'),
+    'the christmas minigames should be exclusive to christmas mode',
+  );
   game.changeScene('settings');
   await frames(3);
   const christmasIdx = game.scene.menu.items.findIndex((item) => item.action === 'christmas');

@@ -149,6 +149,13 @@ lore inventory.
   4.5× enemy speed, 0.15 spawn interval, 5× score penalty, 0.15 grace, 0.35× tank clocks,
   a 15 s ramp, five extra hazard slots, an ×8 coin multiplier and an REEF RUSH 2.2× speed /
   0.35 gap / 1.25× spike scale.
+- **Christmas-exclusive minigames** — two seasonal games appear in MINIGAMES only while
+  CHRISTMAS MODE is on. **WRAP THE PRESENTS**: move with WASD, take a present with E, then hold
+  left-click and sweep the cursor to wrap it, ticking a top-right checklist (colour/shape
+  pictures) before a slow timer runs out. **SANTA'S NET**: you are asleep under a net of gifts;
+  hold E to peek, click the wishlist slate to study your three shapes, then click matching
+  presents to sneak them out while dodging a sweeping camera's detection ring (wrong shapes are
+  refused).
 - **Track builder** — a four-track sequencer reached from the TRACK PLAYER with **DRUMS /
   BASS / SYNTH / PIANO tabs** over a **piano-roll surface of horizontal lines** (no grid).
   Clicking a line places a tone block (higher lines = higher notes, stackable into chords),

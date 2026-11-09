@@ -158,8 +158,9 @@ PLAYTOY EXPLORATION toy-liner tank (the ANCHOR-PACK with its three anchor heads,
 gates, an anchor that bounces off hull walls, living plush toys, and a persistent lore-paper
 INVENTORY), and the seasonal modes (CHRISTMAS/HALLOWEEN/NEW YEAR with their own themed
 scores and a NOW PLAYING label, themed menu particles, seasonal enemy hats, free festive
-cosmetics and buddies, and MERRY CHRISTMAS / HAPPY HALLOWEEN / HAPPY NEW YEAR theatre
-trailers), 8-BIT MODE (a 256×144 pixelated render with chiptune audio), and REEF RUSH (an
+cosmetics and buddies, MERRY CHRISTMAS / HAPPY HALLOWEEN / HAPPY NEW YEAR theatre
+trailers, and two Christmas-only minigames — WRAP THE PRESENTS and SANTA'S NET), 8-BIT MODE
+(a 256×144 pixelated render with chiptune audio), and REEF RUSH (an
 original rhythm-runner with original hazards — seaweed/shell spikes on the floor and ceiling,
 stackable floor/ceiling rocks, standable floating ledges, runnable slopes, pearls, air-boosting
 pressure bubbles, gravity bubbles and gravity bubble pads, and thrust bubble jump pads on the

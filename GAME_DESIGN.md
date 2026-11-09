@@ -197,7 +197,10 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   bubbles. `Entity`'s render wrapper overlays a seasonal hat on `santa`-flagged enemies via
   `drawSeasonHat()` (santa/witch/party), and the wardrobe gains each season's accessories
   and companion. The theatre's MERRY CHRISTMAS / HAPPY HALLOWEEN / HAPPY NEW YEAR rows play
-  `src/scenes/christmastrail.js` with a `season` param.
+  `src/scenes/christmastrail.js` with a `season` param. Christmas mode also exposes two
+  exclusive MINIGAMES rows: `PresentWrapScene` (`presentwrap`) and `SantaPeekScene`
+  (`santapeek`), both `MinigameScene`s gated on `currentSeason() === 'christmas'`; they share
+  `src/engine/giftshapes.js` for drawing the wrapped/wished shapes.
 - **8-bit mode** lives in `src/engine/retro.js` (`set8Bit()`/`is8Bit()`). `Game.renderFrame()`
   renders the scene into a fixed 256×144 offscreen canvas (`ensurePixelBuffer()`, drawn with a
   `PIXEL_WIDTH/width` transform so scenes keep their 960×540 logical coordinates), blits it to

@@ -6,6 +6,7 @@ import { formatRecord } from '../engine/records.js';
 import { mutatorByKey } from '../engine/mutators.js';
 import { loadComposer, composerHasNotes } from '../engine/composer.js';
 import { loadRushCourse, rushCourseHasItems } from '../engine/rushcourse.js';
+import { currentSeason } from '../engine/season.js';
 import {
   COLORS,
   COINS,
@@ -52,6 +53,10 @@ export class MinigamesScene extends Scene {
       items.push({ label: 'REEF RUSH — MY COURSE (1P)', action: 'reefrushcourse', feeKey: 'reefrush' });
       items.push({ label: 'REEF RUSH — COURSE BUILDER', action: 'rushbuilder' });
       items.push({ label: 'BOSS RUSH (1P)', action: 'bossrush', feeKey: 'bossrush' });
+    }
+    if (currentSeason() === 'christmas') {
+      items.push({ label: 'WRAP THE PRESENTS (1P)', action: 'presentwrap', highlight: true });
+      items.push({ label: "SANTA'S NET (1P)", action: 'santapeek', highlight: true });
     }
     items.push({
       label: `MUTATOR: ${this.mutator.key === 'none' ? 'OFF' : this.mutator.label}`,
@@ -113,6 +118,11 @@ export class MinigamesScene extends Scene {
     if (item.action === 'rushlevels') {
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
       this.game.changeScene('rushlevels');
+      return;
+    }
+    if (item.action === 'presentwrap' || item.action === 'santapeek') {
+      this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
+      this.game.changeScene(item.action);
       return;
     }
     if (item.action === 'reefrushcourse' && !rushCourseHasItems(loadRushCourse())) {

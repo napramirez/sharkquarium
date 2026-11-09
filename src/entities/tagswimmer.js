@@ -196,8 +196,22 @@ export class TagSwimmer {
       ctx.moveTo(radius * 1.14, -radius * 0.78);
       ctx.lineTo(radius * 1.16, -radius * 0.34);
       ctx.stroke();
-      ctx.strokeStyle = '#12161a';
-      ctx.lineWidth = radius * 0.14;
+      ctx.lineWidth = radius * 0.18;
+      ctx.beginPath();
+      ctx.moveTo(-radius * 1.05, -radius * 0.5);
+      ctx.lineTo(-radius * 2.0, -radius * 0.5);
+      ctx.lineTo(-radius * 2.0, radius * 0.5);
+      ctx.lineTo(-radius * 1.05, radius * 0.5);
+      ctx.stroke();
+      ctx.fillStyle = 'rgba(16, 20, 24, 0.9)';
+      ctx.beginPath();
+      ctx.ellipse(radius * 0.82, -radius * 0.06, radius * 0.52, radius * 0.52, 0, 0, TAU);
+      ctx.fill();
+      ctx.save();
+      ctx.shadowColor = '#ffe14d';
+      ctx.shadowBlur = radius * 0.8;
+      ctx.strokeStyle = '#ffe14d';
+      ctx.lineWidth = radius * 0.12;
       ctx.lineCap = 'round';
       for (let i = 0; i < 3; i += 1) {
         const y = -radius * (0.34 - i * 0.24);
@@ -205,6 +219,17 @@ export class TagSwimmer {
         ctx.moveTo(radius * 1.15, y + radius * 0.22);
         ctx.lineTo(radius * 0.4, y - radius * 0.03);
         ctx.stroke();
+      }
+      ctx.restore();
+      ctx.fillStyle = '#f4fbff';
+      for (let i = 0; i < 4; i += 1) {
+        const x = radius * (0.4 + i * 0.28);
+        ctx.beginPath();
+        ctx.moveTo(x, radius * 0.2);
+        ctx.lineTo(x + radius * 0.1, radius * 0.46);
+        ctx.lineTo(x + radius * 0.2, radius * 0.2);
+        ctx.closePath();
+        ctx.fill();
       }
     } else if (this.costume === 'devil') {
       ctx.fillStyle = '#d2452f';

@@ -1453,9 +1453,11 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   PLAY AGAIN or MINIGAMES.
 - TAG — players type their names first (two fields, or one in TAG SOLO), and each field has a
   **COSTUME** picker (`Tab` cycles it) and a **COLOR** picker (`◀`/`▶` cycles a shared palette)
-  for their tag fish — original looks like CHAIN-FIN (a chainsaw snout with three diagonal
-  horizontal eye slits, a top handle, and a chainsaw-handle tail), DEVIL FISH, FANG FISH, CYBER
-  FIN, ANGEL FIN, LANTERN FISH, and SPOOK FIN. Then they join five
+  for their tag fish — original looks like CHAIN-FIN (a fish with a slanted chainsaw snout and
+  top handle, three diagonal horizontal eye slits, and its own tail fin), DEVIL FISH, FANG
+  FISH, CYBER FIN, ANGEL FIN, LANTERN FISH, SPOOK FIN, plus **BLOOD FIEND** (red curved horns
+  and a jagged mane), **TOPKNOT** (a black topknot), and **FALLEN ANGEL** (spread wings and a
+  halo). Then they join five
   randomly named CPU swimmers in a 1760×990 arena shown fully zoomed out (everything on
   one screen); the SETTINGS difficulty scales the whole round's pace uniformly — ×0.5 /
   ×1 / ×1.6 / ×2.4 for players and CPUs alike — so relative speeds stay fair at every

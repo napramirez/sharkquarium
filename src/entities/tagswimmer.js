@@ -116,20 +116,18 @@ export class TagSwimmer {
     ctx.scale(this.facing, 1);
     const chainsaw = this.costume === 'chainsaw';
     const flick = Math.sin(time * 9 + this.wanderPhase) * 0.3;
-    if (!chainsaw) {
-      ctx.save();
-      ctx.translate(-radius * 1.45, 0);
-      ctx.rotate(flick);
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.lineTo(-radius * 0.85, -radius * 0.62);
-      ctx.lineTo(-radius * 0.5, 0);
-      ctx.lineTo(-radius * 0.85, radius * 0.62);
-      ctx.closePath();
-      ctx.fillStyle = this.color;
-      ctx.fill();
-      ctx.restore();
-    }
+    ctx.save();
+    ctx.translate(-radius * 1.45, 0);
+    ctx.rotate(flick);
+    ctx.beginPath();
+    ctx.moveTo(0, 0);
+    ctx.lineTo(-radius * 0.85, -radius * 0.62);
+    ctx.lineTo(-radius * 0.5, 0);
+    ctx.lineTo(-radius * 0.85, radius * 0.62);
+    ctx.closePath();
+    ctx.fillStyle = this.color;
+    ctx.fill();
+    ctx.restore();
     ctx.beginPath();
     ctx.ellipse(0, 0, radius * 1.5, radius * 0.78, 0, 0, TAU);
     ctx.fillStyle = this.color;
@@ -198,12 +196,6 @@ export class TagSwimmer {
       ctx.moveTo(radius * 1.14, -radius * 0.78);
       ctx.lineTo(radius * 1.16, -radius * 0.34);
       ctx.stroke();
-      ctx.beginPath();
-      ctx.moveTo(-radius * 1.25, -radius * 0.5);
-      ctx.lineTo(-radius * 2.0, -radius * 0.5);
-      ctx.lineTo(-radius * 2.0, radius * 0.5);
-      ctx.lineTo(-radius * 1.25, radius * 0.5);
-      ctx.stroke();
       ctx.strokeStyle = '#12161a';
       ctx.lineWidth = radius * 0.14;
       ctx.lineCap = 'round';
@@ -271,6 +263,71 @@ export class TagSwimmer {
       ctx.ellipse(0, -radius * 0.1, radius * 1.5, radius * 1.0, 0, 0, TAU);
       ctx.fill();
       ctx.globalAlpha = 1;
+    } else if (this.costume === 'bloodfiend') {
+      ctx.fillStyle = '#e23b3b';
+      for (const side of [-1, 1]) {
+        ctx.beginPath();
+        ctx.moveTo(radius * (0.1 + side * 0.2), -radius * 0.58);
+        ctx.quadraticCurveTo(
+          radius * (0.4 + side * 0.5),
+          -radius * 1.5,
+          radius * (0.72 + side * 0.2),
+          -radius * 0.62,
+        );
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.fillStyle = '#d22f2f';
+      ctx.beginPath();
+      ctx.moveTo(-radius * 1.3, -radius * 0.5);
+      ctx.lineTo(-radius * 0.7, -radius * 0.2);
+      ctx.lineTo(-radius * 0.9, radius * 0.4);
+      ctx.lineTo(-radius * 0.2, -radius * 0.1);
+      ctx.lineTo(-radius * 0.6, -radius * 0.6);
+      ctx.closePath();
+      ctx.fill();
+      ctx.fillStyle = '#f4fbff';
+      for (let i = 0; i < 3; i += 1) {
+        const x = radius * (0.55 + i * 0.24);
+        ctx.beginPath();
+        ctx.moveTo(x, radius * 0.16);
+        ctx.lineTo(x + radius * 0.09, radius * 0.42);
+        ctx.lineTo(x + radius * 0.18, radius * 0.16);
+        ctx.closePath();
+        ctx.fill();
+      }
+    } else if (this.costume === 'topknot') {
+      ctx.fillStyle = 'rgba(20, 20, 26, 0.92)';
+      ctx.beginPath();
+      ctx.arc(radius * 0.15, -radius * 1.15, radius * 0.32, 0, TAU);
+      ctx.fill();
+      ctx.fillRect(-radius * 0.05, -radius * 1.05, radius * 0.42, radius * 0.2);
+      ctx.strokeStyle = 'rgba(20, 20, 26, 0.92)';
+      ctx.lineWidth = radius * 0.14;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-radius * 0.1, -radius * 0.7);
+      ctx.lineTo(radius * 0.4, -radius * 0.75);
+      ctx.stroke();
+    } else if (this.costume === 'fallenangel') {
+      ctx.fillStyle = 'rgba(244, 251, 255, 0.92)';
+      for (const side of [1, -1]) {
+        ctx.beginPath();
+        ctx.moveTo(-radius * 0.1, side * radius * 0.1);
+        ctx.quadraticCurveTo(-radius * 1.7, side * radius * 1.35, -radius * 1.9, side * radius * 0.35);
+        ctx.quadraticCurveTo(-radius * 1.2, side * radius * 0.5, -radius * 0.1, side * radius * 0.1);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.strokeStyle = '#d9c07a';
+      ctx.lineWidth = radius * 0.12;
+      ctx.beginPath();
+      ctx.ellipse(radius * 0.1, -radius * 1.3, radius * 0.6, radius * 0.22, 0, 0, TAU);
+      ctx.stroke();
+      ctx.fillStyle = '#c94b4b';
+      ctx.beginPath();
+      ctx.arc(radius * 0.55, -radius * 0.42, radius * 0.08, 0, TAU);
+      ctx.fill();
     }
   }
 }

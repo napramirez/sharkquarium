@@ -136,9 +136,10 @@ lore inventory.
   and banks both in a persistent **TAG LEADERBOARD** (a new screen reachable from the MINIGAMES
   menu and the TAG results). Players also pick a **costume** and a **color** for their tag fish on
   the name screen (`Tab` cycles the costume, `◀`/`▶` cycles the color) — original looks like
-  CHAIN-FIN (a chainsaw snout with three diagonal horizontal eye slits, a top handle, and a
-  chainsaw-handle tail), DEVIL FISH, FANG FISH, CYBER FIN, ANGEL FIN, LANTERN FISH, and SPOOK
-  FIN (no third-party characters are used).
+  CHAIN-FIN (a fish with a slanted chainsaw snout and top handle, three diagonal horizontal eye
+  slits, and its own tail fin), DEVIL FISH, FANG FISH, CYBER FIN, ANGEL FIN, LANTERN FISH,
+  SPOOK FIN, **BLOOD FIEND** (red horns and mane), **TOPKNOT**, and **FALLEN ANGEL** (wings and
+  a halo) — no third-party characters are used.
 - **Track builder** — a four-track sequencer reached from the TRACK PLAYER with **DRUMS /
   BASS / SYNTH / PIANO tabs** over a **piano-roll surface of horizontal lines** (no grid).
   Clicking a line places a tone block (higher lines = higher notes, stackable into chords),

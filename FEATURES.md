@@ -1344,7 +1344,9 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   white plate holding a gray fin with a sauce drizzle and green onion), **SAMBAL
   STINGRAY** 150 (a banana-leaf plate with a sambal-coated ray and a lime wedge),
   **GRILLED SQUID** 120 (a char-striped squid threaded on a skewer with waving
-  tentacles), and **PRAWN CRACKERS** 100 (a pink bag of speckled crackers). The dish is
+  tentacles), **PRAWN CRACKERS** 100 (a pink bag of speckled crackers), and **CHAIN-FIN** 180
+  (the chainsaw-snout fish look — a **rounded toothed tip** on its blade with a **sliding, running chain**, top and rear
+  handles, fanged mouth, and a glowing vent eye). The costume is
   drawn over the whole creature in every tank, on the menu shark, the cutscenes, and the
   shop preview; Left/Right browses the COSTUMES row and Enter buys and wears the dish, or
   wears an owned one for free (NONE takes it off).
@@ -1456,9 +1458,9 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   PLAY AGAIN or MINIGAMES.
 - TAG — players type their names first (two fields, or one in TAG SOLO), and each field has a
   **COSTUME** picker (`Tab` cycles it) and a **COLOR** picker (`◀`/`▶` cycles a shared palette)
-  for their tag fish — original looks like CHAIN-FIN (a fish with a slanted chainsaw snout and
-  top handle, a rear handle overlapping its own tail fin, fangs, and a **ragdoll-physics starter
-  ripcord** dangling behind), with an eye vent painted
+  for their tag fish — original looks like CHAIN-FIN (a fish with a chainsaw snout (rounded, toothed tip) and
+  top handle, a rear handle overlapping its own tail fin, fangs, a **running chain** that slides
+  along the blade, and a **ragdoll-physics starter ripcord** dangling behind), with an eye vent painted
   in the player's color whose three black slits let a small glowing yellow eye show through,
   DEVIL FISH, FANG
   FISH, CYBER FIN, ANGEL FIN, LANTERN FISH, SPOOK FIN, plus **CRIMSON MANE** (red curved horns

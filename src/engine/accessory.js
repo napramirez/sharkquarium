@@ -2,6 +2,7 @@ import { ACCESSORIES } from '../config.js';
 import { TAU } from './math.js';
 import { drawPlushie } from './plushie.js';
 import { drawRagdollRipcord } from './ripcord.js';
+import { drawChainFin } from './chainfin.js';
 
 const catalog = new Map(ACCESSORIES.map((accessory) => [accessory.key, accessory]));
 const NONE = catalog.get('none');
@@ -859,6 +860,7 @@ function renderCostume(ctx, key, r, time) {
   else if (key === 'sambalstingray') drawSambalStingray(ctx, r, time);
   else if (key === 'grilledsquid') drawGrilledSquid(ctx, r, time);
   else if (key === 'prawncrackers') drawPrawnCrackers(ctx, r, time);
+  else if (key === 'chainfin') drawChainFin(ctx, r, time, { ventColor: '#6f7c86' });
 }
 
 function renderSlot(ctx, radius, time, frame, slot) {

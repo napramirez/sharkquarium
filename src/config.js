@@ -504,6 +504,7 @@ export const ACCESSORIES = [
   { key: 'sambalstingray', label: 'SAMBAL STINGRAY', cost: 150, slot: 'costume' },
   { key: 'grilledsquid', label: 'GRILLED SQUID', cost: 120, slot: 'costume' },
   { key: 'prawncrackers', label: 'PRAWN CRACKERS', cost: 100, slot: 'costume' },
+  { key: 'chainfin', label: 'CHAIN-FIN', cost: 180, slot: 'costume' },
 ];
 
 export const AURAS = [

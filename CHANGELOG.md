@@ -140,7 +140,7 @@ lore inventory.
   and banks both in a persistent **TAG LEADERBOARD** (a new screen reachable from the MINIGAMES
   menu and the TAG results). Players also pick a **costume** and a **color** for their tag fish on
   the name screen (`Tab` cycles the costume, `◀`/`▶` cycles the color) — original looks like
-  CHAIN-FIN (a fish with a slanted chainsaw snout and top handle, a rear handle overlapping its
+  CHAIN-FIN (a fish with a chainsaw snout — rounded, toothed tip — and top handle, a rear handle overlapping its
   own tail fin, fangs, and an eye vent in the player's color whose black slits reveal a smaller
   glowing yellow eye), DEVIL FISH, FANG FISH, CYBER FIN, ANGEL FIN, LANTERN FISH,
   SPOOK FIN, **CRIMSON MANE** (red horns and mane), **TOPKNOT**, and **FALLEN ANGEL** (wings and

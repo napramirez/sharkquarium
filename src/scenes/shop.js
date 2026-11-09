@@ -20,6 +20,15 @@ import {
 } from '../engine/accessory.js';
 import { drawTrail, setActiveTrail, trailByKey, trailCatalog } from '../engine/trail.js';
 import {
+  drawEmote,
+  emoteByKey,
+  emoteCatalog,
+  isEmoting,
+  setActiveEmote,
+  startEmote,
+  updateEmote,
+} from '../engine/emotes.js';
+import {
   companionByKey,
   companionCatalog,
   drawCompanion,
@@ -97,6 +106,14 @@ const SLOTS = {
     title: 'AURA',
     noun: 'AURA',
   },
+  emote: {
+    field: 'emote',
+    index: 'emoteIndex',
+    list: 'emotes',
+    catalog: emoteCatalog,
+    title: 'EMOTES',
+    noun: 'EMOTE',
+  },
 };
 
 export class ShopScene extends Scene {
@@ -115,12 +132,14 @@ export class ShopScene extends Scene {
       trails: ['none'],
       companions: ['none'],
       auras: ['none'],
+      emotes: ['none'],
       ...raw,
       head,
       back,
       trail: raw.trail ?? 'none',
       companion: raw.companion ?? 'none',
       costume: raw.costume ?? 'none',
+      emote: raw.emote ?? 'none',
     };
     delete this.shop.accessory;
     this.shop.aura = auraForShop(raw).key;
@@ -136,6 +155,7 @@ export class ShopScene extends Scene {
     this.trailIndex = this.indexFor(trailCatalog, this.shop.trail);
     this.companionIndex = this.indexFor(companionCatalog, this.shop.companion);
     this.auraIndex = this.indexFor(SLOTS.aura.catalog, this.shop.aura);
+    this.emoteIndex = this.indexFor(SLOTS.emote.catalog, this.shop.emote);
     this.creatureIndex = 0;
     this.previewCreatures = CREATURES.map((entry) => ({ ...entry, entity: entry.create() }));
     this.status = null;
@@ -149,6 +169,7 @@ export class ShopScene extends Scene {
         { label: 'TRAIL', action: 'trail' },
         { label: 'DIVE BUDDIES', action: 'companion' },
         { label: 'AURA', action: 'aura' },
+        { label: 'EMOTES', action: 'emote' },
         { label: 'PLAYPASS', action: 'pass' },
         { label: 'PLAYER', action: 'player' },
         { label: 'COSTUMES', action: 'costume' },
@@ -189,6 +210,7 @@ export class ShopScene extends Scene {
     this.trailIndex = this.indexFor(trailCatalog, this.shop[`trail${pair}`]);
     this.companionIndex = this.indexFor(companionCatalog, this.shop[`companion${pair}`]);
     this.auraIndex = this.indexFor(SLOTS.aura.catalog, this.shop[`aura${pair}`]);
+    this.emoteIndex = this.indexFor(SLOTS.emote.catalog, this.shop.emote);
   }
 
   togglePlayer() {
@@ -230,6 +252,10 @@ export class ShopScene extends Scene {
     return SLOTS.aura.catalog()[this.auraIndex];
   }
 
+  get emote() {
+    return SLOTS.emote.catalog()[this.emoteIndex];
+  }
+
   get pass() {
     return PASSES[this.passIndex];
   }
@@ -240,6 +266,7 @@ export class ShopScene extends Scene {
     if (kind === 'costume') return this.costume;
     if (kind === 'trail') return this.trail;
     if (kind === 'companion') return this.companion;
+    if (kind === 'emote') return this.emote;
     return this.aura;
   }
 
@@ -341,6 +368,7 @@ export class ShopScene extends Scene {
     setActiveTrail(trailByKey(this.shop[`trail${pair}`]));
     setActiveCompanion(companionByKey(this.shop[`companion${pair}`]));
     setActiveAura(auraByKey(this.shop[`aura${pair}`]));
+    setActiveEmote(this.shop.emote ?? 'none');
   }
 
   buyOrEquipOption(kind) {
@@ -465,6 +493,14 @@ export class ShopScene extends Scene {
       this.togglePlayer();
       return;
     }
+    if (item.action === 'emote') {
+      this.buyOrEquipOption('emote');
+      if (this.ownsOption('emote', this.emote.key)) {
+        setActiveEmote(this.emote.key);
+        startEmote(this.creature.entity, this.emote.key);
+      }
+      return;
+    }
     if (SLOTS[item.action]) {
       this.buyOrEquipOption(item.action);
       return;
@@ -475,6 +511,7 @@ export class ShopScene extends Scene {
   update(dt) {
     this.time += dt;
     this.creature.entity.update(dt, IDLE_INPUT, null);
+    updateEmote(this.creature.entity, dt);
     this.statusTimer = Math.max(0, this.statusTimer - dt);
     const input = this.game.input;
     if (input.wasPressed('back')) {
@@ -504,6 +541,14 @@ export class ShopScene extends Scene {
       (input.wasPressed('left') || input.wasPressed('right'))
     ) {
       this.togglePlayer();
+    }
+    if (
+      selected &&
+      selected.action === 'emote' &&
+      this.ownsOption('emote', this.emote.key) &&
+      !isEmoting(this.creature.entity)
+    ) {
+      startEmote(this.creature.entity, this.emote.key);
     }
     this.menu.update(dt, input);
   }
@@ -615,6 +660,7 @@ export class ShopScene extends Scene {
       `TRAIL: ${trailByKey(this.shop[`trail${pair}`]).label}`,
       `DIVE BUDDIES: ${companionByKey(this.shop[`companion${pair}`]).label}`,
       `AURA: ${auraByKey(this.shop[`aura${pair}`]).label}`,
+      `EMOTE: ${emoteByKey(this.shop.emote).label}`,
       this.ownsPass(pass.key) ? `${pass.label} — OWNED` : `${pass.label} — ${pass.cost}`,
       `EDITING P${this.playerIndex + 1}`,
       `COSTUME: ${accessoryByKey(this.shop[`costume${pair}`]).label}`,
@@ -647,7 +693,7 @@ export class ShopScene extends Scene {
     setActiveSkin(skin);
     setSkinClock(this.time);
     this.applyEquipped();
-    this.creature.entity.render(ctx);
+    this.renderPreviewCreature(ctx);
     drawSkinAura(ctx, this.creature.entity);
     drawTrail(ctx, this.creature.entity);
     drawCompanion(ctx, this.creature.entity);
@@ -730,6 +776,18 @@ export class ShopScene extends Scene {
     });
   }
 
+  renderPreviewCreature(ctx) {
+    const entity = this.creature.entity;
+    entity.render(ctx);
+    if (entity.constructor.name !== 'Shark' && entity._emote) {
+      ctx.save();
+      ctx.translate(entity.x, entity.y);
+      ctx.scale(entity.facing ?? 1, 1);
+      drawEmote(ctx, entity, entity.radius, this.time);
+      ctx.restore();
+    }
+  }
+
   renderOptionStatus(ctx, kind) {
     const option = SLOTS[kind];
     const item = this.option(kind);
@@ -754,8 +812,9 @@ export class ShopScene extends Scene {
     else if (kind === 'costume') setActiveCostume(item);
     else if (kind === 'trail') setActiveTrail(item);
     else if (kind === 'companion') setActiveCompanion(item);
-    else setActiveAura(item);
-    this.creature.entity.render(ctx);
+    else if (kind === 'aura') setActiveAura(item);
+    else if (kind === 'emote') setActiveEmote(item.key);
+    this.renderPreviewCreature(ctx);
     drawSkinAura(ctx, this.creature.entity);
     drawTrail(ctx, this.creature.entity);
     drawCompanion(ctx, this.creature.entity);

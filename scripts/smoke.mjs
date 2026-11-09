@@ -3032,16 +3032,18 @@ async function main() {
   assert.equal(game.currentSceneName, 'shop', 'the menu should open the shop');
   assert.equal(
     shop.menu.items.length,
-    11,
-    'the shop should list color, creature, head, body, trail, dive buddies, aura, playpass, player, costumes, and back',
+    12,
+    'the shop should list color, creature, head, body, trail, dive buddies, aura, emotes, playpass, player, costumes, and back',
   );
   assert.equal(
     shop.menu.items[5].label,
     'DIVE BUDDIES',
     'the buddy row should be named DIVE BUDDIES',
   );
-  assert.equal(shop.menu.items[8].label, 'PLAYER', 'the player row should be named PLAYER');
-  assert.equal(shop.menu.items[9].label, 'COSTUMES', 'the costume row should sit before BACK');
+  assert.equal(shop.menu.items[7].label, 'EMOTES', 'the emote row should sit after AURA');
+  assert.equal(shop.menu.items[8].label, 'PLAYPASS', 'the pass row should follow EMOTES');
+  assert.equal(shop.menu.items[9].label, 'PLAYER', 'the player row should be named PLAYER');
+  assert.equal(shop.menu.items[10].label, 'COSTUMES', 'the costume row should sit before BACK');
   assert.equal(shop.coins, 100, 'the shop should read the banked sea coins');
   assert.equal(shop.skin.key, 'natural', 'the shop should start on the equipped color');
   assert.equal(shop.head.key, 'none', 'no head trinket should be worn by default');
@@ -3196,6 +3198,7 @@ async function main() {
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   await tapKey('Enter');
   await frames(2);
   assert.ok(shop.ownsPass('playpass1'), 'playpass 1 should be bought with sea coins');
@@ -3224,6 +3227,7 @@ async function main() {
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
+  await tapKey('ArrowUp');
   assert.equal(shop.menu.selected.action, 'skin', 'the color row should be selectable again');
   await tapKey('ArrowLeft');
   await tapKey('ArrowLeft');
@@ -3235,6 +3239,7 @@ async function main() {
   assert.equal(shop.coins, 0, 'equipping pass cosmetics should not charge coins');
 
   shop.coins = 1200;
+  await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
@@ -3291,6 +3296,7 @@ async function main() {
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
+  await tapKey('ArrowUp');
   assert.equal(shop.menu.selected.action, 'body', 'the body row should reach the plushies');
   await tapKey('Enter');
   await frames(10);
@@ -3328,6 +3334,7 @@ async function main() {
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
+  await tapKey('ArrowDown');
   shop.coins = 1200;
   await tapKey('ArrowRight');
   assert.equal(shop.pass.key, 'playpass6', 'the pass browser should reach PLAYPASS 6');
@@ -3349,6 +3356,7 @@ async function main() {
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
+  await tapKey('ArrowUp');
   assert.equal(shop.menu.selected.action, 'trail', 'the trail row should be selectable');
   let trailGuard = 0;
   while (shop.trail.key !== 'bubblestream' && trailGuard < 12) {
@@ -3364,6 +3372,7 @@ async function main() {
     'bubblestream',
     'the equipped trail should persist',
   );
+  await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
   await tapKey('ArrowDown');
@@ -3403,6 +3412,7 @@ async function main() {
     shop.cycleOption('companion', 1);
     await frames(2);
   }
+  await tapKey('ArrowUp');
   await tapKey('ArrowUp');
   await tapKey('ArrowUp');
   assert.equal(shop.menu.selected.action, 'companion', 'the companion row should be selectable');
@@ -3519,14 +3529,16 @@ async function main() {
   shop.costumeIndex = 0;
   shop.buyOrEquipOption('costume');
   await tapKey('ArrowDown');
-  assert.equal(shop.menu.selected.action, 'pass', 'the pass row should return after the aura');
+  assert.equal(shop.menu.selected.action, 'emote', 'the emote row should return after the aura');
+  await tapKey('ArrowDown');
+  assert.equal(shop.menu.selected.action, 'pass', 'the pass row should follow the emote row');
   await tapKey('ArrowDown');
   assert.equal(shop.menu.selected.action, 'player', 'the player row should follow the pass row');
   await tapKey('Enter');
   await frames(2);
   assert.equal(shop.playerIndex, 1, 'the player row should switch to P2');
   assert.equal(shop.status, 'DRESSING P2', 'the shop should announce the active player');
-  for (let i = 0; i < 8; i += 1) await tapKey('ArrowUp');
+  for (let i = 0; i < 9; i += 1) await tapKey('ArrowUp');
   assert.equal(shop.menu.selected.action, 'skin', 'the color row should be reachable while dressing P2');
   let redGuard = 0;
   while (shop.skin.key !== 'red' && redGuard < 80) {
@@ -3545,12 +3557,12 @@ async function main() {
     'red',
     'the P2 color should persist',
   );
-  for (let i = 0; i < 8; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 9; i += 1) await tapKey('ArrowDown');
   assert.equal(shop.menu.selected.action, 'player', 'the player row should be reachable again');
   await tapKey('Enter');
   await frames(2);
   assert.equal(shop.playerIndex, 0, 'the player row should switch back to P1');
-  for (let i = 0; i < 8; i += 1) await tapKey('ArrowUp');
+  for (let i = 0; i < 9; i += 1) await tapKey('ArrowUp');
   assert.equal(shop.menu.selected.action, 'skin', 'the P1 color row should return');
   let sunsetGuard = 0;
   while (shop.skin.key !== 'sunset' && sunsetGuard < 80) {
@@ -3563,7 +3575,7 @@ async function main() {
   assert.equal(shop.shop.skin, 'sunset', 'P1 should wear their own color');
   assert.equal(shop.shop.skin2, 'red', 'P2 should keep their color');
   assert.equal(shop.coins, 260, 'the sunset orange should cost its price');
-  for (let i = 0; i < 7; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 8; i += 1) await tapKey('ArrowDown');
   assert.equal(shop.menu.selected.action, 'pass', 'the pass row should be reachable again');
   shop.coins = 1200;
   await tapKey('ArrowRight');
@@ -3608,6 +3620,35 @@ async function main() {
   assert.equal(game.scene.shop.head, 'none', 'legacy body migration should leave the head empty');
   storage.set('sharkquarium.shop', ownedShop);
 
+  const emoteShop = game.scene;
+  emoteShop.coins = 200;
+  emoteShop.emoteIndex = 1;
+  emoteShop.choose({ action: 'emote' });
+  await frames(2);
+  assert.equal(emoteShop.shop.emote, 'chainfin', 'the cheap chain-fin emote should equip');
+  assert.equal(emoteShop.coins, 185, 'the emote should cost 15 sea coins');
+  assert.ok(
+    JSON.parse(storage.get('sharkquarium.shop')).emotes.includes('chainfin'),
+    'the emote should persist in the collection',
+  );
+  assert.ok(emoteShop.creature.entity._emote, 'equipping should demo the emote on the preview');
+  emoteShop.menu.setIndex(0);
+  await frames(200);
+  assert.equal(emoteShop.creature.entity._emote, null, 'the preview emote should finish in three seconds');
+
+  game.changeScene('play');
+  await frames(5);
+  const emotePlayer = game.scene.player;
+  assert.ok(emotePlayer, 'a dive should have a player shark');
+  pressKey('KeyV');
+  await frames(3);
+  releaseKey('KeyV');
+  assert.ok(
+    emotePlayer._emote && emotePlayer._emote.key === 'chainfin',
+    'V should trigger the equipped emote mid-dive',
+  );
+
+  storage.set('sharkquarium.shop', ownedShop);
   game.changeScene('menu');
   await frames(5);
   assert.equal(game.scene.menu.items.length, 11, 'the passes should fill the menu');

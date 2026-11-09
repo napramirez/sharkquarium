@@ -507,6 +507,11 @@ export const ACCESSORIES = [
   { key: 'chainfin', label: 'CHAIN-FIN', cost: 180, slot: 'costume' },
 ];
 
+export const EMOTES = [
+  { key: 'none', label: 'NONE', cost: 0, blurb: 'NO EMOTE EQUIPPED' },
+  { key: 'chainfin', label: 'CHAIN-FIN TRANSFORM', cost: 15, blurb: 'PULL THE BELLY RIP CORD AND SLIDE ON THE CHAINSAW VISOR' },
+];
+
 export const AURAS = [
   { key: 'none', label: 'NONE', cost: 0 },
   { key: 'eelaura', label: 'EEL AURA', cost: 0, passOnly: true },
@@ -1460,6 +1465,10 @@ export const LORE = [  {
       {
         name: 'COSTUMES AND THE KARAMBIT',
         text: 'The shop dresses a diver in food now — SHARK FIN DISH, SAMBAL STINGRAY, GRILLED SQUID, PRAWN CRACKERS — and the karambit aura spins a shifting blade in a color to match the equipped skin.',
+      },
+      {
+        name: 'EMOTES',
+        text: 'A cheap shelf of little performances, bought on the shop\u2019s EMOTES row for 15 sea coins or less. Equip one to see it play on the shop preview, then press V in any dive to perform it on your creature. CHAIN-FIN TRANSFORM: the creature pulls the rip cord on its underside, the chain-fin chainsaw visor slides on with its running chain, holds for three seconds, then pulls the cord again and slides back to normal.',
       },
       {
         name: 'MUTATORS',

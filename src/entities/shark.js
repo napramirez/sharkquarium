@@ -3,6 +3,7 @@ import { clamp, lerp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, PLAYER, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 import { playerColor } from '../engine/skin.js';
 import { drawAccessory } from '../engine/accessory.js';
+import { drawEmote, startEmote, updateEmote } from '../engine/emotes.js';
 
 export class Shark extends Entity {
   constructor(x, y, options = {}) {
@@ -45,6 +46,8 @@ export class Shark extends Entity {
     }
     this.updateFacing();
     this.invulnerable = Math.max(0, this.invulnerable - dt);
+    if (input && typeof input.wasPressed === 'function' && input.wasPressed('KeyV')) startEmote(this);
+    updateEmote(this, dt);
   }
 
   render(ctx) {
@@ -56,6 +59,7 @@ export class Shark extends Entity {
     ctx.scale(this.facing, 1);
     drawSharkBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
+    drawEmote(ctx, this, radius, this.age);
     ctx.restore();
   }
 }

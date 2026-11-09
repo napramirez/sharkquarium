@@ -4,6 +4,7 @@ import { Input } from './engine/input.js';
 import { loadJSON } from './engine/storage.js';
 import { setSeason } from './engine/season.js';
 import { set8Bit } from './engine/retro.js';
+import { setActiveEmote } from './engine/emotes.js';
 import { BootScene } from './scenes/boot.js';
 import { IntroScene } from './scenes/intro.js';
 import { TeleportScene } from './scenes/teleport.js';
@@ -54,7 +55,7 @@ import { TrackBuilderScene } from './scenes/trackbuilder.js';
 import { PlayScene } from './scenes/play.js';
 import { GameOverScene } from './scenes/gameover.js';
 import { DawnScene } from './scenes/dawn.js';
-import { AUDIO, LOGICAL_WIDTH, LOGICAL_HEIGHT, SETTINGS_KEY } from './config.js';
+import { AUDIO, LOGICAL_WIDTH, LOGICAL_HEIGHT, SETTINGS_KEY, SHOP_KEY } from './config.js';
 
 const canvas = document.getElementById('game');
 if (!canvas) throw new Error('Canvas element #game not found');
@@ -88,6 +89,7 @@ game.set3D(savedSettings.threeD ?? false);
 game.setFirstPerson(savedSettings.firstPerson ?? false);
 setSeason(savedSettings.season ?? (savedSettings.christmas ? 'christmas' : 'none'));
 set8Bit(savedSettings.eightBit ?? false);
+setActiveEmote(loadJSON(SHOP_KEY, {}).emote ?? 'none');
 
 game.register('boot', new BootScene());
 game.register('intro', new IntroScene());

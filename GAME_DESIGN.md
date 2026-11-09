@@ -395,7 +395,10 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   Four sources feed the same loop — the **original classic course**
   (`buildClassicCourse()` from `REEF_RUSH.course`), a **level** (`buildItems()` from
   `RUSH_LEVELS`), **your song** (`{ custom: true }` → `buildCustomCourse()`, drums→shells,
-  bass→rocks, synth/piano→pearls), or **your hand-built course** (`{ course: true }` →
+  bass→rocks, synth/piano→pearls; it merges each step's chord into one capped shell/rock, spaces
+  obstacles at least `max(cfg.minGap, 200)` apart so they stay clearable, and places cycling
+  **gamemode portals** (stingray/eel/crab/urchin/jelly/fish) in the gaps), or **your hand-built
+  course** (`{ course: true }` →
   `buildItems()` from `RUSH_BUILDER_KEY`). All use `REEF_RUSH_TRACK` at constant speed except
   the song mode, which plays `buildCustomTrack(composer)`. The run wins at `goalDistance`;
   level runs go to `RushClearScene`, the others to the results screen. Only original course
@@ -830,15 +833,20 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   per-tank themed scenery drawn from seeded item lists (starfish, vents, floes, spores,
   lily pads, motes, shells).
 - `TagScene` (`tag`) is the second minigame: phases `names` → `play` → `results`. Name
-  entry reads raw key codes from `Input.pressed` (letters/digits/Backspace, Enter
-  advances), CPU names come from `TAG.cpuNames` minus the player names, and the
+  entry reads raw key codes from `Input.pressed` (letters/digits/Backspace, `Tab` cycles the
+  active player's fish **costume** from `TAG.costumes`, Enter advances), CPU names come from
+  `TAG.cpuNames` minus the player names, and the
   1760×990 world is rendered at a 960/1760 scale so the whole arena fits on screen.
   `TagSwimmer` handles the two players (co-op key sets) and CPU flee/chase steering —
   a CPU tagger chases a persistent random target (`pickRandomTarget`, re-rolled by
-  `giveTagger`) rather than the nearest swimmer;
+  `giveTagger`) rather than the nearest swimmer; it also counts `makes` (tags it landed) and
+  `tags` (times it became IT), and `drawCostume()` paints its chosen original costume;
   tags transfer on contact with a cooldown and a separation push that shoves the newly
   tagged swimmer away from the original tagger, the tagger's name flashes, and the round
-  clock decides the loser on the results panel.
+  clock decides the loser on the results panel. On the results, `recordTagMatch()` banks each
+  name's best tags-made and fewest-times-IT into `sharkquarium.tagboard`, the panel names the
+  match's best tagger/runner, and `TagBoardScene` (`tagboard`, reachable from that menu and the
+  MINIGAMES row) lists the all-time leading taggers and runners.
 - Run completion is centralized in `PlayScene.completionPayload()`, which persists best
   score and stats for both the timer expiry and the freshwater goal.
 - `PlayScene` reads the persisted difficulty from `SETTINGS_KEY` into `this.rules` and
@@ -887,7 +895,9 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
 - **Records** (`src/engine/records.js`) bank per-mode best time/score; `recordWin()` is called
   from the minigame base, the horror tanks, the Scene-based minigames, and play. `RecordsScene`
   (`records`) renders the board from `RECORD_GROUPS`, and `formatRecord()` stamps bests onto
-  the tank and minigame lists.
+  the tank and minigame lists. `src/engine/tagboard.js` keeps the parallel TAG board under
+  `sharkquarium.tagboard` (`recordTagMatch()`, `topTaggers()`, `bestRunners()`), shown by
+  `TagBoardScene`.
 - **PlayToy Exploration** (`src/scenes/playtoy.js`, a `MinigameScene`) is a third-person
   scrolling wreck built from `PLAYTOY` config: bulkhead walls with vertical gaps (some
   sealed by typed `PLAYTOY_GATES`), anchor rings, `PLAYTOY_NOTES`, and `LivingToy` entities.

@@ -202,39 +202,60 @@ export class ReefRushScene extends MinigameScene {
     const stepSpacing = REEF_RUSH.runSpeed * this.beat * scale.speed;
     const stepsPerLoop = this.composer.steps;
     const totalSteps = stepsPerLoop * cfg.loops;
+    const startX = W * 0.5;
+    const minGap = Math.max(cfg.minGap, 200);
+    const portals = ['stingray', 'eel', 'crab', 'urchin', 'jelly', 'fish'];
     const pearls = [];
-    for (let loop = 0; loop < cfg.loops; loop += 1) {
-      for (let step = 0; step < stepsPerLoop; step += 1) {
-        const worldX = (loop * stepsPerLoop + step) * stepSpacing + W * 0.5;
-        let shellHere = false;
-        let rockHere = false;
-        for (const inst of INSTRUMENTS) {
-          for (const note of this.composer.tracks[inst.key]) {
-            if (note.col !== step) continue;
-            if (inst.key === 'DRUMS') {
-              const h = clamp(
-                (0.55 + (note.line / Math.max(1, inst.lines.length - 1)) * 0.5) * REEF_RUSH.shell.maxHeight * scale.spike,
-                20,
-                cfg.spikeCap,
-              );
-              this.items.push({ kind: 'shell', x: worldX, h, count: 1, phase: 0 });
-              shellHere = true;
-            } else if (inst.key === 'BASS') {
-              const size =
-                REEF_RUSH.rock.minSize +
-                (note.line / Math.max(1, inst.lines.length - 1)) * (REEF_RUSH.rock.maxSize - REEF_RUSH.rock.minSize);
-              this.items.push({ kind: 'rock', x: worldX + (shellHere ? 26 : 0), h: size, count: 1, phase: 0 });
-              rockHere = true;
-            } else {
-              const frac = note.line / Math.max(1, inst.lines.length - 1);
-              pearls.push({ x: worldX + (rockHere ? 34 : 0), y: this.groundY - 70 - frac * 150, taken: false, phase: rand(0, TAU) });
-            }
+    const obstacles = [];
+    let lastObstacleX = -Infinity;
+    let portalIndex = 0;
+    for (let step = 0; step < totalSteps; step += 1) {
+      const worldX = startX + step * stepSpacing;
+      let shellH = null;
+      let rockSize = null;
+      let pearlY = null;
+      for (const inst of INSTRUMENTS) {
+        for (const note of this.composer.tracks[inst.key]) {
+          if (note.col !== step % stepsPerLoop) continue;
+          const frac = note.line / Math.max(1, inst.lines.length - 1);
+          if (inst.key === 'DRUMS') {
+            const h = clamp((0.5 + frac * 0.5) * REEF_RUSH.shell.maxHeight * scale.spike, 20, cfg.spikeCap);
+            shellH = Math.max(shellH ?? 0, h);
+          } else if (inst.key === 'BASS') {
+            const size = REEF_RUSH.rock.minSize + frac * (REEF_RUSH.rock.maxSize - REEF_RUSH.rock.minSize);
+            rockSize = Math.max(rockSize ?? 0, size);
+          } else {
+            pearlY = this.groundY - 60 - frac * 100;
           }
         }
       }
+      if (pearlY !== null) {
+        pearls.push({
+          x: worldX,
+          y: clamp(pearlY, this.groundY - 170, this.groundY - 40),
+          taken: false,
+          phase: rand(0, TAU),
+        });
+      }
+      if ((shellH !== null || rockSize !== null) && worldX - lastObstacleX >= minGap) {
+        if (shellH !== null) {
+          this.items.push({ kind: 'shell', x: worldX, h: Math.min(shellH, 84), count: 1, phase: 0 });
+          obstacles.push({ x: worldX, form: null });
+        } else {
+          this.items.push({ kind: 'rock', x: worldX, h: Math.min(rockSize, 48), count: 1, phase: 0 });
+          obstacles.push({ x: worldX, form: null });
+        }
+        lastObstacleX = worldX;
+      }
+    }
+    for (let i = 4; i < obstacles.length; i += 5) {
+      const x = obstacles[i].x - Math.min(minGap * 0.7, 150);
+      if (x <= startX) continue;
+      this.items.push({ kind: 'portal', x, h: 90, count: 1, form: portals[portalIndex % portals.length], phase: 0 });
+      portalIndex += 1;
     }
     this.pearls.push(...pearls);
-    return totalSteps * stepSpacing + W * 0.5;
+    return totalSteps * stepSpacing + startX;
   }
 
   rnd() {

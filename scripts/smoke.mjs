@@ -3651,8 +3651,8 @@ async function main() {
   await frames(5);
   assert.equal(
     game.scene.menu.items.length,
-    27,
-    'the pass should unlock every minigame plus reef rush levels/variants, the course builder, boss rush, records, mutator, and back',
+    28,
+    'the pass should unlock every minigame plus reef rush levels/variants, the course builder, boss rush, records, the tag leaderboard, mutator, and back',
   );
   assert.equal(game.scene.menu.items[2].label, 'TAG (2P + 5 CPU)', 'tag should be the third entry');
   storage.set('sharkquarium.coins', '500');
@@ -3929,6 +3929,8 @@ async function main() {
   await tapKey('Backspace');
   await tapKey('KeyC');
   assert.equal(tag.inputText[0], 'AC', 'letters should type and backspace should edit');
+  await tapKey('Tab');
+  assert.equal(tag.costumeIndex[0], 1, 'tab should change the first costume');
   await tapKey('Enter');
   assert.equal(tag.activeField, 1, 'enter should move to the second name');
   await tapKey('KeyD');
@@ -3937,6 +3939,7 @@ async function main() {
   await frames(5);
   assert.equal(tag.phase, 'play', 'both names should start the round');
   assert.deepEqual(tag.names, ['AC', 'DE'], 'the entered names should be used');
+  assert.equal(tag.swimmers[0].costume, 'chainsaw', 'the chosen costume should be worn');
   assert.equal(tag.swimmers.length, 7, 'two players and five CPUs should play tag');
   const cpuNames = tag.swimmers.filter((swimmer) => swimmer.cpu).map((swimmer) => swimmer.name);
   assert.equal(cpuNames.length, 5, 'five CPUs should join');
@@ -4025,9 +4028,11 @@ async function main() {
   victim.x = chaser.x;
   victim.y = chaser.y;
   const victimTags = victim.tags;
+  const chaserMakes = chaser.makes;
   await frames(2);
   assert.equal(tag.taggerIndex, victimIndex, 'touching the tagger should pass the tag');
   assert.equal(victim.tags, victimTags + 1, 'the new tagger should be counted');
+  assert.equal(chaser.makes, chaserMakes + 1, 'the tagger should get credit for tagging');
   assert.equal(tag.taggerName, victim.name, 'the flash should show the new tagger');
   assert.ok(tag.flashTimer > 0, 'the tagger name should flash on every tag');
   assert.ok(
@@ -4056,10 +4061,21 @@ async function main() {
   await frames(5);
   assert.equal(tag.winner, true, 'a CPU stuck as it should hand the humans the win');
   assert.equal(tag.reward, 90, 'a CPU-tagger round should pay the win bonus');
-  await tapKey('ArrowDown');
+  const tagBoardSave = JSON.parse(storage.get('sharkquarium.tagboard'));
+  assert.ok(tagBoardSave && Object.keys(tagBoardSave.taggers).length > 0, 'the tag board should record taggers');
+  assert.ok(Object.keys(tagBoardSave.runners).length > 0, 'the tag board should record runners');
+  assert.ok(tag.bestTagger && tag.bestRunner, 'the results should surface the best tagger and runner');
+  tag.resultsMenu.index = 1;
   await tapKey('Enter');
   await frames(5);
-  assert.equal(game.currentSceneName, 'minigames', 'the results menu should return to minigames');
+  assert.equal(game.currentSceneName, 'tagboard', 'the results menu should open the tag leaderboard');
+  assert.ok(game.scene.taggers.length > 0 || game.scene.runners.length > 0, 'the leaderboard should list names');
+  await tapKey('Enter');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'tag', 'the leaderboard should return to tag');
+  game.changeScene('minigames');
+  await frames(5);
+  assert.equal(game.currentSceneName, 'minigames', 'tag should be leavable back to minigames');
 
   storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'hard' }));
   game.changeScene('minigames');
@@ -6835,6 +6851,14 @@ async function main() {
   await frames(3);
   assert.equal(game.music.track, null, 'pressing MY TRACK again should stop it');
 
+  const denseTrack = { bpm: 150, steps: 48, tracks: { DRUMS: [], BASS: [], SYNTH: [] } };
+  for (let c = 0; c < 48; c += 1) {
+    if (c % 2 === 0) denseTrack.tracks.DRUMS.push(c * 4 + 3);
+    if (c % 4 === 0) denseTrack.tracks.BASS.push(c * 6 + 2);
+    if (c % 3 === 0) denseTrack.tracks.SYNTH.push(c * 7 + 3);
+  }
+  storage.set('sharkquarium.trackbuilder', JSON.stringify(denseTrack));
+
   game.changeScene('reefrush', { custom: true });
   await frames(5);
   assert.equal(game.currentSceneName, 'reefrush', 'custom reef rush should open');
@@ -6845,6 +6869,21 @@ async function main() {
     'the song should build a course',
   );
   assert.ok(customRush.goalDistance > 0, 'the custom course should have a goal');
+  const groundXs = customRush.items
+    .filter((it) => it.kind === 'shell' || it.kind === 'rock')
+    .map((it) => it.x)
+    .sort((a, b) => a - b);
+  for (let i = 1; i < groundXs.length; i += 1) {
+    assert.ok(groundXs[i] - groundXs[i - 1] >= 200, 'MY TRACK obstacles should be spaced enough to clear');
+  }
+  for (const it of customRush.items) {
+    if (it.kind === 'shell') assert.ok(it.h <= 84, 'MY TRACK shells should be jumpable');
+    if (it.kind === 'rock') assert.ok(it.h <= 48, 'MY TRACK rocks should be jumpable');
+  }
+  const songPortals = customRush.items.filter((it) => it.kind === 'portal');
+  assert.ok(songPortals.length > 0, 'MY TRACK should place gamemode portals');
+  assert.ok(songPortals.some((p) => p.form && p.form !== 'fish'), 'MY TRACK portals should include gamemodes');
+  assert.ok(new Set(songPortals.map((p) => p.form)).size > 1, 'MY TRACK portals should vary');
   assert.ok(game.music.track && game.music.track.custom, 'custom reef rush should play the saved song');
   assert.equal(customRush.recordMode(), 'reefrushcustom', 'custom runs should use their own record mode');
   customRush.scrollX = 1e6;

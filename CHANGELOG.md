@@ -82,7 +82,9 @@ lore inventory.
   CALM / CHOPPY / RIPTIDE / MAELSTROM. Costs 40 sea coins.
 - **REEF RUSH — MY TRACK** — play your saved composer song as a level: its drum hits become
   shell spikes, bass notes become rock blocks, and synth/piano notes become pearls, laid out
-  on the beat over three loops with a fairness pass so any song stays clearable. Reached from
+  on the beat over three loops. The course is **built to be clearable** — chords collapse to one
+  spike/block, every obstacle is capped at a jumpable height, and consecutive obstacles are kept
+  at least a jump apart — and **gamemode portals** are strung along the gaps. Reached from
   the TRACK PLAYER's **RUSH MY TRACK** and the MINIGAMES menu; it banks its own
   **REEF RUSH — MY TRACK** record.
 - **REEF RUSH — LEVELS & hazards** — a **sideways-scrolling** shelf of **original hand-built
@@ -129,6 +131,12 @@ lore inventory.
   `RUSH_BUILDER_KEY` and run as
   **REEF RUSH — MY COURSE** with their own record. No third-party level data is included —
   every course is player-authored.
+- **Tag leaderboard & fish costumes** — TAG now tracks **tags made** and **times IT** per
+  swimmer, names the match's **BEST TAGGER** (most tags) and **BEST RUNNER** (least times IT),
+  and banks both in a persistent **TAG LEADERBOARD** (a new screen reachable from the MINIGAMES
+  menu and the TAG results). Players also pick a **costume** for their tag fish on the name
+  screen (`Tab` cycles) — original looks like CHAIN-FIN, DEVIL FISH, FANG FISH, CYBER FIN,
+  ANGEL FIN, LANTERN FISH, and SPOOK FIN (no third-party characters are used).
 - **Track builder** — a four-track sequencer reached from the TRACK PLAYER with **DRUMS /
   BASS / SYNTH / PIANO tabs** over a **piano-roll surface of horizontal lines** (no grid).
   Clicking a line places a tone block (higher lines = higher notes, stackable into chords),

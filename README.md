@@ -152,7 +152,8 @@ LABYRINTH MODE with its seeded wreck course and hand-placed wall, support, and t
 burster pieces, and saved
 layouts, and co-op
 two-creature control, the MUTATORS screen with handicap scaling, the BOSS RUSH gauntlet
-over all five horror bosses, the RECORDS board with per-mode best times and scores, and the
+over all five horror bosses, the RECORDS board with per-mode best times and scores (plus a TAG
+LEADERBOARD of best taggers and slipperiest runners, and pickable tag-fish costumes), and the
 PLAYTOY EXPLORATION toy-liner tank (the ANCHOR-PACK with its three anchor heads, typed
 gates, an anchor that bounces off hull walls, living plush toys, and a persistent lore-paper
 INVENTORY), and the seasonal modes (CHRISTMAS/HALLOWEEN/NEW YEAR with their own themed

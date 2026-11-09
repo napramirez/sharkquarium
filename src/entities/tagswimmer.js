@@ -2,11 +2,12 @@ import { rand, TAU } from '../engine/math.js';
 import { TAG, COLORS } from '../config.js';
 
 export class TagSwimmer {
-  constructor({ name, color, cpu, controls = null, x = 0, y = 0, speedScale = 1 }) {
+  constructor({ name, color, cpu, controls = null, x = 0, y = 0, speedScale = 1, costume = 'none' }) {
     this.name = name;
     this.color = color;
     this.cpu = cpu;
     this.controls = controls;
+    this.costume = costume;
     this.x = x;
     this.y = y;
     this.vx = 0;
@@ -14,6 +15,7 @@ export class TagSwimmer {
     this.radius = TAG.radius;
     this.speed = (cpu ? TAG.cpuSpeed : TAG.playerSpeed) * speedScale;
     this.tags = 0;
+    this.makes = 0;
     this.isTagged = false;
     this.facing = 1;
     this.wanderPhase = rand(0, TAU);
@@ -144,6 +146,94 @@ export class TagSwimmer {
     ctx.arc(radius * 0.9, -radius * 0.2, radius * 0.07, 0, TAU);
     ctx.fillStyle = '#10233a';
     ctx.fill();
+    this.drawCostume(ctx, radius, time);
     ctx.restore();
   }
+
+  drawCostume(ctx, radius, time) {
+    if (this.costume === 'chainsaw') {
+      const len = radius * 2.3;
+      ctx.fillStyle = '#8f9aa3';
+      fillBlade(ctx, radius * 1.3, 0, len, radius * 0.5);
+      ctx.fillStyle = '#c9d2da';
+      for (let i = 0; i < 6; i += 1) {
+        const x = radius * 1.3 + i * (len / 6);
+        ctx.beginPath();
+        ctx.moveTo(x, -radius * 0.26);
+        ctx.lineTo(x + len / 12, -radius * 0.56);
+        ctx.lineTo(x + len / 6, -radius * 0.26);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(x + len / 12, radius * 0.26);
+        ctx.lineTo(x + len / 12 + len / 12, radius * 0.5);
+        ctx.lineTo(x + len / 6, radius * 0.26);
+        ctx.closePath();
+        ctx.fill();
+      }
+    } else if (this.costume === 'devil') {
+      ctx.fillStyle = '#d2452f';
+      for (const side of [-1, 1]) {
+        ctx.beginPath();
+        ctx.moveTo(radius * (0.2 + side * 0.18), -radius * 0.6);
+        ctx.lineTo(radius * (0.42 + side * 0.24), -radius * 1.35);
+        ctx.lineTo(radius * (0.62 + side * 0.18), -radius * 0.55);
+        ctx.closePath();
+        ctx.fill();
+      }
+      ctx.strokeStyle = '#d2452f';
+      ctx.lineWidth = radius * 0.16;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-radius * 1.4, 0);
+      ctx.lineTo(-radius * 2.0, -radius * 0.35);
+      ctx.stroke();
+    } else if (this.costume === 'fangs') {
+      ctx.fillStyle = '#f4fbff';
+      for (let i = 0; i < 4; i += 1) {
+        const x = radius * (0.4 + i * 0.28);
+        ctx.beginPath();
+        ctx.moveTo(x, radius * 0.2);
+        ctx.lineTo(x + radius * 0.1, radius * 0.46);
+        ctx.lineTo(x + radius * 0.2, radius * 0.2);
+        ctx.closePath();
+        ctx.fill();
+      }
+    } else if (this.costume === 'visor') {
+      ctx.fillStyle = 'rgba(99, 230, 255, 0.75)';
+      fillBlade(ctx, radius * 0.6, -radius * 0.22, radius * 0.9, radius * 0.3);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      fillBlade(ctx, radius * 0.7, -radius * 0.3, radius * 0.5, radius * 0.12);
+    } else if (this.costume === 'halo') {
+      ctx.strokeStyle = '#ffe089';
+      ctx.lineWidth = radius * 0.14;
+      ctx.beginPath();
+      ctx.ellipse(0, -radius * 1.25, radius * 0.7, radius * 0.24, 0, 0, TAU);
+      ctx.stroke();
+    } else if (this.costume === 'lure') {
+      ctx.strokeStyle = '#3f5a37';
+      ctx.lineWidth = radius * 0.12;
+      ctx.beginPath();
+      ctx.moveTo(radius * 0.2, -radius * 0.6);
+      ctx.quadraticCurveTo(radius * 0.9, -radius * 1.5, radius * 0.4, -radius * 1.8);
+      ctx.stroke();
+      ctx.fillStyle = `rgba(255, 236, 150, ${0.6 + 0.4 * Math.sin(time * 6)})`;
+      ctx.beginPath();
+      ctx.arc(radius * 0.4, -radius * 1.8, radius * 0.26, 0, TAU);
+      ctx.fill();
+    } else if (this.costume === 'ghost') {
+      ctx.globalAlpha = 0.32;
+      ctx.fillStyle = '#e8f4ff';
+      ctx.beginPath();
+      ctx.ellipse(0, -radius * 0.1, radius * 1.5, radius * 1.0, 0, 0, TAU);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+    }
+  }
+}
+
+function fillBlade(ctx, x, y, w, h) {
+  ctx.beginPath();
+  ctx.rect(x, y - h / 2, w, h);
+  ctx.fill();
 }

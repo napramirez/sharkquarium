@@ -59,6 +59,7 @@ export class MinigamesScene extends Scene {
       highlight: this.mutator.key !== 'none',
     });
     items.push({ label: 'RECORDS', action: 'records' });
+    items.push({ label: 'TAG LEADERBOARD', action: 'tagboard' });
     items.push({ label: 'BACK', action: 'back' });
     this.menu = new SelectList(items, {
       glowColor: COLORS.bubble,
@@ -87,6 +88,11 @@ export class MinigamesScene extends Scene {
     if (item.action === 'records') {
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
       this.game.changeScene('records');
+      return;
+    }
+    if (item.action === 'tagboard') {
+      this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
+      this.game.changeScene('tagboard', { from: 'minigames' });
       return;
     }
     if (item.action === 'mutators') {

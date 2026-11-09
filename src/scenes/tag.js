@@ -7,6 +7,7 @@ import { clamp, rand, TAU } from '../engine/math.js';
 import { TagSwimmer } from '../entities/tagswimmer.js';
 import { recordMinigame } from '../engine/progress.js';
 import { recordWin } from '../engine/records.js';
+import { recordTagMatch, topTaggers, bestRunners } from '../engine/tagboard.js';
 import { loadJSON } from '../engine/storage.js';
 import {
   CONTROLS,
@@ -21,6 +22,11 @@ import {
 
 const SCALE = LOGICAL_WIDTH / TAG.worldWidth;
 const NAME_KEY = /^(Key[A-Z]|Digit[0-9])$/;
+const COSTUME_KEYS = TAG.costumes.map((costume) => costume.key);
+
+function costumeLabel(key) {
+  return (TAG.costumes.find((costume) => costume.key === key) ?? TAG.costumes[0]).label;
+}
 
 export class TagScene extends Scene {
   enter(params = {}) {
@@ -32,6 +38,7 @@ export class TagScene extends Scene {
     this.solo = Boolean(params.solo);
     this.activeField = 0;
     this.inputText = params.names ? params.names.slice() : this.solo ? [''] : ['', ''];
+    this.costumeIndex = this.solo ? [0] : [0, 0];
     this.names = ['P1', 'P2'];
     this.swimmers = [];
     this.taggerIndex = 0;
@@ -45,6 +52,7 @@ export class TagScene extends Scene {
     this.resultsMenu = new SelectList(
       [
         { label: 'PLAY AGAIN', action: 'again' },
+        { label: 'LEADERBOARD', action: 'tagboard' },
         { label: 'MINIGAMES', action: 'minigames' },
       ],
       {
@@ -81,6 +89,7 @@ export class TagScene extends Scene {
         cpu: false,
         controls: CONTROLS.p1,
         speedScale: this.speedScale,
+        costume: COSTUME_KEYS[this.costumeIndex[0]],
         x: TAG.worldWidth * (this.solo ? 0.5 : 0.35),
         y: TAG.worldHeight * 0.5,
       }),
@@ -93,6 +102,7 @@ export class TagScene extends Scene {
           cpu: false,
           controls: CONTROLS.p2,
           speedScale: this.speedScale,
+          costume: COSTUME_KEYS[this.costumeIndex[1]],
           x: TAG.worldWidth * 0.65,
           y: TAG.worldHeight * 0.5,
         }),
@@ -105,6 +115,7 @@ export class TagScene extends Scene {
           color: colors[i % colors.length],
           cpu: true,
           speedScale: this.speedScale,
+          costume: COSTUME_KEYS[1 + Math.floor(Math.random() * (COSTUME_KEYS.length - 1))],
           x: rand(200, TAG.worldWidth - 200),
           y: rand(160, TAG.worldHeight - 160),
         }),
@@ -125,6 +136,7 @@ export class TagScene extends Scene {
     });
     const tagger = this.swimmers[index];
     tagger.tags += 1;
+    if (from !== null && from !== index) this.swimmers[from].makes += 1;
     if (tagger.cpu) tagger.pickRandomTarget(this.swimmers);
     if (from !== null && from !== index) {
       const origin = this.swimmers[from];
@@ -150,6 +162,7 @@ export class TagScene extends Scene {
   chooseResult(action) {
     this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
     if (action === 'again') this.startRound();
+    else if (action === 'tagboard') this.game.changeScene('tagboard', { from: 'tag' });
     else this.game.changeScene('minigames');
   }
 
@@ -157,6 +170,9 @@ export class TagScene extends Scene {
     for (const code of input.pressed) {
       if (code === 'Backspace') {
         this.inputText[this.activeField] = this.inputText[this.activeField].slice(0, -1);
+      } else if (code === 'Tab') {
+        this.costumeIndex[this.activeField] = (this.costumeIndex[this.activeField] + 1) % COSTUME_KEYS.length;
+        this.game.audio.tone({ freq: 500 + this.costumeIndex[this.activeField] * 40, duration: 0.05, volume: 0.1 });
       } else if (NAME_KEY.test(code) && this.inputText[this.activeField].length < TAG.nameMaxLength) {
         this.inputText[this.activeField] += code.startsWith('Key') ? code.slice(3) : code.slice(5);
         this.game.audio.tone({ freq: 700, duration: 0.03, volume: 0.06 });
@@ -200,6 +216,9 @@ export class TagScene extends Scene {
       this.winner = this.swimmers[this.taggerIndex].cpu;
       this.reward = recordMinigame(this.winner);
       this.newRecord = recordWin(this.solo ? 'tagSolo' : 'tag', {});
+      recordTagMatch(this.swimmers);
+      this.bestTagger = topTaggers(1)[0] ?? null;
+      this.bestRunner = bestRunners(1)[0] ?? null;
       this.phase = 'results';
       this.resultsMenu.reset();
       this.game.audio.tone({ freq: 392, type: 'triangle', duration: 0.24, volume: 0.2 });
@@ -260,7 +279,7 @@ export class TagScene extends Scene {
     if (!this.solo) this.renderNameField(ctx, 1, 326, TAG.p2Color, 'P2 NAME');
     drawText(
       ctx,
-      'TYPE LETTERS AND NUMBERS — BACKSPACE — ENTER TO CONTINUE',
+      'TYPE LETTERS AND NUMBERS — BACKSPACE — TAB CHANGES COSTUME — ENTER TO CONTINUE',
       LOGICAL_WIDTH / 2,
       416,
       {
@@ -310,6 +329,11 @@ export class TagScene extends Scene {
     if (active && Math.sin(this.time * 7) > 0) {
       fillRoundRect(ctx, 298 + text.length * 13, y - 12, 3, 24, 1.5, COLORS.accent);
     }
+    drawText(ctx, `COSTUME: ${costumeLabel(COSTUME_KEYS[this.costumeIndex[index]])}   (TAB)`, LOGICAL_WIDTH / 2, y + 42, {
+      size: 12,
+      color: active ? COLORS.accent : COLORS.textDim,
+      alpha: active ? 0.95 : 0.7,
+    });
   }
 
   firstPersonBounds() {
@@ -373,13 +397,13 @@ export class TagScene extends Scene {
       glow: COLORS.danger,
       glowBlur: 12,
     });
-    drawText(ctx, `P1 ${this.names[0]}`, 24, LOGICAL_HEIGHT - 44, {
+    drawText(ctx, `P1 ${this.names[0]}  ·  ${this.swimmers[0].makes} TAGS  ·  IT x${this.swimmers[0].tags}`, 24, LOGICAL_HEIGHT - 44, {
       size: 12,
       color: TAG.p1Color,
       align: 'left',
     });
     if (!this.solo) {
-      drawText(ctx, `P2 ${this.names[1]}`, 24, LOGICAL_HEIGHT - 28, {
+      drawText(ctx, `P2 ${this.names[1]}  ·  ${this.swimmers[1].makes} TAGS  ·  IT x${this.swimmers[1].tags}`, 24, LOGICAL_HEIGHT - 28, {
         size: 12,
         color: TAG.p2Color,
         align: 'left',
@@ -414,25 +438,41 @@ export class TagScene extends Scene {
   renderResults(ctx) {
     fillRoundRect(ctx, 250, 60, 460, 420, 26, 'rgba(10, 39, 64, 0.94)');
     strokeRoundRect(ctx, 250, 60, 460, 420, 26, 'rgba(207, 239, 255, 0.3)', 2);
-    drawText(ctx, "TIME'S UP", LOGICAL_WIDTH / 2, 108, {
-      size: 34,
+    drawText(ctx, "TIME'S UP", LOGICAL_WIDTH / 2, 100, {
+      size: 32,
       color: COLORS.accent,
       glow: 'rgba(255, 209, 102, 0.5)',
       glowBlur: 18,
     });
-    drawText(ctx, `${this.resultLoser} WAS IT!`, LOGICAL_WIDTH / 2, 150, {
-      size: 20,
+    drawText(ctx, `${this.resultLoser} WAS IT!`, LOGICAL_WIDTH / 2, 134, {
+      size: 18,
       color: COLORS.danger,
       alpha: 0.7 + 0.3 * Math.sin(this.time * 7),
     });
+    drawText(
+      ctx,
+      this.bestTagger ? `BEST TAGGER: ${this.bestTagger.name} — ${this.bestTagger.score} TAGS` : 'BEST TAGGER: —',
+      LOGICAL_WIDTH / 2,
+      168,
+      { size: 13, color: COLORS.accent, alpha: 0.95 },
+    );
+    drawText(
+      ctx,
+      this.bestRunner
+        ? `BEST RUNNER: ${this.bestRunner.name} — ${this.bestRunner.score === 0 ? 'NEVER IT' : `IT x${this.bestRunner.score}`}`
+        : 'BEST RUNNER: —',
+      LOGICAL_WIDTH / 2,
+      190,
+      { size: 13, color: '#63e6ff', alpha: 0.95 },
+    );
     this.swimmers.forEach((swimmer, index) => {
       drawText(
         ctx,
-        `${swimmer.name} — ${swimmer.tags} ${swimmer.tags === 1 ? 'TAG' : 'TAGS'}`,
+        `${swimmer.name} — ${swimmer.makes} TAGS MADE  ·  IT x${swimmer.tags}`,
         LOGICAL_WIDTH / 2,
-        196 + index * 24,
+        220 + index * 20,
         {
-          size: 13,
+          size: 12,
           color: swimmer.isTagged ? COLORS.danger : swimmer.color,
           alpha: swimmer.isTagged ? 0.95 : 0.8,
         },
@@ -441,21 +481,16 @@ export class TagScene extends Scene {
     drawText(
       ctx,
       this.winner
-        ? 'A CPU WAS STILL IT — WIN BONUS EARNED'
-        : 'A PLAYER WAS STILL IT — NO WIN BONUS',
+        ? `A CPU WAS STILL IT — WIN BONUS · +${this.reward} SEA COINS`
+        : `A PLAYER WAS STILL IT — NO WIN BONUS · +${this.reward} SEA COINS`,
       LOGICAL_WIDTH / 2,
-      380,
+      360,
       {
         size: 11,
         color: COLORS.textDim,
-        alpha: 0.75,
+        alpha: 0.8,
       },
     );
-    drawText(ctx, `+${this.reward} SEA COINS`, LOGICAL_WIDTH / 2, 400, {
-      size: 12,
-      color: COLORS.accent,
-      alpha: 0.9,
-    });
-    this.resultsMenu.render(ctx, LOGICAL_WIDTH / 2, 446);
+    this.resultsMenu.render(ctx, LOGICAL_WIDTH / 2, 420);
   }
 }

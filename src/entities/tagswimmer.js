@@ -158,11 +158,19 @@ export class TagSwimmer {
   drawCostume(ctx, radius, time) {
     if (this.costume === 'chainsaw') {
       const len = radius * 2.3;
+      const bx = radius * 1.3;
       ctx.fillStyle = '#8f9aa3';
-      fillBlade(ctx, radius * 1.3, 0, len, radius * 0.5);
+      ctx.beginPath();
+      ctx.moveTo(bx, -radius * 0.25);
+      ctx.lineTo(bx + len - radius * 0.32, -radius * 0.25);
+      ctx.lineTo(bx + len, 0);
+      ctx.lineTo(bx + len - radius * 0.32, radius * 0.25);
+      ctx.lineTo(bx, radius * 0.25);
+      ctx.closePath();
+      ctx.fill();
       ctx.fillStyle = '#c9d2da';
       for (let i = 0; i < 6; i += 1) {
-        const x = radius * 1.3 + i * (len / 6);
+        const x = bx + i * (len / 6);
         ctx.beginPath();
         ctx.moveTo(x, -radius * 0.26);
         ctx.lineTo(x + len / 12, -radius * 0.56);
@@ -200,10 +208,10 @@ export class TagSwimmer {
       ctx.lineWidth = radius * 0.14;
       ctx.lineCap = 'round';
       for (let i = 0; i < 3; i += 1) {
-        const y = -radius * (0.3 - i * 0.26);
+        const y = -radius * (0.34 - i * 0.24);
         ctx.beginPath();
-        ctx.moveTo(radius * 0.4, y);
-        ctx.lineTo(radius * 1.05, y - radius * 0.14);
+        ctx.moveTo(radius * 1.15, y + radius * 0.22);
+        ctx.lineTo(radius * 0.4, y - radius * 0.03);
         ctx.stroke();
       }
     } else if (this.costume === 'devil') {

@@ -156,9 +156,12 @@ lore inventory.
   wardrobe**. **WRAP THE PRESENTS**: swim with WASD, take one of **ten** presents with E, then
   hold left-click and sweep the cursor to wrap it, ticking a two-column top-right checklist
   (tick box + present picture) before a slow timer runs out. **SANTA'S NET**: you sleep as your
-  shark under a net of **twelve** gifts; hold E to peek, click the wishlist slate to study your
-  three shapes, then click matching presents (six wished gifts) to sneak them out while dodging
-  a sweeping camera's detection ring (wrong shapes are refused).
+  shark under a dense net of **sixteen** gifts watched by a **fast** camera; presents stay hidden
+  until you peek, and holding E fills a peek meter that **closes your eyes when it is near
+  full** (releasing also closes them), so you peek in short bursts. Click the wishlist slate to
+  study **four** wished shapes, then click the **eight** matching presents to sneak them out
+  while dodging the camera — the net is full of **near-identical flawed decoys** (a short-pointed
+  star, lopsided heart, skewed triangle) that are refused.
 - **Track builder** — a four-track sequencer reached from the TRACK PLAYER with **DRUMS /
   BASS / SYNTH / PIANO tabs** over a **piano-roll surface of horizontal lines** (no grid).
   Clicking a line places a tone block (higher lines = higher notes, stackable into chords),

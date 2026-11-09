@@ -203,7 +203,10 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `src/engine/giftshapes.js` for drawing the wrapped/wished shapes and
   `src/engine/lounge.js` (`drawWreckLounge()`) for the cruise-shipwreck lounge backdrop with its
   no-fire fireplace of drifting bioluminescent squids; `applyWardrobe()` + a `Shark` render the
-  player's current skin/accessories in both.
+  player's current skin/accessories in both. In SANTA'S NET the gifts are only drawn while
+  `eyesOpen` (holding E with the peek meter off its full end); the flawed near-match shapes
+  (`star_flaw`, `heart_flaw`, `triangle_flaw`) are drawn by the same `drawGiftShape()` but are
+  excluded from the wishlist, and the camera sweeps quickly enough that steals must be timed.
 - **8-bit mode** lives in `src/engine/retro.js` (`set8Bit()`/`is8Bit()`). `Game.renderFrame()`
   renders the scene into a fixed 256×144 offscreen canvas (`ensurePixelBuffer()`, drawn with a
   `PIXEL_WIDTH/width` transform so scenes keep their 960×540 logical coordinates), blits it to

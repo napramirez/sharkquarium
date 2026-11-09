@@ -1486,11 +1486,15 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   cursor** to wind the paper — a top-right **checklist (tick box + present picture, two columns)**
   ticks off as each is finished, and a slow timer bar runs down. Wrap all ten to win.
 - **SANTA'S NET** (Christmas-exclusive) — the same **sunken cruise lounge**, where you sleep as
-  your **current shark** under a net of **twelve gifts**, watched by a sweeping camera. **Hold
-  E** to peek (the peek meter drains when you let go), **left-click the wishlist slate** on the
-  rug to study the three shapes that are yours, then **left-click matching presents** in the net
-  to sneak them out (six wished gifts) — but only while the camera's red detection ring is away,
-  or you are caught. Wrong shapes are refused ("not yours").
+  your **current shark** under a dense net of **sixteen gifts**, watched by a **fast** sweeping
+  camera. The presents are **hidden until you peek** (dim shapes show only while your eyes are
+  open). **Hold E** to open your eyes — but the peek meter fills, and while it is **near full
+  your eyes close again**; release E and they close too, so you must peek in short bursts.
+  **Left-click the wishlist slate** on the rug to study the **four wished shapes**, then
+  **left-click matching presents** (eight of them) to sneak them out — but only while the
+  camera's red ring is away, or you are caught. The net is full of **near-identical flawed
+  decoys** (a star with one short point, a lopsided heart, a skewed triangle) that are refused as
+  "not yours".
 - LABYRINTH — a seven-part shipwreck escape split into 1500 px sections, played by two
   players or LABYRINTH SOLO (1P). Every run opens with a picker: a `PART: n/7` row lets
   you drop straight into any of the seven stretches (it defaults to your saved progress,

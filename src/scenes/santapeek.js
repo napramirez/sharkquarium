@@ -20,10 +20,13 @@ export class SantaPeekScene extends MinigameScene {
     this.shark = new Shark(PLAYER.x, PLAYER.y, { pointer: false });
     this.shark.facing = 1;
     applyWardrobe(this.shop, 0);
-    this.wishlist = ['star', 'heart', 'triangle'];
-    const shapes = ['star', 'square', 'heart', 'circle', 'triangle', 'diamond', 'square', 'circle', 'heart', 'star', 'triangle', 'diamond'];
+    this.wishlist = ['star', 'heart', 'triangle', 'circle'];
+    const shapes = [
+      'star', 'star_flaw', 'square', 'heart', 'heart_flaw', 'circle', 'triangle', 'triangle_flaw',
+      'diamond', 'star', 'square', 'heart_flaw', 'circle', 'triangle', 'diamond', 'heart',
+    ];
     this.presents = shapes.map((shape, i) => ({
-      x: 172 + i * 56,
+      x: 168 + i * 53,
       y: NET_Y,
       shape,
       taken: false,
@@ -31,11 +34,13 @@ export class SantaPeekScene extends MinigameScene {
     this.correctTotal = this.presents.filter((gift) => this.wishlist.includes(gift.shape)).length;
     this.collected = 0;
     this.peek = 0;
+    this.eyesOpen = false;
+    this.blind = false;
     this.inspecting = 0;
     this.cameraX = 220;
     this.cameraDir = 1;
-    this.cameraSpeed = 150;
-    this.cameraR = 68;
+    this.cameraSpeed = 265;
+    this.cameraR = 72;
     this.timeLeft = 120;
     this.status = '';
     this.statusTimer = 0;
@@ -54,7 +59,10 @@ export class SantaPeekScene extends MinigameScene {
     this.shark.age += dt;
 
     const peeking = input.isDown('KeyE');
-    this.peek = clamp(this.peek + (peeking ? 55 : -32) * dt, 0, 100);
+    this.peek = clamp(this.peek + (peeking ? 55 : -40) * dt, 0, 100);
+    this.eyesOpen = peeking && this.peek > 6 && this.peek < 98;
+    this.blind = peeking && this.peek >= 98;
+    if (this.blind && this.statusTimer <= 0) this.setStatus('EYES CLOSING — LET GO AND PEEK AGAIN');
 
     this.cameraX += this.cameraDir * this.cameraSpeed * dt;
     if (this.cameraX > 800) {
@@ -86,12 +94,12 @@ export class SantaPeekScene extends MinigameScene {
     let hit = -1;
     this.presents.forEach((gift, i) => {
       if (gift.taken) return;
-      if (Math.hypot(gift.x - x, gift.y - y) < 30) hit = i;
+      if (Math.hypot(gift.x - x, gift.y - y) < 28) hit = i;
     });
     if (hit < 0) return;
     const gift = this.presents[hit];
-    if (this.peek <= 5) {
-      this.setStatus('HOLD E TO PEEK — YOU CAN BARELY SEE');
+    if (!this.eyesOpen) {
+      this.setStatus('YOUR EYES ARE CLOSED — HOLD E TO PEEK (BUT NOT TOO LONG)');
       return;
     }
     if (Math.abs(this.cameraX - gift.x) < this.cameraR) {
@@ -115,7 +123,25 @@ export class SantaPeekScene extends MinigameScene {
   renderRound(ctx) {
     drawWreckLounge(ctx, this.time);
 
-    ctx.strokeStyle = 'rgba(180, 200, 210, 0.4)';
+    for (const gift of this.presents) {
+      if (gift.taken) continue;
+      if (this.eyesOpen) {
+        drawGiftShape(
+          ctx,
+          gift.x,
+          gift.y,
+          13,
+          gift.shape,
+          this.wishlist.includes(gift.shape) ? '#ffd166' : '#8b98a5',
+        );
+      } else {
+        ctx.globalAlpha = 0.14;
+        fillCircle(ctx, gift.x, gift.y, 7, '#0a1418');
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    ctx.strokeStyle = 'rgba(180, 200, 210, 0.45)';
     ctx.lineWidth = 2;
     for (let i = 0; i < 13; i += 1) {
       ctx.beginPath();
@@ -130,24 +156,11 @@ export class SantaPeekScene extends MinigameScene {
       ctx.stroke();
     }
 
-    for (const gift of this.presents) {
-      if (gift.taken) continue;
-      const visible = this.peek > 5;
-      drawGiftShape(
-        ctx,
-        gift.x,
-        gift.y,
-        15,
-        visible ? gift.shape : 'square',
-        visible ? (this.wishlist.includes(gift.shape) ? '#ffd166' : '#8b98a5') : '#3a4a52',
-      );
-    }
-
-    ctx.fillStyle = 'rgba(255, 90, 90, 0.14)';
+    ctx.fillStyle = 'rgba(255, 90, 90, 0.16)';
     ctx.beginPath();
     ctx.arc(this.cameraX, NET_Y + 16, this.cameraR, 0, TAU);
     ctx.fill();
-    ctx.strokeStyle = 'rgba(255, 107, 129, 0.55)';
+    ctx.strokeStyle = 'rgba(255, 107, 129, 0.6)';
     ctx.lineWidth = 2;
     ctx.stroke();
     fillRoundRect(ctx, this.cameraX - 15, NET_Y - 86, 30, 24, 6, '#39434c');
@@ -158,19 +171,19 @@ export class SantaPeekScene extends MinigameScene {
     drawSkinAura(ctx, this.shark);
     drawTrail(ctx, this.shark);
     drawCompanion(ctx, this.shark);
-    if (this.peek <= 5) {
+    if (!this.eyesOpen) {
       drawText(ctx, 'Z z z', PLAYER.x + 40, PLAYER.y - 34, { size: 12, color: COLORS.textDim, alpha: 0.7 });
     }
 
     fillRoundRect(ctx, WISHLIST.x, WISHLIST.y, WISHLIST.w, WISHLIST.h, 14, 'rgba(8, 26, 34, 0.88)');
     strokeRoundRect(ctx, WISHLIST.x, WISHLIST.y, WISHLIST.w, WISHLIST.h, 14, 'rgba(207, 239, 255, 0.35)', 2);
-    drawText(ctx, 'WISHLIST', WISHLIST.x + 52, WISHLIST.y + 31, { size: 12, color: COLORS.accent });
+    drawText(ctx, 'WISHLIST', WISHLIST.x + 44, WISHLIST.y + 31, { size: 12, color: COLORS.accent });
     this.wishlist.forEach((shape, i) => {
-      drawGiftShape(ctx, WISHLIST.x + 130 + i * 70, WISHLIST.y + 31, 17, shape, '#ffd166');
+      drawGiftShape(ctx, WISHLIST.x + 110 + i * 58, WISHLIST.y + 31, 16, shape, '#ffd166');
     });
     if (this.inspecting > 0) {
       this.wishlist.forEach((shape, i) => {
-        drawGiftShape(ctx, 360 + i * 120, 344, 30, shape, '#ffd166');
+        drawGiftShape(ctx, LOGICAL_WIDTH / 2 - 165 + i * 110, 344, 28, shape, '#ffd166');
       });
       drawText(ctx, 'THESE ARE YOURS', LOGICAL_WIDTH / 2, 300, {
         size: 14,
@@ -185,14 +198,14 @@ export class SantaPeekScene extends MinigameScene {
       glow: COLORS.bubble,
       glowBlur: 18,
     });
-    drawText(ctx, 'HOLD E — PEEK      CLICK THE WISHLIST — STUDY THE SHAPES      CLICK A PRESENT — SNEAK IT OUT (AVOID THE CAMERA)', LOGICAL_WIDTH / 2, 62, {
+    drawText(ctx, 'HOLD E — PEEK (NOT TOO LONG)      CLICK THE WISHLIST — STUDY THE SHAPES      CLICK A PRESENT — SNEAK IT OUT', LOGICAL_WIDTH / 2, 62, {
       size: 10,
       color: COLORS.foam,
       alpha: 0.85,
     });
 
     fillRoundRect(ctx, 60, LOGICAL_HEIGHT - 34, 200, 10, 5, 'rgba(4, 16, 29, 0.65)');
-    fillRoundRect(ctx, 60, LOGICAL_HEIGHT - 34, 200 * (this.peek / 100), 10, 5, this.peek > 5 ? COLORS.bubble : COLORS.textDim);
+    fillRoundRect(ctx, 60, LOGICAL_HEIGHT - 34, 200 * (this.peek / 100), 10, 5, this.blind ? COLORS.danger : this.peek > 5 ? COLORS.bubble : COLORS.textDim);
     drawText(ctx, 'PEEK', 160, LOGICAL_HEIGHT - 46, { size: 10, color: COLORS.textDim });
 
     const ratio = Math.max(0, this.timeLeft / 120);

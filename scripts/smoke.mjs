@@ -3739,9 +3739,27 @@ async function main() {
   await frames(5);
   assert.equal(
     game.scene.menu.items.length,
-    28,
-    'the pass should unlock every minigame plus reef rush levels/variants, the course builder, boss rush, records, the tag leaderboard, mutator, and back',
+    29,
+    'the pass should unlock every minigame plus reef rush levels/variants, the course builder, boss rush, records, the tag leaderboard, ai chat, mutator, and back',
   );
+  game.changeScene('chat');
+  await frames(3);
+  const chatScene = game.scene;
+  assert.equal(chatScene.messages.length, 1, 'the cpu should greet the player');
+  assert.equal(chatScene.messages[0].from, 'cpu', 'the greeting should be from the cpu');
+  await tapKey('KeyH');
+  await tapKey('KeyI');
+  assert.equal(chatScene.inputText, 'hi', 'typing should build the message');
+  await tapKey('Enter');
+  await frames(3);
+  assert.equal(chatScene.messages.length, 2, 'enter should send the player message');
+  assert.equal(chatScene.messages[1].from, 'player', 'the sent message should be the player');
+  await frames(40);
+  assert.equal(chatScene.messages.length, 3, 'the cpu should reply after a short delay');
+  assert.equal(chatScene.messages[2].from, 'cpu', 'the reply should come from the cpu');
+  await tapKey('Escape');
+  await frames(3);
+  assert.equal(game.currentSceneName, 'minigames', 'esc should leave the chat');
   assert.equal(game.scene.menu.items[2].label, 'TAG (2P + 5 CPU)', 'tag should be the third entry');
   storage.set('sharkquarium.coins', '500');
   game.changeScene('minigames');

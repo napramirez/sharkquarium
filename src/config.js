@@ -1475,6 +1475,10 @@ export const LORE = [  {
         text: 'A cheap shelf of little performances, bought on the shop\u2019s EMOTES row for 15 sea coins or less. Equip one to see it play on the shop preview, then press V in any dive to perform it on your creature. CHAIN-FIN TRANSFORM: the creature stays in its normal pose and reaches a fin or tentacle down to the rip cord on its tummy, gives it an animated yank, and the chain-fin chainsaw visor slides on horizontally; after three seconds the fin or tentacle yanks the cord again and the visor slides back off. It also has SPIN BARREL ROLL, BOOP, TAIL WIGGLE, and BUBBLE BLOW, and every emote works on any dive creature.',
       },
       {
+        name: 'AI CHAT',
+        text: 'A chat screen in the minigames menu where you talk to NOVA, the CPU you dive with. Type with the keyboard — letters, numbers, and Space; Backspace deletes and Enter sends. Your messages sit on the right in light-blue bubbles with gray text, and NOVA’s replies sit on the left in yellow bubbles with black text, both in the game’s own font over the navy tank water. NOVA chats about tag, Reef Rush, the spooky tanks, and the shop.',
+      },
+      {
         name: 'MUTATORS',
         text: 'Optional handicaps you switch on before any dive or minigame — FAST, ONE HIT, NO AIR, LIGHTS OUT, GOLD RUSH, GLASS, and TIME PRESSURE. Every mutator hardens the run and pays back extra coins and score for the trouble.',
       },

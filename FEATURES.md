@@ -1455,7 +1455,7 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   **COSTUME** picker (`Tab` cycles it) and a **COLOR** picker (`◀`/`▶` cycles a shared palette)
   for their tag fish — original looks like CHAIN-FIN (a fish with a slanted chainsaw snout and
   top handle, three diagonal horizontal eye slits, and its own tail fin), DEVIL FISH, FANG
-  FISH, CYBER FIN, ANGEL FIN, LANTERN FISH, SPOOK FIN, plus **BLOOD FIEND** (red curved horns
+  FISH, CYBER FIN, ANGEL FIN, LANTERN FISH, SPOOK FIN, plus **CRIMSON MANE** (red curved horns
   and a jagged mane), **TOPKNOT** (a black topknot), and **FALLEN ANGEL** (spread wings and a
   halo). Then they join five
   randomly named CPU swimmers in a 1760×990 arena shown fully zoomed out (everything on

@@ -138,7 +138,7 @@ lore inventory.
   the name screen (`Tab` cycles the costume, `◀`/`▶` cycles the color) — original looks like
   CHAIN-FIN (a fish with a slanted chainsaw snout and top handle, three diagonal horizontal eye
   slits, and its own tail fin), DEVIL FISH, FANG FISH, CYBER FIN, ANGEL FIN, LANTERN FISH,
-  SPOOK FIN, **BLOOD FIEND** (red horns and mane), **TOPKNOT**, and **FALLEN ANGEL** (wings and
+  SPOOK FIN, **CRIMSON MANE** (red horns and mane), **TOPKNOT**, and **FALLEN ANGEL** (wings and
   a halo) — no third-party characters are used.
 - **Track builder** — a four-track sequencer reached from the TRACK PLAYER with **DRUMS /
   BASS / SYNTH / PIANO tabs** over a **piano-roll surface of horizontal lines** (no grid).

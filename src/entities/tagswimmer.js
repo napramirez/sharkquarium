@@ -263,7 +263,7 @@ export class TagSwimmer {
       ctx.ellipse(0, -radius * 0.1, radius * 1.5, radius * 1.0, 0, 0, TAU);
       ctx.fill();
       ctx.globalAlpha = 1;
-    } else if (this.costume === 'bloodfiend') {
+    } else if (this.costume === 'crimsonmane') {
       ctx.fillStyle = '#e23b3b';
       for (const side of [-1, 1]) {
         ctx.beginPath();

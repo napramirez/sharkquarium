@@ -133,8 +133,8 @@ no-clock reef cleanup whose morays peek, bite, and retreat), the nine playpasses
 pass-granted cosmetics (ragdoll plushies, the RGB neon jacket, eel aura rings, five swim
 trails, twenty-one companion pals covering every playable creature and enemy —
 including the MINI MEGASQUID — and
-head/body trinket slots plus the COSTUMES row and cheap EMOTES (equip one, press V in a dive —
-CHAIN-FIN TRANSFORM yanks the belly rip cord to slide the chainsaw visor on and off), the 2P
+head/body trinket slots plus the COSTUMES row and cheap EMOTES (equip one, press V in a dive on any creature —
+CHAIN-FIN TRANSFORM reaches a fin/tentacle to the tummy rip cord to slide the chainsaw visor on and off, plus SPIN BARREL ROLL, BOOP, TAIL WIGGLE, and BUBBLE BLOW), the 2P
 wardrobe with its PLAYER row and per-player buddy,
 trail, and aura slots, the lore codex with its five sections, the playerless pets tank
 with its snack-feeding (clicks and on-screen buttons),

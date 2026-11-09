@@ -2,6 +2,7 @@ import { rand, TAU } from '../engine/math.js';
 import { TAG, COLORS } from '../config.js';
 import { drawRagdollRipcord } from '../engine/ripcord.js';
 import { drawChainFin } from '../engine/chainfin.js';
+import { drawEmote, startEmote, updateEmote } from '../engine/emotes.js';
 
 export class TagSwimmer {
   constructor({ name, color, cpu, controls = null, x = 0, y = 0, speedScale = 1, costume = 'none' }) {
@@ -47,6 +48,7 @@ export class TagSwimmer {
     const length = Math.hypot(horizontal, vertical);
     const dirX = length > 0 ? horizontal / length : 0;
     const dirY = length > 0 ? vertical / length : 0;
+    if (input && typeof input.wasPressed === 'function' && input.wasPressed('KeyV')) startEmote(this);
     this.steer(this.x + dirX * 100, this.y + dirY * 100, dt, length > 0 ? this.speed : 0);
     this.integrate(dt);
   }
@@ -100,6 +102,7 @@ export class TagSwimmer {
       this.vy = -Math.abs(this.vy);
     }
     if (Math.abs(this.vx) > 12) this.facing = this.vx > 0 ? 1 : -1;
+    updateEmote(this, dt);
   }
 
   render(ctx, time) {
@@ -152,6 +155,7 @@ export class TagSwimmer {
       ctx.fill();
     }
     this.drawCostume(ctx, radius, time);
+    drawEmote(ctx, this, radius, time);
     ctx.restore();
   }
 

@@ -20,10 +20,8 @@ import {
 } from '../engine/accessory.js';
 import { drawTrail, setActiveTrail, trailByKey, trailCatalog } from '../engine/trail.js';
 import {
-  drawEmote,
   emoteByKey,
   emoteCatalog,
-  emoteStand,
   isEmoting,
   setActiveEmote,
   startEmote,
@@ -778,18 +776,7 @@ export class ShopScene extends Scene {
   }
 
   renderPreviewCreature(ctx) {
-    const entity = this.creature.entity;
-    entity.render(ctx);
-    if (entity.constructor.name !== 'Shark' && entity._emote) {
-      ctx.save();
-      ctx.translate(entity.x, entity.y);
-      const facing = entity.facing ?? 1;
-      ctx.scale(facing, 1);
-      const stand = emoteStand(entity);
-      if (stand > 0) ctx.rotate(-facing * (Math.PI / 2) * stand);
-      drawEmote(ctx, entity, entity.radius, this.time);
-      ctx.restore();
-    }
+    this.creature.entity.render(ctx);
   }
 
   renderOptionStatus(ctx, kind) {

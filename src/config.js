@@ -509,7 +509,11 @@ export const ACCESSORIES = [
 
 export const EMOTES = [
   { key: 'none', label: 'NONE', cost: 0, blurb: 'NO EMOTE EQUIPPED' },
-  { key: 'chainfin', label: 'CHAIN-FIN TRANSFORM', cost: 15, blurb: 'PULL THE BELLY RIP CORD AND SLIDE ON THE CHAINSAW VISOR' },
+  { key: 'chainfin', label: 'CHAIN-FIN TRANSFORM', cost: 15, blurb: 'REACH DOWN AND PULL THE TUMMY RIP CORD TO SLIDE ON THE CHAINSAW VISOR' },
+  { key: 'spin', label: 'SPIN BARREL ROLL', cost: 10, blurb: 'A QUICK HAPPY SPIN WITH SPARKLES' },
+  { key: 'boop', label: 'BOOP', cost: 10, blurb: 'A NOSE BOOP WITH A FLOATING HEART' },
+  { key: 'tailwiggle', label: 'TAIL WIGGLE', cost: 12, blurb: 'A WIGGLY DANCE WITH MUSIC NOTES' },
+  { key: 'bubbleblow', label: 'BUBBLE BLOW', cost: 12, blurb: 'BLOW A STREAM OF RISING BUBBLES' },
 ];
 
 export const AURAS = [
@@ -1468,7 +1472,7 @@ export const LORE = [  {
       },
       {
         name: 'EMOTES',
-        text: 'A cheap shelf of little performances, bought on the shop\u2019s EMOTES row for 15 sea coins or less. Equip one to see it play on the shop preview, then press V in any dive to perform it on your creature. CHAIN-FIN TRANSFORM: the creature stands up on its tail (or straight up if it has none), reaches a fin or tentacle down to pull the rip cord on its underside, the chain-fin chainsaw visor slides on with its running chain, holds for three seconds, then the fin or tentacle pulls the cord again and it slides back to normal.',
+        text: 'A cheap shelf of little performances, bought on the shop\u2019s EMOTES row for 15 sea coins or less. Equip one to see it play on the shop preview, then press V in any dive to perform it on your creature. CHAIN-FIN TRANSFORM: the creature stays in its normal pose and reaches a fin or tentacle down to the rip cord on its tummy, gives it an animated yank, and the chain-fin chainsaw visor slides on horizontally; after three seconds the fin or tentacle yanks the cord again and the visor slides back off. It also has SPIN BARREL ROLL, BOOP, TAIL WIGGLE, and BUBBLE BLOW, and every emote works on any dive creature.',
       },
       {
         name: 'MUTATORS',

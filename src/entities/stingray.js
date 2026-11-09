@@ -3,6 +3,7 @@ import { clamp, lerp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, PLAYER, STINGRAY, SAND, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 import { playerColor, shadowEyeColor } from '../engine/skin.js';
 import { drawAccessory } from '../engine/accessory.js';
+import { drawEmote, startEmote, updateEmote } from '../engine/emotes.js';
 
 export class Stingray extends Entity {
   constructor(x, y, options = {}) {
@@ -37,6 +38,8 @@ export class Stingray extends Entity {
 
   update(dt, input) {
     super.update(dt);
+    if (input && typeof input.wasPressed === 'function' && input.wasPressed('KeyV')) startEmote(this);
+    updateEmote(this, dt);
     const sandTop = LOGICAL_HEIGHT - SAND.height;
     let horizontal = (input.isDown(this.controls.right) ? 1 : 0) - (input.isDown(this.controls.left) ? 1 : 0);
     let vertical = (input.isDown(this.controls.down) ? 1 : 0) - (input.isDown(this.controls.up) ? 1 : 0);
@@ -110,8 +113,9 @@ export class Stingray extends Entity {
       ctx.translate(this.x, this.y);
       if (flash) ctx.globalAlpha = 0.4;
       ctx.scale(this.facing, 1);
-      drawStingrayBody(ctx, radius, this);
+        drawStingrayBody(ctx, radius, this);
       drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
+      drawEmote(ctx, this, radius, this.age);
       ctx.restore();
     }
     if (this.tangleTimer > 0) {

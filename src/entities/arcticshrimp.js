@@ -3,6 +3,7 @@ import { clamp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, ARCTIC_SHRIMP, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 import { playerColor, shadowEyeColor } from '../engine/skin.js';
 import { drawAccessory } from '../engine/accessory.js';
+import { drawEmote, startEmote, updateEmote } from '../engine/emotes.js';
 
 export class ArcticShrimp extends Entity {
   constructor(x, y, options = {}) {
@@ -28,6 +29,8 @@ export class ArcticShrimp extends Entity {
 
   update(dt, input, school) {
     super.update(dt);
+    if (input && typeof input.wasPressed === 'function' && input.wasPressed('KeyV')) startEmote(this);
+    updateEmote(this, dt);
     let horizontal = (input.isDown(this.controls.right) ? 1 : 0) - (input.isDown(this.controls.left) ? 1 : 0);
     let vertical = (input.isDown(this.controls.down) ? 1 : 0) - (input.isDown(this.controls.up) ? 1 : 0);
     if (this.pointerSteering && (input.pointer.down || input.pointer.look)) {
@@ -95,6 +98,7 @@ export class ArcticShrimp extends Entity {
     ctx.scale(this.facing, 1);
     drawArcticShrimpBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, heading: this.heading });
+    drawEmote(ctx, this, radius, this.age);
     ctx.restore();
   }
 }

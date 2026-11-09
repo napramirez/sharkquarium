@@ -3636,6 +3636,24 @@ async function main() {
   await frames(200);
   assert.equal(emoteShop.creature.entity._emote, null, 'the preview emote should finish in three seconds');
 
+  emoteShop.emoteIndex = 2;
+  emoteShop.choose({ action: 'emote' });
+  await frames(2);
+  assert.equal(emoteShop.shop.emote, 'spin', 'a second cheap emote should equip');
+  assert.equal(emoteShop.coins, 175, 'the spin emote should cost 10 sea coins');
+  assert.ok(
+    emoteShop.creature.entity._emote && emoteShop.creature.entity._emote.key === 'spin',
+    'the preview should play the newly equipped emote',
+  );
+  emoteShop.menu.setIndex(0);
+  await frames(200);
+  assert.equal(emoteShop.creature.entity._emote, null, 'the spin emote should also finish in three seconds');
+  const emoteKeys = ['none', 'chainfin', 'spin', 'boop', 'tailwiggle', 'bubbleblow'];
+  for (const key of emoteKeys) {
+    emoteShop.emoteIndex = emoteKeys.indexOf(key);
+    assert.equal(emoteShop.emote.key, key, `the emote catalog should include ${key}`);
+  }
+
   game.changeScene('play');
   await frames(5);
   const emotePlayer = game.scene.player;
@@ -3644,7 +3662,7 @@ async function main() {
   await frames(3);
   releaseKey('KeyV');
   assert.ok(
-    emotePlayer._emote && emotePlayer._emote.key === 'chainfin',
+    emotePlayer._emote && emotePlayer._emote.key === 'spin',
     'V should trigger the equipped emote mid-dive',
   );
 

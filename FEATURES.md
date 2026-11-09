@@ -1352,11 +1352,14 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   wears an owned one for free (NONE takes it off).
 - **EMOTES** — a cheap one-slot collection of little performances, each **15 or fewer sea
   coins**, bought and equipped on the shop's EMOTES row. Equipping one demos it on the shop
-  preview, and pressing **V** in any dive plays it on your creature. **CHAIN-FIN TRANSFORM**
-  (15): the creature **stands up on its tail** (vertically if it has no tail) and **reaches down
-  with a fin/tentacle to yank the rip cord on its underside**, the **chain-fin chainsaw visor
-  slides on** with its running chain, it holds for **three seconds**, then reaches down with the
-  fin/tentacle again to **pull the cord and slide back to normal**.
+  preview, and pressing **V** in any dive plays it on your creature (shark, stingray, squid,
+  arcticshrimp, kelpcrab, jellyfish, nautilus, and tag swimmers). **CHAIN-FIN TRANSFORM** (15):
+  the creature stays in its normal pose and **reaches a fin/tentacle down to the rip cord on its
+  tummy**, gives it an animated **yank**, and the **chain-fin chainsaw visor slides on
+  horizontally** with its running chain; after **three seconds** the fin/tentacle reaches down and
+  yanks the cord again to **slide the visor back off**. Also **SPIN BARREL ROLL** (10, a spinning
+  sparkle ring), **BOOP** (10, a nose boop with a floating heart), **TAIL WIGGLE** (12, a wiggly
+  dance with music notes), and **BUBBLE BLOW** (12, a stream of rising bubbles).
 - TRAIL — a separate equip slot for swim wakes, browsed on the TRAIL row with its
   PLAYPASS 7 catalog: **BUBBLE STREAM** (wobbling bubbles), **STARDUST** (twinkling
   gold sparks), **INK PUFF** (dark spreading clouds), **ELECTRIC CRACKLE** (three-layer

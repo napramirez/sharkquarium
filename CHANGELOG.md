@@ -146,7 +146,7 @@ lore inventory.
   SPOOK FIN, **CRIMSON MANE** (red horns and mane), **TOPKNOT**, and **FALLEN ANGEL** (wings and
   a halo) — no third-party characters are used.
 - **Ragdoll ripcord** — a new BODY trinket (**RIP CORD**, 160 coins) plus a CHAIN-FIN add-on: a verlet-physics starter cord with a pull-handle that lags and swings with the swimmer's motion.
-- **EMOTES** — a new shop shelf of cheap (≤15 sea coins) one-shot performances. Equipping one demos it on the preview and pressing **V** in any dive plays it on your creature. The first is **CHAIN-FIN TRANSFORM**: the creature stands up on its tail (vertically if it has no tail), reaches down with a fin/tentacle to pull the rip cord on its underside, the chain-fin chainsaw visor slides on, holds for three seconds, then reaches down to pull the cord again and reverts.
+- **EMOTES** — a new shop shelf of cheap (≤15 sea coins) one-shot performances. Equipping one demos it on the preview and pressing **V** in any dive plays it on your creature. Includes **CHAIN-FIN TRANSFORM** (the creature reaches a fin/tentacle to the rip cord on its tummy, yanks it so the chain-fin visor slides on horizontally, then after three seconds yanks it again to revert), **SPIN BARREL ROLL**, **BOOP**, **TAIL WIGGLE**, and **BUBBLE BLOW**; all work on every dive creature and tag swimmers.
 - **FRENZY DOMINANCE difficulty** — a new top difficulty tier far beyond APOCALYPTIC WIPEOUT:
   4.5× enemy speed, 0.15 spawn interval, 5× score penalty, 0.15 grace, 0.35× tank clocks,
   a 15 s ramp, five extra hazard slots, an ×8 coin multiplier and an REEF RUSH 2.2× speed /

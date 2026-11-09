@@ -4,6 +4,7 @@ import { setCoinMultiplier } from './progress.js';
 import { mutatorCoinMult } from './mutators.js';
 import { drawText } from './render.js';
 import { is8Bit, PIXEL_WIDTH, PIXEL_HEIGHT } from './retro.js';
+import { drawMemeOverlay } from './meme.js';
 import { FIRST_PERSON } from '../config.js';
 
 const FIRST_PERSON_SCENES = new Set([
@@ -236,11 +237,14 @@ export class Game {
       for (let y = 0; y < this.canvas.height; y += 3) {
         ctx.fillRect(0, y, this.canvas.width, 1);
       }
+      ctx.setTransform(this.scaleX, 0, 0, this.scaleY, 0, 0);
+      drawMemeOverlay(ctx, this.scene ? this.scene.time : 0, this.width, this.height);
       return;
     }
     ctx.imageSmoothingEnabled = true;
     ctx.setTransform(this.scaleX, 0, 0, this.scaleY, 0, 0);
     this.renderScene(ctx);
+    drawMemeOverlay(ctx, this.scene ? this.scene.time : 0, this.width, this.height);
   }
 
   renderScene(ctx) {

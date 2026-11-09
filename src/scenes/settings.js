@@ -6,6 +6,7 @@ import { clamp } from '../engine/math.js';
 import { setReducedMotion } from '../engine/motion.js';
 import { setSeason, SEASONS } from '../engine/season.js';
 import { set8Bit } from '../engine/retro.js';
+import { setMeme } from '../engine/meme.js';
 import {
   AUDIO,
   COLORS,
@@ -42,6 +43,7 @@ export class SettingsScene extends Scene {
       halloween: false,
       newyear: false,
       eightBit: false,
+      meme: false,
       ...saved,
     };
     this.settings.season = saved.season !== undefined
@@ -57,6 +59,7 @@ export class SettingsScene extends Scene {
     setReducedMotion(this.settings.reduceMotion);
     setSeason(this.settings.season);
     set8Bit(this.settings.eightBit);
+    setMeme(this.settings.meme);
     this.menu = new SelectList(
       [
         { label: 'CO-OP TANK SELECT', action: 'coopTankSelect' },
@@ -70,6 +73,7 @@ export class SettingsScene extends Scene {
         { label: 'HALLOWEEN MODE', action: 'halloween' },
         { label: 'NEW YEAR MODE', action: 'newyear' },
         { label: '8-BIT MODE', action: 'eightBit' },
+        { label: 'MEME MODE', action: 'meme' },
         { label: 'TRACK PLAYER', action: 'tracks' },
         { label: 'CUTSCENE THEATRE', action: 'theatre' },
         { label: 'BACK', action: 'back' },
@@ -227,6 +231,19 @@ export class SettingsScene extends Scene {
       });
       return;
     }
+    if (item.action === 'meme') {
+      this.settings.meme = !this.settings.meme;
+      setMeme(this.settings.meme);
+      saveJSON(SETTINGS_KEY, this.settings);
+      this.game.audio.tone({
+        freq: this.settings.meme ? 880 : 300,
+        endFreq: this.settings.meme ? 1320 : 180,
+        type: 'square',
+        duration: 0.12,
+        volume: 0.2,
+      });
+      return;
+    }
     if (item.action === 'difficulty') {
       const pointer = this.game.input.pointer;
       if (pointer.down) {
@@ -304,6 +321,7 @@ export class SettingsScene extends Scene {
       halloween: 'EERIE THEMES AND DRIFTING AUTUMN LEAVES',
       newyear: 'PARTY THEMES AND FALLING CONFETTI',
       eightBit: 'PIXELATED 8-BIT LOOK AND CHIPTUNE SOUND',
+      meme: 'SILLY COMIC POP-UPS AND CAPTIONS EVERYWHERE',
       tracks: 'PLAY ANY LEVEL THEME',
       theatre: 'REPLAY ANY CUTSCENE',
       back: 'RETURN TO THE MENU',
@@ -329,7 +347,8 @@ export class SettingsScene extends Scene {
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 8, this.settings.halloween);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 9, this.settings.newyear);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 10, this.settings.eightBit);
-    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 11, {
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 11, this.settings.meme);
+    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 13, {
       size: 13,
       color: COLORS.textDim,
       alpha: 0.85,

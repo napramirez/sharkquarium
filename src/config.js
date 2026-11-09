@@ -1511,6 +1511,10 @@ export const LORE = [  {
         text: 'Each seasonal mode adds exclusive one-player games to the MINIGAMES menu (which now scrolls with the arrow keys and the mouse wheel). CHRISTMAS: WRAP THE PRESENTS (find hidden gifts around the flooded lounge, take one with E, and hold left-click while sweeping the cursor to wrap it) and SANTA\u2019S NET (peek in short bursts, study the wishlist, and sneak the right shapes past a fast camera). HALLOWEEN: JACK-O\u2019-LANTERN HUNT (light eight lanterns in a dark crypt while avoiding ghost jellies) and SPECTRE SWEEP (click rising spectres to banish them, but leave the friendly ghostfish alone). NEW YEAR: MIDNIGHT FIREWORKS (launch and burst rockets inside the glowing band for combos) and CONFETTI RUSH (an auto-swim dash collecting stars and dodging poppers).',
       },
       {
+        name: 'MEME MODE',
+        text: 'A purely cosmetic switch that sprinkles all-original internet-style silliness over every screen: comic pop-up words (BONK, BLORP, SPLOOSH, CHOMP, ZOOP and more) that pop, spin and shoot speed lines, a rotating goofy caption bar (CERTIFIED REEF MOMENT, SHARK.EXE IS VIBING, SIR THIS IS A KELP FOREST), and a little MEME MODE badge. No third-party memes, images, or characters are used, and it changes no gameplay.',
+      },
+      {
         name: '8-BIT MODE',
         text: 'A retro switch that renders the whole game to a tiny 256\u00d7144 buffer and blows it up with hard pixels, a crisp monospace pixel font, and CRT scanlines \u2014 blocky text, chunky creatures, no smoothing. The audio turns chiptune: every tone becomes a warm square-wave pulse with a soft envelope, hats become gentle noise percussion, and the mix is lightly band-limited and softly bit-crushed \u2014 retro without the earache.',
       },

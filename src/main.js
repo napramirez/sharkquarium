@@ -5,6 +5,7 @@ import { loadJSON } from './engine/storage.js';
 import { setSeason } from './engine/season.js';
 import { set8Bit } from './engine/retro.js';
 import { setActiveEmote } from './engine/emotes.js';
+import { setMeme } from './engine/meme.js';
 import { BootScene } from './scenes/boot.js';
 import { IntroScene } from './scenes/intro.js';
 import { TeleportScene } from './scenes/teleport.js';
@@ -90,6 +91,7 @@ game.set3D(savedSettings.threeD ?? false);
 game.setFirstPerson(savedSettings.firstPerson ?? false);
 setSeason(savedSettings.season ?? (savedSettings.christmas ? 'christmas' : 'none'));
 set8Bit(savedSettings.eightBit ?? false);
+setMeme(savedSettings.meme ?? false);
 setActiveEmote(loadJSON(SHOP_KEY, {}).emote ?? 'none');
 
 game.register('boot', new BootScene());

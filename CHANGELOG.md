@@ -178,6 +178,10 @@ lore inventory.
 - **Scrolling minigame menu** — the MINIGAMES list now uses a fixed 15-row window that scrolls
   with the arrow keys **and the mouse wheel** (`SelectList` gained an opt-in `wheel` option), with
   fee/record labels following the scroll.
+- **MEME MODE** — a SETTINGS switch that overlays every screen with all-original comic pop-up
+  words (BONK, BLORP, SPLOOSH, CHOMP, ZOOP, and more), spinning speed lines, a rotating goofy
+  caption bar (CERTIFIED REEF MOMENT, SHARK.EXE IS VIBING, etc.), and a MEME MODE badge. Purely
+  cosmetic and works in 3D and 8-bit modes; no third-party memes, images, or characters.
 - **Track builder** — a four-track sequencer reached from the TRACK PLAYER with **DRUMS /
   BASS / SYNTH / PIANO tabs** over a **piano-roll surface of horizontal lines** (no grid).
   Clicking a line places a tone block (higher lines = higher notes, stackable into chords),

@@ -230,6 +230,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   low-pass `BiquadFilter` and a `WaveShaper` bit-crusher, `applyRetro()` sets their values,
   `tone()` uses a warm square `createPeriodicWave` pulse with a soft envelope, and
   `MusicPlayer` turns hats into gentle noise percussion.
+- **Meme mode** lives in `src/engine/meme.js` (`setMeme()`/`isMeme()`); `Game.renderFrame()` calls
+  `drawMemeOverlay()` after the scene in both the normal and the 8-bit path. It is a purely
+  cosmetic, all-original overlay: comic words from a local list, radiating speed lines, a bottom
+  caption bar, and a corner badge, cycling every 1.7 s with deterministic hashing. No third-party
+  meme assets are used.
 - `TrackBuilderScene` (`trackbuilder`, opened from the track player) is a four-track
   sequencer: a **DRUMS / BASS / SYNTH / PIANO** tab row selects an instrument whose
   `INSTRUMENTS[i].lines` are drawn as **horizontal lines** (no grid). Clicking a line (or

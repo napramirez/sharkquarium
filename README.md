@@ -164,7 +164,8 @@ cosmetics and buddies, MERRY CHRISTMAS / HAPPY HALLOWEEN / HAPPY NEW YEAR theatr
 trailers, and mode-exclusive minigames — Christmas: WRAP THE PRESENTS, SANTA'S NET; Halloween:
 JACK-O'-LANTERN HUNT, SPECTRE SWEEP; New Year: MIDNIGHT FIREWORKS, CONFETTI RUSH — on a
 scrollable minigame list), 8-BIT MODE
-(a 256×144 pixelated render with chiptune audio), and REEF RUSH (an
+(a 256×144 pixelated render with chiptune audio), MEME MODE (all-original comic pop-up words,
+speed lines and goofy captions over every screen), and REEF RUSH (an
 original rhythm-runner with original hazards — seaweed/shell spikes on the floor and ceiling,
 stackable floor/ceiling rocks, standable floating ledges, runnable slopes, pearls, air-boosting
 pressure bubbles, gravity bubbles and gravity bubble pads, and thrust bubble jump pads on the

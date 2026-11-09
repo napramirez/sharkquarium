@@ -2285,6 +2285,18 @@ async function main() {
   await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
+    'meme',
+    'settings should offer meme mode',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.meme, true, 'meme mode should turn on');
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.meme, false, 'meme mode should turn back off');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
     'tracks',
     'settings should offer the track player',
   );
@@ -2362,7 +2374,7 @@ async function main() {
   await frames(30);
   assert.ok(game.music.step > heldStep, 'the held track should keep sequencing after leaving');
 
-  for (let i = 0; i < 12; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 13; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
     'theatre',

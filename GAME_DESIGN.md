@@ -219,8 +219,8 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `SelectList` (`visible: 15`, `wheel: true`), and   `SelectList` now scrolls on `Input.wheel`. `ChatScene` (`chat`, opened from MINIGAMES) is a
   local, rule-based chatbot for FINN the CPU: it captures raw key codes for typing, word-wraps
   bubbles with `FONT`, draws CPU bubbles in yellow (`#ffd166`, black text) and player bubbles in
-  light blue (`#bfe9ff`, gray text) over `drawWater`, and answers via keyword rules — no network
-  service.
+  light blue (`#bfe9ff`, gray text) over `drawWater`, and answers from a scored keyword knowledge base covering
+  controls, tanks, minigames, the shop, difficulty, settings, coins, and lore — no network service.
 - **8-bit mode** lives in `src/engine/retro.js` (`set8Bit()`/`is8Bit()`). `Game.renderFrame()`
   renders the scene into a fixed 256×144 offscreen canvas (`ensurePixelBuffer()`, drawn with a
   `PIXEL_WIDTH/width` transform so scenes keep their 960×540 logical coordinates), blits it to

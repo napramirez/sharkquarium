@@ -1,6 +1,6 @@
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
-import { drawWater, drawText, fillRoundRect, strokeRoundRect, fillCircle } from '../engine/render.js';
+import { FONT, drawWater, drawText, fillRoundRect, strokeRoundRect, fillCircle } from '../engine/render.js';
 import { renderFirstPersonLevel } from '../engine/raycastview.js';
 import { firstPersonMode } from '../engine/mode3d.js';
 import { clamp, rand, TAU } from '../engine/math.js';
@@ -19,6 +19,14 @@ import {
   LOGICAL_HEIGHT,
   WATER_PALETTE,
 } from '../config.js';
+
+function textWidth(ctx, text, size) {
+  ctx.save();
+  ctx.font = `700 ${size}px ${FONT}`;
+  const width = ctx.measureText(text).width;
+  ctx.restore();
+  return width;
+}
 
 const SCALE = LOGICAL_WIDTH / TAG.worldWidth;
 const NAME_KEY = /^(Key[A-Z]|Digit[0-9])$/;
@@ -333,7 +341,7 @@ export class TagScene extends Scene {
       });
     }
     if (active && Math.sin(this.time * 7) > 0) {
-      fillRoundRect(ctx, 298 + text.length * 13, y - 12, 3, 24, 1.5, COLORS.accent);
+      fillRoundRect(ctx, 298 + textWidth(ctx, text, 22) + 1, y - 12, 3, 24, 1.5, COLORS.accent);
     }
     const lineColor = active ? COLORS.accent : COLORS.textDim;
     drawText(ctx, `COSTUME: ${costumeLabel(COSTUME_KEYS[this.costumeIndex[index]])}`, LOGICAL_WIDTH / 2 - 190, y + 42, {

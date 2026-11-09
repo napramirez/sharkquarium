@@ -3757,6 +3757,14 @@ async function main() {
   await frames(40);
   assert.equal(chatScene.messages.length, 3, 'the cpu should reply after a short delay');
   assert.equal(chatScene.messages[2].from, 'cpu', 'the reply should come from the cpu');
+  for (const ch of ['KeyT', 'KeyA', 'KeyG']) await tapKey(ch);
+  await tapKey('Enter');
+  await frames(40);
+  const tagReply = chatScene.messages[chatScene.messages.length - 1];
+  assert.ok(
+    tagReply.from === 'cpu' && /tag/i.test(tagReply.text),
+    'FINN should answer a real question about tag',
+  );
   await tapKey('Escape');
   await frames(3);
   assert.equal(game.currentSceneName, 'minigames', 'esc should leave the chat');

@@ -3765,6 +3765,14 @@ async function main() {
     tagReply.from === 'cpu' && /tag/i.test(tagReply.text),
     'FINN should answer a real question about tag',
   );
+  for (const ch of ['KeyF', 'KeyA', 'KeyV', 'KeyO', 'KeyU', 'KeyR', 'KeyI', 'KeyT', 'KeyE']) await tapKey(ch);
+  await tapKey('Enter');
+  await frames(40);
+  const favReply = chatScene.messages[chatScene.messages.length - 1];
+  assert.ok(
+    favReply.from === 'cpu' && /nautilus|favourite|favorite/i.test(favReply.text),
+    'FINN should share his favourite things',
+  );
   await tapKey('Escape');
   await frames(3);
   assert.equal(game.currentSceneName, 'minigames', 'esc should leave the chat');

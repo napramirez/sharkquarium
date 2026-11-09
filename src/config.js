@@ -1476,7 +1476,7 @@ export const LORE = [  {
       },
       {
         name: 'AI CHAT',
-        text: 'A chat screen in the minigames menu where you talk to FINN, the CPU you dive with. Type with the keyboard — letters, numbers, and Space; Backspace deletes and Enter sends. Your messages sit on the right in light-blue bubbles with gray text, and FINN’s replies sit on the left in yellow bubbles with black text, both in the game’s own font over the navy tank water. FINN gives real answers about controls, every tank and minigame, Reef Rush, the seasonal games, the shop and emotes, difficulty, settings, coins, and lore.',
+        text: 'A chat screen in the minigames menu where you talk to FINN, the CPU you dive with. Type with the keyboard — letters, numbers, and Space; Backspace deletes and Enter sends. Your messages sit on the right in light-blue bubbles with gray text, and FINN’s replies sit on the left in yellow bubbles with black text, both in the game’s own font over the navy tank water. FINN gives real answers about controls, every tank and minigame, Reef Rush, the seasonal games, the shop and emotes, difficulty, settings, coins, lore, and his own favourites and opinions.',
       },
       {
         name: 'MUTATORS',

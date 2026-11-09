@@ -1364,7 +1364,7 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   you dive with. Type with the keyboard (letters/digits/Space, Backspace deletes, Enter sends,
   Esc back); the player's messages sit right in **light-blue bubbles with gray text** and FINN's
   replies sit left in **yellow bubbles with black text**, both in the game font over the navy
-  Sharkquarium water. FINN gives real answers from a built-in knowledge base covering controls, every tank, every minigame (including Reef Rush and the seasonal games), the shop and emotes, difficulty, settings, coins, and lore (no external service).
+  Sharkquarium water. FINN gives real answers from a built-in knowledge base covering controls, every tank, every minigame (including Reef Rush and the seasonal games), the shop and emotes, difficulty, settings, coins, and lore — and happily shares his own favourites and opinions on anything (no external service).
 - TRAIL — a separate equip slot for swim wakes, browsed on the TRAIL row with its
   PLAYPASS 7 catalog: **BUBBLE STREAM** (wobbling bubbles), **STARDUST** (twinkling
   gold sparks), **INK PUFF** (dark spreading clouds), **ELECTRIC CRACKLE** (three-layer

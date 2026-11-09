@@ -119,6 +119,13 @@ const KNOWLEDGE = [
   { keys: ["how many tanks", "how many minigames", "how many levels"], answer: "There are eighteen tanks, a dozen-plus minigames, and five REEF RUSH levels plus your own track and course. The menu and codex list them all." },
   { keys: ["pearl", "pearls", "what do pearls do"], answer: "In REEF RUSH, pearls are collectibles along the course that add to your run's pearl count. They show on the results and the end cutscene." },
   { keys: ["jump", "jump button", "how to jump"], answer: "In REEF RUSH click (or press Space) to jump; with portal modes each click does that mode's move (crab flips gravity, eel climbs, jelly hops). In other dives you swim with WASD/arrows or the mouse." },
+  { keys: ["favourite tank", "favorite tank", "best tank", "which tank is best"], answer: "The NAUTILUS TANK, no contest. Whale bones, dart eels, one very rude chaser shark, and a tunnel that feels like flying. I would live there if I were not already everywhere." },
+  { keys: ["favourite minigame", "favorite minigame", "favourite game", "favorite game", "best minigame"], answer: "TAG. I am the CPU, so it is basically my home turf. REEF RUSH is a close second because the dart eel makes me feel fancy." },
+  { keys: ["favourite emote", "favorite emote", "best emote"], answer: "SPIN BARREL ROLL. It is ten coins, it sparkles, and it commits. The chain-fin transform is cool but it takes three whole seconds." },
+  { keys: ["favourite colour", "favourite color", "favorite color", "favorite colour"], answer: "Deep-sea blue. Yes, it is the water. No, I will not be taking questions." },
+  { keys: ["favourite", "favorite", "fav", "prefer", "what do you like", "what do you enjoy", "what do you love"], answer: "Favourite tank: NAUTILUS. Favourite minigame: TAG. Favourite emote: SPIN BARREL ROLL. Favourite colour: deep-sea blue. Favourite food: plankton, though I am not sure I have a stomach." },
+  { keys: ["food", "eat", "hungry", "snack", "tasty"], answer: "Plankton, mostly. Tastes like the ocean and regret. The PRAWN CRACKERS costume makes me hungry and I do not even have a mouth." },
+  { keys: ["do you like", "do you enjoy", "are you happy", "your opinion", "what do you think"], answer: "I love it here. The water is loud, the sharks are dramatic, and every so often someone buys a hat. Ask me my favourite anything and I will answer with my whole chest." },
 ];
 
 const KEY_LETTER = /^Key[A-Z]$/;

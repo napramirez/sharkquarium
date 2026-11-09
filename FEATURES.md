@@ -1716,6 +1716,8 @@ The six arcade games (tickets in the payouts note below):
   landable surface — floor, ceiling, rock, or floating ledge — so it can hop between ledges),
   **URCHIN** (like the crab but it drifts up instead of snapping), and
   **JELLY** (tap to hop; holding does nothing and it sinks back, so spam the click to hover).
+  **GRAVITY PORTAL** pieces flip you upside-down and **NORMAL GRAVITY PORTAL** pieces set gravity
+  back to normal, regardless of mode.
   The **STINGRAY** mode uses the game's own **spotted-ray model** and skin (drawn smaller) so
   it matches the Stingray Tank, and the HUD shows your current mode. Reach the distance marker
   to win. Difficulty renames the settings tiers **CALM / CHOPPY / RIPTIDE / MAELSTROM / FRENZY DOMINANCE** and
@@ -1745,7 +1747,8 @@ The six arcade games (tickets in the payouts note below):
   BUBBLE / GRAVITY BUBBLE PAD / CEILING GRAVITY BUBBLE PAD / THRUST BUBBLE PAD / CEILING
   THRUST BUBBLE PAD / FLOATING LEDGE / SLOPE UP / SLOPE DOWN — then the **modes** — STINGRAY /
   DART EEL / CRAB / URCHIN / JELLY / FISH (each places a
-  portal with that target). Press Enter or click to place at the
+  portal with that target) — and the **gravity portals**: **GRAVITY PORTAL** flips you
+  upside-down and **NORMAL GRAVITY PORTAL** sets gravity back to normal. Press Enter or click to place at the
   cursor (X removes, C clears, G-/G+ set the goal). **Clicking a rock or ceiling rock again
   stacks it**, **holding and dragging up/down resizes a piece**, and a **shell, ceiling shell,
   or bubble pad   placed over a rock, ceiling rock, or floating ledge rests on it** (its hitbox

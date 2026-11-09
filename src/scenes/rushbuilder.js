@@ -21,9 +21,9 @@ const AREA_BOTTOM = 470;
 const PANEL_X = 716;
 const PANEL_W = 228;
 const PANEL_TOP = AREA_TOP;
-const LIST_TOP = 112;
-const ROW_H = 15;
-const VISIBLE_ROWS = 22;
+const LIST_TOP = 108;
+const ROW_H = 14;
+const VISIBLE_ROWS = 24;
 const PANEL_BOTTOM = LIST_TOP + VISIBLE_ROWS * ROW_H + 26;
 
 const ITEM_LIST = [
@@ -49,6 +49,8 @@ const ITEM_LIST = [
   { label: 'URCHIN', kind: 'portal', form: 'urchin', group: 'mode' },
   { label: 'JELLY', kind: 'portal', form: 'jelly', group: 'mode' },
   { label: 'FISH', kind: 'portal', form: 'fish', group: 'mode' },
+  { label: 'GRAVITY PORTAL', kind: 'gravup', group: 'mode', color: '#b07bff' },
+  { label: 'NORMAL GRAVITY PORTAL', kind: 'gravdown', group: 'mode', color: '#63e6ff' },
 ];
 
 const PLAY_W = PANEL_X;
@@ -557,6 +559,41 @@ export class RushBuilderScene extends Scene {
       ctx.strokeStyle = 'rgba(20, 30, 40, 0.85)';
       ctx.lineWidth = 2;
       ctx.stroke();
+    } else if (item.kind === 'gravup' || item.kind === 'gravdown') {
+      const up = item.kind === 'gravup';
+      const cx = rect.x + rect.w / 2;
+      const cy = rect.y + rect.h / 2;
+      const rx = rect.w / 2;
+      const ry = rect.h / 2;
+      const color = up ? '#b07bff' : '#63e6ff';
+      ctx.save();
+      ctx.globalAlpha = (ghost ? 0.5 : 1) * (0.6 + 0.4 * Math.sin(this.time * 4));
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx, ry, 0, 0, TAU);
+      ctx.fill();
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = '#041018';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx * 0.72, ry * 0.8, 0, 0, TAU);
+      ctx.fill();
+      ctx.strokeStyle = color;
+      ctx.lineWidth = 3;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy, rx * 0.72, ry * 0.8, 0, 0, TAU);
+      ctx.stroke();
+      const dir = up ? -1 : 1;
+      ctx.strokeStyle = '#eae0ff';
+      ctx.lineWidth = 3;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(cx, cy - dir * ry * 0.35);
+      ctx.lineTo(cx, cy + dir * ry * 0.35);
+      ctx.moveTo(cx - rx * 0.22, cy + dir * ry * 0.12);
+      ctx.lineTo(cx, cy + dir * ry * 0.35);
+      ctx.lineTo(cx + rx * 0.22, cy + dir * ry * 0.12);
+      ctx.stroke();
+      ctx.restore();
     } else if (item.kind === 'portal') {
       const cx = rect.x + rect.w / 2;
       const cy = rect.y + rect.h / 2;
@@ -628,7 +665,7 @@ export class RushBuilderScene extends Scene {
         alpha: active ? 1 : 0.85,
       });
       if (item.group === 'mode') {
-        fillCircle(ctx, PANEL_X + PANEL_W - 16, y + ROW_H / 2, 3, PORTAL_COLORS[item.form] ?? COLORS.bubble);
+        fillCircle(ctx, PANEL_X + PANEL_W - 16, y + ROW_H / 2, 3, item.color ?? PORTAL_COLORS[item.form] ?? COLORS.bubble);
       }
     }
     const cx = PANEL_X + PANEL_W / 2;

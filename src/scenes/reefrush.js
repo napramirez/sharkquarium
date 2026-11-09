@@ -453,6 +453,25 @@ export class ReefRushScene extends MinigameScene {
         if (this.form !== item.form && this.circleRect(player, rect)) this.enterPortal(item);
         continue;
       }
+      if (item.kind === 'gravup' || item.kind === 'gravdown') {
+        if (this.padCooldown <= 0 && this.circleRect(player, rect, 6)) {
+          const wantUp = item.kind === 'gravup';
+          if (this.gravityUp !== wantUp) {
+            this.flipGravity(false);
+            const cx = rect.x + rect.w / 2;
+            const cy = rect.y + rect.h / 2;
+            this.particles.burst(cx, cy, {
+              count: 16,
+              speed: 220,
+              life: 0.55,
+              colors: [wantUp ? '#b07bff' : '#63e6ff', '#ffffff'],
+              buoyancy: 0,
+            });
+          }
+          this.padCooldown = 0.4;
+        }
+        continue;
+      }
       if (item.kind === 'bubble') {
         if (jumpPressed && this.bubbleCooldown <= 0 && this.circleRect(player, rect, 14)) {
           player.vy = -cfg.jump * dir;
@@ -948,6 +967,12 @@ export class ReefRushScene extends MinigameScene {
       case 'portal':
         this.renderPortal(ctx, rect, item);
         break;
+      case 'gravup':
+        this.renderGravityPortal(ctx, rect, true);
+        break;
+      case 'gravdown':
+        this.renderGravityPortal(ctx, rect, false);
+        break;
       default:
         break;
     }
@@ -985,6 +1010,43 @@ export class ReefRushScene extends MinigameScene {
     ctx.moveTo(cx - r * 0.3, cy - r * 0.05);
     ctx.lineTo(cx, cy - r * 0.35);
     ctx.lineTo(cx + r * 0.3, cy - r * 0.05);
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  renderGravityPortal(ctx, rect, up) {
+    const cx = rect.x + rect.w / 2;
+    const cy = rect.y + rect.h / 2;
+    const rx = rect.w / 2;
+    const ry = rect.h / 2;
+    const color = up ? '#b07bff' : '#63e6ff';
+    const pulse = 0.6 + 0.4 * Math.sin(this.time * 4);
+    ctx.save();
+    ctx.globalAlpha = 0.3 * pulse;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx * 1.25, ry * 1.15, 0, 0, TAU);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = 'rgba(4, 16, 24, 0.85)';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx * 0.72, ry * 0.8, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx * 0.72, ry * 0.8, 0, 0, TAU);
+    ctx.stroke();
+    const dir = up ? -1 : 1;
+    ctx.strokeStyle = '#eae0ff';
+    ctx.lineWidth = 3;
+    ctx.lineCap = 'round';
+    ctx.beginPath();
+    ctx.moveTo(cx, cy - dir * ry * 0.35);
+    ctx.lineTo(cx, cy + dir * ry * 0.35);
+    ctx.moveTo(cx - rx * 0.22, cy + dir * ry * 0.12);
+    ctx.lineTo(cx, cy + dir * ry * 0.35);
+    ctx.lineTo(cx + rx * 0.22, cy + dir * ry * 0.12);
     ctx.stroke();
     ctx.restore();
   }

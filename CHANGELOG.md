@@ -178,6 +178,7 @@ lore inventory.
 - **Scrolling minigame menu** — the MINIGAMES list now uses a fixed 15-row window that scrolls
   with the arrow keys **and the mouse wheel** (`SelectList` gained an opt-in `wheel` option), with
   fee/record labels following the scroll.
+- **REEF RUSH gravity portals** — two new builder pieces: **GRAVITY PORTAL** flips your swimmer upside-down and **NORMAL GRAVITY PORTAL** sets gravity back, working in every mode. Drawn as colour-coded rings with up/down arrows.
 - **MEME MODE** — a SETTINGS switch that overlays every screen with all-original comic pop-up
   words (BONK, BLORP, SPLOOSH, CHOMP, ZOOP, and more), spinning speed lines, a rotating goofy
   caption bar (CERTIFIED REEF MOMENT, SHARK.EXE IS VIBING, etc.), and a MEME MODE badge. Purely

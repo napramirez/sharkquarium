@@ -2,7 +2,7 @@ import { clamp } from './math.js';
 import { loadJSON, saveJSON } from './storage.js';
 import { RUSH_BUILDER_KEY } from '../config.js';
 
-export const RUSH_KINDS = ['shell', 'seaweed', 'rock', 'ceilrock', 'ceilshell', 'ceilweed', 'pearl', 'bubble', 'gravity', 'gravpad', 'ceilgravpad', 'pad', 'ceilpad', 'ledge', 'slopeup', 'slopedown', 'portal'];
+export const RUSH_KINDS = ['shell', 'seaweed', 'rock', 'ceilrock', 'ceilshell', 'ceilweed', 'pearl', 'bubble', 'gravity', 'gravpad', 'ceilgravpad', 'pad', 'ceilpad', 'ledge', 'slopeup', 'slopedown', 'portal', 'gravup', 'gravdown'];
 
 export const RUSH_PORTAL_FORMS = ['fish', 'stingray', 'eel', 'crab', 'urchin', 'jelly'];
 
@@ -24,6 +24,8 @@ export const RUSH_KIND_LABELS = {
   slopeup: 'SLOPE UP',
   slopedown: 'SLOPE DOWN',
   portal: 'PORTAL',
+  gravup: 'GRAVITY PORTAL',
+  gravdown: 'NORMAL GRAVITY PORTAL',
   fish: 'FISH',
   stingray: 'STINGRAY',
   eel: 'DART EEL',
@@ -50,6 +52,8 @@ export const RUSH_META = {
   slopeup: { w: 150, ground: true },
   slopedown: { w: 150, ground: true },
   portal: { w: 64, h: 96, ground: false },
+  gravup: { w: 64, h: 96, ground: false },
+  gravdown: { w: 64, h: 96, ground: false },
 };
 
 export const RUSH_HEIGHTS = {
@@ -70,6 +74,8 @@ export const RUSH_HEIGHTS = {
   slopeup: [40, 70, 100, 130],
   slopedown: [40, 70, 100, 130],
   portal: [90, 130, 170],
+  gravup: [90, 130, 170],
+  gravdown: [90, 130, 170],
 };
 
 const REMOVED_KINDS = { stingray: 'stingray', jelly: 'jelly', eel: 'eel', urchin: 'urchin' };
@@ -102,7 +108,7 @@ export function rushItemRect(item, groundY, ceilingY = 0) {
     const w = meta.w;
     return { x: item.x - w / 2, y: groundY - (item.base || 0) - h, w, h };
   }
-  if (item.kind === 'portal') {
+  if (item.kind === 'portal' || item.kind === 'gravup' || item.kind === 'gravdown') {
     return { x: item.x - meta.w / 2, y: groundY - h - meta.h / 2, w: meta.w, h: meta.h };
   }
   const r = meta.r ?? 14;

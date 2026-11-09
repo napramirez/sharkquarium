@@ -259,9 +259,9 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   and **RUSH MY TRACK** hands it to `ReefRushScene` as a level; **EDIT MY TRACK** reopens
   `trackbuilder`.
 - `src/engine/rushcourse.js` owns the REEF RUSH piece format
-  (`{ goal, items: [{ kind, x, h, count, base, form }] }` under `RUSH_BUILDER_KEY`): seventeen kinds
+  (`{ goal, items: [{ kind, x, h, count, base, form }] }` under `RUSH_BUILDER_KEY`): nineteen kinds
   (`RUSH_KINDS` = shell/seaweed/ceilshell/ceilweed/rock/ceilrock/pearl/bubble/gravity/gravpad/
-  ceilgravpad/pad/ceilpad/ledge/slopeup/slopedown/portal)
+  ceilgravpad/pad/ceilpad/ledge/slopeup/slopedown/portal/gravup/gravdown)
   with `RUSH_META` (size, ground vs air vs ceiling) and `RUSH_HEIGHTS`;
   `rushItemRect(item, groundY, ceilingY)` turns any item into its collision/draw rect (rocks and
   ceiling rocks use `count` for stacking, the floating **ledge** sits at any height via `h`,
@@ -274,7 +274,8 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `1`–`0`) lists the pieces (SHELL/SEAWEED/CEILING SHELL/CEILING WEED/ROCK/CEILING ROCK/PEARL/
   PRESSURE BUBBLE/GRAVITY BUBBLE/GRAVITY BUBBLE PAD/CEILING GRAVITY BUBBLE PAD/THRUST BUBBLE
   PAD/CEILING THRUST BUBBLE PAD/FLOATING LEDGE/SLOPE UP/SLOPE DOWN) then the modes
-  (STINGRAY/DART EEL/CRAB/URCHIN/JELLY/FISH), Enter/click places (a portal carries the selected
+  (STINGRAY/DART EEL/CRAB/URCHIN/JELLY/FISH) and the gravity portals (GRAVITY PORTAL flips gravity,
+  NORMAL GRAVITY PORTAL restores it in any mode), Enter/click places (a portal carries the selected
   mode's `form`), **clicking a rock or ceiling rock again stacks it**, a **hold + vertical drag
   resizes a piece**, `X` removes, `C` clears, `G-`/`G+` set the goal; `TEST` launches it from the
   start and `TEST HERE` (`T`) launches it from the cursor as `{ startX }`, which `buildRound()`

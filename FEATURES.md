@@ -1481,11 +1481,13 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
 - **WRAP THE PRESENTS** (Christmas-exclusive) — set in a **flooded cruise-shipwreck lounge**
   (wood panelling, portholes, a bar, velvet armchairs, a rug, a tilted chandelier, and a
   fireplace that holds four **bioluminescent squids instead of fire**). You play as your **own
-  shark in its current skin and wardrobe**. **Ten presents** are **hidden around the lounge** —
-  far ones are only faint glints in the gloom and fade in as you swim close. **WASD** swims, **E**
-  takes a nearby unwrapped one, then **hold left-click and sweep the cursor** to wind the paper —
-  a top-right **checklist (tick box + present picture, two columns)** ticks off as each is
-  finished, and a slow timer bar runs down. Wrap all ten to win.
+  shark in its current skin and wardrobe**. **Ten presents** are **hidden in unexpected places**
+  around the lounge — tucked inside the fireplace among the squids, behind the armchairs, under
+  the table, by the portholes, and in the far corners. They only fade into view very close up
+  (far away they are near-invisible glints), and **E** only takes one within a few fin-lengths.
+  **WASD** swims, then **hold left-click and sweep the cursor** to wind the paper — a top-right
+  **checklist (tick box + present picture, two columns)** ticks off as each is finished, and a
+  slow timer bar runs down. Wrap all ten to win.
 - **SANTA'S NET** (Christmas-exclusive) — the same **sunken cruise lounge**, where you sleep as
   your **current shark** under a dense net of **sixteen gifts**, watched by a **fast** sweeping
   camera. The presents are **hidden until you peek** (dim shapes show only while your eyes are

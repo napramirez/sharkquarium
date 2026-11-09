@@ -15,21 +15,21 @@ const FIELD = { x: 70, y: 190, w: 590, h: 300 };
 export class PresentWrapScene extends MinigameScene {
   buildRound() {
     this.phase = 'play';
-    this.shark = new Shark(FIELD.x + 120, FIELD.y + FIELD.h - 50, { pointer: false });
+    this.shark = new Shark(480, FIELD.y + 26, { pointer: false });
     applyWardrobe(this.shop, 0);
     const colors = ['#e2602e', '#3fa79b', '#c94b4b', '#a06fd0', '#d9a93c', '#5a8fd6'];
     const shapes = ['square', 'circle', 'triangle', 'star', 'heart', 'diamond'];
     const spots = [
-      { x: 130, y: 240 },
-      { x: 262, y: 302 },
-      { x: 420, y: 246 },
-      { x: 560, y: 322 },
-      { x: 150, y: 430 },
-      { x: 300, y: 462 },
-      { x: 452, y: 404 },
-      { x: 604, y: 452 },
-      { x: 360, y: 342 },
-      { x: 214, y: 360 },
+      { x: 478, y: 300 },
+      { x: 560, y: 470 },
+      { x: 185, y: 432 },
+      { x: 615, y: 430 },
+      { x: 108, y: 232 },
+      { x: 622, y: 232 },
+      { x: 108, y: 458 },
+      { x: 622, y: 458 },
+      { x: 300, y: 244 },
+      { x: 430, y: 470 },
     ];
     this.presents = spots.map((spot, index) => ({
       x: spot.x,
@@ -73,7 +73,7 @@ export class PresentWrapScene extends MinigameScene {
 
     if (input.wasPressed('KeyE') && this.held < 0) {
       let best = -1;
-      let bestDist = 74;
+      let bestDist = 62;
       this.presents.forEach((gift, i) => {
         if (gift.wrapped || gift.held) return;
         const dist = Math.hypot(gift.x - shark.x, gift.y - shark.y);
@@ -136,11 +136,11 @@ export class PresentWrapScene extends MinigameScene {
         drawText(ctx, '✓', gift.x, gift.y - 30, { size: 16, color: COLORS.accent });
       } else {
         const dist = Math.hypot(gift.x - shark.x, gift.y - shark.y);
-        if (dist < 230) {
-          const alpha = clamp(1 - (dist - 40) / 190, 0.12, 1);
+        if (dist < 150) {
+          const alpha = clamp(1 - (dist - 35) / 115, 0.1, 1);
           ctx.globalAlpha = alpha;
           drawGiftShape(ctx, gift.x, gift.y, 18, gift.shape, gift.color);
-          if (dist < 90) drawText(ctx, 'E', gift.x, gift.y + 32, { size: 11, color: COLORS.textDim, alpha: 0.7 });
+          if (dist < 60) drawText(ctx, 'E', gift.x, gift.y + 32, { size: 11, color: COLORS.textDim, alpha: 0.7 });
           ctx.globalAlpha = 1;
         } else {
           const pulse = 0.5 + 0.5 * Math.sin(this.time * 3 + gift.x);

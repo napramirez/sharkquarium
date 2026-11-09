@@ -197,12 +197,13 @@ export class TagSwimmer {
       ctx.lineTo(-radius * 1.25, radius * 0.5);
       ctx.stroke();
       ctx.strokeStyle = '#12161a';
-      ctx.lineWidth = radius * 0.16;
+      ctx.lineWidth = radius * 0.14;
+      ctx.lineCap = 'round';
       for (let i = 0; i < 3; i += 1) {
-        const x = radius * (0.5 + i * 0.34);
+        const y = -radius * (0.3 - i * 0.26);
         ctx.beginPath();
-        ctx.moveTo(x, radius * 0.12);
-        ctx.lineTo(x + radius * 0.22, -radius * 0.42);
+        ctx.moveTo(radius * 0.4, y);
+        ctx.lineTo(radius * 1.05, y - radius * 0.14);
         ctx.stroke();
       }
     } else if (this.costume === 'devil') {

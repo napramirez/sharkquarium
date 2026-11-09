@@ -217,7 +217,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `src/engine/seasonroom.js` (`drawSeasonRoom()` draws the crypt or the party deck) and, where
   the shark is visible, `applyWardrobe()` + `Shark`. The MINIGAMES list itself is a windowed
   `SelectList` (`visible: 15`, `wheel: true`), and   `SelectList` now scrolls on `Input.wheel`. `ChatScene` (`chat`, opened from MINIGAMES) is a
-  local, rule-based chatbot for NOVA the CPU: it captures raw key codes for typing, word-wraps
+  local, rule-based chatbot for FINN the CPU: it captures raw key codes for typing, word-wraps
   bubbles with `FONT`, draws CPU bubbles in yellow (`#ffd166`, black text) and player bubbles in
   light blue (`#bfe9ff`, gray text) over `drawWater`, and answers via keyword rules — no network
   service.

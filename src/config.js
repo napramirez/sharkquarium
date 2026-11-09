@@ -1476,7 +1476,7 @@ export const LORE = [  {
       },
       {
         name: 'AI CHAT',
-        text: 'A chat screen in the minigames menu where you talk to NOVA, the CPU you dive with. Type with the keyboard — letters, numbers, and Space; Backspace deletes and Enter sends. Your messages sit on the right in light-blue bubbles with gray text, and NOVA’s replies sit on the left in yellow bubbles with black text, both in the game’s own font over the navy tank water. NOVA chats about tag, Reef Rush, the spooky tanks, and the shop.',
+        text: 'A chat screen in the minigames menu where you talk to FINN, the CPU you dive with. Type with the keyboard — letters, numbers, and Space; Backspace deletes and Enter sends. Your messages sit on the right in light-blue bubbles with gray text, and FINN’s replies sit on the left in yellow bubbles with black text, both in the game’s own font over the navy tank water. FINN chats about tag, Reef Rush, the spooky tanks, and the shop.',
       },
       {
         name: 'MUTATORS',

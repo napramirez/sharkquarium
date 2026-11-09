@@ -9,7 +9,7 @@ const CHAT_TOP = 108;
 const CHAT_BOTTOM = 424;
 
 const GREETINGS = [
-  "Hey! It's me — NOVA, the CPU you dive with.",
+  "Hey! It's me — FINN, the CPU you dive with.",
   'Oh hey! Ready for another plunge?',
   'Hello hello! The reef missed you.',
 ];
@@ -64,7 +64,7 @@ export class ChatScene extends Scene {
     this.time = 0;
     this.inputText = '';
     this.messages = [
-      { from: 'cpu', text: "Hey! I'm NOVA, the CPU you play with. Say hi, ask about tag, or just chat." },
+      { from: 'cpu', text: "Hey! I'm FINN, the CPU you play with. Say hi, ask about tag, or just chat." },
     ];
     this.pending = null;
     this.replyTimer = 0;
@@ -121,7 +121,7 @@ export class ChatScene extends Scene {
     };
     if (/\b(hi|hello|hey|yo|sup)\b/.test(t)) return next(GREETINGS);
     if (t.includes('how are you') || t.includes('how you')) return next(SMALL_TALK);
-    if (t.includes('your name') || t.includes('who are you')) return 'I am NOVA, the CPU. Your built-in dive buddy.';
+    if (t.includes('your name') || t.includes('who are you')) return 'I am FINN, the CPU. Your built-in dive buddy.';
     if (t.includes('tag')) return next(TAG_TALK);
     if (t.includes('rush') || t.includes('my track') || t.includes('course')) return next(RUSH_TALK);
     if (t.includes('quiet') || t.includes('scary') || t.includes('watcher') || t.includes('trench')) return next(SPOOKY_TALK);
@@ -143,14 +143,14 @@ export class ChatScene extends Scene {
       glow: COLORS.bubble,
       glowBlur: 18,
     });
-    drawText(ctx, 'CHAT WITH NOVA — THE CPU YOU DIVE WITH', LOGICAL_WIDTH / 2, 70, {
+    drawText(ctx, 'CHAT WITH FINN — THE CPU YOU DIVE WITH', LOGICAL_WIDTH / 2, 70, {
       size: 12,
       color: COLORS.foam,
       alpha: 0.85,
     });
 
     drawCpuAvatar(ctx, 92, 110, this.time);
-    drawText(ctx, 'NOVA', 120, 102, { size: 15, color: '#ffd166', align: 'left', glow: '#ffd16655', glowBlur: 10 });
+    drawText(ctx, 'FINN', 120, 102, { size: 15, color: '#ffd166', align: 'left', glow: '#ffd16655', glowBlur: 10 });
     drawText(ctx, 'CPU', 120, 120, { size: 11, color: COLORS.textDim, align: 'left' });
 
     this.renderMessages(ctx);
@@ -188,7 +188,7 @@ export class ChatScene extends Scene {
       y -= height + 10;
     }
     if (this.pending !== null) {
-      drawText(ctx, 'NOVA IS TYPING...', 120, CHAT_TOP + 8, { size: 11, color: '#ffd166', align: 'left', alpha: 0.8 });
+      drawText(ctx, 'FINN IS TYPING...', 120, CHAT_TOP + 8, { size: 11, color: '#ffd166', align: 'left', alpha: 0.8 });
     }
   }
 

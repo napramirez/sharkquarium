@@ -203,23 +203,47 @@ export class TagSwimmer {
       ctx.lineTo(-radius * 2.0, radius * 0.5);
       ctx.lineTo(-radius * 1.05, radius * 0.5);
       ctx.stroke();
-      ctx.fillStyle = 'rgba(16, 20, 24, 0.9)';
+      ctx.fillStyle = this.color;
       ctx.beginPath();
-      ctx.ellipse(radius * 0.82, -radius * 0.06, radius * 0.52, radius * 0.52, 0, 0, TAU);
+      ctx.ellipse(radius * 0.82, -radius * 0.06, radius * 0.56, radius * 0.56, 0, 0, TAU);
       ctx.fill();
-      ctx.save();
-      ctx.shadowColor = '#ffe14d';
-      ctx.shadowBlur = radius * 0.8;
-      ctx.strokeStyle = '#ffe14d';
-      ctx.lineWidth = radius * 0.12;
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
+      ctx.lineWidth = radius * 0.06;
+      ctx.stroke();
+      const slits = [];
+      ctx.strokeStyle = '#040404';
+      ctx.lineWidth = radius * 0.16;
       ctx.lineCap = 'round';
       for (let i = 0; i < 3; i += 1) {
         const y = -radius * (0.34 - i * 0.24);
+        const a = { x: radius * 1.15, y: y + radius * 0.22 };
+        const b = { x: radius * 0.4, y: y - radius * 0.03 };
+        slits.push([a, b]);
         ctx.beginPath();
-        ctx.moveTo(radius * 1.15, y + radius * 0.22);
-        ctx.lineTo(radius * 0.4, y - radius * 0.03);
+        ctx.moveTo(a.x, a.y);
+        ctx.lineTo(b.x, b.y);
         ctx.stroke();
       }
+      ctx.save();
+      ctx.beginPath();
+      for (const [a, b] of slits) {
+        const ang = Math.atan2(b.y - a.y, b.x - a.x);
+        const nx = -Math.sin(ang);
+        const ny = Math.cos(ang);
+        const hw = radius * 0.08;
+        ctx.moveTo(a.x + nx * hw, a.y + ny * hw);
+        ctx.lineTo(b.x + nx * hw, b.y + ny * hw);
+        ctx.lineTo(b.x - nx * hw, b.y - ny * hw);
+        ctx.lineTo(a.x - nx * hw, a.y - ny * hw);
+        ctx.closePath();
+      }
+      ctx.clip();
+      ctx.shadowColor = '#ffe14d';
+      ctx.shadowBlur = radius * 0.9;
+      ctx.fillStyle = '#ffe14d';
+      ctx.beginPath();
+      ctx.arc(radius * 0.78, -radius * 0.02, radius * 0.3, 0, TAU);
+      ctx.fill();
       ctx.restore();
       ctx.fillStyle = '#f4fbff';
       for (let i = 0; i < 4; i += 1) {

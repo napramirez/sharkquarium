@@ -1454,8 +1454,9 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
 - TAG — players type their names first (two fields, or one in TAG SOLO), and each field has a
   **COSTUME** picker (`Tab` cycles it) and a **COLOR** picker (`◀`/`▶` cycles a shared palette)
   for their tag fish — original looks like CHAIN-FIN (a fish with a slanted chainsaw snout and
-  top handle, a rear handle overlapping its own tail fin, fangs, and a glowing yellow eye that
-  shows only through three diagonal horizontal vent slits), DEVIL FISH, FANG
+  top handle, a rear handle overlapping its own tail fin, and fangs), with an eye vent painted
+  in the player's color whose three black slits let a small glowing yellow eye show through,
+  DEVIL FISH, FANG
   FISH, CYBER FIN, ANGEL FIN, LANTERN FISH, SPOOK FIN, plus **CRIMSON MANE** (red curved horns
   and a jagged mane), **TOPKNOT** (a black topknot), and **FALLEN ANGEL** (spread wings and a
   halo). Then they join five

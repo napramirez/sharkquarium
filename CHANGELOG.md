@@ -6,72 +6,90 @@ screens, cosmetics, and progression) and **game systems** (the engine, rendering
 persistence, tuning frameworks, tooling, tests, and docs that support them). Each section
 names the commits that carry the work.
 
-## November 1, 2026 (latest)
+## November 9, 2026 (latest)
 
-The replayability pack (mutators, a boss rush, and a records/time-trial system), the
-shared water realism pass, and the PlayToy Exploration tank with its Anchor-Pack tool and
-lore inventory.
+Commits `bb00111`, `9d61b13`, `03b5f7a`, `2c2f8bc`, `1aeda1f`, `33faa88`, `454e68f`, `1c5570e`, `80d666f`, `62fb48b`, `f4da99f`, `72bd7a4`, `42bf3d2`, `7bd5ecc`, `ee48834`, `55a5fe7`, `040b3c9`, `3b16533`, `fc9e1c1`, `b1d9104`, `1c41aad`, `fceb7a8`, `bb2c2a1`, `7d5ead1`, `2ff82d7`, `3d25488`, `0c4eec9`, `b62f103`, `f57f898`, `1cd53f8`, `38da212`, `05b59eb`, `51b8b5c`, `715f573`, `ec4fd4a`, and `fc68da6`.
+
+The **MOBILITE** on-screen-controls mode, REEF RUSH demonstration levels with paged briefings, and a large course-builder pass (named courses, free zoom, a slide-out shelf, any-height pieces, fake rocks, and a test-run debug overlay), plus the swing and mantis-shrimp portal modes, gravity portals and a scrub slider, paged LORE, AI CHAT with FINN, MEME MODE, the TAG leaderboard and cosmetics, emotes and the ripcord, the seasonal minigames, and the FRENZY DOMINANCE tier.
+
+### Game features
+- **MOBILITE MODE** — a new SETTINGS switch draws pressable on-screen W/A/S/D, SPACE, E and ESC buttons (WASD hides in REEF RUSH, leaving SPACE; E appears for the Christmas present games) and injects them as keys. It runs alongside any season, forces 3D, First Person and 8-bit off, hides the course builder, and swaps in a full on-screen keyboard plus ENTER while typing in FINN's AI CHAT or naming players in TAG.
+- **REEF RUSH demonstration levels & briefings** — the LEVELS shelf now opens with eight tutorial levels (one per portal mode: fish, stingray, dart eel, crab, urchin, jelly, nautilus, shrimp), and every level shows paged instructions before the run (Left/Right turns pages; the last page starts the level).
+- **REEF RUSH full-screen course view** — the builder now renders the course across the whole canvas and opens in a FIT zoom that shows the entire level at once; zoom in and out with -/= or Shift plus the wheel (15%-400%), Z (or the FIT button) snaps to the whole level, and a triangle handle on the right edge (or Tab) slides the item shelf in and out.
+- **REEF RUSH course library** — the course builder gains a top course bar: the current course is named and autosaved, `<` / `>` (or `[` / `]`) switch between saved courses, **RENAME** (`R`) renames it, and **NEW** (`N`) saves the current course and starts a fresh one. Courses persist in `sharkquarium.rushcourses`, with the active one still mirrored to the old single-course save.
+- **REEF RUSH any-height placement** — every item in the course builder can now sit at any height via a saved per-piece `lift`, adjusted with Shift+Up/Down (shown in the HUD); pieces still snap to the ground, ceiling, or a stacked block by default.
+- **REEF RUSH fake rocks** — the course builder adds **FAKE ROCK** and **CEILING FAKE ROCK** pieces: darker decoy blocks that can be stacked on normal rocks (and that normal and ceiling rocks can stack on) but are passed straight through, in both the builder preview and the run.
+- **REEF RUSH builder debug overlay** — after a TEST / TEST HERE run, the course builder draws that run's path: a dashed trajectory line, a big blinking red death circle, a red up-triangle at each jump and a red square at each landing (builder-only), all recorded in the builder's own coordinates so the path lines up with the placed course.
+- **REEF RUSH swing & jump** — two new portal modes: **NAUTILUS** (the Geometry-Dash-style swing: each click flips gravity in mid-air, but touching the floor, ceiling, or any obstacle kills) and **SHRIMP** (no robot, it just leaps as high as one: a short tap is a low hop, while press-and-hold charges a super-jump on release). Both are placeable in the course builder and usable on MY TRACK.
+- **REEF RUSH mantis shrimp & upright swing** — the SHRIMP portal now shows a bright lime-green and cyan **MANTIS SHRIMP** with clubbed forelimbs, pink eyestalk eyes with black pupils, and a long segmented tail; the NAUTILUS swing now keeps its body upright when gravity flips and puffs a visible jet of water and bubbles from its funnel, slanted up when it is about to drop and slanted down when it is about to rise.
+- **REEF RUSH gravity portals** — two new builder pieces: **GRAVITY PORTAL** flips your swimmer upside-down and **NORMAL GRAVITY PORTAL** sets gravity back, working in every mode. Drawn as colour-coded rings with up/down arrows. The course builder also gains a **scrub slider** along the bottom of the track (with a goal tick) so you can drag the cursor across the whole course instead of tapping the arrow keys.
+- **REEF RUSH — TEST HERE & crab ledges** — the builder gains **TEST HERE** (`T`) to launch from the cursor, spawning the fish on the nearest landable surface, and the **CRAB** portal can now snap onto floating ledges as well as the floor, ceiling, and rocks; a crash still returns to the editor instead of the minigame menu.
+- **REEF RUSH — level & MY TRACK polish** — the built-in courses were rebuilt around each swimmer's abilities and made harder, and **MY TRACK** now generates a tougher course that still stays clearable (chords merge to one piece, no stack taller than a jump, obstacles kept a jump apart).
+- **LORE pagination** — overfilled codex entries now split onto additional pages, broken after the last complete sentence, turned with ENTER (the panel shows PAGE n/m).
+- **MEME MODE** — a SETTINGS switch that overlays every screen with all-original comic pop-up
+  words (BONK, BLORP, SPLOOSH, CHOMP, ZOOP, and more), spinning speed lines, a rotating goofy
+  caption bar (CERTIFIED REEF MOMENT, SHARK.EXE IS VIBING, etc.), and a MEME MODE badge. Purely
+  cosmetic and works in 3D and 8-bit modes; no third-party memes, images, or characters.
+- **AI CHAT (CPU)** — a new MINIGAMES screen where you chat with **FINN**, the CPU you dive with. Type with the keyboard; your messages appear right in light-blue bubbles with gray text and FINN replies left in yellow bubbles with black text, both in the game font over the navy Sharkquarium water. FINN gives real answers from a built-in knowledge base covering controls, tanks, minigames, Reef Rush, the seasonal games, the shop and emotes, difficulty, settings, coins, and lore, and now also shares his own favourites and opinions on just about anything (no external service).
+- **Tag leaderboard & fish costumes** — TAG now tracks **tags made** and **times IT** per
+  swimmer, names the match's **BEST TAGGER** (most tags) and **BEST RUNNER** (least times IT),
+  and banks both in a persistent **TAG LEADERBOARD** (a new screen reachable from the MINIGAMES
+  menu and the TAG results). Players also pick a **costume** and a **color** for their tag fish on
+  the name screen (`Tab` cycles the costume, `◀`/`▶` cycles the color) — original looks like
+  CHAIN-FIN (a fish with a chainsaw snout — rounded, toothed tip — and top handle, a rear handle overlapping its
+  own tail fin, fangs, and an eye vent in the player's color whose black slits reveal a smaller
+  glowing yellow eye), DEVIL FISH, FANG FISH, CYBER FIN, ANGEL FIN, LANTERN FISH,
+  SPOOK FIN, **CRIMSON MANE** (red horns and mane), **TOPKNOT**, and **FALLEN ANGEL** (wings and
+  a halo) — no third-party characters are used.
+- **Ragdoll ripcord** — a new BODY trinket (**RIP CORD**, 160 coins) plus a CHAIN-FIN add-on: a verlet-physics starter cord with a pull-handle that lags and swings with the swimmer's motion.
+- **EMOTES** — a new shop shelf of cheap (≤15 sea coins) one-shot performances. Equipping one demos it on the preview and pressing **V** in any dive plays it on your creature. Includes **CHAIN-FIN TRANSFORM** (the creature reaches a fin/tentacle to the rip cord on its tummy, yanks it so the chain-fin visor slides on horizontally, then after three seconds yanks it again to revert), **SPIN BARREL ROLL**, **BOOP**, **TAIL WIGGLE**, and **BUBBLE BLOW**; all work on every dive creature and tag swimmers.
+- **FRENZY DOMINANCE difficulty** — a new top difficulty tier far beyond APOCALYPTIC WIPEOUT:
+  4.5× enemy speed, 0.15 spawn interval, 5× score penalty, 0.15 grace, 0.35× tank clocks,
+  a 15 s ramp, five extra hazard slots, an ×8 coin multiplier and an REEF RUSH 2.2× speed /
+  0.35 gap / 1.25× spike scale.
+- **Christmas-exclusive minigames** — two seasonal games appear in MINIGAMES only while
+  CHRISTMAS MODE is on, both set in a **flooded cruise-shipwreck lounge** (wood panelling,
+  portholes, armchairs, a rug, a chandelier, and a fireplace full of glowing **bioluminescent
+  squids instead of fire**) with the player rendered as their **current shark, skin, and
+  wardrobe**. **WRAP THE PRESENTS**: **ten presents are hidden in unexpected places** around the
+  lounge (inside the fireplace among the squids, behind the armchairs, under the table, by the
+  portholes, in the corners), only fading into view very close up; swim with WASD, take one with
+  E, then hold left-click and sweep the cursor to wrap it, ticking a two-column top-right
+  checklist (tick box + present picture) before a slow timer runs out. **SANTA'S NET**: you sleep as your
+  shark under a draped net bag of **sixteen** gifts scattered through it, watched by a **fast** camera; presents stay hidden
+  until you peek, and holding E fills a peek meter that **closes your eyes when it is near
+  full** (releasing also closes them), so you peek in short bursts. Click the wishlist slate to
+  study **four** wished shapes, then click the **eight** matching presents to sneak them out
+  while dodging the camera — the net is full of **near-identical flawed decoys** (a short-pointed
+  star, lopsided heart, skewed triangle) that are refused.
+- **Halloween & New Year exclusive minigames** — two games each, shown in MINIGAMES only in
+  their mode, with the seasonal room backdrops in `src/engine/seasonroom.js`. **HALLOWEEN —
+  JACK-O'-LANTERN HUNT**: a dark crypt; swim with WASD and E/click to light eight jack-o'-lanterns
+  while ghost jellies snuff your light. **SPECTRE SWEEP**: click 12 rising spectres to banish
+  them; escaped spectres or clicking the friendly ghostfish cost a strike. **NEW YEAR —
+  MIDNIGHT FIREWORKS**: click to launch rockets and click again to burst them in a glowing band,
+  chaining combos for 10 hits. **CONFETTI RUSH**: an auto-swim dash steering your shark to
+  collect 25 stars while dodging party poppers.
+- **Scrolling minigame menu** — the MINIGAMES list now uses a fixed 15-row window that scrolls
+  with the arrow keys **and the mouse wheel** (`SelectList` gained an opt-in `wheel` option), with
+  fee/record labels following the scroll.
+### Game systems
+
+- **Mobilite controls** — new `src/engine/mobilite.js` (`setMobilite()`/`isMobilite()`) plus `Game` wiring draws large on-screen key buttons and injects them into `Input` (becoming a full QWERTY + ENTER pad in FINN's chat and the TAG name screen); it forces 3D, first person and 8-bit off and hides the course builder.
+- **Course-builder systems** — `rushcourse.js` gains named courses in `RUSH_COURSES_KEY` (`createRushCourse`/`renameRushCourse`/`setActiveRushCourse`), a per-piece `lift`, fake-rock kinds, and base-aware stacked rects; the builder gains FIT/free zoom, a slide-out item shelf, and a test-run telemetry overlay; `RushBriefScene` (`rushbrief`) pages the demonstration levels.
+- **Paged LORE** — `LoreScene` splits overlong entries after the last complete sentence and turns pages with ENTER (showing `PAGE n/m`).
+- **Chat, emotes, and tag board** — `src/scenes/chat.js` answers from a local knowledge base, `src/engine/emotes.js` and `src/engine/ripcord.js` drive the emote shelf and verlet ripcord, and `src/engine/tagboard.js` persists the tag leaderboard.
+- **Meme overlay** — `src/engine/meme.js` (`setMeme()`/`isMeme()`) is drawn by `Game.renderFrame()` in both the normal and 8-bit paths.
+- **New tests and docs** — smoke coverage grew for the course library, free zoom, slide-out shelf and test-run debug overlay, the demonstration briefings, the MOBILITE pad and keyboard, LORE pagination, and the new REEF RUSH pieces; FEATURES/GAME_DESIGN/README/LORE/FINN were kept in sync.
+
+## November 8, 2026
+
+Commits `0639120` (REEF RUSH, its course builder, levels, and the track builder), `3b8b7c0` (slopes), `c6f3bc2` (pads on rocks), `a7d6161` (pads on ledges), and `8265b9c` (level piece fixes).
+
+REEF RUSH arrives — the original rhythm-runner with its course builder, hand-built levels, MY TRACK from the composer, and the tone-block TRACK BUILDER — along with slopes and pieces that rest on rocks and ledges.
 
 ### Game features
 
-- **Mutators** — a new MUTATORS screen (reachable from CHOOSE TANK and MINIGAMES) toggles
-  one optional handicap across every dive and minigame: FAST, ONE HIT, NO AIR, LIGHTS OUT,
-  GOLD RUSH, GLASS, and TIME PRESSURE. Each mutator hardens the run (enemy speed, clock,
-  graces, darkness, lives) and pays back a coin and score multiplier; the active mutator
-  shows a HUD badge on every run.
-- **Boss rush** — a gauntlet (`MINIGAMES` entry, ticket fee) that chains all five horror
-  bosses — the Echoeel, the Watcher, the Trench Mouth, the Megasquid, and the Titanoboa —
-  wave by wave with a running clock, an interlude card per boss, and a bounty for each
-  clear plus a full-clear bonus.
-- **Records and time trials** — every tank, boss arena, and minigame banks a best time and
-  score (new `src/engine/records.js` + `RECORDS_KEY`). A new RECORDS board cycles the
-  tanks/bosses/minigames with a cleared count, and your best runs are stamped beside the
-  tank-select and minigame entries; results screens announce NEW RECORD.
-- **Prehistoric skip-to-boss** — the Titanoboa encounter can now be launched directly
-  (`bossOnly`), used by the rush.
-- **PlayToy Exploration** — a third-person standalone tank aboard the sunken cargo liner of
-  the PlayToy Company, a maker of goofy fantasy sea-creature plush. Its flooded holds are
-  full of **living toys** — button-eyed creatures (BUBBLE-FANG, WIBBLE, CRANK-FIN,
-  GLOOP-LO) that wander and cling — and eight **lore notes** scattered through the wreck
-  recount PlayToy's recipe for sparking a toy to life. Reach the surface hatch to win;
-  collect the notes (and repel the toys) along the way. Collected papers persist between
-  runs and can be re-read from a scrollable **PLAYTOY INVENTORY** panel (`I`/`Tab`, browse
-  with Up/Down). The FIRST PERSON MODE switch still affects the tank like any other dive.
-- **The Anchor-Pack** — the tank's tool: a wrist winch firing a barbed clamp on a line
-  (fire with `F` or right-click). Three interchangeable heads swap with `E` — the **MAIN
-  ANCHOR** hauls loot and swings you to rings, the **ELECTRICONDUCTOR ANCHOR** feeds live
-  circuits and stuns toys, and the **PRESSURE ANCHOR** pries valves and heaves heavy wrecks.
-  Typed gates require the matching head, and a head that finds only bare hull **bounces off**
-  instead of pinning you to the wreck. Aim at a toy to knock, stun, or shove it off your back.
-- **Christmas mode** — a SETTINGS switch that swaps the soundtrack for public-domain carols
-  (Jingle Bells on the menu, plus Deck the Halls, Silent Night, We Wish You a Merry
-  Christmas, Joy to the World, and Angels We Have Heard on High through the tanks; Twinkle
-  Twinkle is deliberately excluded), turns the menu's rising ambient bubbles into **slow
-  sinking snowflakes**, and puts **santa hats on every enemy and boss** (the morays' hats
-  ride their heads and fade into the holes as they retreat). It also adds free festive
-  cosmetics — a **SANTA HAT**, **REINDEER ANTLERS**, a **CARROT NOSE**, and the **SNOWFISH**
-  dive buddy — and a **MERRY CHRISTMAS** cutscene-trailer greeting that closes on
-  “SHARKQUARIUM WISHES YOU A MERRY CHRISTMAS!”.
-- **Halloween mode** — a second seasonal switch: an eerie original score (Haunted Drift on
-  the menu, plus Witches Waltz, Midnight Hunt, and Graveyard Bells), drifting autumn leaves
-  instead of menu bubbles, **witch hats** on every enemy and boss, a **WITCH HAT**,
-  **PUMPKIN HEAD**, and **GHOST FISH** buddy in the wardrobe, and a **HAPPY HALLOWEEN**
-  theatre trailer.
-- **New Year mode** — a third seasonal switch: a party score (Auld Lang Syne on the menu,
-  plus Firework Finale and Countdown Party), falling confetti instead of menu bubbles,
-  **party hats** on every enemy and boss, **NEW YEAR GLASSES** and a **FIREWORK FISH** buddy
-  in the wardrobe, and a **HAPPY NEW YEAR** theatre trailer.
-- **8-bit mode** — a SETTINGS switch that renders the whole game to a tiny 256×144 buffer and
-  blows it up with hard nearest-neighbour pixels plus CRT scanlines (blocky text in a
-  monospace pixel font, chunky creatures, no smoothing, no glow blur) and turns the audio
-  chiptune: warm square-wave pulse tones with a soft envelope, gentle noise-percussion hats,
-  a lightly band-limited master, and a soft bit-crusher — retro without the earache.
-- **Season controls** — the three modes are mutually exclusive and the **top-right corner
-  names the song currently playing**; switching a season swaps the track already playing
-  immediately.
-- **Carol accuracy pass** — the seasonal melodies were re-sequenced to follow the real tunes
-  more closely (Silent Night in proper 3/4, Joy to the World's descending scale and rising
-  answer, Angels We Have Heard on High, and Auld Lang Syne), leaving Jingle Bells as-is.
 - **REEF RUSH** — an original rhythm-runner minigame (its own name, art, music, and course —
   not a Geometry Dash clone). The reef auto-scrolls and one left-click jumps; cone-shaped
   **shells** are spikes (resizable per placement) and cube-shaped **rocks** are landable
@@ -135,55 +153,6 @@ lore inventory.
   `RUSH_BUILDER_KEY` and run as
   **REEF RUSH — MY COURSE** with their own record. No third-party level data is included —
   every course is player-authored.
-- **Tag leaderboard & fish costumes** — TAG now tracks **tags made** and **times IT** per
-  swimmer, names the match's **BEST TAGGER** (most tags) and **BEST RUNNER** (least times IT),
-  and banks both in a persistent **TAG LEADERBOARD** (a new screen reachable from the MINIGAMES
-  menu and the TAG results). Players also pick a **costume** and a **color** for their tag fish on
-  the name screen (`Tab` cycles the costume, `◀`/`▶` cycles the color) — original looks like
-  CHAIN-FIN (a fish with a chainsaw snout — rounded, toothed tip — and top handle, a rear handle overlapping its
-  own tail fin, fangs, and an eye vent in the player's color whose black slits reveal a smaller
-  glowing yellow eye), DEVIL FISH, FANG FISH, CYBER FIN, ANGEL FIN, LANTERN FISH,
-  SPOOK FIN, **CRIMSON MANE** (red horns and mane), **TOPKNOT**, and **FALLEN ANGEL** (wings and
-  a halo) — no third-party characters are used.
-- **Ragdoll ripcord** — a new BODY trinket (**RIP CORD**, 160 coins) plus a CHAIN-FIN add-on: a verlet-physics starter cord with a pull-handle that lags and swings with the swimmer's motion.
-- **EMOTES** — a new shop shelf of cheap (≤15 sea coins) one-shot performances. Equipping one demos it on the preview and pressing **V** in any dive plays it on your creature. Includes **CHAIN-FIN TRANSFORM** (the creature reaches a fin/tentacle to the rip cord on its tummy, yanks it so the chain-fin visor slides on horizontally, then after three seconds yanks it again to revert), **SPIN BARREL ROLL**, **BOOP**, **TAIL WIGGLE**, and **BUBBLE BLOW**; all work on every dive creature and tag swimmers.
-- **AI CHAT (CPU)** — a new MINIGAMES screen where you chat with **FINN**, the CPU you dive with. Type with the keyboard; your messages appear right in light-blue bubbles with gray text and FINN replies left in yellow bubbles with black text, both in the game font over the navy Sharkquarium water. FINN gives real answers from a built-in knowledge base covering controls, tanks, minigames, Reef Rush, the seasonal games, the shop and emotes, difficulty, settings, coins, and lore, and now also shares his own favourites and opinions on just about anything (no external service).
-- **FRENZY DOMINANCE difficulty** — a new top difficulty tier far beyond APOCALYPTIC WIPEOUT:
-  4.5× enemy speed, 0.15 spawn interval, 5× score penalty, 0.15 grace, 0.35× tank clocks,
-  a 15 s ramp, five extra hazard slots, an ×8 coin multiplier and an REEF RUSH 2.2× speed /
-  0.35 gap / 1.25× spike scale.
-- **Christmas-exclusive minigames** — two seasonal games appear in MINIGAMES only while
-  CHRISTMAS MODE is on, both set in a **flooded cruise-shipwreck lounge** (wood panelling,
-  portholes, armchairs, a rug, a chandelier, and a fireplace full of glowing **bioluminescent
-  squids instead of fire**) with the player rendered as their **current shark, skin, and
-  wardrobe**. **WRAP THE PRESENTS**: **ten presents are hidden in unexpected places** around the
-  lounge (inside the fireplace among the squids, behind the armchairs, under the table, by the
-  portholes, in the corners), only fading into view very close up; swim with WASD, take one with
-  E, then hold left-click and sweep the cursor to wrap it, ticking a two-column top-right
-  checklist (tick box + present picture) before a slow timer runs out. **SANTA'S NET**: you sleep as your
-  shark under a draped net bag of **sixteen** gifts scattered through it, watched by a **fast** camera; presents stay hidden
-  until you peek, and holding E fills a peek meter that **closes your eyes when it is near
-  full** (releasing also closes them), so you peek in short bursts. Click the wishlist slate to
-  study **four** wished shapes, then click the **eight** matching presents to sneak them out
-  while dodging the camera — the net is full of **near-identical flawed decoys** (a short-pointed
-  star, lopsided heart, skewed triangle) that are refused.
-- **Halloween & New Year exclusive minigames** — two games each, shown in MINIGAMES only in
-  their mode, with the seasonal room backdrops in `src/engine/seasonroom.js`. **HALLOWEEN —
-  JACK-O'-LANTERN HUNT**: a dark crypt; swim with WASD and E/click to light eight jack-o'-lanterns
-  while ghost jellies snuff your light. **SPECTRE SWEEP**: click 12 rising spectres to banish
-  them; escaped spectres or clicking the friendly ghostfish cost a strike. **NEW YEAR —
-  MIDNIGHT FIREWORKS**: click to launch rockets and click again to burst them in a glowing band,
-  chaining combos for 10 hits. **CONFETTI RUSH**: an auto-swim dash steering your shark to
-  collect 25 stars while dodging party poppers.
-- **Scrolling minigame menu** — the MINIGAMES list now uses a fixed 15-row window that scrolls
-  with the arrow keys **and the mouse wheel** (`SelectList` gained an opt-in `wheel` option), with
-  fee/record labels following the scroll.
-- **REEF RUSH swing & jump** — two new portal modes: **NAUTILUS** (the Geometry-Dash-style swing: each click flips gravity in mid-air, but touching the floor, ceiling, or any obstacle kills) and **SHRIMP** (no robot, it just leaps as high as one: a short tap is a low hop, while press-and-hold charges a super-jump on release). Both are placeable in the course builder and usable on MY TRACK.
-- **LORE pagination** — overfilled codex entries now split onto additional pages, broken after the last complete sentence, turned with ENTER (the panel shows PAGE n/m).\n- **MOBILITE MODE** — a new SETTINGS switch draws pressable on-screen W/A/S/D, SPACE, E and ESC buttons (WASD hides in REEF RUSH, leaving SPACE; E appears for the Christmas present games) and injects them as keys. It runs alongside any season, forces 3D, First Person and 8-bit off, hides the course builder, and swaps in a full on-screen keyboard plus ENTER while typing in FINN's AI CHAT or naming players in TAG.\n- **REEF RUSH full-screen course view** — the builder now renders the course across the whole canvas and opens in a FIT zoom that shows the entire level at once; zoom in and out with -/= or Shift plus the wheel (15%-400%), Z (or the FIT button) snaps to the whole level, and a triangle handle on the right edge (or Tab) slides the item shelf in and out.\n- **REEF RUSH builder debug overlay** — after a TEST / TEST HERE run, the course builder draws that run's path: a dashed trajectory line, a big blinking red death circle, a red up-triangle at each jump and a red square at each landing (builder-only), all recorded in the builder's own coordinates so the path lines up with the placed course.\n- **REEF RUSH demonstration levels & briefings** — the LEVELS shelf now opens with eight tutorial levels (one per portal mode: fish, stingray, dart eel, crab, urchin, jelly, nautilus, shrimp), and every level shows paged instructions before the run (Left/Right turns pages; the last page starts the level).\n- **REEF RUSH any-height placement** — every item in the course builder can now sit at any height via a saved per-piece `lift`, adjusted with Shift+Up/Down (shown in the HUD); pieces still snap to the ground, ceiling, or a stacked block by default.\n- **REEF RUSH fake rocks** — the course builder adds **FAKE ROCK** and **CEILING FAKE ROCK** pieces: darker decoy blocks that can be stacked on normal rocks (and that normal and ceiling rocks can stack on) but are passed straight through, in both the builder preview and the run.\n- **REEF RUSH course library** — the course builder gains a top course bar: the current course is named and autosaved, `<` / `>` (or `[` / `]`) switch between saved courses, **RENAME** (`R`) renames it, and **NEW** (`N`) saves the current course and starts a fresh one. Courses persist in `sharkquarium.rushcourses`, with the active one still mirrored to the old single-course save.\n- **REEF RUSH mantis shrimp & upright swing** — the SHRIMP portal now shows a bright lime-green and cyan **MANTIS SHRIMP** with clubbed forelimbs, pink eyestalk eyes with black pupils, and a long segmented tail; the NAUTILUS swing now keeps its body upright when gravity flips and puffs a visible jet of water and bubbles from its funnel, slanted up when it is about to drop and slanted down when it is about to rise.\n- **REEF RUSH gravity portals** — two new builder pieces: **GRAVITY PORTAL** flips your swimmer upside-down and **NORMAL GRAVITY PORTAL** sets gravity back, working in every mode. Drawn as colour-coded rings with up/down arrows. The course builder also gains a **scrub slider** along the bottom of the track (with a goal tick) so you can drag the cursor across the whole course instead of tapping the arrow keys.
-- **MEME MODE** — a SETTINGS switch that overlays every screen with all-original comic pop-up
-  words (BONK, BLORP, SPLOOSH, CHOMP, ZOOP, and more), spinning speed lines, a rotating goofy
-  caption bar (CERTIFIED REEF MOMENT, SHARK.EXE IS VIBING, etc.), and a MEME MODE badge. Purely
-  cosmetic and works in 3D and 8-bit modes; no third-party memes, images, or characters.
 - **Track builder** — a four-track sequencer reached from the TRACK PLAYER with **DRUMS /
   BASS / SYNTH / PIANO tabs** over a **piano-roll surface of horizontal lines** (no grid).
   Clicking a line places a tone block (higher lines = higher notes, stackable into chords),
@@ -195,6 +164,49 @@ lore inventory.
   song is a **playable track in the TRACK PLAYER** (**MY TRACK** plays/stops it, **EDIT MY
   TRACK** reopens the builder). The menu music goes silent while the builder is open and is
   restored on exit.
+
+### Game systems
+
+- **REEF RUSH course model** — `src/engine/rushcourse.js` defines `RUSH_KINDS`/`RUSH_META`/`RUSH_HEIGHTS` and `rushItemRect`, saving to `RUSH_BUILDER_KEY`; `src/engine/rushlevels.js` holds the original levels, progress, and skin unlocks.
+- **Track builder and composer** — `src/scenes/trackbuilder.js` plus `src/engine/composer.js` (instruments, `loadComposer`/`saveComposer`, `buildCustomTrack`) feed **MY TRACK** and **RUSH MY TRACK** into REEF RUSH.
+
+## November 7, 2026
+
+Commit `dde8519`.
+
+The seasonal modes (Christmas, Halloween, and New Year), 8-BIT MODE, the snowflake aura, and a scrolling tank select.
+
+### Game features
+
+- **Christmas mode** — a SETTINGS switch that swaps the soundtrack for public-domain carols
+  (Jingle Bells on the menu, plus Deck the Halls, Silent Night, We Wish You a Merry
+  Christmas, Joy to the World, and Angels We Have Heard on High through the tanks; Twinkle
+  Twinkle is deliberately excluded), turns the menu's rising ambient bubbles into **slow
+  sinking snowflakes**, and puts **santa hats on every enemy and boss** (the morays' hats
+  ride their heads and fade into the holes as they retreat). It also adds free festive
+  cosmetics — a **SANTA HAT**, **REINDEER ANTLERS**, a **CARROT NOSE**, and the **SNOWFISH**
+  dive buddy — and a **MERRY CHRISTMAS** cutscene-trailer greeting that closes on
+  “SHARKQUARIUM WISHES YOU A MERRY CHRISTMAS!”.
+- **Halloween mode** — a second seasonal switch: an eerie original score (Haunted Drift on
+  the menu, plus Witches Waltz, Midnight Hunt, and Graveyard Bells), drifting autumn leaves
+  instead of menu bubbles, **witch hats** on every enemy and boss, a **WITCH HAT**,
+  **PUMPKIN HEAD**, and **GHOST FISH** buddy in the wardrobe, and a **HAPPY HALLOWEEN**
+  theatre trailer.
+- **New Year mode** — a third seasonal switch: a party score (Auld Lang Syne on the menu,
+  plus Firework Finale and Countdown Party), falling confetti instead of menu bubbles,
+  **party hats** on every enemy and boss, **NEW YEAR GLASSES** and a **FIREWORK FISH** buddy
+  in the wardrobe, and a **HAPPY NEW YEAR** theatre trailer.
+- **8-bit mode** — a SETTINGS switch that renders the whole game to a tiny 256×144 buffer and
+  blows it up with hard nearest-neighbour pixels plus CRT scanlines (blocky text in a
+  monospace pixel font, chunky creatures, no smoothing, no glow blur) and turns the audio
+  chiptune: warm square-wave pulse tones with a soft envelope, gentle noise-percussion hats,
+  a lightly band-limited master, and a soft bit-crusher — retro without the earache.
+- **Season controls** — the three modes are mutually exclusive and the **top-right corner
+  names the song currently playing**; switching a season swaps the track already playing
+  immediately.
+- **Carol accuracy pass** — the seasonal melodies were re-sequenced to follow the real tunes
+  more closely (Silent Night in proper 3/4, Joy to the World's descending scale and rising
+  answer, Angels We Have Heard on High, and Auld Lang Syne), leaving Jingle Bells as-is.
 - **Snowflake aura** — a new shop aura that rings the diver with orbiting six-pointed snow
   crystals, a faint icy halo, and drifting sparkles (rainbow-aware like the other auras).
 - **Scrolling tank select** — the tank list is long enough to overflow the screen, so it now
@@ -204,28 +216,6 @@ lore inventory.
 
 ### Game systems
 
-- **Shared mutator framework** — `src/engine/mutators.js` defines the mutator list and
-  `scaleRules()`; `Scene` now owns the mutator lifecycle (`setMutator`, a rules accessor
-  that scales difficulty, and a `renderMutatorOverlay` drawing the darkness and badge), so
-  any scene — play tanks, all minigames, and the horror tanks — honours mutators uniformly.
-  `recordMinigame()` applies a global coin multiplier set on scene entry, so even the
-  bespoke minigames pay the bonus.
-- **Boss-rush orchestrator** — `src/scenes/bossrush.js` instantiates and drives fresh child
-  scenes, detecting their `results` phase to advance and their scene-change requests to
-  abort, with `rushMode` guarding each boss from double-recording.
-- **Records plumbing** — `recordWin()`/`formatTime()` in `src/engine/records.js`, win hooks
-  in the minigame base, the horror tanks, the Scene-based minigames, and play, plus
-  `MODE_LABELS`/`RECORD_GROUPS`/`SOLO_VARIANT_SCENES` in `src/config.js`.
-- **Scaling seams** — `Shark` now steers off its instance `maxSpeed` (so mutators can scale
-  the diver), and the horror bosses scale their chase/suction/stalk speeds by the mutator's
-  enemy multiplier.
-- **PlayToy systems** — `src/engine/tether.js` draws the sagging line, barbed clamp head,
-  and first-person reticle; `src/entities/livingtoy.js` is the wander/chase/stun/knock
-  plush entity; `src/scenes/playtoy.js` builds the scrolling wreck (bulkheads, typed gates,
-  anchor rings, notes, machinery) with a camera follow, HUD, inventory, and first-person
-  hooks. `src/config.js` adds `ANCHOR_TYPES`, `PLAYTOY`, `PLAYTOY_GATES`, `PLAYTOY_NOTES`,
-  `PLAYTOY_TOYS`, and `PLAYTOY_KEY`, and `src/engine/input.js` adds `tool`, `cycleAnchor`,
-  and `inventory` bindings.
 - **Seasonal music, particles, hats, and trailers** — `src/assets/tracks.js` adds themed
   tracks (carols, eerie originals, and party tunes) with titles and a per-season
   `SEASON_TRACKS` map; new `src/engine/season.js` owns `setSeason()`/`resolveSeasonTrack()`
@@ -246,67 +236,36 @@ lore inventory.
 - **Settings layout fix** — the SETTINGS screen now shows a single description line for the
   selected row and a lower, tighter list, so the caption text no longer overlaps the menu
   options.
-- **Smoother, lighter rendering** — the canvas backing store is capped (device pixel ratio
-  1.5 and at most 1920×1080) so large/high-DPI displays stop burning fill-rate; the fixed
-  step catch-up is capped at four steps with leftover time dropped to avoid spiral stalls;
-  and the shared water gradients plus text font strings are cached instead of rebuilt every
-  frame.
 - **Christmas music toggle fix** — `MusicPlayer` keeps the base (non-seasonal) track in
   `source`, ignores resolved seasonal tracks when they are passed back in, and clears
   `source` on `stop()`; scene restores capture `source`. Turning Christmas off now always
   restores the normal theme, even after the Christmas trailer or any dive that had been
   playing the resolved Jingle Bells track.
-- **Tests and docs** — smoke coverage for the mutator screen, rules scaling, records
-  persistence, a full five-wave boss-rush clear, and the PlayToy tank (world build, note
-  persistence + inventory, head-to-gate matching, wall bounce, exit win, first person); LORE
-  gains PLAYTOY EXPLORATION, THE ANCHOR-PACK, LIVING TOYS, THE ANCHOR SWITCH, MUTATORS, BOSS
-  RUSH, and RECORDS.
 
-## October 30, 2026
+## November 1, 2026
 
-Commits `fb34c5b` (collapsing ceiling stubs), `d21de53` (two-beat ending), `2845aea`
-(karambit aura), `305ee15` (shop costumes), `760f030` (shadowed tunnel planks), `6dc0aeb`
-(trench gaps), and `1f07537` and `7a18b65` (docs).
+Commits `fab1561` (the horror tanks, 3D/first-person modes, the replayability pack, and the PlayToy tank) and `8f709ad` (docs sync).
+
+The horror tanks, 3D and first-person modes, the replayability pack (mutators, a boss rush, and a records/time-trial system), the shared water realism pass, and the PlayToy Exploration tank with its Anchor-Pack tool and lore inventory.
 
 ### Game features
 
-- **Collapsing ceiling stubs** — ramming a cracked support now breaks the ceiling loose
-  above the tentacle tangle: the closest hanging ceiling stub is torn out of the course
-  (opening the gap it braced) and tumbles down onto the frozen tangle, bursting into dust,
-  splinters, deep-red sucker sparks, and spinning `BreachChunk`s where it lands, while the
-  collapse site keeps its pitch-black tangle (`crushFades`/`drawTangleFade`) for
-  `collapseCrushFade` seconds and eases it out; when no stub is close, stub-sized planks
-  drop in its place.
-- **Two-beat ending cutscene** — the MEGASQUID finale now cuts in two: the first beat
-  collapses the wreck around the entangled boss as the seven survivors race clear, then a
-  distance beat puts the survivors in the foreground looking back at the liner perched on
-  a rock ledge, which tips off the rim and sinks into the trench with the MEGASQUID and
-  its glowing eye, fading into the dark.
-- **Costumes** — a new COSTUMES row in the shop turns a diver into a dish: SHARK FIN
-  DISH, SAMBAL STINGRAY, GRILLED SQUID, and PRAWN CRACKERS, each a whole-body food drawn
-  over the creature in every tank, the menu, the cutscenes, and the shop preview, with its
-  own `costume` equip slot and per-player `costume2`.
-- **Karambit aura** — the KARAMBIT AURA's short, curved blades now read the equipped
-  color: a silver blade with a gold loop on NATURAL, a pure-red blade and loop on RED, and
-  a pure-red-to-black pulsing blade on SHADOW, over a thicker black handle.
-- **Shadowed tunnel openings** — the labyrinth's hull tunnels and the aquarium's
-  holed-wall and seeded openings are filled with the wall's plank grain a shade darker
-  instead of a flat black void, so they read as shadowed wood; the diver still swims
-  straight through.
-- **TRENCH DIVE** — its ice gaps now stay within a diver's reach (`maxGapShift`), so the
-  run is always threadable rather than a random dead end.
-- **Floor-stub morays** — the labyrinth's floor stubs sprout a scatter of tiny moray
-  holes; a diver who lingers over one gets a moray rearing up to bite with the REEF
-  CLEANUP peek/bite/retreat in the stingray tank's moray colors, staggering them a beat.
-- **Upright facing** — playable creatures no longer rotate to their heading; they stay
-  upright and mirror to face their swim direction, so heading left faces left instead of
-  flipping the sprite upside down.
-- **Shift to hide** — `Shift` is now a second bind for hiding: it buries the stingray in
-  the sand and tucks the squid into a ledge hole, exactly like `Down`/`S`.
 - **3D MODE** — a SETTINGS switch renders the whole game in 3D: every enemy, bubble, prop,
   and the player is drawn as a shaded extruded volume with a ground shadow (bubbles as lit
   spheres), each scene's background becomes a perspective sky and grid floor, and the
   canvas tilts onto a perspective plane; the toggle persists and re-applies on boot.
+- **FIRST PERSON MODE** — a SETTINGS switch below 3D MODE renders every dive and minigame
+  as a first-person **raycast** view from the selected creature: a software raycaster of a
+  3D room built from the level's walls, with depth-sorted billboards for the enemies,
+  bubbles, and props; the mode goes fullscreen and pointer-locks so the mouse looks
+  endlessly without edge-sticking, the diver's own body and the cursor are hidden, `W`/`S`
+  move forward/back and `A`/`D` strafe relative to the view (never swinging the camera), a
+  corner minimap shows the arena. It
+  works independently of 3D MODE and persists. (Also fixes a hang
+  when first person and 3D MODE were both on entering the labyrinth.)
+- **RAYCAST TANK** — a new first-person novelty tank: a Canvas2D software raycaster over a
+  procedurally generated wreck maze with distance-shaded walls, a licking cone, and a
+  minimap; collect every bubble then reach the exit light.
 - **ABYSS TRENCH TANK** — a new three-phase boss tank on the tank select: a leviathan that
   hunts, telegraphs, and lunges, exposes its glowing eye only while staggered, escalates at
   1/3 and 2/3 health with faster lunges and summoned trenchlings, and is beaten in twelve
@@ -379,6 +338,10 @@ Commits `fb34c5b` (collapsing ceiling stubs), `d21de53` (two-beat ending), `2845
   **brace** so the suction can't move you, release to advance, and re-grip before each
   gulp. Stronger/longer gulps and sparser holds per section, **checkpoint masts** on a
   swallow, coin bubbles to clear each stretch, and a first-person fogged raycast.
+- **QUIET TANK CHECKPOINTS** — a lit **checkpoint mast** at each sector start banks your
+  progress; if the ECHOEEL catches you, the jumpscare plays and you **respawn at the last
+  mast** (noise cleared, the echoeel sent away, seals and debris reset) instead of losing
+  the run. The HUD tracks `CHECKPOINTS n/3`.
 - **PREHISTORIC TANK** — a new chase tank where you play a **lungfish** fleeing through
   three thirds of deep time: the **Devonian sea** (swim from a **DUNKLEOSTEUS** while
   dodging **ammonites** that knock you back but **distract** the armored fish when it hits
@@ -386,10 +349,6 @@ Commits `fb34c5b` (collapsing ceiling stubs), `d21de53` (two-beat ending), `2845
   pools it won't enter), and the **highlands**, which open on a cutscene of the **TITANOBOA
   coiled in a tree, slowly moving** before the giant snake drops and chases you across land
   and water on a **long, fixed-length body**. Checkpoint masts and a three-part progress bar pace the run.
-- **QUIET TANK CHECKPOINTS** — a lit **checkpoint mast** at each sector start banks your
-  progress; if the ECHOEEL catches you, the jumpscare plays and you **respawn at the last
-  mast** (noise cleared, the echoeel sent away, seals and debris reset) instead of losing
-  the run. The HUD tracks `CHECKPOINTS n/3`.
 - **TRENCH EXPLORE MINIGAME** — a new **timeless** buoyancy minigame: `SPACE` kicks you
   up while you sink under your own weight, so you hover and dive a vertical trench
   gathering **sea coin bubbles**. A **fishing boat and net** sit on the surface — the
@@ -415,21 +374,70 @@ Commits `fb34c5b` (collapsing ceiling stubs), `d21de53` (two-beat ending), `2845
   CUTSCENE THEATRE: **THE ESCAPE** (the flooded-lab glass-shatter finale, where the
   ECHOEEL slams into the pane and sinks toward the trench) and **THE RISING** (Trench
   Explore's megasquid hauling itself out of the last trench to tear a wreck apart).
-- **RAYCAST TANK** — a new first-person novelty tank: a Canvas2D software raycaster over a
-  procedurally generated wreck maze with distance-shaded walls, a licking cone, and a
-  minimap; collect every bubble then reach the exit light.
-- **FIRST PERSON MODE** — a SETTINGS switch below 3D MODE renders every dive and minigame
-  as a first-person **raycast** view from the selected creature: a software raycaster of a
-  3D room built from the level's walls, with depth-sorted billboards for the enemies,
-  bubbles, and props; the mode goes fullscreen and pointer-locks so the mouse looks
-  endlessly without edge-sticking, the diver's own body and the cursor are hidden, `W`/`S`
-  move forward/back and `A`/`D` strafe relative to the view (never swinging the camera), a
-  corner minimap shows the arena. It
-  works independently of 3D MODE and persists. (Also fixes a hang
-  when first person and 3D MODE were both on entering the labyrinth.)
+- **Mutators** — a new MUTATORS screen (reachable from CHOOSE TANK and MINIGAMES) toggles
+  one optional handicap across every dive and minigame: FAST, ONE HIT, NO AIR, LIGHTS OUT,
+  GOLD RUSH, GLASS, and TIME PRESSURE. Each mutator hardens the run (enemy speed, clock,
+  graces, darkness, lives) and pays back a coin and score multiplier; the active mutator
+  shows a HUD badge on every run.
+- **Boss rush** — a gauntlet (`MINIGAMES` entry, ticket fee) that chains all five horror
+  bosses — the Echoeel, the Watcher, the Trench Mouth, the Megasquid, and the Titanoboa —
+  wave by wave with a running clock, an interlude card per boss, and a bounty for each
+  clear plus a full-clear bonus.
+- **Records and time trials** — every tank, boss arena, and minigame banks a best time and
+  score (new `src/engine/records.js` + `RECORDS_KEY`). A new RECORDS board cycles the
+  tanks/bosses/minigames with a cleared count, and your best runs are stamped beside the
+  tank-select and minigame entries; results screens announce NEW RECORD.
+- **Prehistoric skip-to-boss** — the Titanoboa encounter can now be launched directly
+  (`bossOnly`), used by the rush.
+- **PlayToy Exploration** — a third-person standalone tank aboard the sunken cargo liner of
+  the PlayToy Company, a maker of goofy fantasy sea-creature plush. Its flooded holds are
+  full of **living toys** — button-eyed creatures (BUBBLE-FANG, WIBBLE, CRANK-FIN,
+  GLOOP-LO) that wander and cling — and eight **lore notes** scattered through the wreck
+  recount PlayToy's recipe for sparking a toy to life. Reach the surface hatch to win;
+  collect the notes (and repel the toys) along the way. Collected papers persist between
+  runs and can be re-read from a scrollable **PLAYTOY INVENTORY** panel (`I`/`Tab`, browse
+  with Up/Down). The FIRST PERSON MODE switch still affects the tank like any other dive.
+- **The Anchor-Pack** — the tank's tool: a wrist winch firing a barbed clamp on a line
+  (fire with `F` or right-click). Three interchangeable heads swap with `E` — the **MAIN
+  ANCHOR** hauls loot and swings you to rings, the **ELECTRICONDUCTOR ANCHOR** feeds live
+  circuits and stuns toys, and the **PRESSURE ANCHOR** pries valves and heaves heavy wrecks.
+  Typed gates require the matching head, and a head that finds only bare hull **bounces off**
+  instead of pinning you to the wreck. Aim at a toy to knock, stun, or shove it off your back.
 
 ### Game systems
 
+- **Shared mutator framework** — `src/engine/mutators.js` defines the mutator list and
+  `scaleRules()`; `Scene` now owns the mutator lifecycle (`setMutator`, a rules accessor
+  that scales difficulty, and a `renderMutatorOverlay` drawing the darkness and badge), so
+  any scene — play tanks, all minigames, and the horror tanks — honours mutators uniformly.
+  `recordMinigame()` applies a global coin multiplier set on scene entry, so even the
+  bespoke minigames pay the bonus.
+- **Boss-rush orchestrator** — `src/scenes/bossrush.js` instantiates and drives fresh child
+  scenes, detecting their `results` phase to advance and their scene-change requests to
+  abort, with `rushMode` guarding each boss from double-recording.
+- **Records plumbing** — `recordWin()`/`formatTime()` in `src/engine/records.js`, win hooks
+  in the minigame base, the horror tanks, the Scene-based minigames, and play, plus
+  `MODE_LABELS`/`RECORD_GROUPS`/`SOLO_VARIANT_SCENES` in `src/config.js`.
+- **Scaling seams** — `Shark` now steers off its instance `maxSpeed` (so mutators can scale
+  the diver), and the horror bosses scale their chase/suction/stalk speeds by the mutator's
+  enemy multiplier.
+- **PlayToy systems** — `src/engine/tether.js` draws the sagging line, barbed clamp head,
+  and first-person reticle; `src/entities/livingtoy.js` is the wander/chase/stun/knock
+  plush entity; `src/scenes/playtoy.js` builds the scrolling wreck (bulkheads, typed gates,
+  anchor rings, notes, machinery) with a camera follow, HUD, inventory, and first-person
+  hooks. `src/config.js` adds `ANCHOR_TYPES`, `PLAYTOY`, `PLAYTOY_GATES`, `PLAYTOY_NOTES`,
+  `PLAYTOY_TOYS`, and `PLAYTOY_KEY`, and `src/engine/input.js` adds `tool`, `cycleAnchor`,
+  and `inventory` bindings.
+- **Smoother, lighter rendering** — the canvas backing store is capped (device pixel ratio
+  1.5 and at most 1920×1080) so large/high-DPI displays stop burning fill-rate; the fixed
+  step catch-up is capped at four steps with leftover time dropped to avoid spiral stalls;
+  and the shared water gradients plus text font strings are cached instead of rebuilt every
+  frame.
+- **Tests and docs** — smoke coverage for the mutator screen, rules scaling, records
+  persistence, a full five-wave boss-rush clear, and the PlayToy tank (world build, note
+  persistence + inventory, head-to-gate matching, wall bounce, exit win, first person); LORE
+  gains PLAYTOY EXPLORATION, THE ANCHOR-PACK, LIVING TOYS, THE ANCHOR SWITCH, MUTATORS, BOSS
+  RUSH, and RECORDS. The horror-tank/3D/raycast batch also grew checks for first person, raycast overrides, the tanks, and the water pass.
 - **Filtered noise on the audio bus** — `AudioBus` gained `noise()` (a cached white-noise
   buffer through a `BiquadFilter`/gain envelope) so scenes can layer rumble, creaks, drips,
   static, and other non-tonal horror sound; it stays silent when there is no `AudioContext`.
@@ -450,6 +458,52 @@ Commits `fb34c5b` (collapsing ceiling stubs), `d21de53` (two-beat ending), `2845
   WATCHER, THE TRENCH MOUTH, and the PREHISTORIC TANK, the WATCHER / AMMONITE /
   DUNKLEOSTEUS / VELOCIRAPTOR / TITANOBOA hazards, the TRENCH EXPLORE minigame, and a new
   THE MODES section (3D MODE, FIRST PERSON MODE, REDUCE MOTION, costumes & the karambit).
+
+
+## October 30, 2026
+
+Commits `fb34c5b` (collapsing ceiling stubs), `d21de53` (two-beat ending), `2845aea`
+(karambit aura), `305ee15` (shop costumes), `760f030` (shadowed tunnel planks), `6dc0aeb`
+(trench gaps), and `1f07537` and `7a18b65` (docs).
+
+### Game features
+
+- **Collapsing ceiling stubs** — ramming a cracked support now breaks the ceiling loose
+  above the tentacle tangle: the closest hanging ceiling stub is torn out of the course
+  (opening the gap it braced) and tumbles down onto the frozen tangle, bursting into dust,
+  splinters, deep-red sucker sparks, and spinning `BreachChunk`s where it lands, while the
+  collapse site keeps its pitch-black tangle (`crushFades`/`drawTangleFade`) for
+  `collapseCrushFade` seconds and eases it out; when no stub is close, stub-sized planks
+  drop in its place.
+- **Two-beat ending cutscene** — the MEGASQUID finale now cuts in two: the first beat
+  collapses the wreck around the entangled boss as the seven survivors race clear, then a
+  distance beat puts the survivors in the foreground looking back at the liner perched on
+  a rock ledge, which tips off the rim and sinks into the trench with the MEGASQUID and
+  its glowing eye, fading into the dark.
+- **Costumes** — a new COSTUMES row in the shop turns a diver into a dish: SHARK FIN
+  DISH, SAMBAL STINGRAY, GRILLED SQUID, and PRAWN CRACKERS, each a whole-body food drawn
+  over the creature in every tank, the menu, the cutscenes, and the shop preview, with its
+  own `costume` equip slot and per-player `costume2`.
+- **Karambit aura** — the KARAMBIT AURA's short, curved blades now read the equipped
+  color: a silver blade with a gold loop on NATURAL, a pure-red blade and loop on RED, and
+  a pure-red-to-black pulsing blade on SHADOW, over a thicker black handle.
+- **Shadowed tunnel openings** — the labyrinth's hull tunnels and the aquarium's
+  holed-wall and seeded openings are filled with the wall's plank grain a shade darker
+  instead of a flat black void, so they read as shadowed wood; the diver still swims
+  straight through.
+- **TRENCH DIVE** — its ice gaps now stay within a diver's reach (`maxGapShift`), so the
+  run is always threadable rather than a random dead end.
+- **Floor-stub morays** — the labyrinth's floor stubs sprout a scatter of tiny moray
+  holes; a diver who lingers over one gets a moray rearing up to bite with the REEF
+  CLEANUP peek/bite/retreat in the stingray tank's moray colors, staggering them a beat.
+- **Upright facing** — playable creatures no longer rotate to their heading; they stay
+  upright and mirror to face their swim direction, so heading left faces left instead of
+  flipping the sprite upside down.
+- **Shift to hide** — `Shift` is now a second bind for hiding: it buries the stingray in
+  the sand and tucks the squid into a ledge hole, exactly like `Down`/`S`.
+
+### Game systems
+
 - **Tests and docs** — the smoke suite grew the ceiling-stub, ending-beat, costume,
   moray-hole, and trench-gap checks (about 14k animation frames), and the docs were kept
   in sync.

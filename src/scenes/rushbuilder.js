@@ -21,9 +21,9 @@ const AREA_BOTTOM = 470;
 const PANEL_X = 716;
 const PANEL_W = 228;
 const PANEL_TOP = AREA_TOP;
-const LIST_TOP = 108;
-const ROW_H = 14;
-const VISIBLE_ROWS = 24;
+const LIST_TOP = 106;
+const ROW_H = 13;
+const VISIBLE_ROWS = 26;
 const PANEL_BOTTOM = LIST_TOP + VISIBLE_ROWS * ROW_H + 26;
 
 const ITEM_LIST = [
@@ -51,6 +51,8 @@ const ITEM_LIST = [
   { label: 'FISH', kind: 'portal', form: 'fish', group: 'mode' },
   { label: 'GRAVITY PORTAL', kind: 'gravup', group: 'mode', color: '#b07bff' },
   { label: 'NORMAL GRAVITY PORTAL', kind: 'gravdown', group: 'mode', color: '#63e6ff' },
+  { label: 'NAUTILUS', kind: 'portal', form: 'nautilus', group: 'mode', color: '#d9a93c' },
+  { label: 'SHRIMP', kind: 'portal', form: 'shrimp', group: 'mode', color: '#ff8f7a' },
 ];
 
 const PLAY_W = PANEL_X;
@@ -70,6 +72,8 @@ const PORTAL_COLORS = {
   crab: '#d96448',
   urchin: '#7a5b96',
   jelly: '#c9a6ff',
+  nautilus: '#d9a93c',
+  shrimp: '#ff8f7a',
 };
 
 const SPOTTED_RAY = SKINS.find((skin) => skin.key === 'spottedray') ?? {};

@@ -169,8 +169,8 @@ speed lines and goofy captions over every screen), and REEF RUSH (an
 original rhythm-runner with original hazards — seaweed/shell spikes on the floor and ceiling,
 stackable floor/ceiling rocks, standable floating ledges, runnable slopes, pearls, air-boosting
 pressure bubbles, gravity bubbles and gravity bubble pads, and thrust bubble jump pads on the
-floor and ceiling — plus transformation portals that switch you into six
-swimmer modes (including a fish portal that turns you back), playable on original levels with an end cutscene and skin
+floor and ceiling — plus transformation portals that switch you into eight
+swimmer modes (including a fish portal that turns you back, a swing nautilus that dies on contact, and a charge-jump shrimp robot), playable on original levels with an end cutscene and skin
 unlocks, on a course built from your own song, or you can design one by hand in the course
 builder with its scrollable item list), and the TRACK BUILDER (a stretchable
 four-track DRUMS/BASS/SYNTH/PIANO tone-block sequencer on horizontal lines, playable and

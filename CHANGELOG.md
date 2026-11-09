@@ -178,6 +178,7 @@ lore inventory.
 - **Scrolling minigame menu** — the MINIGAMES list now uses a fixed 15-row window that scrolls
   with the arrow keys **and the mouse wheel** (`SelectList` gained an opt-in `wheel` option), with
   fee/record labels following the scroll.
+- **REEF RUSH swing & robot** — two new portal modes: **NAUTILUS** (the Geometry-Dash-style swing: each click flips gravity in mid-air, but touching the floor, ceiling, or any obstacle kills) and **SHRIMP** (the robot: a short tap is a low hop, while press-and-hold charges a super-jump on release). Both are placeable in the course builder and usable on MY TRACK.
 - **REEF RUSH gravity portals** — two new builder pieces: **GRAVITY PORTAL** flips your swimmer upside-down and **NORMAL GRAVITY PORTAL** sets gravity back, working in every mode. Drawn as colour-coded rings with up/down arrows. The course builder also gains a **scrub slider** along the bottom of the track (with a goal tick) so you can drag the cursor across the whole course instead of tapping the arrow keys.
 - **MEME MODE** — a SETTINGS switch that overlays every screen with all-original comic pop-up
   words (BONK, BLORP, SPLOOSH, CHOMP, ZOOP, and more), spinning speed lines, a rotating goofy

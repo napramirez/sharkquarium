@@ -1708,14 +1708,17 @@ The six arcade games (tickets in the payouts note below):
   needed), the **FLOATING LEDGE** is a standable platform you can hang at any height from
   just above the floor to just under the roof, and the **SLOPE UP** / **SLOPE DOWN** ramps
   carry the swimmer smoothly uphill or downhill. **PORTAL** pieces transform you into one
-  of six swimmer **modes** — a plain **FISH** portal turns you back into the normal fish —
+  of eight swimmer **modes** — a plain **FISH** portal turns you back into the normal fish —
   with their own movement — **STINGRAY** (hold to fly up), **DART
   EEL** (the Nautilus Tank's dart-eel head on a body that trails behind along the path it has
   swum, rendered with the moray eel's own trail; hold to climb, tap for a small zig, and it
   dives back down on its own), **CRAB** (each click flips gravity, snapping it to the nearest
   landable surface — floor, ceiling, rock, or floating ledge — so it can hop between ledges),
-  **URCHIN** (like the crab but it drifts up instead of snapping), and
-  **JELLY** (tap to hop; holding does nothing and it sinks back, so spam the click to hover).
+  **URCHIN** (like the crab but it drifts up instead of snapping), **JELLY** (tap to hop; holding
+  does nothing and it sinks back, so spam the click to hover), **NAUTILUS** (a **swing**: each click
+  flips gravity in mid-air, but touching the floor, ceiling, or any obstacle is fatal), and
+  **SHRIMP** (a **robot**: a short tap is a low hop, while press-and-hold charges a super-jump on
+  release).
   **GRAVITY PORTAL** pieces flip you upside-down and **NORMAL GRAVITY PORTAL** pieces set gravity
   back to normal, regardless of mode.
   The **STINGRAY** mode uses the game's own **spotted-ray model** and skin (drawn smaller) so
@@ -1746,7 +1749,7 @@ The six arcade games (tickets in the payouts note below):
   CEILING SHELL / CEILING WEED / ROCK / CEILING ROCK / PEARL / PRESSURE BUBBLE / GRAVITY
   BUBBLE / GRAVITY BUBBLE PAD / CEILING GRAVITY BUBBLE PAD / THRUST BUBBLE PAD / CEILING
   THRUST BUBBLE PAD / FLOATING LEDGE / SLOPE UP / SLOPE DOWN — then the **modes** — STINGRAY /
-  DART EEL / CRAB / URCHIN / JELLY / FISH (each places a
+  DART EEL / CRAB / URCHIN / JELLY / FISH / NAUTILUS / SHRIMP (each places a
   portal with that target) — and the **gravity portals**: **GRAVITY PORTAL** flips you
   upside-down and **NORMAL GRAVITY PORTAL** sets gravity back to normal. A **scrub slider at the
   bottom of the course** lets you drag the cursor quickly across the whole track (a goal tick marks

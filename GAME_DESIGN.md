@@ -407,8 +407,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   input it **automatically sinks back down** diagonally — it appends to
   `dartTrail` for the trailing body), `crab` (each click
   `flipGravity(true)` snaps it to the nearest landable surface — floor, ceiling, rock, or
-  floating ledge, found by `nearestSurfaceY()`), `urchin` (`flipGravity(false)` + gravity toward `gravityUp`), and `jelly`
-  (gravity + press-only hop with a short cooldown). `enterPortal()` sets `this.form` when the
+  floating ledge, found by `nearestSurfaceY()`), `urchin` (`flipGravity(false)` + gravity toward `gravityUp`), `jelly`
+  (gravity + press-only hop with a short cooldown), `nautilus` (a **swing**: `flipGravity(false)` on
+  each click + damped drift, with `noContact` so touching the floor/ceiling or any obstacle calls
+  `kill()` instead of landing), and `shrimp` (a **robot**: holding on the ground builds
+  `robotCharge`, releasing launches `vy = -jump * (low + charge*(high-low))` — a tap is a low hop). `enterPortal()` sets `this.form` when the
   player overlaps a portal of a different form, and `renderPlayer()` draws each mode. The
   **DART EEL** wears the Nautilus Tank's dart-eel head (`drawDartEelHead()`) but paints its
   tail with the **moray eel's trail renderer** (`paintMorayTrail()` from `src/entities/eel.js`,

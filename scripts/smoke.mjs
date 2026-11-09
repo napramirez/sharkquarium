@@ -7244,7 +7244,7 @@ async function main() {
   assert.equal(game.currentSceneName, 'rushbuilder', 'the course builder should open');
   const courseBuilder = game.scene;
   assert.equal(courseBuilder.items.length, 0, 'a fresh course builder should be empty');
-  const rowY = (index) => 108 + index * 14 + 7;
+  const rowY = (index) => 106 + index * 13 + 6;
   canvasPointerDown(800, rowY(4));
   canvasPointerUp();
   await frames(3);
@@ -7406,6 +7406,22 @@ async function main() {
   courseBuilder.cursorX = 3600;
   courseBuilder.place();
   assert.ok(courseBuilder.items.some((it) => it.kind === 'gravdown'), 'the builder should offer a normal gravity portal');
+  courseBuilder.selectItem(24);
+  assert.equal(courseBuilder.kind(), 'portal', 'the nautilus row should place a portal');
+  assert.equal(courseBuilder.form(), 'nautilus', 'the nautilus row should target the nautilus form');
+  courseBuilder.cursorX = 3800;
+  courseBuilder.heightIndex.portal = 0;
+  courseBuilder.place();
+  courseBuilder.selectItem(25);
+  assert.equal(courseBuilder.form(), 'shrimp', 'the shrimp row should target the shrimp form');
+  courseBuilder.cursorX = 4000;
+  courseBuilder.heightIndex.portal = 0;
+  courseBuilder.place();
+  assert.ok(
+    courseBuilder.items.some((it) => it.kind === 'portal' && it.form === 'nautilus') &&
+      courseBuilder.items.some((it) => it.kind === 'portal' && it.form === 'shrimp'),
+    'the builder should offer nautilus and shrimp portals',
+  );
   courseBuilder.selectItem(14);
   courseBuilder.cursorX = 3500;
   courseBuilder.place();
@@ -7605,6 +7621,66 @@ async function main() {
   courseRun.player.y = courseRun.groundY - 90;
   courseRun.update(1 / 60);
   assert.equal(courseRun.gravityUp, false, 'a normal gravity portal should put gravity back');
+  courseRun.items = [{ kind: 'portal', form: 'nautilus', x: 600, h: 120, count: 1 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.gravityUp = false;
+  courseRun.dying = 0;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = courseRun.groundY - 120;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.form, 'nautilus', 'a nautilus portal should switch to the swing mode');
+  courseRun.gravityUp = false;
+  courseRun.game.input.pressed.clear();
+  courseRun.game.input.pressed.add('Enter');
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.gravityUp, true, 'a click should flip the swing nautilus');
+  courseRun.form = 'nautilus';
+  courseRun.dying = 0;
+  courseRun.gravityUp = false;
+  courseRun.player.y = courseRun.groundY - courseRun.player.radius;
+  courseRun.player.vy = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.ok(courseRun.dying > 0, 'the swing nautilus should die on touching the floor');
+
+  courseRun.items = [{ kind: 'portal', form: 'shrimp', x: 600, h: 120, count: 1 }];
+  courseRun.obstacles = courseRun.items;
+  courseRun.form = 'fish';
+  courseRun.gravityUp = false;
+  courseRun.dying = 0;
+  courseRun.scrollX = 600 - playerOffset;
+  courseRun.player.y = courseRun.groundY - 120;
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  assert.equal(courseRun.form, 'shrimp', 'a shrimp portal should switch to the robot mode');
+  courseRun.form = 'shrimp';
+  courseRun.gravityUp = false;
+  courseRun.player.y = courseRun.groundY - courseRun.player.radius;
+  courseRun.player.vy = 0;
+  courseRun.coyote = 0.09;
+  courseRun.robotCharge = 0;
+  courseRun.game.input.pressed.clear();
+  courseRun.game.input.pressed.add('Enter');
+  courseRun.update(1 / 60);
+  const tapJump = courseRun.player.vy;
+  assert.ok(tapJump < 0, 'a robot tap should launch a small jump');
+  courseRun.form = 'shrimp';
+  courseRun.player.y = courseRun.groundY - courseRun.player.radius;
+  courseRun.player.vy = 0;
+  courseRun.coyote = 0.09;
+  courseRun.robotCharge = 0;
+  courseRun.game.input.down.add('Enter');
+  for (let i = 0; i < 30; i += 1) courseRun.update(1 / 60);
+  courseRun.game.input.down.delete('Enter');
+  courseRun.game.input.pressed.clear();
+  courseRun.update(1 / 60);
+  const holdJump = courseRun.player.vy;
+  assert.ok(
+    holdJump < tapJump,
+    'a held robot click should jump higher than a short tap',
+  );
   courseRun.items = [{ kind: 'ledge', x: 600, h: 200, count: 1 }];
   courseRun.obstacles = courseRun.items;
   courseRun.form = 'fish';

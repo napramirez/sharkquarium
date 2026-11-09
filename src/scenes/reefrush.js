@@ -14,6 +14,8 @@ import { rushLevelById, beatLevel } from '../engine/rushlevels.js';
 import { drawStingrayBody } from '../entities/stingray.js';
 import { drawDartEelHead } from '../entities/darteel.js';
 import { paintMorayTrail } from '../entities/eel.js';
+import { drawNautilusBody } from '../entities/nautilus.js';
+import { drawArcticShrimpBody } from '../entities/arcticshrimp.js';
 import { recordWin } from '../engine/records.js';
 import { REEF_RUSH, COLORS, SKINS, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
 
@@ -34,6 +36,8 @@ const FORM_PHYSICS = {
   crab: {},
   urchin: { drift: 900 },
   jelly: { gravity: 0.62, hop: 540, cooldown: 0.1 },
+  nautilus: { gravity: 0.9, drift: 700, noContact: true },
+  shrimp: { gravity: 1, low: 0.55, high: 1.6, chargeTime: 0.45 },
 };
 
 const PORTAL_COLORS = {
@@ -43,6 +47,8 @@ const PORTAL_COLORS = {
   crab: '#d96448',
   urchin: '#7a5b96',
   jelly: '#c9a6ff',
+  nautilus: '#d9a93c',
+  shrimp: '#ff8f7a',
 };
 
 const SPOTTED_RAY = SKINS.find((skin) => skin.key === 'spottedray') ?? {};
@@ -134,6 +140,7 @@ export class ReefRushScene extends MinigameScene {
     this.dartTrail = [];
     this.bubbleCooldown = 0;
     this.padCooldown = 0;
+    this.robotCharge = 0;
     this.rndState = this.seed || 1;
     this.player.x = REEF_RUSH.playerX;
     this.player.y = this.groundY - this.player.radius;
@@ -205,7 +212,7 @@ export class ReefRushScene extends MinigameScene {
     const totalSteps = stepsPerLoop * cfg.loops;
     const startX = W * 0.5;
     const minGap = Math.max(cfg.minGap, 200);
-    const portals = ['stingray', 'eel', 'crab', 'urchin', 'jelly', 'fish'];
+    const portals = ['stingray', 'eel', 'crab', 'urchin', 'jelly', 'nautilus', 'shrimp', 'fish'];
     const pearls = [];
     const obstacles = [];
     const ceilingSpots = [];
@@ -371,6 +378,7 @@ export class ReefRushScene extends MinigameScene {
     const prevBottom = player.y + player.radius;
     const prevTop = player.y - player.radius;
     const dir = this.gravityUp ? -1 : 1;
+    const noContact = Boolean(form.noContact);
     player.onGround = false;
 
     if (this.form === 'eel') {
@@ -379,6 +387,37 @@ export class ReefRushScene extends MinigameScene {
       if (jumpHeld) player.vy = -form.dart * dir;
       else if (this.dartTap > 0) player.vy = -form.dart * dir;
       else player.vy = form.dart * dir;
+    } else if (this.form === 'nautilus') {
+      if (jumpPressed) this.flipGravity(false);
+      player.vy += cfg.gravity * form.gravity * dir * dt;
+      player.vy *= 1 - 0.8 * dt;
+      player.vy = clamp(player.vy, -720, 720);
+    } else if (this.form === 'shrimp') {
+      const canJump = player.onGround || this.coyote > 0;
+      if (jumpHeld && canJump) {
+        this.robotCharge = Math.min(1, this.robotCharge + dt / form.chargeTime);
+      } else {
+        if (canJump && (this.robotCharge > 0 || jumpPressed)) {
+          const charge = Math.max(0.12, this.robotCharge);
+          const power = form.low + charge * (form.high - form.low);
+          player.vy = -cfg.jump * power * dir;
+          player.onGround = false;
+          this.coyote = 0;
+          this.jumpBuffer = 0;
+          this.robotCharge = 0;
+          this.game.audio.tone({ freq: 360, endFreq: 820, type: 'square', duration: 0.1, volume: 0.16 });
+          this.particles.burst(player.x, player.y - player.radius * dir, {
+            count: 8,
+            speed: 150,
+            life: 0.4,
+            colors: ['rgba(255, 180, 150, 0.9)'],
+            buoyancy: -10 * dir,
+          });
+        } else {
+          this.robotCharge = 0;
+        }
+      }
+      player.vy += cfg.gravity * form.gravity * dir * dt;
     } else if (this.form === 'crab') {
       if (jumpPressed) this.flipGravity(true);
     } else if (this.form === 'urchin') {
@@ -425,7 +464,12 @@ export class ReefRushScene extends MinigameScene {
       this.dartTrail = [];
     }
 
-    if (dir > 0) {
+    if (noContact) {
+      if (player.y + player.radius >= this.groundY || player.y - player.radius <= 0) {
+        this.kill();
+        return;
+      }
+    } else if (dir > 0) {
       if (player.y + player.radius >= this.groundY) {
         player.y = this.groundY - player.radius;
         if (player.vy > 0) player.vy = 0;
@@ -558,7 +602,7 @@ export class ReefRushScene extends MinigameScene {
         }
         continue;
       }
-      if (item.kind === 'rock' || item.kind === 'ceilrock' || item.kind === 'ledge') {
+      if (!noContact && (item.kind === 'rock' || item.kind === 'ceilrock' || item.kind === 'ledge')) {
         const overlapX = player.x + player.radius > rect.x + 4 && player.x - player.radius < rect.x + rect.w - 4;
         if (overlapX) {
           if (dir > 0) {
@@ -657,6 +701,7 @@ export class ReefRushScene extends MinigameScene {
     this.form = item.form;
     this.gravityUp = false;
     this.dartTap = 0;
+    this.robotCharge = 0;
     this.flash = 0.4;
     this.jumpBuffer = 0;
     this.jumpCooldown = 0;
@@ -1124,6 +1169,20 @@ export class ReefRushScene extends MinigameScene {
     if (this.gravityUp && this.form !== 'crab' && this.form !== 'urchin') ctx.scale(1, -1);
     if (this.form === 'stingray') {
       drawSpottedRay(ctx, r * 0.85, this.time);
+    } else if (this.form === 'nautilus') {
+      drawNautilusBody(ctx, r * 0.95, { age: this.time });
+    } else if (this.form === 'shrimp') {
+      drawArcticShrimpBody(ctx, r * 0.95, { armPhase: this.time * 8 });
+      if (this.robotCharge > 0.05) {
+        ctx.save();
+        ctx.globalAlpha = 0.35 + this.robotCharge * 0.4;
+        ctx.strokeStyle = '#ffb27a';
+        ctx.lineWidth = 2.5;
+        ctx.beginPath();
+        ctx.arc(0, 0, r * (1.05 + this.robotCharge * 0.5), 0, TAU);
+        ctx.stroke();
+        ctx.restore();
+      }
     } else if (this.form === 'crab' || this.form === 'urchin') {
       const flip = this.gravityUp ? -1 : 1;
       ctx.scale(flip * 0.78, flip * 0.78);

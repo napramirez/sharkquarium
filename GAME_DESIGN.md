@@ -395,9 +395,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   Four sources feed the same loop — the **original classic course**
   (`buildClassicCourse()` from `REEF_RUSH.course`), a **level** (`buildItems()` from
   `RUSH_LEVELS`), **your song** (`{ custom: true }` → `buildCustomCourse()`, drums→shells,
-  bass→rocks, synth/piano→pearls; it merges each step's chord into one capped shell/rock, spaces
-  obstacles at least `max(cfg.minGap, 200)` apart so they stay clearable, and places cycling
-  **gamemode portals** (stingray/eel/crab/urchin/jelly/fish) in the gaps), or **your hand-built
+  bass→rocks (sometimes a 2-stack), synth/piano→pearls, synth→hanging ceiling hazards; it
+  merges each step's chord into one capped shell/rock, spaces ground obstacles at least
+  `max(cfg.minGap, 200)` apart so they stay clearable, and rotates the gaps through
+  gamemode-friendly devices — a cycling portal (stingray/eel/crab/urchin/jelly/fish), a floating
+  ledge, a thrust bubble pad, or a gravity bubble), or **your hand-built
   course** (`{ course: true }` →
   `buildItems()` from `RUSH_BUILDER_KEY`). All use `REEF_RUSH_TRACK` at constant speed except
   the song mode, which plays `buildCustomTrack(composer)`. The run wins at `goalDistance`;

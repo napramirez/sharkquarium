@@ -81,10 +81,12 @@ lore inventory.
   Collect pearls and reach the distance marker; difficulty renames the tiers
   CALM / CHOPPY / RIPTIDE / MAELSTROM. Costs 40 sea coins.
 - **REEF RUSH — MY TRACK** — play your saved composer song as a level: its drum hits become
-  shell spikes, bass notes become rock blocks, and synth/piano notes become pearls, laid out
-  on the beat over three loops. The course is **built to be clearable** — chords collapse to one
-  spike/block, every obstacle is capped at a jumpable height, and consecutive obstacles are kept
-  at least a jump apart — and **gamemode portals** are strung along the gaps. Reached from
+  shell spikes, bass notes become rock blocks (sometimes a two-high stack), and synth/piano
+  notes become pearls, laid out on the beat over three loops, with hanging ceiling hazards on
+  synth beats. The course is **built to be clearable but lively** — chords collapse to one
+  spike/block, every obstacle is capped at a jumpable height, consecutive ground obstacles are
+  kept at least a jump apart, and the gaps rotate through **gamemode devices** (a portal of a
+  random swimmer, a floating ledge, a thrust bubble pad, or a gravity bubble). Reached from
   the TRACK PLAYER's **RUSH MY TRACK** and the MINIGAMES menu; it banks its own
   **REEF RUSH — MY TRACK** record.
 - **REEF RUSH — LEVELS & hazards** — a **sideways-scrolling** shelf of **original hand-built

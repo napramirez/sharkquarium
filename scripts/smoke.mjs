@@ -6889,6 +6889,11 @@ async function main() {
   assert.ok(songPortals.length > 0, 'MY TRACK should place gamemode portals');
   assert.ok(songPortals.some((p) => p.form && p.form !== 'fish'), 'MY TRACK portals should include gamemodes');
   assert.ok(new Set(songPortals.map((p) => p.form)).size > 1, 'MY TRACK portals should vary');
+  const songKinds = new Set(customRush.items.map((it) => it.kind));
+  assert.ok(
+    songKinds.has('ledge') || songKinds.has('pad') || songKinds.has('gravity'),
+    'MY TRACK should mix in gamemode-friendly devices',
+  );
   assert.ok(game.music.track && game.music.track.custom, 'custom reef rush should play the saved song');
   assert.equal(customRush.recordMode(), 'reefrushcustom', 'custom runs should use their own record mode');
   customRush.scrollX = 1e6;

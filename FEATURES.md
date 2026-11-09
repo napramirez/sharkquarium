@@ -1659,11 +1659,13 @@ The six arcade games (tickets in the payouts note below):
   free skin**; progress is saved. The more levels cleared, the more skins unlocked.
 - **REEF RUSH — MY TRACK** turns the composer's saved song into a course: **3 loops** of the
   song are laid out on the beat, with **drum hits as shell spikes**, **bass notes as rock
-  blocks**, and **synth/piano notes as pearls**. It is built to be **clearable**: a chord
-  becomes a single spike/block (no stacked walls), every obstacle is capped at a jumpable
-  height, consecutive obstacles are kept at least a jump apart, and **gamemode portals**
-  (stingray / dart eel / crab / urchin / jelly / fish) are strung along the gaps. The run plays
-  your song and banks its own record.
+  blocks** (sometimes a two-high stack), and **synth/piano notes as pearls**, plus **hanging
+  ceiling shells/weeds** on synth beats. It is built to be **clearable but lively**: a chord
+  becomes a single spike/block, every obstacle is capped at a jumpable height, consecutive
+  ground obstacles are kept at least a jump apart, and the gaps between them **rotate through
+  gamemode devices** — a **portal** (stingray / dart eel / crab / urchin / jelly / fish), a
+  **floating ledge**, a **thrust bubble pad**, or a **gravity bubble** — so the course suits
+  every mode's movement. The run plays your song and banks its own record.
 - **REEF RUSH — COURSE BUILDER** lets the player design their own course by hand (no
   copyrighted layout is shipped): move a cursor along the track with the arrows (hold Shift to
   skip), **scroll the vertical item list on the right with `Q`/`E` or the mouse wheel** (or

@@ -207,13 +207,14 @@ export class ReefRushScene extends MinigameScene {
     const portals = ['stingray', 'eel', 'crab', 'urchin', 'jelly', 'fish'];
     const pearls = [];
     const obstacles = [];
+    const ceilingSpots = [];
     let lastObstacleX = -Infinity;
-    let portalIndex = 0;
     for (let step = 0; step < totalSteps; step += 1) {
       const worldX = startX + step * stepSpacing;
       let shellH = null;
       let rockSize = null;
       let pearlY = null;
+      let hasSynth = false;
       for (const inst of INSTRUMENTS) {
         for (const note of this.composer.tracks[inst.key]) {
           if (note.col !== step % stepsPerLoop) continue;
@@ -226,6 +227,7 @@ export class ReefRushScene extends MinigameScene {
             rockSize = Math.max(rockSize ?? 0, size);
           } else {
             pearlY = this.groundY - 60 - frac * 100;
+            if (inst.key === 'SYNTH') hasSynth = true;
           }
         }
       }
@@ -239,20 +241,44 @@ export class ReefRushScene extends MinigameScene {
       }
       if ((shellH !== null || rockSize !== null) && worldX - lastObstacleX >= minGap) {
         if (shellH !== null) {
-          this.items.push({ kind: 'shell', x: worldX, h: Math.min(shellH, 84), count: 1, phase: 0 });
-          obstacles.push({ x: worldX, form: null });
+          this.items.push({ kind: 'shell', x: worldX, h: Math.min(shellH, 76), count: 1, phase: 0 });
         } else {
-          this.items.push({ kind: 'rock', x: worldX, h: Math.min(rockSize, 48), count: 1, phase: 0 });
-          obstacles.push({ x: worldX, form: null });
+          const size = Math.min(rockSize, 44);
+          const count = size >= 40 && this.rnd() < 0.4 ? 2 : 1;
+          this.items.push({ kind: 'rock', x: worldX, h: size, count, phase: 0 });
         }
+        obstacles.push(worldX);
         lastObstacleX = worldX;
+      } else if (hasSynth) {
+        ceilingSpots.push(worldX);
       }
     }
-    for (let i = 4; i < obstacles.length; i += 5) {
-      const x = obstacles[i].x - Math.min(minGap * 0.7, 150);
+    for (const x of ceilingSpots) {
+      if (!obstacles.every((ox) => Math.abs(ox - x) >= 140)) continue;
+      const weed = this.rnd() < 0.5;
+      this.items.push({
+        kind: weed ? 'ceilweed' : 'ceilshell',
+        x,
+        h: weed ? rand(26, 44) : rand(40, 70),
+        count: 1,
+        phase: 0,
+      });
+    }
+    let portalIndex = 0;
+    for (let i = 1; i < obstacles.length; i += 1) {
+      const x = obstacles[i] - minGap * 0.5;
       if (x <= startX) continue;
-      this.items.push({ kind: 'portal', x, h: 90, count: 1, form: portals[portalIndex % portals.length], phase: 0 });
-      portalIndex += 1;
+      const slot = i % 5;
+      if (slot === 1) {
+        this.items.push({ kind: 'portal', x, h: 90, count: 1, form: portals[portalIndex % portals.length], phase: 0 });
+        portalIndex += 1;
+      } else if (slot === 2) {
+        this.items.push({ kind: 'ledge', x, h: [90, 120, 160][i % 3], count: 1, phase: 0 });
+      } else if (slot === 3) {
+        this.items.push({ kind: 'pad', x, h: 20, count: 1, phase: 0 });
+      } else if (slot === 4) {
+        this.items.push({ kind: 'gravity', x, h: 90, count: 1, phase: 0 });
+      }
     }
     this.pearls.push(...pearls);
     return totalSteps * stepSpacing + startX;

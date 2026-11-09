@@ -1,6 +1,6 @@
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
-import { drawWater, drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
+import { drawWater, drawText, fillRoundRect, strokeRoundRect, fillCircle } from '../engine/render.js';
 import { renderFirstPersonLevel } from '../engine/raycastview.js';
 import { firstPersonMode } from '../engine/mode3d.js';
 import { clamp, rand, TAU } from '../engine/math.js';
@@ -23,6 +23,7 @@ import {
 const SCALE = LOGICAL_WIDTH / TAG.worldWidth;
 const NAME_KEY = /^(Key[A-Z]|Digit[0-9])$/;
 const COSTUME_KEYS = TAG.costumes.map((costume) => costume.key);
+const PALETTE = [TAG.p1Color, TAG.p2Color, ...TAG.cpuColors];
 
 function costumeLabel(key) {
   return (TAG.costumes.find((costume) => costume.key === key) ?? TAG.costumes[0]).label;
@@ -39,6 +40,7 @@ export class TagScene extends Scene {
     this.activeField = 0;
     this.inputText = params.names ? params.names.slice() : this.solo ? [''] : ['', ''];
     this.costumeIndex = this.solo ? [0] : [0, 0];
+    this.colorIndex = this.solo ? [0] : [0, 1];
     this.names = ['P1', 'P2'];
     this.swimmers = [];
     this.taggerIndex = 0;
@@ -85,7 +87,7 @@ export class TagScene extends Scene {
     this.swimmers = [
       new TagSwimmer({
         name: this.names[0],
-        color: TAG.p1Color,
+        color: PALETTE[this.colorIndex[0]],
         cpu: false,
         controls: CONTROLS.p1,
         speedScale: this.speedScale,
@@ -98,7 +100,7 @@ export class TagScene extends Scene {
       this.swimmers.push(
         new TagSwimmer({
           name: this.names[1],
-          color: TAG.p2Color,
+          color: PALETTE[this.colorIndex[1]],
           cpu: false,
           controls: CONTROLS.p2,
           speedScale: this.speedScale,
@@ -173,6 +175,10 @@ export class TagScene extends Scene {
       } else if (code === 'Tab') {
         this.costumeIndex[this.activeField] = (this.costumeIndex[this.activeField] + 1) % COSTUME_KEYS.length;
         this.game.audio.tone({ freq: 500 + this.costumeIndex[this.activeField] * 40, duration: 0.05, volume: 0.1 });
+      } else if (code === 'ArrowLeft' || code === 'ArrowRight') {
+        const step = code === 'ArrowRight' ? 1 : -1;
+        this.colorIndex[this.activeField] = (this.colorIndex[this.activeField] + step + PALETTE.length) % PALETTE.length;
+        this.game.audio.tone({ freq: 560, duration: 0.04, volume: 0.1 });
       } else if (NAME_KEY.test(code) && this.inputText[this.activeField].length < TAG.nameMaxLength) {
         this.inputText[this.activeField] += code.startsWith('Key') ? code.slice(3) : code.slice(5);
         this.game.audio.tone({ freq: 700, duration: 0.03, volume: 0.06 });
@@ -279,7 +285,7 @@ export class TagScene extends Scene {
     if (!this.solo) this.renderNameField(ctx, 1, 326, TAG.p2Color, 'P2 NAME');
     drawText(
       ctx,
-      'TYPE LETTERS AND NUMBERS — BACKSPACE — TAB CHANGES COSTUME — ENTER TO CONTINUE',
+      'TYPE LETTERS AND NUMBERS — BACKSPACE — TAB COSTUME — ◀ ▶ COLOR — ENTER TO CONTINUE',
       LOGICAL_WIDTH / 2,
       416,
       {
@@ -329,11 +335,17 @@ export class TagScene extends Scene {
     if (active && Math.sin(this.time * 7) > 0) {
       fillRoundRect(ctx, 298 + text.length * 13, y - 12, 3, 24, 1.5, COLORS.accent);
     }
-    drawText(ctx, `COSTUME: ${costumeLabel(COSTUME_KEYS[this.costumeIndex[index]])}   (TAB)`, LOGICAL_WIDTH / 2, y + 42, {
+    const lineColor = active ? COLORS.accent : COLORS.textDim;
+    drawText(ctx, `COSTUME: ${costumeLabel(COSTUME_KEYS[this.costumeIndex[index]])}`, LOGICAL_WIDTH / 2 - 190, y + 42, {
       size: 12,
-      color: active ? COLORS.accent : COLORS.textDim,
+      color: lineColor,
       alpha: active ? 0.95 : 0.7,
+      align: 'left',
     });
+    drawText(ctx, 'TAB', LOGICAL_WIDTH / 2 - 48, y + 42, { size: 11, color: COLORS.textDim, alpha: 0.7, align: 'left' });
+    drawText(ctx, 'COLOR', LOGICAL_WIDTH / 2 + 20, y + 42, { size: 12, color: lineColor, alpha: active ? 0.95 : 0.7, align: 'left' });
+    fillCircle(ctx, LOGICAL_WIDTH / 2 + 88, y + 41, 9, PALETTE[this.colorIndex[index]]);
+    drawText(ctx, '◀ ▶', LOGICAL_WIDTH / 2 + 104, y + 42, { size: 11, color: COLORS.textDim, alpha: 0.7, align: 'left' });
   }
 
   firstPersonBounds() {

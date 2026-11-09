@@ -1394,7 +1394,7 @@ export const LORE = [  {
       },
       {
         name: 'TAG',
-        text: 'Six swimmers, one tag. Touch passes it on, and the last name still it when the clock runs out loses. The screen flashes the new tagger\u2019s name. Each player picks a fish costume on the name screen \u2014 originals like CHAIN-FIN, DEVIL FISH, and ANGEL FIN \u2014 and the match\u2019s best tagger (most tags made) and best runner (least times IT) are saved to the TAG LEADERBOARD.',
+        text: 'Six swimmers, one tag. Touch passes it on, and the last name still it when the clock runs out loses. The screen flashes the new tagger\u2019s name. Each player picks a fish costume and color on the name screen \u2014 originals like CHAIN-FIN (a chainsaw snout with three slanted forward eye slits, a top handle, and a chainsaw-handle tail), DEVIL FISH, and ANGEL FIN \u2014 and the match\u2019s best tagger (most tags made) and best runner (least times IT) are saved to the TAG LEADERBOARD.',
       },
       {
         name: 'PUFFERFISH DODGEBALL',

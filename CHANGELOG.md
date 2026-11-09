@@ -134,9 +134,11 @@ lore inventory.
 - **Tag leaderboard & fish costumes** — TAG now tracks **tags made** and **times IT** per
   swimmer, names the match's **BEST TAGGER** (most tags) and **BEST RUNNER** (least times IT),
   and banks both in a persistent **TAG LEADERBOARD** (a new screen reachable from the MINIGAMES
-  menu and the TAG results). Players also pick a **costume** for their tag fish on the name
-  screen (`Tab` cycles) — original looks like CHAIN-FIN, DEVIL FISH, FANG FISH, CYBER FIN,
-  ANGEL FIN, LANTERN FISH, and SPOOK FIN (no third-party characters are used).
+  menu and the TAG results). Players also pick a **costume** and a **color** for their tag fish on
+  the name screen (`Tab` cycles the costume, `◀`/`▶` cycles the color) — original looks like
+  CHAIN-FIN (a chainsaw snout with three slanted forward eye slits, a top handle, and a
+  chainsaw-handle tail), DEVIL FISH, FANG FISH, CYBER FIN, ANGEL FIN, LANTERN FISH, and SPOOK
+  FIN (no third-party characters are used).
 - **Track builder** — a four-track sequencer reached from the TRACK PLAYER with **DRUMS /
   BASS / SYNTH / PIANO tabs** over a **piano-roll surface of horizontal lines** (no grid).
   Clicking a line places a tone block (higher lines = higher notes, stackable into chords),

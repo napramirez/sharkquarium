@@ -3931,6 +3931,10 @@ async function main() {
   assert.equal(tag.inputText[0], 'AC', 'letters should type and backspace should edit');
   await tapKey('Tab');
   assert.equal(tag.costumeIndex[0], 1, 'tab should change the first costume');
+  await tapKey('ArrowRight');
+  assert.equal(tag.colorIndex[0], 1, 'arrows should change the chosen color');
+  await tapKey('ArrowLeft');
+  assert.equal(tag.colorIndex[0], 0, 'arrows should cycle the color back');
   await tapKey('Enter');
   assert.equal(tag.activeField, 1, 'enter should move to the second name');
   await tapKey('KeyD');
@@ -3940,6 +3944,7 @@ async function main() {
   assert.equal(tag.phase, 'play', 'both names should start the round');
   assert.deepEqual(tag.names, ['AC', 'DE'], 'the entered names should be used');
   assert.equal(tag.swimmers[0].costume, 'chainsaw', 'the chosen costume should be worn');
+  assert.ok(/^#[0-9a-f]{6}$/i.test(tag.swimmers[0].color), 'the chosen color should be applied');
   assert.equal(tag.swimmers.length, 7, 'two players and five CPUs should play tag');
   const cpuNames = tag.swimmers.filter((swimmer) => swimmer.cpu).map((swimmer) => swimmer.name);
   assert.equal(cpuNames.length, 5, 'five CPUs should join');

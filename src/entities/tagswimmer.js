@@ -114,19 +114,22 @@ export class TagSwimmer {
       ctx.globalAlpha = 1;
     }
     ctx.scale(this.facing, 1);
+    const chainsaw = this.costume === 'chainsaw';
     const flick = Math.sin(time * 9 + this.wanderPhase) * 0.3;
-    ctx.save();
-    ctx.translate(-radius * 1.45, 0);
-    ctx.rotate(flick);
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(-radius * 0.85, -radius * 0.62);
-    ctx.lineTo(-radius * 0.5, 0);
-    ctx.lineTo(-radius * 0.85, radius * 0.62);
-    ctx.closePath();
-    ctx.fillStyle = this.color;
-    ctx.fill();
-    ctx.restore();
+    if (!chainsaw) {
+      ctx.save();
+      ctx.translate(-radius * 1.45, 0);
+      ctx.rotate(flick);
+      ctx.beginPath();
+      ctx.moveTo(0, 0);
+      ctx.lineTo(-radius * 0.85, -radius * 0.62);
+      ctx.lineTo(-radius * 0.5, 0);
+      ctx.lineTo(-radius * 0.85, radius * 0.62);
+      ctx.closePath();
+      ctx.fillStyle = this.color;
+      ctx.fill();
+      ctx.restore();
+    }
     ctx.beginPath();
     ctx.ellipse(0, 0, radius * 1.5, radius * 0.78, 0, 0, TAU);
     ctx.fillStyle = this.color;
@@ -138,14 +141,16 @@ export class TagSwimmer {
     ctx.closePath();
     ctx.fillStyle = 'rgba(4, 16, 29, 0.35)';
     ctx.fill();
-    ctx.beginPath();
-    ctx.arc(radius * 0.85, -radius * 0.2, radius * 0.14, 0, TAU);
-    ctx.fillStyle = '#f4fbff';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(radius * 0.9, -radius * 0.2, radius * 0.07, 0, TAU);
-    ctx.fillStyle = '#10233a';
-    ctx.fill();
+    if (!chainsaw) {
+      ctx.beginPath();
+      ctx.arc(radius * 0.85, -radius * 0.2, radius * 0.14, 0, TAU);
+      ctx.fillStyle = '#f4fbff';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(radius * 0.9, -radius * 0.2, radius * 0.07, 0, TAU);
+      ctx.fillStyle = '#10233a';
+      ctx.fill();
+    }
     this.drawCostume(ctx, radius, time);
     ctx.restore();
   }
@@ -170,6 +175,35 @@ export class TagSwimmer {
         ctx.lineTo(x + len / 6, radius * 0.26);
         ctx.closePath();
         ctx.fill();
+      }
+      ctx.strokeStyle = '#3a4148';
+      ctx.lineWidth = radius * 0.2;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(-radius * 0.1, -radius * 0.68);
+      ctx.quadraticCurveTo(radius * 0.5, -radius * 1.4, radius * 1.2, -radius * 0.82);
+      ctx.stroke();
+      ctx.lineWidth = radius * 0.16;
+      ctx.beginPath();
+      ctx.moveTo(-radius * 0.05, -radius * 0.66);
+      ctx.lineTo(-radius * 0.05, -radius * 0.4);
+      ctx.moveTo(radius * 1.14, -radius * 0.78);
+      ctx.lineTo(radius * 1.16, -radius * 0.34);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-radius * 1.25, -radius * 0.5);
+      ctx.lineTo(-radius * 2.0, -radius * 0.5);
+      ctx.lineTo(-radius * 2.0, radius * 0.5);
+      ctx.lineTo(-radius * 1.25, radius * 0.5);
+      ctx.stroke();
+      ctx.strokeStyle = '#12161a';
+      ctx.lineWidth = radius * 0.16;
+      for (let i = 0; i < 3; i += 1) {
+        const x = radius * (0.5 + i * 0.34);
+        ctx.beginPath();
+        ctx.moveTo(x, radius * 0.12);
+        ctx.lineTo(x + radius * 0.22, -radius * 0.42);
+        ctx.stroke();
       }
     } else if (this.costume === 'devil') {
       ctx.fillStyle = '#d2452f';

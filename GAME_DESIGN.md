@@ -834,7 +834,8 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   lily pads, motes, shells).
 - `TagScene` (`tag`) is the second minigame: phases `names` → `play` → `results`. Name
   entry reads raw key codes from `Input.pressed` (letters/digits/Backspace, `Tab` cycles the
-  active player's fish **costume** from `TAG.costumes`, Enter advances), CPU names come from
+  active player's fish **costume** from `TAG.costumes`, `◀`/`▶` cycles its **color** from the
+  shared `PALETTE`, Enter advances), CPU names come from
   `TAG.cpuNames` minus the player names, and the
   1760×990 world is rendered at a 960/1760 scale so the whole arena fits on screen.
   `TagSwimmer` handles the two players (co-op key sets) and CPU flee/chase steering —

@@ -7253,6 +7253,15 @@ async function main() {
   canvasPointerUp();
   await frames(3);
   assert.equal(courseBuilder.kind(), 'shell', 'clicking the SHELL row should pick that kind');
+  canvasPointerDown(560, 461);
+  await frames(2);
+  assert.ok(courseBuilder.cursorX > 3000, 'dragging the course slider should scrub the cursor forward');
+  movePointer(80, 461);
+  await frames(2);
+  assert.ok(courseBuilder.cursorX < 800, 'dragging the slider left should scrub back');
+  canvasPointerUp();
+  await frames(2);
+  assert.equal(courseBuilder.sliderDrag, false, 'releasing the slider should stop scrubbing');
   courseBuilder.selectItem(0);
   courseBuilder.cursorX = 300;
   courseBuilder.heightIndex.shell = 2;

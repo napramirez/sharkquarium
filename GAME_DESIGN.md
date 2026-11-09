@@ -269,7 +269,8 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   or a bubble pad sit on top of a rock, a floating ledge, or hang under a ceiling rock). The stingray, jelly, eel, urchin, and fish
   survive as **portal target modes only** (`RUSH_PORTAL_FORMS`), not hazards; an old save naming
   one of them as a hazard is migrated to a `portal`. `RushBuilderScene`
-  (`rushbuilder`, opened from MINIGAMES) is the editor: arrows move a cursor, a **vertical
+  (`rushbuilder`, opened from MINIGAMES) is the editor: arrows move a cursor, a **scrub slider**
+  along the bottom of the track drags the cursor across the whole course (with a goal tick), a **vertical
   scroll list on the right** (scroll with `Q`/`E`, the **mouse wheel**, or click a row, or
   `1`–`0`) lists the pieces (SHELL/SEAWEED/CEILING SHELL/CEILING WEED/ROCK/CEILING ROCK/PEARL/
   PRESSURE BUBBLE/GRAVITY BUBBLE/GRAVITY BUBBLE PAD/CEILING GRAVITY BUBBLE PAD/THRUST BUBBLE

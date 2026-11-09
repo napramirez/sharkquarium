@@ -54,6 +54,7 @@ const ITEM_LIST = [
 ];
 
 const PLAY_W = PANEL_X;
+const SLIDER = { x: 24, y: 456, w: PANEL_X - 48, h: 10 };
 
 const ACTIONS = {
   test: { x: 120, y: 496, w: 80, h: 30 },
@@ -97,6 +98,7 @@ export class RushBuilderScene extends Scene {
     this.heightIndex = {};
     for (const entry of ITEM_LIST) this.heightIndex[entry.kind] = 1;
     this.drag = null;
+    this.sliderDrag = false;
     this.status = 'PICK AN ITEM, MOVE WITH ARROWS, ENTER OR CLICK TO PLACE';
     this.statusTimer = 3.6;
   }
@@ -282,7 +284,28 @@ export class RushBuilderScene extends Scene {
     this.game.changeScene('reefrush', { course: true, fromBuilder: true, startX: start });
   }
 
+  sliderMax() {
+    return Math.max(this.goal, 2000);
+  }
+
+  sliderValue(px) {
+    return clamp((px - SLIDER.x) / SLIDER.w, 0, 1) * this.sliderMax();
+  }
+
+  sliderX(value) {
+    return SLIDER.x + clamp(value / this.sliderMax(), 0, 1) * SLIDER.w;
+  }
+
+  sliderHit(x, y) {
+    return x >= SLIDER.x - 10 && x <= SLIDER.x + SLIDER.w + 10 && y >= SLIDER.y - 10 && y <= SLIDER.y + SLIDER.h + 10;
+  }
+
   handlePointerDown(x, y) {
+    if (this.sliderHit(x, y)) {
+      this.sliderDrag = true;
+      this.cursorX = this.sliderValue(x);
+      return;
+    }
     const row = this.listRowAt(x, y);
     if (row >= 0 && row < ITEM_LIST.length) {
       this.selectItem(row);
@@ -369,6 +392,11 @@ export class RushBuilderScene extends Scene {
     } else if (input.wasPressed('confirm')) {
       const item = this.place(this.snapped());
       this.drag = { item, startY: GROUND_Y - 10, startH: item.h, moved: false, created: true };
+    }
+
+    if (this.sliderDrag) {
+      if (input.pointer.down) this.cursorX = this.sliderValue(input.pointer.x);
+      else this.sliderDrag = false;
     }
 
     if (this.drag) {
@@ -633,6 +661,23 @@ export class RushBuilderScene extends Scene {
     }
   }
 
+  renderSlider(ctx) {
+    const { x, y, w, h } = SLIDER;
+    fillRoundRect(ctx, x, y, w, h, h / 2, 'rgba(4, 16, 29, 0.72)');
+    strokeRoundRect(ctx, x, y, w, h, h / 2, 'rgba(207, 239, 255, 0.3)', 1.5);
+    const cx = this.sliderX(this.cursorX);
+    fillRoundRect(ctx, x, y, Math.max(0, cx - x), h, h / 2, 'rgba(99, 230, 255, 0.35)');
+    const gx = this.sliderX(this.goal);
+    ctx.fillStyle = COLORS.accent;
+    ctx.fillRect(gx - 1, y - 4, 2, h + 8);
+    fillRoundRect(ctx, cx - 7, y - 4, 14, h + 8, 7, COLORS.accent);
+    drawText(ctx, 'DRAG TO SCRUB THE COURSE', x + w / 2, y - 9, {
+      size: 9,
+      color: COLORS.textDim,
+      alpha: 0.7,
+    });
+  }
+
   renderButton(ctx, rect, label, active) {
     fillRoundRect(ctx, rect.x, rect.y, rect.w, rect.h, 9, active ? 'rgba(255, 209, 102, 0.9)' : 'rgba(10, 39, 64, 0.9)');
     strokeRoundRect(ctx, rect.x, rect.y, rect.w, rect.h, 9, 'rgba(207, 239, 255, 0.4)', 1.5);
@@ -745,6 +790,8 @@ export class RushBuilderScene extends Scene {
     strokeRoundRect(ctx, 0, AREA_TOP, PLAY_W, AREA_BOTTOM - AREA_TOP, 0, 'rgba(207, 239, 255, 0.18)', 1.5);
 
     this.renderList(ctx);
+
+    this.renderSlider(ctx);
 
     this.renderButton(ctx, ACTIONS.test, 'TEST', false);
     this.renderButton(ctx, ACTIONS.testHere, 'TEST HERE', false);

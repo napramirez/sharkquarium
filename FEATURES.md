@@ -1748,7 +1748,9 @@ The six arcade games (tickets in the payouts note below):
   THRUST BUBBLE PAD / FLOATING LEDGE / SLOPE UP / SLOPE DOWN — then the **modes** — STINGRAY /
   DART EEL / CRAB / URCHIN / JELLY / FISH (each places a
   portal with that target) — and the **gravity portals**: **GRAVITY PORTAL** flips you
-  upside-down and **NORMAL GRAVITY PORTAL** sets gravity back to normal. Press Enter or click to place at the
+  upside-down and **NORMAL GRAVITY PORTAL** sets gravity back to normal. A **scrub slider at the
+  bottom of the course** lets you drag the cursor quickly across the whole track (a goal tick marks
+  the finish) instead of tapping the arrow keys. Press Enter or click to place at the
   cursor (X removes, C clears, G-/G+ set the goal). **Clicking a rock or ceiling rock again
   stacks it**, **holding and dragging up/down resizes a piece**, and a **shell, ceiling shell,
   or bubble pad   placed over a rock, ceiling rock, or floating ledge rests on it** (its hitbox

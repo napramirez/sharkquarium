@@ -1,5 +1,6 @@
 import { rand, TAU } from '../engine/math.js';
 import { TAG, COLORS } from '../config.js';
+import { drawRagdollRipcord } from '../engine/ripcord.js';
 
 export class TagSwimmer {
   constructor({ name, color, cpu, controls = null, x = 0, y = 0, speedScale = 1, costume = 'none' }) {
@@ -255,6 +256,16 @@ export class TagSwimmer {
         ctx.closePath();
         ctx.fill();
       }
+      drawRagdollRipcord(ctx, this, time, {
+        anchorX: -radius * 0.7,
+        anchorY: radius * 0.1,
+        length: radius * 2.3,
+        segments: 8,
+        cordColor: '#2a2f36',
+        handleColor: '#c9d2da',
+        handleW: radius * 0.32,
+        handleH: radius * 0.46,
+      });
     } else if (this.costume === 'devil') {
       ctx.fillStyle = '#d2452f';
       for (const side of [-1, 1]) {

@@ -133,9 +133,13 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `drawAccessory(ctx, radius, time, frame)` now carries an optional render frame
   (`{ entity, heading, flip }`) so `plushie.js` can read each wearer's velocity: every
   plushie keeps its appendage chains in a `WeakMap` of spring/damper joints
-  (`STIFFNESS` 55, `DAMPING` 5.5) whose targets trail opposite `vx`/`vy` (mapped into the
-  entity's mirrored render space), straighten under speed, and sway at rest,
-  with per-creature specs for the seven divers, the moray, and the three rare pets.
+   (`STIFFNESS` 55, `DAMPING` 5.5) whose targets trail opposite `vx`/`vy` (mapped into the
+   entity's mirrored render space), straighten under speed, and sway at rest,
+   with per-creature specs for the seven divers, the moray, and the three rare pets.
+   `src/engine/ripcord.js` (`drawRagdollRipcord()`) is a lighter verlet rope (position-based
+   segments with gravity, damping, and velocity-driven inertia) used by the **RIP CORD** body
+   trinket and CHAIN-FIN's starter pull-cord; it stores its rope state on the wearer under
+   `_ripcord` and steps it from the render clock.
   Playable creatures render upright: every diver keeps a `facing` (`Entity.updateFacing()`
   sets it from `vx`) and its `render()` mirrors with `ctx.scale(facing, 1)` instead of
   rotating to `heading`, so swimming left faces the sprite left rather than flipping it

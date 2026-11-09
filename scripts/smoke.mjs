@@ -3186,7 +3186,7 @@ async function main() {
   );
   assert.ok(!seenHeads.has('bowtie'), 'body trinkets should stay out of the head catalog');
   assert.ok(
-    seenBodies.has('eelscarf') && seenBodies.has('angelwings'),
+    seenBodies.has('eelscarf') && seenBodies.has('angelwings') && seenBodies.has('ripcord'),
     'the coin body trinkets should join the body catalog',
   );
   assert.ok(!seenBodies.has('tophat'), 'head trinkets should stay out of the body catalog');

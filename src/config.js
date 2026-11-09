@@ -472,6 +472,7 @@ export const ACCESSORIES = [
   { key: 'sunglasses', label: 'SUNGLASSES', cost: 70, slot: 'head' },
   { key: 'bowtie', label: 'BOW TIE', cost: 50, slot: 'body' },
   { key: 'armor', label: 'SHELL ARMOR', cost: 120, slot: 'body' },
+  { key: 'ripcord', label: 'RIP CORD', cost: 160, slot: 'body' },
   { key: 'crown', label: 'CROWN', cost: 150, slot: 'head' },
   { key: 'pirate', label: 'PIRATE HAT', cost: 0, passOnly: true, slot: 'head' },
   { key: 'propeller', label: 'PROPELLER CAP', cost: 0, passOnly: true, slot: 'head' },

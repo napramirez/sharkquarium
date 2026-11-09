@@ -1,6 +1,7 @@
 import { ACCESSORIES } from '../config.js';
 import { TAU } from './math.js';
 import { drawPlushie } from './plushie.js';
+import { drawRagdollRipcord } from './ripcord.js';
 
 const catalog = new Map(ACCESSORIES.map((accessory) => [accessory.key, accessory]));
 const NONE = catalog.get('none');
@@ -84,6 +85,19 @@ function drawNeonJacket(ctx, rx, ry, time) {
 }
 
 function renderAccessory(ctx, key, r, time, frame) {
+  if (key === 'ripcord') {
+    drawRagdollRipcord(ctx, frame.entity ?? {}, time, {
+      anchorX: -r * 0.15,
+      anchorY: r * 0.1,
+      length: r * 1.9,
+      segments: 7,
+      cordColor: '#2a2f36',
+      handleColor: '#c7ccd2',
+      handleW: r * 0.34,
+      handleH: r * 0.5,
+    });
+    return;
+  }
   if (key === 'tophat') {
     ctx.fillStyle = '#1d1f2b';
     ctx.beginPath();

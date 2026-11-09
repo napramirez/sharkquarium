@@ -1320,7 +1320,8 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   Every trinket belongs to one slot (NONE is free in both). Coin trinkets: HEAD — PARTY
   CONE 60, SUNGLASSES 70, TOP HAT 80, EYE PATCH 90, SNORKEL & MASK 110, DEVIL HORNS 120,
   CROWN 150, STINGRAY HAT 160; BODY — BOW TIE 50, SHELL ARMOR 120, EEL SCARF 140,
-  ANGEL WINGS 220 — plus
+  **RIP CORD 160** (a starter-cord handle dangling on a verlet-physics rope that lags and swings
+  with your motion), ANGEL WINGS 220 — plus
   the pass-exclusive PIRATE HAT, PROPELLER CAP, and the PLAYPASS 5 cosmetics: the
   hue-cycling **NEON JACKET** and **eleven ragdoll plushies** (shark, stingray, squid,
   shrimp, crab, jelly, nautilus, moray, goldfish, baby shark, ghost jelly) that ride on
@@ -1456,7 +1457,8 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
 - TAG — players type their names first (two fields, or one in TAG SOLO), and each field has a
   **COSTUME** picker (`Tab` cycles it) and a **COLOR** picker (`◀`/`▶` cycles a shared palette)
   for their tag fish — original looks like CHAIN-FIN (a fish with a slanted chainsaw snout and
-  top handle, a rear handle overlapping its own tail fin, and fangs), with an eye vent painted
+  top handle, a rear handle overlapping its own tail fin, fangs, and a **ragdoll-physics starter
+  ripcord** dangling behind), with an eye vent painted
   in the player's color whose three black slits let a small glowing yellow eye show through,
   DEVIL FISH, FANG
   FISH, CYBER FIN, ANGEL FIN, LANTERN FISH, SPOOK FIN, plus **CRIMSON MANE** (red curved horns

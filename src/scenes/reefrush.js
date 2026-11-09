@@ -24,6 +24,7 @@ const DIFFICULTY_NAMES = {
   normal: 'CHOPPY',
   hard: 'RIPTIDE',
   apocalyptic: 'MAELSTROM',
+  frenzy: 'FRENZY DOMINANCE',
 };
 
 const FORM_PHYSICS = {

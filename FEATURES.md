@@ -93,7 +93,7 @@ Requirements:
   be started directly with an optional co-op toggle. A chosen tank starts with a fresh
   score and continues the normal chain from there.
 - SETTINGS holds the `CO-OP TANK SELECT` switch, the `DIFFICULTY` selector
-  (EASY / NORMAL / HARD / APOCALYPTIC WIPEOUT), the `VOLUME` slider (stepped in 10%
+  (EASY / NORMAL / HARD / APOCALYPTIC WIPEOUT / FRENZY DOMINANCE), the `VOLUME` slider (stepped in 10%
   steps; `Left`/`Right` adjust, clicking the track sets it), the `SFX` switch, the
   `3D MODE` switch (renders the game in 3D: every enemy, bubble, prop, and the player is
   drawn as a shaded 3D volume with a ground shadow, the background becomes a perspective
@@ -186,7 +186,7 @@ Requirements:
 | Shop          | COLOR picker, PLAYPASS, BACK         | Left/Right browses the color catalog; Enter buys/equips with sea coins; the playpass adds MINIGAMES to the menu |
 | Minigames     | COMPETITIONS (2P RACE), RACE (1P), TAG (2P + 5 CPU), TAG SOLO (1P + 5 CPU), PUFFERFISH DODGEBALL (2P), DODGEBALL SOLO (1P), LABYRINTH (2P), LABYRINTH SOLO (1P), PUFFER BALL (2P), PUFFER BALL VS CPU (1P), SCHOOL ROUNDUP (1P), JELLY ASCENT (1P), STEALTH DIVE (2P), STEALTH DIVE SOLO (1P), REEF CLEANUP (2P), REEF CLEANUP SOLO (1P), TRENCH DIVE (1P), TRENCH EXPLORE (1P), REEF RUSH — LEVELS, REEF RUSH (1P), REEF RUSH — MY TRACK (1P), REEF RUSH — MY COURSE (1P), REEF RUSH — COURSE BUILDER, BOSS RUSH (1P), MUTATOR: OFF/ON, RECORDS, BACK | Listed when the competitions playpass is owned; every game has a singleplayer variant beside its two-player mode. The arcade games charge a sea-coin ticket on every entry from this menu (the bank and each price are shown); the free games never charge. REEF RUSH is the original rhythm-runner (one-click jump, cone-shell spikes, cube-rock blocks, an original hand-authored course in the classic rhythm-runner pacing), REEF RUSH — MY TRACK runs it on a course built from the player's saved composer song, REEF RUSH — LEVELS is a sideways-scrolling shelf of original hand-built levels (each first clear plays an end cutscene and unlocks a free skin), REEF RUSH — MY COURSE runs a hand-built course and COURSE BUILDER is its editor, BOSS RUSH chains every horror boss into one gauntlet (also ticketed), MUTATOR opens the modifier picker, RECORDS opens the best-time board, and TAG LEADERBOARD opens the tag taggers/runners board |
 | Tank select   | CO-OP: OFF/ON, REEF TANK, STINGRAY TANK, DEEP SEA TANK, ARCTIC TANK, KELP FOREST TANK, JELLY TANK, NAUTILUS TANK, FRESHWATER TANK, ABYSS TRENCH TANK, REEF SWARM QUEEN, RAYCAST TANK, MYSTERIOUSLY QUIET TANK, THE ESCAPE, THE WATCHER, THE TRENCH MOUTH, PREHISTORIC TANK, PLAYTOY EXPLORATION, PETS TANK (with playpass 3), EMPTY TANK, MUTATOR: OFF/ON, BACK | ESC or BACK returns to the menu; choosing a tank starts it immediately. ABYSS TRENCH and REEF SWARM QUEEN run boss arenas (the leviathan and the swarm queen), RAYCAST runs the first-person wreck maze, MYSTERIOUSLY QUIET is the horror stealth tank, THE ESCAPE is its standalone escape chase, THE WATCHER is the look-away horror tank, THE TRENCH MOUTH is the anchor-against-the-gulp horror tank, PREHISTORIC TANK is the playable-lungfish chase, and PLAYTOY EXPLORATION is the sunken toy-liner exploration tank (Anchor-Pack tool). The list is long, so it **scrolls in a fixed window** (with up/down caret hints) as you move the selection, keeping the highlighted tank always on screen. MUTATOR opens the modifier picker; each tank card shows your best time/score |
-| Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, 3D MODE switch, FIRST PERSON MODE switch, REDUCE MOTION switch, CHRISTMAS MODE switch, HALLOWEEN MODE switch, NEW YEAR MODE switch, 8-BIT MODE switch, TRACK PLAYER, CUTSCENE THEATRE, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD/APOCALYPTIC WIPEOUT (Left/Right or click), adjusts master volume plus SFX, renders every object and background in 3D (extruded volumes, sphere bubbles, a perspective floor) and tilts the canvas, and switches every dive and minigame to a fullscreen, pointer-locked first-person raycast view from the selected creature (diver hidden, cursor hidden, mouse looks endlessly, WASD steers, a corner minimap); REDUCE MOTION damps the horror tanks' screen shake, zoom, and flash; the three mutually exclusive seasonal modes swap the soundtrack, menu particles, enemy hats, cosmetics, and theatre trailers; 8-BIT MODE renders everything to a tiny blocky pixel buffer with chiptune audio; opens the track player or the cutscene theatre; preferences persist |
+| Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, 3D MODE switch, FIRST PERSON MODE switch, REDUCE MOTION switch, CHRISTMAS MODE switch, HALLOWEEN MODE switch, NEW YEAR MODE switch, 8-BIT MODE switch, TRACK PLAYER, CUTSCENE THEATRE, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD/APOCALYPTIC WIPEOUT/FRENZY DOMINANCE (Left/Right or click), adjusts master volume plus SFX, renders every object and background in 3D (extruded volumes, sphere bubbles, a perspective floor) and tilts the canvas, and switches every dive and minigame to a fullscreen, pointer-locked first-person raycast view from the selected creature (diver hidden, cursor hidden, mouse looks endlessly, WASD steers, a corner minimap); REDUCE MOTION damps the horror tanks' screen shake, zoom, and flash; the three mutually exclusive seasonal modes swap the soundtrack, menu particles, enemy hats, cosmetics, and theatre trailers; 8-BIT MODE renders everything to a tiny blocky pixel buffer with chiptune audio; opens the track player or the cutscene theatre; preferences persist |
 | Track player  | MENU TRACK, REEF TRACK, STINGRAY TRACK, DEEP SEA TRACK, ARCTIC TRACK, KELP TRACK, PETS TRACK, JELLY TRACK, FRESHWATER TRACK, NAUTILUS TRACK, LABYRINTH TRACK, QUIET TRACK, REEF RUSH TRACK, MY TRACK, RUSH MY TRACK, EDIT MY TRACK, BACK | Plays or stops any level theme through the shared sequencer; the selected track shows its mood and BPM, the playing one shows a live equalizer; MY TRACK plays (or stops) the saved composition, RUSH MY TRACK runs REEF RUSH on a course built from it, and EDIT MY TRACK opens the builder; ESC returns to settings and the chosen track keeps playing |
 | Cutscene theatre | GAME TRAILER, SHARKQUARIUM: THE MOVIE, ALL-TANK GAMEPLAY, TANK TRAILERS, MINIGAME TRAILERS, SHOP TRAILER, INTRO SPLASH, DESCENT: REEF, DESCENT: STINGRAY, DESCENT: DEEP SEA, DESCENT: ARCTIC, DESCENT: KELP FOREST, DESCENT: JELLY, DESCENT: NAUTILUS, DESCENT: FRESHWATER, DAWN BREAKS, LABYRINTH TRAILER, WRECK ARRIVAL, MEGASQUID ENDING, THE ESCAPE, THE RISING, BACK | Replays any cutscene on demand without reaching it in play; each cutscene returns to the theatre when skipped or finished; SHARKQUARIUM: THE MOVIE is the longest cut — every tank and minigame in one ~55 s feature — ALL-TANK GAMEPLAY cuts the whole gauntlet into one run, TANK TRAILERS opens a nested nine-tank page of three-shot cut-downs, MINIGAME TRAILERS does the same for race, tag, dodgeball, and labyrinth, SHOP TRAILER tours the shop shelves with live-cycling colors, trinkets, trails, buddies, and auras, WRECK ARRIVAL stages the divers' arrival before the MEGASQUID appears on cue, THE ESCAPE replays the flooded-lab glass-shatter finale, and THE RISING replays the megasquid tearing a wreck apart |
 | Dawn cutscene | —                                    | Plays when the freshwater goal is met; ENTER returns to the menu |
@@ -960,14 +960,16 @@ target the nearest visible player.
   | Jellyfish spawn interval | 4.5–7.5 s   | ×0.5 by 60 s                          |
   | Jellyfish cap            | 3           | +1 every 30 s, up to 5                |
 
-- Difficulty (SETTINGS): EASY / NORMAL / HARD / APOCALYPTIC WIPEOUT are a dramatic
-  spread over enemy speeds (×0.5 / ×1 / ×1.6 / ×2.4), spawn intervals (×2 / ×1 / ×0.5 /
-  ×0.3), score penalties (×0.4 / ×1 / ×2 / ×3, rounded), invulnerability grace (×1.5 /
-  ×1 / ×0.6 / ×0.35), tank clocks (×1.5 / ×1 / ×0.75 / ×0.6), and pack charge thresholds
-  (×1.5 / ×1 / ×0.6 / ×0.4 — morays wake after 15 / 10 / 6 / 4 bubbles and seals dive
-  after 23 / 15 / 9 / 6 plankton). APOCALYPTIC WIPEOUT additionally compresses the
+- Difficulty (SETTINGS): EASY / NORMAL / HARD / APOCALYPTIC WIPEOUT / FRENZY DOMINANCE
+  are a dramatic
+  spread over enemy speeds (×0.5 / ×1 / ×1.6 / ×2.4 / ×4.5), spawn intervals (×2 / ×1 / ×0.5 /
+  ×0.3 / ×0.15), score penalties (×0.4 / ×1 / ×2 / ×3 / ×5, rounded), invulnerability grace (×1.5 /
+  ×1 / ×0.6 / ×0.35 / ×0.15), tank clocks (×1.5 / ×1 / ×0.75 / ×0.6 / ×0.35), and pack charge
+  thresholds (×1.5 / ×1 / ×0.6 / ×0.4 / ×0.2). APOCALYPTIC WIPEOUT compresses the
   spawn-rate ramp from 60 s to 30 s and floods the reef's jellyfish caps with two extra
-  slots (start 5, ceiling 7). NORMAL is the default and matches the tuning tables above.
+  slots; **FRENZY DOMINANCE** is the deliberately absurd top tier — the fastest, tightest,
+  most crowded run in the game (ramp 15 s, five extra hazard slots). NORMAL is the default and
+  matches the tuning tables above.
 - Best score persists under `sharkquarium.best-score` and is shown on the menu, the
   HUD, and the game over panel (`NEW BEST!` when beaten).
 - Settings persist under `sharkquarium.settings` as
@@ -1291,7 +1293,7 @@ ends in game over, PLAY AGAIN keeps the mode, and it never writes score or stats
 
 Sea coins are the soft currency, earned by completing dives — never in EMPTY TANK or in
 competitions. A completed dive banks `5 + 2 × score + 1 × elapsed seconds`, multiplied
-by the difficulty (EASY ×1, NORMAL ×1.5, HARD ×2.5, APOCALYPTIC WIPEOUT ×4) and by the
+by the difficulty (EASY ×1, NORMAL ×1.5, HARD ×2.5, APOCALYPTIC WIPEOUT ×4, FRENZY DOMINANCE ×8) and by the
 equipped color's payout bonus (below). The bank persists under `sharkquarium.coins`; new
 players start with a 500-coin welcome bank (`COINS.starting`), the game over panel shows
 the payout, and the menu shows the balance.
@@ -1651,7 +1653,7 @@ The six arcade games (tickets in the payouts note below):
   **JELLY** (tap to hop; holding does nothing and it sinks back, so spam the click to hover).
   The **STINGRAY** mode uses the game's own **spotted-ray model** and skin (drawn smaller) so
   it matches the Stingray Tank, and the HUD shows your current mode. Reach the distance marker
-  to win. Difficulty renames the settings tiers **CALM / CHOPPY / RIPTIDE / MAELSTROM** and
+  to win. Difficulty renames the settings tiers **CALM / CHOPPY / RIPTIDE / MAELSTROM / FRENZY DOMINANCE** and
   scales speed, gap spacing, and spike height. Costs 40 sea coins.
 - **REEF RUSH — LEVELS** is a **sideways-scrolling** shelf of original hand-built courses
   (scroll with Left/Right, play with Enter). **Clearing a level plays an end cutscene** (bubbles

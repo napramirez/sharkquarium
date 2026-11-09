@@ -1134,7 +1134,7 @@ placements, single-instance habitats, diving as every character, bump knockbacks
 persisted chill toggle, moray jaw proximity, the moray bite chomp, and saved layouts), the tank
 select with
 co-op toggle, the settings switches, difficulty selector (through
-APOCALYPTIC WIPEOUT), and
+FRENZY DOMINANCE), and
 volume slider with persistence, co-op two-creature control, the empty tank clock
 reaching game over, and the game over menu — failing on any runtime error. It also
 covers the shop (coin banking with difficulty scaling, failed and successful purchases,

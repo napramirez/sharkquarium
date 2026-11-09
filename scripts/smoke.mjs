@@ -2088,7 +2088,20 @@ async function main() {
     'apocalyptic should persist',
   );
   await tapKey('ArrowRight');
+  assert.equal(
+    game.scene.settings.difficulty,
+    'frenzy',
+    'the selector should reach FRENZY DOMINANCE beyond APOCALYPTIC WIPEOUT',
+  );
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.settings')).difficulty,
+    'frenzy',
+    'frenzy should persist',
+  );
+  await tapKey('ArrowRight');
   assert.equal(game.scene.settings.difficulty, 'easy', 'the difficulty selector should wrap around');
+  await tapKey('ArrowLeft');
+  assert.equal(game.scene.settings.difficulty, 'frenzy', 'the selector should step back into frenzy');
   await tapKey('ArrowLeft');
   assert.equal(
     game.scene.settings.difficulty,
@@ -2100,10 +2113,18 @@ async function main() {
   await tapKey('ArrowLeft');
   assert.equal(game.scene.settings.difficulty, 'normal', 'the difficulty selector should step back');
 
+  const frenzyPill = game.scene.difficultyPills().find((pill) => pill.key === 'frenzy');
   const apocPill = game.scene.difficultyPills().find((pill) => pill.key === 'apocalyptic');
   const difficultyRow = game.scene.menu.bounds[
     game.scene.menu.items.findIndex((item) => item.action === 'difficulty')
   ];
+  await clickAt(frenzyPill.x + frenzyPill.width / 2, difficultyRow.y + difficultyRow.height / 2);
+  await frames(2);
+  assert.equal(
+    game.scene.settings.difficulty,
+    'frenzy',
+    'clicking the FRENZY DOMINANCE pill should select it',
+  );
   await clickAt(apocPill.x + apocPill.width / 2, difficultyRow.y + difficultyRow.height / 2);
   await frames(2);
   assert.equal(
@@ -2942,6 +2963,13 @@ async function main() {
   assert.equal(game.scene.sealNeed, 6, 'apocalyptic should dive the seals after six plankton');
   assert.equal(game.scene.rules.rampScale, 0.5, 'apocalyptic should ramp spawn rates twice as fast');
   assert.equal(game.scene.rules.hazardBonus, 2, 'apocalyptic should add extra jellyfish to the caps');
+
+  storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'frenzy' }));
+  game.changeScene('play');
+  await frames(5);
+  assert.equal(game.scene.rules.enemySpeed, 4.5, 'frenzy should be far faster than apocalyptic');
+  assert.ok(game.scene.timeLimit < 18.5, 'frenzy should shorten the tank clock further still');
+  assert.ok(game.scene.rules.hazardBonus > 2, 'frenzy should add even more hazards than apocalyptic');
 
   storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'easy' }));
   game.changeScene('play');

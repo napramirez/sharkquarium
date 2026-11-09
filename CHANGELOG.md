@@ -145,6 +145,10 @@ lore inventory.
   glowing yellow eye), DEVIL FISH, FANG FISH, CYBER FIN, ANGEL FIN, LANTERN FISH,
   SPOOK FIN, **CRIMSON MANE** (red horns and mane), **TOPKNOT**, and **FALLEN ANGEL** (wings and
   a halo) — no third-party characters are used.
+- **FRENZY DOMINANCE difficulty** — a new top difficulty tier far beyond APOCALYPTIC WIPEOUT:
+  4.5× enemy speed, 0.15 spawn interval, 5× score penalty, 0.15 grace, 0.35× tank clocks,
+  a 15 s ramp, five extra hazard slots, an ×8 coin multiplier and an REEF RUSH 2.2× speed /
+  0.35 gap / 1.25× spike scale.
 - **Track builder** — a four-track sequencer reached from the TRACK PLAYER with **DRUMS /
   BASS / SYNTH / PIANO tabs** over a **piano-roll surface of horizontal lines** (no grid).
   Clicking a line places a tone block (higher lines = higher notes, stackable into chords),

@@ -31,6 +31,7 @@ export const COINS = {
     normal: 1.5,
     hard: 2.5,
     apocalyptic: 4,
+    frenzy: 8,
   },
 };
 
@@ -1142,6 +1143,7 @@ export const REEF_RUSH = {
     normal: { speed: 1, gap: 1, spike: 1 },
     hard: { speed: 1.18, gap: 0.82, spike: 1.15 },
     apocalyptic: { speed: 1.4, gap: 0.66, spike: 1.3 },
+    frenzy: { speed: 2.2, gap: 0.35, spike: 1.25 },
   },
   custom: {
     loops: 3,
@@ -1931,9 +1933,20 @@ export const DIFFICULTY = {
     rampScale: 0.5,
     hazardBonus: 2,
   },
+  frenzy: {
+    label: 'FRENZY DOMINANCE',
+    enemySpeed: 4.5,
+    spawnInterval: 0.15,
+    penalty: 5,
+    grace: 0.15,
+    chargeScale: 0.2,
+    timeScale: 0.35,
+    rampScale: 0.25,
+    hazardBonus: 5,
+  },
 };
 
-export const DIFFICULTY_ORDER = ['easy', 'normal', 'hard', 'apocalyptic'];
+export const DIFFICULTY_ORDER = ['easy', 'normal', 'hard', 'apocalyptic', 'frenzy'];
 
 export const COLORS = {
   abyss: '#04101d',

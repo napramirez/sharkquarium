@@ -1,5 +1,6 @@
 import { loadJSON, saveJSON } from './storage.js';
 import { COINS, COINS_KEY, STATS_KEY } from '../config.js';
+import { checkAchievements } from './achievements.js';
 
 let coinMultiplier = 1;
 
@@ -24,6 +25,8 @@ export function recordMinigame(won, multiplier = coinMultiplier) {
   if (won) stats.minigameWins += 1;
   saveJSON(STATS_KEY, stats);
   const reward = Math.round((COINS.minigamePlay + (won ? COINS.minigameWin : 0)) * multiplier);
-  saveJSON(COINS_KEY, loadJSON(COINS_KEY, COINS.starting) + reward);
+  const coins = loadJSON(COINS_KEY, COINS.starting) + reward;
+  saveJSON(COINS_KEY, coins);
+  checkAchievements({ wonMinigame: won, coins });
   return reward;
 }

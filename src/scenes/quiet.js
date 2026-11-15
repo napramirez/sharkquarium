@@ -9,6 +9,7 @@ import { loadJSON } from '../engine/storage.js';
 import { renderFirstPersonLevel } from '../engine/raycastview.js';
 import { firstPersonMode } from '../engine/mode3d.js';
 import { motionScale } from '../engine/motion.js';
+import { cute, renderCuteScare } from '../engine/cute.js';
 import { Echoeel } from '../entities/echoeel.js';
 import { Clutter } from '../entities/clutter.js';
 import { Shark } from '../entities/shark.js';
@@ -18,6 +19,9 @@ import { ArcticShrimp } from '../entities/arcticshrimp.js';
 import { KelpCrab } from '../entities/kelpcrab.js';
 import { MoonJelly } from '../entities/moonjelly.js';
 import { Nautilus } from '../entities/nautilus.js';
+import { Cuttlefish } from '../entities/cuttlefish.js';
+import { Dolphin } from '../entities/dolphin.js';
+import { SeaTurtle } from '../entities/seaturtle.js';
 import { applyWardrobe } from '../engine/wardrobe.js';
 import { drawSkinAura, setSkinClock } from '../engine/skin.js';
 import { drawTrail } from '../engine/trail.js';
@@ -53,6 +57,9 @@ const DIVE_CREATURES = [
   { key: 'kelpcrab', label: 'CRAB', type: KelpCrab },
   { key: 'jellyfish', label: 'JELLY', type: MoonJelly },
   { key: 'nautilus', label: 'NAUTILUS', type: Nautilus, options: { vertical: true } },
+  { key: 'cuttlefish', label: 'CUTTLEFISH', type: Cuttlefish },
+  { key: 'dolphin', label: 'DOLPHIN', type: Dolphin },
+  { key: 'seaturtle', label: 'SEA TURTLE', type: SeaTurtle },
 ];
 
 function segmentHitsRect(x1, y1, x2, y2, rect) {
@@ -1984,6 +1991,16 @@ export class QuietScene extends MinigameScene {
   renderScare(ctx) {
     const t = 1 - this.scareTimer / QUIET.scareDuration;
     const kind = this.scareKind ?? 'snap';
+    if (cute()) {
+      renderCuteScare(ctx, t, {
+        width: LOGICAL_WIDTH,
+        height: LOGICAL_HEIGHT,
+        time: this.time,
+        caption: 'THE ECHOEEL JUST WANTED TO SAY HELLO!',
+        radius: 74,
+      });
+      return;
+    }
     ctx.fillStyle = 'rgba(0, 0, 0, 0.96)';
     ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
 

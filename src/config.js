@@ -18,6 +18,26 @@ export const TRACK_BUILDER_KEY = 'sharkquarium.trackbuilder';
 export const RUSH_BUILDER_KEY = 'sharkquarium.rushcourse';
 export const RUSH_COURSES_KEY = 'sharkquarium.rushcourses';
 export const RUSH_PROGRESS_KEY = 'sharkquarium.rushprogress';
+export const ACHIEVEMENTS_KEY = 'sharkquarium.achievements';
+export const DAILY_KEY = 'sharkquarium.daily';
+
+export const ACHIEVEMENTS = [
+  { key: 'first_win', label: 'FIRST FIN', desc: 'Win any minigame.' },
+  { key: 'clear_any', label: 'DIVER, DIVER', desc: 'Clear any dive or tank.' },
+  { key: 'reef_rush', label: 'RHYTHM RUNNER', desc: 'Clear any REEF RUSH level, course, or MY TRACK.' },
+  { key: 'boss_slayer', label: 'BOSS SLAYER', desc: 'Clear the BOSS RUSH gauntlet.' },
+  { key: 'horror_survivor', label: 'GONE BUT NOT FORGOTTEN', desc: 'Escape a MUTANT HORRORS tank.' },
+  { key: 'playtoy_surface', label: 'SURFACE DWELLER', desc: 'Reach the surface of PlayToy Exploration.' },
+  { key: 'ray_collector', label: 'RAY COLLECTOR', desc: 'Scoop a stingray into the net in TRENCH EXPLORE.' },
+  { key: 'fashionista', label: 'FASHIONISTA', desc: 'Own ten shop cosmetics.' },
+  { key: 'deep_pockets', label: 'DEEP POCKETS', desc: 'Bank 5,000 sea coins.' },
+  { key: 'centurion', label: 'CENTURION', desc: 'Earn a score of 100 in a single dive.' },
+  { key: 'daily_diver', label: 'DAILY DIVER', desc: 'Finish a DAILY DIVE.' },
+  { key: 'fact_finder', label: 'FACT FINDER', desc: 'Open SEA FACTS from the menu.' },
+  { key: 'ink_and_hide', label: 'INK & HIDE', desc: 'Eat five sea slugs or octopuses in one COASTAL TANK run.' },
+  { key: 'cuttlefish_clad', label: 'CUTTLEFISH CLAD', desc: 'Own the CUTTLEFISH HAT and the PLUSH CUTTLEFISH.' },
+];
+
 
 export const COINS = {
   starting: 500,
@@ -123,6 +143,15 @@ export const SKINS = [
   { key: 'shadow', label: 'SHADOW', cost: 2500, special: 'shadow' },
   { key: 'rainbow', label: 'RAINBOW', cost: 2500, special: 'rainbow' },
   {
+    key: 'chaos',
+    label: 'CHAOS',
+    cost: 2500,
+    special: 'chaos',
+    body: '#ff2b2b',
+    accent: '#ff8f7a',
+    belly: '#ffe3d6',
+  },
+  {
     key: 'spottedray',
     label: 'SPOTTED RAY',
     cost: 0,
@@ -212,6 +241,17 @@ export const SKINS = [
     accent: '#ffb0a0',
     belly: '#ffd9d0',
     tail: '#7a1f1f',
+  },
+  {
+    key: 'redray',
+    label: 'RED RAY',
+    cost: 0,
+    caught: true,
+    ray: true,
+    body: '#e23a2e',
+    accent: '#ffd2c8',
+    belly: '#ffe7e0',
+    tail: '#a82218',
   },
   {
     key: 'sunsetray',
@@ -348,6 +388,14 @@ export const SKINS = [
     accent: '#a86fe0',
     belly: '#fbf6ff',
     tail: '#e0ccff',
+  },  {
+    key: 'deepcoral',
+    label: 'DEEP CORAL',
+    cost: 0,
+    passOnly: true,
+    body: '#ff7f6b',
+    accent: '#ffb26b',
+    belly: '#ffd9c9',
   },
 ];
 
@@ -402,6 +450,7 @@ export const PASSES = [
       'plushgoldfish',
       'plushbabyshark',
       'plushghostjelly',
+      'plushcuttlefish',
       'neonjacket',
     ],
     auras: ['eelaura'],
@@ -418,10 +467,10 @@ export const PASSES = [
     key: 'playpass7',
     label: 'PLAYPASS 7',
     cost: 1200,
-    grants: 'TRAILS — FIVE SWIM WAKES',
+    grants: 'TRAILS — SIX SWIM WAKES',
     skins: [],
     accessories: [],
-    trails: ['bubblestream', 'stardust', 'inkpuff', 'crackle', 'ribbon'],
+    trails: ['bubblestream', 'stardust', 'inkpuff', 'crackle', 'ribbon', 'chaosvolt'],
     companions: [],
   },
   {
@@ -448,12 +497,13 @@ export const PASSES = [
       'minioctopus',
       'miniturtle',
       'minichaser',
-      'mindarteel',
+      'minzipeel',
       'minicatfish',
       'minivolt',
       'minipiranha',
       'minipuffer',
       'megasquid',
+      'minicuttlefish',
     ],
   },
   {
@@ -462,6 +512,23 @@ export const PASSES = [
     cost: 1200,
     grants: 'AQUARIUM BUILDER — DECORATE YOUR OWN TANK',
     skins: [],
+    accessories: [],
+  },
+  {
+    key: 'playpass10',
+    label: 'PLAYPASS 10',
+    cost: 1200,
+    grants: 'CUTTLEFISH PACK — HAT, PLUSHIE, AND AURA',
+    skins: [],
+    accessories: ['cuttlefishhat', 'plushcuttlefish'],
+    auras: ['cuttlefishaura'],
+  },
+  {
+    key: 'playpass11',
+    label: 'PLAYPASS 11',
+    cost: 1200,
+    grants: 'DEEP CORAL — A DEEP CORAL COLOR',
+    skins: ['deepcoral'],
     accessories: [],
   },
 ];
@@ -489,12 +556,14 @@ export const ACCESSORIES = [
   { key: 'plushbabyshark', label: 'PLUSH BABY SHARK', cost: 0, passOnly: true, slot: 'body' },
   { key: 'plushghostjelly', label: 'PLUSH GHOST JELLY', cost: 0, passOnly: true, slot: 'body' },
   { key: 'neonjacket', label: 'NEON JACKET', cost: 0, passOnly: true, slot: 'body' },
+  { key: 'chaosjacket', label: 'CHAOS JACKET', cost: 340, slot: 'body' },
   { key: 'eyepatch', label: 'EYE PATCH', cost: 90, slot: 'head' },
   { key: 'snorkel', label: 'SNORKEL & MASK', cost: 110, slot: 'head' },
   { key: 'devilhorns', label: 'DEVIL HORNS', cost: 120, slot: 'head' },
   { key: 'eelscarf', label: 'EEL SCARF', cost: 140, slot: 'body' },
   { key: 'angelwings', label: 'ANGEL WINGS', cost: 220, slot: 'body' },
   { key: 'stingrayhat', label: 'STINGRAY HAT', cost: 160, slot: 'head' },
+  { key: 'chaosstingrayhat', label: 'CHAOS STINGRAY HAT', cost: 340, slot: 'head' },
   { key: 'santahat', label: 'SANTA HAT', cost: 0, slot: 'head' },
   { key: 'reindeer', label: 'REINDEER ANTLERS', cost: 0, slot: 'head' },
   { key: 'carrot', label: 'CARROT NOSE', cost: 0, slot: 'head' },
@@ -506,6 +575,8 @@ export const ACCESSORIES = [
   { key: 'grilledsquid', label: 'GRILLED SQUID', cost: 120, slot: 'costume' },
   { key: 'prawncrackers', label: 'PRAWN CRACKERS', cost: 100, slot: 'costume' },
   { key: 'chainfin', label: 'CHAIN-FIN', cost: 180, slot: 'costume' },
+  { key: 'cuttlefishhat', label: 'CUTTLEFISH HAT', cost: 170, slot: 'head' },
+  { key: 'plushcuttlefish', label: 'PLUSH CUTTLEFISH', cost: 0, passOnly: true, slot: 'body' },
 ];
 
 export const EMOTES = [
@@ -525,10 +596,12 @@ export const AURAS = [
   { key: 'stingrayaura', label: 'STINGRAY AURA', cost: 220 },
   { key: 'tridentaura', label: 'TRIDENT AURA', cost: 240 },
   { key: 'karambitaura', label: 'KARAMBIT AURA', cost: 260 },
+  { key: 'chaoskarambit', label: 'CHAOS KARAMBIT', cost: 340 },
   { key: 'sharkaura', label: 'SHARK AURA', cost: 280 },
   { key: 'swordaura', label: 'SWORD AURA', cost: 300 },
   { key: 'octopusaura', label: 'OCTOPUS AURA', cost: 320 },
   { key: 'snowflakeaura', label: 'SNOWFLAKE AURA', cost: 200 },
+  { key: 'cuttlefishaura', label: 'CUTTLEFISH AURA', cost: 320 },
 ];
 
 export const TRAILS = [
@@ -538,6 +611,7 @@ export const TRAILS = [
   { key: 'inkpuff', label: 'INK PUFF', cost: 0, passOnly: true },
   { key: 'crackle', label: 'ELECTRIC CRACKLE', cost: 0, passOnly: true },
   { key: 'ribbon', label: 'RAINBOW RIBBON', cost: 0, passOnly: true },
+  { key: 'chaosvolt', label: 'CHAOS VOLT CRACKLE', cost: 0, passOnly: true },
 ];
 
 export const COMPANIONS = [
@@ -560,12 +634,13 @@ export const COMPANIONS = [
   { key: 'minioctopus', label: 'MINI OCTOPUS', cost: 0, passOnly: true },
   { key: 'miniturtle', label: 'MINI TURTLE', cost: 0, passOnly: true },
   { key: 'minichaser', label: 'MINI CHASER', cost: 0, passOnly: true },
-  { key: 'mindarteel', label: 'MINI DART EEL', cost: 0, passOnly: true },
+  { key: 'minzipeel', label: 'MINI ZIP EEL', cost: 0, passOnly: true },
   { key: 'minicatfish', label: 'MINI CATFISH', cost: 0, passOnly: true },
   { key: 'minivolt', label: 'MINI VOLT EEL', cost: 0, passOnly: true },
   { key: 'minipiranha', label: 'MINI PIRANHA', cost: 0, passOnly: true },
   { key: 'minipuffer', label: 'MINI PUFFER', cost: 0, passOnly: true },
   { key: 'megasquid', label: 'MINI MEGASQUID', cost: 0, passOnly: true },
+  { key: 'minicuttlefish', label: 'MINI CUTTLEFISH', cost: 0, passOnly: true },
 ];
 
 export const TANK_INTROS = {
@@ -674,12 +749,62 @@ export const MODE_LABELS = {
   stealthSolo: 'STEALTH DIVE SOLO (1P)',
   cleanup: 'REEF CLEANUP (2P)',
   cleanupSolo: 'REEF CLEANUP SOLO (1P)',
+  dressbattle: 'DRESS UP BATTLE (2P)',
+  mutant_graft: 'THE GRAFT',
+  mutant_broodmother: 'THE BROODMOTHER',
+  mutant_spine: 'THE SPINE',
+  mutant_eyeswarm: 'THE EYESWARM',
+  mutant_moult: 'THE MOULT',
+  mutant_pupil: 'THE PUPIL',
+  mutant_mutagen: 'THE MUTAGEN',
+  mutant_harvest: 'THE HARVEST',
+  mutant_somatic: 'THE SOMATIC',
+  mutant_teratoma: 'THE TERATOMA',
   trench: 'TRENCH DIVE (1P)',
   trenchexplore: 'TRENCH EXPLORE (1P)',
   reefrush: 'REEF RUSH (1P)',
   reefrushcustom: 'REEF RUSH — MY TRACK',
   reefrushcourse: 'REEF RUSH — MY COURSE',
   reefrushlevel: 'REEF RUSH — LEVEL',
+  manta: 'MANTA RAY GLIDE',
+  cuttlefish: 'COASTAL TANK',
+  hermitcrab: 'HERMIT CRAB HOLD',
+  lighthouse: 'THE LIGHTHOUSE',
+  pressure: 'THE PRESSURE',
+  cleaner: 'THE CLEANER STATION',
+  migration: 'THE MIGRATION',
+  deadcalm: 'DEAD CALM',
+};
+
+export const MANTA = {
+  radius: 30,
+  maxSpeed: 300,
+  gravity: 250,
+  thrust: 640,
+  maxRise: 360,
+  maxSink: 300,
+  response: 5,
+  turnResponse: 9,
+};
+
+export const CUTTLEFISH = {
+  radius: 24,
+  maxSpeed: 260,
+  response: 6,
+  turnResponse: 10,
+  camoFade: 3,
+};
+
+export const HERMIT = {
+  radius: 26,
+  maxSpeed: 220,
+  response: 6,
+  turnResponse: 10,
+  shells: [
+    { key: 'small', label: 'TINY SHELL', armor: 1, speed: 1.25 },
+    { key: 'kelp', label: 'KELP SHELL', armor: 2, speed: 1 },
+    { key: 'spiral', label: 'SPIRAL SHELL', armor: 3, speed: 0.8 },
+  ],
 };
 
 export const SOLO_VARIANT_SCENES = ['tag', 'dodgeball', 'labyrinth', 'pufferball', 'stealth', 'cleanup'];
@@ -687,7 +812,14 @@ export const SOLO_VARIANT_SCENES = ['tag', 'dodgeball', 'labyrinth', 'pufferball
 export const RECORD_GROUPS = [
   {
     title: 'THE TANKS',
-    modes: ['reef', 'stingray', 'deepsea', 'arctic', 'kelp', 'jelly', 'nautilus', 'freshwater', 'pets'],
+    modes: ['reef', 'stingray', 'deepsea', 'arctic', 'kelp', 'jelly', 'nautilus', 'freshwater', 'pets', 'manta', 'cuttlefish', 'hermitcrab', 'lighthouse', 'pressure', 'cleaner', 'migration', 'deadcalm'],
+  },
+  {
+    title: 'MUTANT HORRORS',
+    modes: [
+      'mutant_graft', 'mutant_broodmother', 'mutant_spine', 'mutant_eyeswarm', 'mutant_moult',
+      'mutant_pupil', 'mutant_mutagen', 'mutant_harvest', 'mutant_somatic', 'mutant_teratoma',
+    ],
   },
   {
     title: 'BOSS ARENAS',
@@ -697,7 +829,7 @@ export const RECORD_GROUPS = [
     title: 'MINIGAMES',
     modes: [
       'raceSolo', 'tagSolo', 'dodgeballSolo', 'labyrinthSolo', 'pufferballSolo', 'roundup',
-      'jellyascent', 'stealthSolo', 'cleanupSolo', 'trench', 'trenchexplore', 'reefrush', 'reefrushcustom', 'reefrushcourse', 'reefrushlevel', 'bossrush',
+      'jellyascent', 'stealthSolo', 'cleanupSolo', 'dressbattle', 'trench', 'trenchexplore', 'reefrush', 'reefrushcustom', 'reefrushcourse', 'reefrushlevel', 'bossrush',
     ],
   },
 ];
@@ -1003,7 +1135,57 @@ export const PLAYTOY = {
   clampRadius: 10,
   exitHalf: 54,
   spawnX: 120,
+  chase: {
+    radius: 76,
+    speed: 150,
+    lungeSpeed: 300,
+    lungeTime: 0.7,
+    lungeEvery: 2.6,
+    sweepEvery: 3.4,
+    stunTime: 2.6,
+    staggerTime: 2.0,
+    spawnLead: 280,
+    safePad: 90,
+    latchReach: 34,
+  },
 };
+
+export const PLAYTOY_EEL = {
+  body: '#5f9a86',
+  belly: '#d9e6c2',
+  spot: '#3c6f5f',
+  seam: '#284a40',
+  socket: '#140b0c',
+  gum: '#c0606a',
+  tooth: '#efe4cf',
+  mouth: '#571318',
+  thread: '#e6dcc4',
+  button: '#8a6a3a',
+};
+
+export const MUTANT = {
+  lives: 3,
+  worldLength: 4700,
+  startPadding: 460,
+  exitLength: 360,
+  playerSpeed: 305,
+  hunterSpeed: 150,
+  wallSpacing: 300,
+  scareTime: 1.5,
+};
+
+export const MUTANT_VARIANTS = [
+  { key: 'graft', label: 'THE GRAFT', blurb: 'SEVER ITS PARTS BEFORE IT GRAFTS NEW ONES' },
+  { key: 'broodmother', label: 'THE BROODMOTHER', blurb: 'CAUTERIZE THE SPAWN SAC' },
+  { key: 'spine', label: 'THE SPINE', blurb: 'IT HEARS YOUR MOVEMENT — GO STILL' },
+  { key: 'eyeswarm', label: 'THE EYESWARM', blurb: 'STAY IN ITS BLIND CONE' },
+  { key: 'moult', label: 'THE MOULT', blurb: 'OUTRUN THE SKIN IT SHEDS' },
+  { key: 'pupil', label: 'THE PUPIL', blurb: 'MOVE ONLY WHEN IT BLINKS' },
+  { key: 'mutagen', label: 'THE MUTAGEN', blurb: 'PURGE THE EXPOSURE BEFORE YOU TURN' },
+  { key: 'harvest', label: 'THE HARVEST', blurb: 'FREE THE GRAFTED, THEN RUN' },
+  { key: 'somatic', label: 'THE SOMATIC', blurb: 'THE FLESH DIGESTS THE STILL' },
+  { key: 'teratoma', label: 'THE TERATOMA', blurb: 'SEVER THE VEINS IN ORDER' },
+];
 
 export const PLAYTOY_PALETTE = {
   top: '#123039',
@@ -1171,6 +1353,36 @@ export const REEF_RUSH_PALETTE = {
   ray: 'rgba(120, 230, 255, 0.05)',
 };
 
+export const DEAD_CALM = {
+  worldLength: 5600,
+  startX: 180,
+  gravity: 1500,
+  jump: 940,
+  airControl: 0.72,
+  runSpeed: 250,
+  maxFall: 980,
+  platformMin: 140,
+  platformMax: 280,
+  gapMin: 210,
+  gapMax: 430,
+  ledgeTopMin: 250,
+  ledgeTopMax: 430,
+  mutagenDrop: 46,
+  vortexSpeed: 640,
+  vortexLife: 0.92,
+  vortexCooldown: 0.32,
+  clawRange: 150,
+  creatureCount: 9,
+  monsterSpeed: 70,
+  monsterDiveSpeed: 560,
+  monsterBurstHeight: 180,
+  monsterBurstTime: 0.55,
+  monsterRecoverTime: 0.8,
+  monsterRadius: 46,
+  monsterHearRange: 760,
+  lives: 3,
+};
+
 export const LORE = [  {
     title: 'THE WRECK',
     entries: [
@@ -1221,7 +1433,7 @@ export const LORE = [  {
       },
       {
         name: 'NAUTILUS TANK',
-        text: 'The chase turns vertical: a nautilus sinks past whale skeletons and darting eels while a chaser shark stalks from above, eating the bait squids the nautilus dodges.',
+        text: 'The chase turns vertical: a nautilus sinks past whale skeletons and zip eels while a chaser shark stalks from above, eating the bait squids the nautilus dodges.',
       },
       {
         name: 'FRESHWATER TANK',
@@ -1267,6 +1479,34 @@ export const LORE = [  {
         name: 'PLAYTOY EXPLORATION',
         text: 'The sunken cargo liner of the PlayToy Company, a toymaker whose goofy fantasy sea-creature plush sold out every shelf. Its flooded holds are still full — and some of the toys are still awake, stitching themselves into new shapes in the dark. Armed with the ANCHOR-PACK and its three anchor heads, you pick through the wreck collecting PlayToy\u2019s scattered notes, prying sealed gates, and hauling the too-alive merchandise off your back. Recovered notes are kept in your inventory (press \u2018I\u2019) and can be read again whenever you like.',
       },
+      {
+        name: 'MANTA RAY GLIDE',
+        text: 'Open blue water, and you in the body of a manta ray. It sinks unless you hold UP or SPACE to flap, so the whole run is one long, gliding negotiation with the drift. Thread the pulsing scoring rings for points; the drifting jellyfish trail their stings through the lanes, and a touch costs one of three lives. Reach the far open water to end the glide.',
+      },
+      {
+        name: 'COASTAL TANK',
+        text: 'The brightest, bluest shallows on the map, where the sun reaches the sand and turtles paddle slow circles in the open water. Here lives the cuttlefish: its short arms are clumped into a triangle at the front that frays open as it swims, and two feeding tentacles, each tipped with a diamond sucker pad, stay hidden inside it until SPACE shoots them out to drag prey into its beak. The sea slugs and small octopuses here are wary — frighten a slug and it poisons the water, so hold RIGHT CLICK to camouflage before you come close, and octopuses jet away in a blink unless you HOLD E to HYPNO-COLOR-PULSE them stiff. Stunned or soothed, either can be reeled in and eaten. Around you rise beds of coral — tall and short, big and small — and every so often a pod of five dolphins sweeps the shallows hunting for a meal: camouflage with RIGHT CLICK and hold still against the coral until they pass, or they will eat you. Three lives, and every bite or poison is a scare and a checkpoint.',
+      },
+      {
+        name: 'HERMIT CRAB HOLD',
+        text: 'A hermit crab walks the seabed with one problem: its shell. Crawl with A and D, hop with SPACE, and swap shells with E — a tiny shell scuttles fast but cracks on big urchins, a heavy spiral shell shrugs them off and drags like a stone. Touch the spare shells scattered along the floor to upgrade mid-run, dip and bounce past urchins your armor can handle, and reach the safe rock.',
+      },
+      {
+        name: 'THE LIGHTHOUSE',
+        text: 'A drowned lighthouse stands over the trench and its lantern still turns, sweeping a blade of light down the flooded shaft. Climb the tower through the dark, using the shadows along the wall; the beam does not kill, but linger in it and the KEEPER\'s exposure meter fills until it finds you. Falling debris rains down the shaft; reach the lantern room at the top and you are through.',
+      },
+      {
+        name: 'THE PRESSURE',
+        text: 'The trench floor is far below and the water there wants to crush you. DESCEND past roaming trench fish, and watch the PRESSURE meter rise the deeper you go — it climbs faster the deeper you are. Warm air vents bubble up off the wall; hold still inside one and the pressure bleeds away. Make the floor before the meter fills.',
+      },
+      {
+        name: 'THE CLEANER STATION',
+        text: 'A cleaner station on the reef, where a line of moray eels \u2014 drawn with the stingray tank\u2019s own moray model \u2014 hangs with their jaws wide open waiting to be serviced. You are the cleaning shrimp \u2014 orange and translucent, a red back stripe laced with a thinner white one, white antennae and legs. Each moray wears a speech bubble: a bubble showing the cleaning shrimp means it wants its mouth debris picked clean \u2014 swim to its face and hold SPACE; a bubble showing an open mouth means it is hungry and will snap you up, so steer clear. Loose parasites drift the water and burrow into anything they touch, and a LURKER works the reef looking for a distracted cleaner. Service every moray on the station.',
+      },
+      {
+        name: 'THE MIGRATION',
+        text: 'Once a year the whole reef empties into a single current, and the school knows the way. Stay inside the drifting band of the school — slip outside it and your SCHOOL meter drains until the current takes you — while you ride the stream toward the spawning grounds. Hunters break the line from below, so keep to the crowd and keep moving until the grounds.',
+      },
     ],
   },
   {
@@ -1299,6 +1539,10 @@ export const LORE = [  {
       {
         name: 'NAUTILUS',
         text: 'A spiral-shelled drifter that swims freely up and down, sinking past whale bones while the bait squids take the shark\u2019s attention.',
+      },
+      {
+        name: 'CUTTLEFISH',
+        text: 'A red, round-finned shape-shifter with a blue mantle fin and dark stripes, playable as a diver in every tank and minigame that lets you pick one. It is a creature of the shallows and does not care for the deep. Hold right-click and its skin fades toward the water for camouflage, SPACE flicks its two sucker-tipped feeding tentacles out, and its short arm cluster frays open when it moves.',
       },
       {
         name: 'THE ANCHOR-PACK',
@@ -1346,7 +1590,7 @@ export const LORE = [  {
         text: 'The nautilus tank\u2019s stalker, hunting from above. It eats the squids the nautilus dodges — and will happily take the nautilus too.',
       },
       {
-        name: 'DART EELS',
+        name: 'ZIP EELS',
         text: 'Ribbon-bodied eels that dart across the deep, quick as thrown spears and just as sharp about winning a race.',
       },
       {
@@ -1397,6 +1641,55 @@ export const LORE = [  {
         name: 'LIVING TOYS',
         text: 'PlayToy\u2019s merchandise, awake and loose in the sunken liner. Button-eyed plush sea creatures — BUBBLE-FANG, WIBBLE, CRANK-FIN, GLOOP-LO — that wander the holds and latch onto anything warm. They were stitched to be loved; adrift in the dark, they only know how to cling. Aim the ANCHOR-PACK at one: the MAIN head knocks it spinning away, the ELECTRICONDUCTOR head stuns it stiff, and the PRESSURE head shoves it off the deck.',
       },
+      {
+        name: 'THE EEL TOY',
+        text: 'PlayToy\u2019s biggest line and the reason the final hold was sealed: a huge stitched plush eel whose face has come apart. Its button eyes are torn out and hang by their threads, its lips are ripped off to bare pink gums and interlocking teeth, and stuffing leaks from the seams. Cross into the last hold and it wakes, rippling through the bulkheads to run you down, lunging in bursts and sweeping its long body. Fire the ELECTRICONDUCTOR anchor into the live circuit to stun it, or the PRESSURE anchor into the cargo latch to drop a crate and stagger it, and keep swimming for the surface hatch.',
+      },
+    ],
+  },
+  {
+    title: 'THE MUTANT HORRORS',
+    entries: [
+      {
+        name: 'THE GRAFT',
+        text: 'A spliced hunter stitched from mismatched parts. When it passes a corpse it tears the flesh loose and welds it on as a fresh limb, so every diver it has already claimed makes it faster. Sever its limbs with the torch, or keep it away from the dead.',
+      },
+      {
+        name: 'THE BROODMOTHER',
+        text: 'A bloated, translucent host that births malformed spawn in waves. The spawn swarm anything warm. Cut through to the incubator sac at the end of the hold and hold the cauterizer on it while the brood keeps coming.',
+      },
+      {
+        name: 'THE SPINE',
+        text: 'An eyeless, vertebral millipede of fused ribs and backbones. It has no eyes and no ears \u2014 it reads the water by vibration, so it races when you swim and loses you when you go still. Time your dashes between its listening.',
+      },
+      {
+        name: 'THE EYESWARM',
+        text: 'A tumour-mass of fused eyes that sees in every direction but one. Sweep through its blind cone while the gaze turns, and never step into the eye-light.',
+      },
+      {
+        name: 'THE MOULT',
+        text: 'A thing that sheds its skins. Each shed skin is a decoy that wears its shape, and the real body sloughs away to a new spot behind you. Outlast its moulting and reach the exit.',
+      },
+      {
+        name: 'THE PUPIL',
+        text: 'One colossal eye with a hand-shaped iris. When it blinks the room rearranges and the gates swing open, then it lunges along the line of sight. Move only on the blink.',
+      },
+      {
+        name: 'THE MUTAGEN',
+        text: 'A gene-leak hold where the mutagen thickens the water. As your exposure climbs, grotesque parts bud from your diver \u2014 extra eyes, a twitching second set of limbs \u2014 that make you faster but harder to steer, then worse. Purge at the scrubbers before you turn.',
+      },
+      {
+        name: 'THE HARVEST',
+        text: 'A collector that farms divers and grafts the living into the walls. Every graft you tear free slows you and enrages it. Free enough of them, then run for the exit.',
+      },
+      {
+        name: 'THE SOMATIC',
+        text: 'A hold where flesh has grown over every wall. It digests whatever holds still, so lingering is fatal \u2014 and the walls are already closing in. Vent heat to clear the flesh ahead and never stop moving.',
+      },
+      {
+        name: 'THE TERATOMA',
+        text: 'A giant beating tumour-heart pumping acid through vein-gates. The veins must be severed in the numbered order before the clock runs out; cut the wrong one and it bites back.',
+      },
     ],
   },
   {
@@ -1439,6 +1732,10 @@ export const LORE = [  {
         text: 'Nudge floating wreckage into the recycle net while three moray holes lunge from the floor. Two divers clean faster. Costs 40 sea coins at the door.',
       },
       {
+        name: 'DRESS UP BATTLE',
+        text: 'A two-player brawl where your shop cosmetics are your weapons. Both divers dress in an in-game replica of the shop, then fight: \u2018J\u2019 or \u20181\u2019 lunges (a CHAIN-FIN costume makes it a heavier saw-lunge) and \u2018K\u2019 or \u20182\u2019 deploys your aura for five seconds. Weapon auras shoot \u2014 trident and sword fire straight shots then cool down, while the karambits spin and boomerang back with no cooldown. Living auras (octopus, stingray, shark, eel) unleash an attack creature that can be killed and turn your lunge into an unstoppable dive. Power auras wound the foe: NEON kills aura creatures and blinds, SNOWFLAKE freezes their tail to slow them, BUBBLE knocks them back. Food costumes heal their eater when health runs low, and a trail stuns on a fast contact. Drop the other diver to zero health to win.',
+      },
+      {
         name: 'TRENCH DIVE',
         text: 'A sixty-second descent through ice barriers, gold pearls, shifting currents, and bands of black water. Three crunches and the trench keeps you. Costs 45 sea coins at the door.',
       },
@@ -1448,7 +1745,7 @@ export const LORE = [  {
       },
       {
         name: 'REEF RUSH',
-        text: 'An original rhythm-runner through a neon reef. One left-click jumps; the reef scrolls itself and the course is laid out on the beat of its own driving theme. Cone-shaped SHELLS and low SEAWEED are ground spikes, with matching CEILING SHELLS and CEILING WEEDS hanging from the roof; cube-shaped ROCKS are blocks you land on and can stack, and CEILING ROCKS hang from the roof the same way. PEARLS are collectibles, PRESSURE BUBBLES are air pickups \u2014 click while touching one for a free jump-boost even in mid-water \u2014 GRAVITY BUBBLES turn gravity upside-down whatever mode you are in (a second one sends you back down), GRAVITY BUBBLE PADS and CEILING GRAVITY BUBBLE PADS flip gravity just by touching them (and hold it until you touch another), and THRUST BUBBLE PADS and CEILING THRUST BUBBLE PADS fire an automatic extra jump away from their surface the moment you touch them, like a rhythm-runner jump pad. FLOATING LEDGES are thin platforms you can stand on at any height from just above the floor to just under the roof, and SLOPE UP / SLOPE DOWN ramps carry you smoothly up and down. PORTALS transform you into one of eight swimmer modes \u2014 FISH (a plain portal that turns you back into the normal fish), STINGRAY (hold to fly), DART EEL (the dart-eel head from the Nautilus Tank on a body that trails behind it like the moray eel, following the path it has swum; hold to climb, a short click makes a small zig, and it dives back down on its own), CRAB (each click flips gravity, snapping it to the ceiling or the floor), URCHIN (like the crab but it drifts up instead of snapping), JELLY (tap to hop up, no holding \u2014 it sinks back, so spam the click to hover), NAUTILUS (a swing: each click flips gravity in mid-air, but touching the floor, ceiling, or any obstacle kills; it puffs a visible water-and-bubble jet from its funnel, slanted up before it drops and slanted down before it rises), and MANTIS SHRIMP (a bright lime-and-cyan jumper \u2014 no robot, it just leaps as high as one \u2014 with clubbed forelimbs, pink eyestalk eyes, and a long segmented tail: a short tap is a low hop, while press-and-hold charges a super-jump on release) \u2014 each with its own movement, and the non-fish forms are modes only, never hazards. REEF RUSH \u2014 MY TRACK turns your saved composer song into a lively course built to stay clearable \u2014 chords become one spike or block, nothing is taller than a jump, ground obstacles are kept a jump apart, hanging hazards ride the synth, and the gaps rotate through portals, floating ledges, thrust bubble pads, and gravity bubbles. REEF RUSH \u2014 LEVELS is a sideways-scrolling shelf that opens with eight demonstration levels teaching each portal mode \u2014 FISH BASICS, STINGRAY FLIGHT, DART EEL ZIG, CRAB HOP, URCHIN DRIFT, JELLY HOVER, NAUTILUS SWING and SHRIMP SUPER-JUMP \u2014 then five original hand-built courses: SUNLIT REEF (fish shell jumps), KELP CROSSING (dart eel through tight gates), STINGRAY ALLEY and JELLY BLOOM (pillars with holes to thread), and DEEP CURRENT (urchin pillars then a crab slalom). Choosing any level opens a paged briefing before the run \u2014 turn pages with Left or Right and press Enter or click to advance, and the last page starts the level; clear one and an original cutscene plays, and each first clear unlocks a free skin. Costs 40 sea coins at the door.',
+        text: 'An original rhythm-runner through a neon reef. One left-click jumps; the reef scrolls itself and the course is laid out on the beat of its own driving theme. Cone-shaped SHELLS and low SEAWEED are ground spikes, with matching CEILING SHELLS and CEILING WEEDS hanging from the roof; cube-shaped ROCKS are blocks you land on and can stack, and CEILING ROCKS hang from the roof the same way. PEARLS are collectibles, PRESSURE BUBBLES are air pickups \u2014 click while touching one for a free jump-boost even in mid-water \u2014 GRAVITY BUBBLES turn gravity upside-down whatever mode you are in (a second one sends you back down), GRAVITY BUBBLE PADS and CEILING GRAVITY BUBBLE PADS flip gravity just by touching them (and hold it until you touch another), and THRUST BUBBLE PADS and CEILING THRUST BUBBLE PADS fire an automatic extra jump away from their surface the moment you touch them, like a rhythm-runner jump pad. FLOATING LEDGES are thin platforms you can stand on at any height from just above the floor to just under the roof, and SLOPE UP / SLOPE DOWN ramps carry you smoothly up and down. PORTALS transform you into one of eight swimmer modes \u2014 FISH (a plain portal that turns you back into the normal fish), STINGRAY (hold to fly), ZIP EEL (the zip-eel head from the Nautilus Tank on a body that trails behind it like the moray eel, following the path it has swum; hold to climb, a short click makes a small zig, and it dives back down on its own), CRAB (each click flips gravity, snapping it to the ceiling or the floor), URCHIN (like the crab but it drifts up instead of snapping, and it can only flip gravity while touching a surface, not in mid-air), JELLY (tap to hop up, no holding \u2014 it sinks back, so spam the click to hover), NAUTILUS (a swing: each click flips gravity in mid-air; shells and weeds are fatal, but it can come to rest on the floor or the ceiling, or on top of rocks or beneath ceiling rocks, and it puffs a visible water-and-bubble jet from its funnel, slanted up before it drops and slanted down before it rises), and MANTIS SHRIMP (a bright lime-and-cyan jumper \u2014 no robot, it just leaps as high as one \u2014 with clubbed forelimbs, pink eyestalk eyes, and a long segmented tail: a short tap is a low hop, while press-and-hold charges a super-jump on release) \u2014 each with its own movement, and the non-fish forms are modes only, never hazards. REEF RUSH \u2014 MY TRACK turns your saved composer song into a lively course built to stay clearable \u2014 chords become one spike or block, nothing is taller than a jump, ground obstacles are kept a jump apart, hanging hazards ride the synth, and the gaps rotate through portals, floating ledges, thrust bubble pads, and gravity bubbles. REEF RUSH \u2014 LEVELS is a sideways-scrolling shelf that opens with eight demonstration levels teaching each portal mode \u2014 FISH BASICS, STINGRAY FLIGHT, ZIP EEL ZIG, CRAB HOP, URCHIN DRIFT, JELLY HOVER, NAUTILUS SWING and SHRIMP SUPER-JUMP \u2014 then five original hand-built courses: SUNLIT REEF (fish shell jumps), KELP CROSSING (zip eel through tight gates), STINGRAY ALLEY and JELLY BLOOM (pillars with holes to thread), and DEEP CURRENT (urchin pillars then a crab slalom). Choosing any level opens a paged briefing before the run \u2014 turn pages with Left or Right and press Enter or click to advance, and the last page starts the level; clear one and an original cutscene plays, and each first clear unlocks a free skin. Costs 40 sea coins at the door.',
       },
     ],
   },
@@ -1464,12 +1761,12 @@ export const LORE = [  {
         text: 'A settings switch that turns every dive and minigame into a fullscreen, pointer-locked raycaster from the selected creature: a software-built 3D room of the level walls with depth-sorted billboards, WASD movement, mouse look, and a corner minimap. The quiet lab, the flooded escape, the watcher, the trench mouth, and the PlayToy holds all run under it.',
       },
       {
-        name: 'REDUCE MOTION',
-        text: 'A comfort switch that damps the horror tanks\u2019 screen shake, zoom, and flash for players who would rather read the scares than feel them.',
+        name: 'CUTE MODE',
+        text: 'A comfort switch that makes the whole sharkquarium adorable. Every creature wears blush and a little floating heart, every enemy model wears a big-eyed, smiling cartoon face that blinks, a soft pink glow drifts over the water, and the horror tanks\u2019 jump scares are replaced by a pastel, big-eyed card with a friendly caption instead of the dark zoom \u2014 with the shake, zoom, and flash damped as well. It replaces the old REDUCE MOTION switch and does its job too.',
       },
       {
         name: 'COSTUMES AND THE KARAMBIT',
-        text: 'The shop dresses a diver in food now — SHARK FIN DISH, SAMBAL STINGRAY, GRILLED SQUID, PRAWN CRACKERS — and the karambit aura spins a shifting blade in a color to match the equipped skin.',
+        text: 'The shop dresses a diver in food now — SHARK FIN DISH, SAMBAL STINGRAY, GRILLED SQUID, PRAWN CRACKERS — and the karambit aura spins a shifting blade in a color to match the equipped skin. The CHAOS color is pure glowing red all over, with inverted eyes, a black-pulsing tail, and red lightning crackling around the edge; the CHAOS KARAMBIT glitches blue/red shadows, and the CHAOS JACKET and CHAOS STINGRAY HAT wear the same red crackle.',
       },
       {
         name: 'EMOTES',
@@ -1533,9 +1830,76 @@ export const LORE = [  {
       },
       {
         name: 'REEF RUSH COURSE BUILDER',
-        text: 'A side-view editor for hand-building your own REEF RUSH run. Slide the cursor along the track with the arrow keys, then pick an item from the scroll-down list on the right \u2014 scroll it with Q and E, the mouse wheel, or click a row (1\u20130 also jumps to a row). The list holds the PIECES (SHELL, SEAWEED, CEILING SHELL, CEILING WEED, ROCK, CEILING ROCK, FAKE ROCK, CEILING FAKE ROCK, PEARL, PRESSURE BUBBLE, GRAVITY BUBBLE, GRAVITY BUBBLE PAD, CEILING GRAVITY BUBBLE PAD, THRUST BUBBLE PAD, CEILING THRUST BUBBLE PAD, FLOATING LEDGE, SLOPE UP, SLOPE DOWN) then the MODES (STINGRAY, DART EEL, CRAB, URCHIN, JELLY, FISH, NAUTILUS, SHRIMP \u2014 each drops a portal that transforms you into that swimmer), and the GRAVITY PORTALS (GRAVITY PORTAL flips you upside-down and NORMAL GRAVITY PORTAL sets gravity back, whatever mode you are in). Press Enter or click to place (X removes, C clears, G- and G+ stretch the goal). Click a rock or ceiling rock again to STACK it, hold and drag up or down to RESIZE a piece, and drop a shell, ceiling shell, or bubble pad over a rock, ceiling rock, or floating ledge to rest it on top, and place a FAKE ROCK or CEILING FAKE ROCK for a darker decoy that stacks on the real rock but can be swum straight through; a normal or ceiling rock can also rest on a fake one. TEST drops you straight into your course and TEST HERE starts you at the cursor so you can try any part, and returning to the builder after a test draws a debug overlay of that run \u2014 a dashed trajectory line, a blinking red circle where you died, a red triangle where you jumped and a red square where you landed \u2014 and ESC saves. The course bar at the top keeps several named courses \u2014 the < and > buttons (or the [ and ] keys) switch between them, RENAME (or R) gives the current one a new name, and NEW (or N) saves the current course and starts a fresh one. Nothing copyrighted ships here \u2014 every course is one you drew yourself.',
+        text: 'A side-view editor for hand-building your own REEF RUSH run. Slide the cursor along the track with the arrow keys, then pick an item from the scroll-down list on the right \u2014 scroll it with Q and E, the mouse wheel, or click a row (1\u20130 also jumps to a row). The list holds the PIECES (SHELL, SEAWEED, CEILING SHELL, CEILING WEED, ROCK, CEILING ROCK, FAKE ROCK, CEILING FAKE ROCK, PEARL, PRESSURE BUBBLE, GRAVITY BUBBLE, GRAVITY BUBBLE PAD, CEILING GRAVITY BUBBLE PAD, THRUST BUBBLE PAD, CEILING THRUST BUBBLE PAD, FLOATING LEDGE, SLOPE UP, SLOPE DOWN) then the MODES (STINGRAY, ZIP EEL, CRAB, URCHIN, JELLY, FISH, NAUTILUS, SHRIMP \u2014 each drops a portal that transforms you into that swimmer), and the GRAVITY PORTALS (GRAVITY PORTAL flips you upside-down and NORMAL GRAVITY PORTAL sets gravity back, whatever mode you are in). Press Enter or click to place (X removes, C clears, G- and G+ stretch the goal). Click a rock or ceiling rock again to STACK it, hold and drag up or down to RESIZE a piece, and drop a shell, ceiling shell, or bubble pad over a rock, ceiling rock, or floating ledge to rest it on top, and place a FAKE ROCK or CEILING FAKE ROCK for a darker decoy that stacks on the real rock but can be swum straight through; a normal or ceiling rock can also rest on a fake one. TEST drops you straight into your course and TEST HERE starts you at the cursor so you can try any part, and returning to the builder after a test draws a debug overlay of that run \u2014 a dashed trajectory line, a blinking red circle where you died, a red triangle where you jumped and a red square where you landed \u2014 and ESC saves. The course bar at the top keeps several named courses \u2014 the < and > buttons (or the [ and ] keys) switch between them, RENAME (or R) gives the current one a new name, and NEW (or N) saves the current course and starts a fresh one. Nothing copyrighted ships here \u2014 every course is one you drew yourself.',
       },
     ],
+  },
+];
+
+export const SEA_FACTS = [
+  {
+    name: 'SHARK',
+    text: 'The shark never stops moving to breathe: most species must keep water flowing over their gills, so they swim with their mouths just open. Instead of bone it has a skeleton of flexible cartilage, and its skin is covered in tiny tooth-like scales, so the rough grain runs one way \u2014 stroke it nose to tail and it feels smooth, but tail to nose it rasps like sandpaper. A shark has no ribcage either, which is why it can turn a whole body-length to swallow a meal, and it can feel the faint electric field of a heartbeat through jelly-filled pores on its snout.',
+  },
+  {
+    name: 'STINGRAY',
+    text: 'A stingray is a flattened shark, and a very flat one: its huge pectoral fins have grown over its sides until the body itself became the wing, and its gills sit on the underside. It pumps water in through spiracles on top of its head so it can breathe even while buried in sand. The \u201csting\u201d is a serrated spine near the tail base, and a ray is the only common fish that both glides and, when startled, vanishes in a burst of sand with a single wingbeat.',
+  },
+  {
+    name: 'SQUID',
+    text: 'A squid swims backwards better than forwards. It fills its mantle with water and fires it through a funnel that can pivot, so it can jet in any direction and outrun most things in short bursts. It sees in colour even in dim water, has three hearts, and pumps blue blood. Its skin is a living screen: muscles stretch tiny pigment sacs to change colour and pattern in the blink of a thought, and its arm-tip suckers each carry a hard ring of teeth that grips like the tread of a tire.',
+  },
+  {
+    name: 'ARCTIC SHRIMP',
+    text: 'A shrimp is nearly all shell and spring. Its armour is lifted and bent by muscles that snap the tail down so fast the whole animal flicks backwards out of danger. It tastes the world through its feet, wears its heart just behind its head, and its gills are built into the bases of its legs. In cold seas it can grow slower, live for many years, and shift sex over a lifetime, which helps a crowd of them keep breeding even when food is thin.',
+  },
+  {
+    name: 'KELP CRAB',
+    text: 'A crab grows by cracking out of its own shell, and for a while after each moult it is soft and hidden in a corner \u2014 so it eats hard just before shedding, swelling up before the new shell sets. It walks sideways because its knees bend outward, but it can scuttle almost as fast forward. Its claws are mismatched on purpose: one is a cruncher for shells, the other a fine pair of tweezers, tools for two different jobs on one body.',
+  },
+  {
+    name: 'JELLYFISH',
+    text: 'A jelly is 95 parts water and has no brain, heart, or bones — just a simple net of nerves and a fringe of muscles that squeeze the bell to swim. It decides almost nothing; it mostly listens to the water. Some jellies can clone themselves into shards of young, some can reverse their own age, and their trailing tentacles fire the fastest stings in the sea, exploding on contact before a fish knows it has touched them.',
+  },
+  {
+    name: 'NAUTILUS',
+    text: 'The nautilus is a living fossil: it has drifted the deep almost unchanged for hundreds of millions of years. Its spiral shell is a chain of gas-filled rooms it seals one by one and floats by pumping gas in or out. It has around ninety suckerless tentacles and a pinhole eye with no lens. It rides the dark by day and rises at night to scavenge, gliding with a slightly clumsy, ancient motion unchanged since before the dinosaurs.',
+  },
+  {
+    name: 'CUTTLEFISH',
+    text: 'The cuttlefish is the chameleon of the sea with a far better screen: two thin, undulating fins run the length of its body, and its skin changes colour, pattern, and even texture on demand to bluff predators or mesmerise prey. It can glow, it can pulse bands of colour across its mantle, and it can HYPNO-COLOR-PULSE a shrimp with ripples of light before striking with two long feeding tentacles. Instead of bones it carries a flat chalky \u201ccuttlebone\u201d that steers its buoyancy \u2014 the same one that washes up on beaches. It keeps to the sunlit shallows and the reef rather than the cold deep, so you will usually find it near the coast and the coral.',
+  },
+  {
+    name: 'MANTA RAY',
+    text: 'A manta is the largest ray and a filter-feeder: it funnels plankton through its mouth while swimming with its mouth open on a slow, looping flight. Its two front lobes are not horns but fins that steer food inward, and inside its gills it traps the tiny life in comb-like plates. Mantas are among the few animals that pass the mirror test, seeming to know their own reflection, and they leap clear of the surface for reasons no one can fully explain.',
+  },
+  {
+    name: 'HERMIT CRAB',
+    text: 'A hermit crab is born without a shell and spends its life looking for one, then outgrowing it. As it grows it queues for upgrades, and hungry crabs will line up in a row by size and trade shells one after another like a slow-moving market. Its abdomen is soft and twisted to hook through the spiral of its borrowed home, and it seals the doorway with one oversized claw when it wants to be left alone.',
+  },
+  {
+    name: 'DOLPHIN',
+    text: 'A dolphin breathes air on purpose, and only half of its brain sleeps at a time \u2014 so it never truly stops swimming. It \u201csees\u201d the shape of things by clicking and listening to the echoes, and it can recognise itself in a mirror. A pod hunts as one team, herding fish into a tight ball, and a dolphin will leap clear of the surface just for the fun of it.',
+  },
+  {
+    name: 'MORAY EEL',
+    text: 'The moray looks like it is always snarling, but those teeth just hold its jaw open so water can pass over the gills. It hides in a crevice by day and strikes by night, and it can smell a wounded fish from far off. Morays and groupers have even been seen hunting together, one flushing prey from a hole while the other waits outside.',
+  },
+  {
+    name: 'MEGASQUID',
+    text: 'The giant squid is one of the great mysteries of the deep: no one has watched a healthy one alive for long. It has the largest eye in the animal kingdom \u2014 the size of a dinner plate \u2014 to catch the faint glow of a whale above, and it fights back with suckers ringed in chitin teeth. Most of what is known comes from beaks found in whale stomachs.',
+  },
+  {
+    name: 'SEA TURTLE',
+    text: 'A sea turtle is a land animal that went back to the water. It must surface to breathe, but it can slow its heart for long dives, and it navigates thousands of kilometres using the Earth\u2019s magnetic field. A hatchling born on one beach can find that same beach again decades later to lay its own eggs.',
+  },
+  {
+    name: 'ANGLERFISH',
+    text: 'The anglerfish carries its own light: a glowing lure on a fishing-rod spine grown from its head, lit by bacteria it keeps in a little bulb. In the black deep that light is the whole world, so prey swims right toward it. Its stomach can stretch to swallow a meal larger than itself, and its teeth fold inward so nothing swims back out.',
+  },
+  {
+    name: 'THE SHOP',
+    text: 'Everything in the shop is a color, a creature, a head or body trinket, a costume, a trail, a dive buddy, an aura, or an emote \u2014 and every one of them rides on the diver you take into any tank. Trinkets are just for looks, but in DRESS UP BATTLE they become your weapons, so a hat you bought for fun can also be a fighting style.',
   },
 ];
 
@@ -1558,11 +1922,14 @@ export const AQUARIUM = {
     { key: 'ENEMY:turtle', label: 'TURTLE' },
     { key: 'ENEMY:puffer', label: 'PUFFERFISH' },
     { key: 'ENEMY:angler', label: 'ANGLERFISH' },
-    { key: 'ENEMY:eel', label: 'DART EEL' },
+    { key: 'ENEMY:eel', label: 'ZIP EEL' },
     { key: 'ENEMY:moray', label: 'MORAY EEL' },
     { key: 'ENEMY:seal', label: 'SEAL' },
     { key: 'ARCHWAY', label: 'EEL ARCHWAY' },
     { key: 'LEDGES', label: 'ANGLER LEDGES' },
+    { key: 'REEFGARDEN', label: 'REEF GARDEN' },
+    { key: 'CORALFAN', label: 'CORAL FAN' },
+    { key: 'CORALSPIRE', label: 'CORAL SPIRE' },
   ],
   labyrinth: {
     gates: 4,
@@ -1971,7 +2338,7 @@ export const DIFFICULTY = {
     hazardBonus: 2,
   },
   frenzy: {
-    label: 'FRENZY DOMINANCE',
+    label: 'FRANTIC FRENZY',
     enemySpeed: 4.5,
     spawnInterval: 0.15,
     penalty: 5,
@@ -2104,6 +2471,12 @@ export const NAUTILUS_PALETTE = {
   top: '#123c4a',
   bottom: '#04181f',
   ray: 'rgba(140, 225, 225, 0.05)',
+};
+
+export const COASTAL_PALETTE = {
+  top: '#38b6f0',
+  bottom: '#0b62b4',
+  ray: 'rgba(255, 255, 255, 0.09)',
 };
 
 export const CORAL_PALETTE = ['#e8834f', '#d95f8a', '#a06fd0', '#4fb3a5', '#e8b04f'];

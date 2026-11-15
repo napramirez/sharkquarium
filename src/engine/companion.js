@@ -8,9 +8,10 @@ import { drawKelpCrabBody } from '../entities/kelpcrab.js';
 import { drawMoonJellyBody } from '../entities/moonjelly.js';
 import { drawNautilusBody } from '../entities/nautilus.js';
 import { drawMorayBody } from '../entities/eel.js';
-import { drawDartEel } from '../entities/darteel.js';
+import { drawZipEel } from '../entities/zipeel.js';
 import { drawElectricEel } from '../entities/electriceel.js';
 import { drawMegasquid, drawMegasquidEye } from '../entities/megasquid.js';
+import { drawCuttlefishBody } from '../entities/cuttlefish.js';
 
 const catalog = new Map(COMPANIONS.map((entry) => [entry.key, entry]));
 const NONE = catalog.get('none');
@@ -19,6 +20,7 @@ const states = new WeakMap();
 let active = NONE;
 
 export function companionByKey(key) {
+  if (key === 'mindarteel') key = 'minzipeel';
   return catalog.get(key) ?? NONE;
 }
 
@@ -57,7 +59,7 @@ function drawBubblePal(ctx, r, age, phase) {
   ctx.stroke();
 }
 
-function drawBabyMoray(ctx, r, age, phase) {
+export function drawBabyMoray(ctx, r, age, phase) {
   drawMorayBody(ctx, r * 0.36, buddyPose(age, phase), EEL_VARIANTS[1]);
 }
 
@@ -129,11 +131,11 @@ function drawMiniCrab(ctx, r, age, phase) {
   drawKelpCrabBody(ctx, r * 0.5, buddyPose(age, phase));
 }
 
-function drawMiniShark(ctx, r, age, phase) {
+export function drawMiniShark(ctx, r, age, phase) {
   drawSharkBody(ctx, r * 0.62, buddyPose(age, phase));
 }
 
-function drawMiniStingray(ctx, r, age, phase) {
+export function drawMiniStingray(ctx, r, age, phase) {
   drawStingrayBody(ctx, r * 0.66, buddyPose(age, phase));
 }
 
@@ -147,6 +149,12 @@ function drawMiniShrimp(ctx, r, age, phase) {
 
 function drawMiniNautilus(ctx, r, age, phase) {
   drawNautilusBody(ctx, r * 0.55, buddyPose(age, phase));
+}
+
+function drawMiniCuttlefish(ctx, r, age, phase) {
+  const pose = buddyPose(age, phase);
+  pose.splay = 0.35;
+  drawCuttlefishBody(ctx, r * 0.66, pose);
 }
 
 function drawMiniAngler(ctx, r, age, phase) {
@@ -236,7 +244,7 @@ function drawMiniSeal(ctx, r, age, phase) {
   }
 }
 
-function drawMiniOctopus(ctx, r, age, phase) {
+export function drawMiniOctopus(ctx, r, age, phase) {
   ctx.lineCap = 'round';
   for (let i = 0; i < 4; i += 1) {
     const sway = Math.sin(age * 4.5 + phase + i * 1.3) * r * 0.28;
@@ -393,8 +401,8 @@ function drawMiniChaser(ctx, r, age, phase) {
   ctx.fill();
 }
 
-function drawMiniDartEel(ctx, r, age, phase) {
-  drawDartEel(ctx, r * 0.34, { age, direction: 1, wavePhase: phase });
+function drawMiniZipEel(ctx, r, age, phase) {
+  drawZipEel(ctx, r * 0.34, { age, direction: 1, wavePhase: phase });
 }
 
 function drawMiniCatfish(ctx, r, age, phase) {
@@ -713,11 +721,12 @@ export function drawCompanion(ctx, entity) {
   else if (active.key === 'minioctopus') drawMiniOctopus(ctx, r, entity.age, state.phase);
   else if (active.key === 'miniturtle') drawMiniTurtle(ctx, r, entity.age, state.phase);
   else if (active.key === 'minichaser') drawMiniChaser(ctx, r, entity.age, state.phase);
-  else if (active.key === 'mindarteel') drawMiniDartEel(ctx, r, entity.age, state.phase);
+  else if (active.key === 'minzipeel') drawMiniZipEel(ctx, r, entity.age, state.phase);
   else if (active.key === 'minicatfish') drawMiniCatfish(ctx, r, entity.age, state.phase);
   else if (active.key === 'minivolt') drawMiniVolt(ctx, r, entity.age, state.phase);
   else if (active.key === 'minipiranha') drawMiniPiranha(ctx, r, entity.age, state.phase);
   else if (active.key === 'minipuffer') drawMiniPuffer(ctx, r, entity.age, state.phase);
   else if (active.key === 'megasquid') drawMiniMegasquid(ctx, r, entity.age, state.phase);
+  else if (active.key === 'minicuttlefish') drawMiniCuttlefish(ctx, r, entity.age, state.phase);
   ctx.restore();
 }

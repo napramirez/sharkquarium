@@ -6,6 +6,7 @@ import { drawText } from './render.js';
 import { is8Bit, PIXEL_WIDTH, PIXEL_HEIGHT } from './retro.js';
 import { drawMemeOverlay } from './meme.js';
 import { isMobilite, renderMobilite, updateMobilite } from './mobilite.js';
+import { renderCuteGrade } from './cute.js';
 import { FIRST_PERSON } from '../config.js';
 
 const FIRST_PERSON_SCENES = new Set([
@@ -26,6 +27,7 @@ const FIRST_PERSON_SCENES = new Set([
   'watcher',
   'mouth',
   'playtoy',
+  'mutant',
 ]);
 
 export const FIXED_STEP = 1 / 60;
@@ -260,6 +262,7 @@ export class Game {
   renderScene(ctx) {
     if (this.scene) this.scene.render(ctx, this.width, this.height);
     if (this.scene && this.scene.renderMutatorOverlay) this.scene.renderMutatorOverlay(ctx);
+    renderCuteGrade(ctx, this.width, this.height, this.scene ? this.scene.time : 0);
     if (this.music && this.music.track && this.music.track.title) {
       drawText(ctx, `NOW PLAYING · ${this.music.track.title}`, this.width - 14, 14, {
         size: 11,

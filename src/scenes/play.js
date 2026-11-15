@@ -28,7 +28,7 @@ import { Catfish } from '../entities/catfish.js';
 import { Nautilus } from '../entities/nautilus.js';
 import { ChaserShark } from '../entities/chasershark.js';
 import { WhaleSkeleton } from '../entities/whaleskeleton.js';
-import { DartEel } from '../entities/darteel.js';
+import { ZipEel } from '../entities/zipeel.js';
 import { BaitSquid } from '../entities/baitsquid.js';
 import { KelpCrab } from '../entities/kelpcrab.js';
 import { KelpForest } from '../entities/kelpforest.js';
@@ -91,7 +91,7 @@ import { drawTrail, setActiveTrail, trailByKey } from '../engine/trail.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
 import { recordMinigame } from '../engine/progress.js';
 import { recordWin } from '../engine/records.js';
-import { mutatorByKey, mutatorCoinMult, drawMutatorDarkness } from '../engine/mutators.js';
+import { mutatorByKey, mutatorCoinMult, drawMutatorDarkness, MUTATORS } from '../engine/mutators.js';
 import {
   ANGELFISH,
   ANGLER,
@@ -111,6 +111,7 @@ import {
   ELECTRIC_EEL,
   COINS,
   COINS_KEY,
+  DAILY_KEY,
   FRESHWATER,
   FRESHWATER_PALETTE,
   GOLDEN,
@@ -156,6 +157,24 @@ const TANK_TRACKS = {
   nautilus: NAUTILUS_TRACK,
 };
 
+function dailyMutatorKey() {
+  const pool = MUTATORS.filter((m) => m.key !== 'none');
+  if (!pool.length) return 'none';
+  const d = new Date();
+  const seed = d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate();
+  return pool[seed % pool.length].key;
+}
+
+function weeklyMutatorKey() {
+  const pool = MUTATORS.filter((m) => m.key !== 'none');
+  if (!pool.length) return 'none';
+  const d = new Date();
+  const start = new Date(d.getFullYear(), 0, 1);
+  const week = Math.floor((d - start) / (7 * 86400000));
+  const seed = d.getFullYear() * 100 + week;
+  return pool[seed % pool.length].key;
+}
+
 export class PlayScene extends Scene {
   setMutator(key) {
     this.mutator = mutatorByKey(key);
@@ -184,9 +203,15 @@ export class PlayScene extends Scene {
     this.empty = Boolean(params.empty);
     this.race = Boolean(params.race);
     this.solo = Boolean(params.solo);
-    this.endless = Boolean(params.endless);
+    this.daily = Boolean(params.daily);
+    this.weekly = Boolean(params.weekly);
+    this.endless = Boolean(params.endless) || this.daily || this.weekly;
     this.lives = this.endless ? ROUND.endlessLives : 0;
-    this.mutator = mutatorByKey(params.mutator ?? (this.mutator ? this.mutator.key : undefined));
+    this.mutator = this.daily
+      ? mutatorByKey(dailyMutatorKey())
+      : this.weekly
+        ? mutatorByKey(weeklyMutatorKey())
+        : mutatorByKey(params.mutator ?? (this.mutator ? this.mutator.key : undefined));
     this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
     this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
     this.eelNeed = Math.max(1, Math.round(EEL.bubblesPerHunt * this.rules.chargeScale));
@@ -339,7 +364,7 @@ export class PlayScene extends Scene {
     this.weeds = [];
     this.electricEels = [];
     this.skeletons = [];
-    this.dartEels = [];
+    this.zipEels = [];
     this.baitSquids = [];
     this.nautilusShark = this.nautilusTank ? new ChaserShark() : null;
     this.corals = this.tank === 'reef' && !this.empty ? this.buildCorals() : [];
@@ -356,7 +381,7 @@ export class PlayScene extends Scene {
     this.weedTimer = rand(1.2, 2.4);
     this.bubbleRowTimer = rand(0.8, 1.6);
     this.skeletonTimer = rand(1.5, 3);
-    this.dartEelTimer = rand(2, 3.5);
+    this.zipEelTimer = rand(2, 3.5);
     this.baitSquidTimer = rand(2.5, 4);
     this.speckles = this.stingrayTank || this.freshwater || this.kelp
       ? Array.from({ length: SAND.speckles }, () => ({
@@ -895,10 +920,10 @@ export class PlayScene extends Scene {
           rand(NAUTILUS.spawnSkeletonMin, NAUTILUS.spawnSkeletonMax) * spawnScale;
         this.spawnSkeleton();
       }
-      this.dartEelTimer -= dt;
-      if (this.dartEelTimer <= 0 && this.dartEels.length < NAUTILUS.maxEels) {
-        this.dartEelTimer = rand(NAUTILUS.spawnEelMin, NAUTILUS.spawnEelMax) * spawnScale;
-        this.spawnDartEel();
+      this.zipEelTimer -= dt;
+      if (this.zipEelTimer <= 0 && this.zipEels.length < NAUTILUS.maxEels) {
+        this.zipEelTimer = rand(NAUTILUS.spawnEelMin, NAUTILUS.spawnEelMax) * spawnScale;
+        this.spawnZipEel();
       }
       this.baitSquidTimer -= dt;
       if (this.baitSquidTimer <= 0 && this.baitSquids.length < NAUTILUS.maxSquids) {
@@ -1050,8 +1075,8 @@ export class PlayScene extends Scene {
     this.skeletons.push(new WhaleSkeleton());
   }
 
-  spawnDartEel() {
-    this.dartEels.push(new DartEel());
+  spawnZipEel() {
+    this.zipEels.push(new ZipEel());
   }
 
   spawnBaitSquid() {
@@ -1110,7 +1135,7 @@ export class PlayScene extends Scene {
         skeleton.update(dt, this.scrollSpeed);
         return skeleton.alive && skeleton.y > -170;
       });
-      this.dartEels = this.dartEels.filter((eel) => {
+      this.zipEels = this.zipEels.filter((eel) => {
         eel.update(dt, this.scrollSpeed);
         return eel.alive && eel.y > -140;
       });
@@ -1295,7 +1320,7 @@ export class PlayScene extends Scene {
           this.bite(player, player.x - skeleton.x, player.y - skeleton.y, NAUTILUS.skeletonPenalty, 320, 1, [COLORS.bone, COLORS.boneDark, '#ffffff'], { freq: 90, endFreq: 45, duration: 0.4, volume: 0.3 });
           break;
         }
-        for (const eel of this.dartEels) {
+        for (const eel of this.zipEels) {
           if (!circleOverlap(player, eel)) continue;
           this.bite(player, player.x - eel.x, player.y - eel.y, NAUTILUS.eelPenalty, 300, 1, [COLORS.eel, '#8fae76', '#ffffff'], { freq: 240, endFreq: 90, duration: 0.22, volume: 0.28 });
           break;
@@ -2026,10 +2051,22 @@ export class PlayScene extends Scene {
           mutatorCoinMult(this.mutator),
       );
       saveJSON(COINS_KEY, loadJSON(COINS_KEY, COINS.starting) + coins);
-      this.newRecord = recordWin(this.endless ? 'endless' : this.tank, {
-        time: this.elapsed,
-        score: this.score,
-      });
+      this.newRecord = recordWin(
+        this.daily ? 'daily' : this.weekly ? 'weekly' : this.endless ? 'endless' : this.tank,
+        { time: this.elapsed, score: this.score },
+      );
+      if (this.daily) {
+        const today = new Date();
+        const key = `${today.getFullYear()}-${today.getMonth() + 1}-${today.getDate()}`;
+        const prev = new Date(today);
+        prev.setDate(today.getDate() - 1);
+        const yesterday = `${prev.getFullYear()}-${prev.getMonth() + 1}-${prev.getDate()}`;
+        const saved = loadJSON(DAILY_KEY, {});
+        const streak = saved.last === yesterday ? (saved.streak ?? 0) + 1 : saved.last === key ? (saved.streak ?? 1) : 1;
+        saveJSON(DAILY_KEY, { last: key, streak });
+        this.streakBonus = streak * 5;
+        saveJSON(COINS_KEY, loadJSON(COINS_KEY, COINS.starting) + this.streakBonus);
+      }
     }
     return {
       score: this.score,
@@ -2124,7 +2161,7 @@ export class PlayScene extends Scene {
       ...(this.minnows ?? []),
       ...(this.bonus ?? []),
       ...(this.baitSquids ?? []),
-      ...(this.dartEels ?? []),
+      ...(this.zipEels ?? []),
       ...(this.petEnemies ?? []),
       ...(this.lures ?? []),
       ...(this.food ?? []),
@@ -2227,7 +2264,7 @@ export class PlayScene extends Scene {
     for (const minnow of this.minnows) minnow.render(ctx);
     for (const entity of this.bonus) entity.render(ctx);
     for (const squid of this.baitSquids) squid.render(ctx);
-    for (const eel of this.dartEels) eel.render(ctx);
+    for (const eel of this.zipEels) eel.render(ctx);
     if (this.nautilusShark) this.nautilusShark.render(ctx);
     for (const enemy of this.petEnemies) enemy.render(ctx);
     for (const lure of this.lures) lure.render(ctx);

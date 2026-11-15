@@ -1,8 +1,8 @@
 import { Entity } from './entity.js';
 import { clamp, lerp, TAU } from '../engine/math.js';
 import { CONTROLS, NAUTILUS, PLAYER, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
-import { playerColor } from '../engine/skin.js';
-import { drawAccessory } from '../engine/accessory.js';
+import { playerColor, eyeOpen, eyeOpenFor, drawEye, drawPupil } from '../engine/skin.js';
+import { drawAccessory, activeBodyKey } from '../engine/accessory.js';
 import { drawEmote, startEmote, updateEmote } from '../engine/emotes.js';
 
 export class Nautilus extends Entity {
@@ -60,7 +60,7 @@ export class Nautilus extends Entity {
     }
     this.speed = Math.hypot(this.vx, this.vy);
     if (this.speed > 24) this.facingTarget = this.vx > 0 ? -1 : 1;
-    this.facing = lerp(this.facing, this.facingTarget, 1 - Math.exp(-10 * dt));
+    this.facing = this.facingTarget;
     this.invulnerable = Math.max(0, this.invulnerable - dt);
   }
 
@@ -73,6 +73,7 @@ export class Nautilus extends Entity {
     if (flash) ctx.globalAlpha = 0.4;
     drawNautilusBody(ctx, radius, this);
     drawAccessory(ctx, radius, this.age, { entity: this, flip: this.facing ?? 1 });
+    if (activeBodyKey() === 'neonjacket') drawNautilusEyes(ctx, radius, { pose: this });
     drawEmote(ctx, this, radius, this.age);
     ctx.restore();
   }
@@ -191,23 +192,7 @@ export function drawNautilusBody(ctx, radius, pose) {
     ctx.globalAlpha = 1;
   }
 
-  const eyes = [
-    [0.36, 0.24],
-    [0.64, 0.28],
-  ];
-  for (const [ex, ey] of eyes) {
-    ctx.beginPath();
-    ctx.ellipse(R * ex, R * ey, R * 0.108, R * 0.138, 0, 0, TAU);
-    ctx.fillStyle = '#dcc79c';
-    ctx.fill();
-    ctx.strokeStyle = '#b39a6d';
-    ctx.lineWidth = R * 0.012;
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(R * ex, R * ey, R * 0.026, 0, TAU);
-    ctx.fillStyle = '#120c08';
-    ctx.fill();
-  }
+  drawNautilusEyes(ctx, radius, { mirrored: true, pose });
 
   ctx.save();
   ctx.translate(R * 0.22, R * 0.14);
@@ -307,5 +292,36 @@ export function drawNautilusBody(ctx, radius, pose) {
 
   ctx.restore();
 
+  ctx.restore();
+}
+
+export function drawNautilusEyes(ctx, radius, options = {}) {
+  const R = radius * 1.05;
+  const natural = Boolean(options.pose?.natural);
+  const open = natural ? eyeOpen(options.pose?.blinkSeed ?? 0) : eyeOpenFor(options.pose);
+  ctx.save();
+  if (!options.mirrored) ctx.scale(-1, 1);
+  const eyes = [
+    [0.36, 0.24],
+    [0.64, 0.28],
+  ];
+  for (const [ex, ey] of eyes) {
+    if (natural) {
+      ctx.fillStyle = '#dcc79c';
+      ctx.beginPath();
+      ctx.ellipse(R * ex, R * ey, R * 0.108, Math.max(0.5, R * 0.138 * open), 0, 0, TAU);
+      ctx.fill();
+      ctx.strokeStyle = '#b39a6d';
+      ctx.lineWidth = R * 0.012;
+      ctx.stroke();
+      ctx.fillStyle = '#120c08';
+      ctx.beginPath();
+      ctx.arc(R * ex, R * ey, R * 0.026, 0, TAU);
+      ctx.fill();
+    } else {
+      drawEye(ctx, R * ex, R * ey, R * 0.108, { open, light: '#dcc79c' });
+      drawPupil(ctx, R * ex, R * ey, R * 0.03, { open, color: '#120c08' });
+    }
+  }
   ctx.restore();
 }

@@ -5,6 +5,7 @@ const catalog = new Map(AURAS.map((entry) => [entry.key, entry]));
 const NONE = catalog.get('none');
 
 let active = NONE;
+let active2 = NONE;
 
 export function auraByKey(key) {
   return catalog.get(key) ?? NONE;
@@ -24,19 +25,34 @@ export function setActiveAura(next) {
   active = next ?? NONE;
 }
 
+export function setActiveAura2(next) {
+  active2 = next && next.key !== 'none' ? next : NONE;
+}
+
 export function drawAuraRing(ctx, entity, palette, time) {
-  if (active.key === 'none') return;
+  if (active.key !== 'none') drawRingFor(active.key, ctx, entity, palette, time);
+  if (active2.key !== 'none') {
+    ctx.save();
+    ctx.globalAlpha = 0.75;
+    drawRingFor(active2.key, ctx, entity, palette, time);
+    ctx.restore();
+  }
+}
+
+function drawRingFor(key, ctx, entity, palette, time) {
   const rainbow = Boolean(palette?.rainbow);
-  if (active.key === 'eelaura') drawEelRing(ctx, entity, rainbow, time);
-  else if (active.key === 'bubbleaura') drawBubbleRing(ctx, entity, rainbow, time);
-  else if (active.key === 'neonaura') drawNeonRing(ctx, entity, rainbow, time);
-  else if (active.key === 'stingrayaura') drawStingrayRing(ctx, entity, rainbow, time);
-  else if (active.key === 'tridentaura') drawTridentRing(ctx, entity, rainbow, time);
-  else if (active.key === 'karambitaura') drawKarambitRing(ctx, entity, palette, time);
-  else if (active.key === 'sharkaura') drawSharkRing(ctx, entity, rainbow, time);
-  else if (active.key === 'swordaura') drawSwordRing(ctx, entity, rainbow, time);
-  else if (active.key === 'octopusaura') drawOctopusRing(ctx, entity, rainbow, time);
-  else if (active.key === 'snowflakeaura') drawSnowflakeRing(ctx, entity, rainbow, time);
+  if (key === 'eelaura') drawEelRing(ctx, entity, rainbow, time);
+  else if (key === 'bubbleaura') drawBubbleRing(ctx, entity, rainbow, time);
+  else if (key === 'neonaura') drawNeonRing(ctx, entity, rainbow, time);
+  else if (key === 'stingrayaura') drawStingrayRing(ctx, entity, rainbow, time);
+  else if (key === 'tridentaura') drawTridentRing(ctx, entity, rainbow, time);
+  else if (key === 'karambitaura') drawKarambitRing(ctx, entity, palette, time);
+  else if (key === 'chaoskarambit') drawChaosKarambitRing(ctx, entity, palette, time);
+  else if (key === 'sharkaura') drawSharkRing(ctx, entity, rainbow, time);
+  else if (key === 'swordaura') drawSwordRing(ctx, entity, rainbow, time);
+  else if (key === 'octopusaura') drawOctopusRing(ctx, entity, rainbow, time);
+  else if (key === 'cuttlefishaura') drawCuttlefishRing(ctx, entity, rainbow, time);
+  else if (key === 'snowflakeaura') drawSnowflakeRing(ctx, entity, rainbow, time);
 }
 
 function orbitPoint(entity, angle, orbit) {
@@ -166,86 +182,152 @@ function drawNeonRing(ctx, entity, rainbow, time) {
   }
 }
 
-function drawKarambitRing(ctx, entity, palette, time) {
+function karambitStyle(palette, index, time) {
   const rainbow = Boolean(palette?.rainbow);
   const natural = !rainbow && !palette?.body && !palette?.accent;
   const red = palette?.key === 'red';
   const shadow = palette?.key === 'shadow';
-  const orbit = entity.radius * 1.9;
+  const hue = ringHue(time, index);
+  const pulse = 0.4 + 0.3 * Math.sin(time * 6 + index * 2);
+  const shadowMix = 0.5 + 0.5 * Math.sin(time * 2.6 + index * 1.2);
+  let glowAlpha = pulse;
+  let glow;
+  let blade;
+  let edge;
+  let loop;
+  if (rainbow) {
+    glow = `hsl(${hue}, 90%, 60%)`;
+    blade = `hsl(${hue}, 80%, 52%)`;
+    edge = `hsl(${hue}, 90%, 76%)`;
+    loop = `hsl(${hue}, 90%, 70%)`;
+  } else if (natural) {
+    glow = '#ffbf00';
+    blade = '#c9d4e4';
+    edge = '#f4fbff';
+    loop = '#ffbf00';
+  } else if (red) {
+    glow = `rgb(255, ${Math.round(40 + 60 * pulse)}, ${Math.round(40 + 60 * pulse)})`;
+    blade = '#ff0000';
+    edge = '#ff4d4d';
+    loop = '#ff0000';
+  } else if (shadow) {
+    const level = Math.round(255 * shadowMix);
+    glowAlpha = shadowMix * 0.75;
+    glow = '#ff2a2a';
+    blade = `rgb(${level}, 0, 0)`;
+    edge = `rgb(${Math.min(255, level + Math.round(70 * shadowMix))}, 0, 0)`;
+    loop = `rgb(${Math.round(level * 0.8)}, 0, 0)`;
+  } else {
+    glow = palette?.accent ?? '#ff3b4a';
+    blade = palette?.body ?? '#c23b4a';
+    edge = palette?.accent ?? '#ff5a66';
+    loop = palette?.accent ?? '#ff3b4a';
+  }
+  return { glow, blade, edge, loop, glowAlpha };
+}
+
+export function drawKarambitShape(ctx, r, style) {
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = style.glow;
+  ctx.globalAlpha = style.glowAlpha ?? 1;
+  ctx.lineWidth = r * 0.19;
+  ctx.beginPath();
+  ctx.moveTo(r * 0.8, 0);
+  ctx.quadraticCurveTo(r * 0.2, -r * 1.15, -r * 0.68, -r * 0.28);
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+  ctx.beginPath();
+  ctx.moveTo(r * 0.8, 0);
+  ctx.quadraticCurveTo(r * 0.2, -r * 1.15, -r * 0.68, -r * 0.28);
+  ctx.quadraticCurveTo(-r * 0.02, -r * 0.58, r * 0.8, 0);
+  ctx.closePath();
+  ctx.fillStyle = style.blade;
+  ctx.fill();
+  ctx.strokeStyle = style.edge;
+  ctx.lineWidth = r * 0.096;
+  ctx.stroke();
+  ctx.strokeStyle = '#20242c';
+  ctx.lineWidth = r * 0.385;
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.68, -r * 0.28);
+  ctx.lineTo(-r * 1.06, r * 0.3);
+  ctx.stroke();
+  ctx.strokeStyle = style.loop;
+  ctx.lineWidth = r * 0.096;
+  ctx.beginPath();
+  ctx.arc(-r * 1.16, r * 0.44, r * 0.19, 0, TAU);
+  ctx.stroke();
+}
+
+function drawKarambitBlade(ctx, entity, angle, jitterX, jitterY, style) {
   const r = entity.radius * 0.52;
+  const point = orbitPoint(entity, angle, entity.radius * 1.9);
+  ctx.save();
+  ctx.translate(point.x + jitterX, point.y + jitterY);
+  ctx.rotate(angle);
+  drawKarambitShape(ctx, r, style);
+  ctx.restore();
+}
+
+function drawKarambitRing(ctx, entity, palette, time) {
   for (let index = 0; index < 3; index += 1) {
     const angle = time * 1.4 + (index * TAU) / 3 - 0.24;
-    const hue = ringHue(time, index);
-    const pulse = 0.4 + 0.3 * Math.sin(time * 6 + index * 2);
-    const shadowMix = 0.5 + 0.5 * Math.sin(time * 2.6 + index * 1.2);
-    let glowAlpha = pulse;
-    let glow;
-    let blade;
-    let edge;
-    let loop;
-    if (rainbow) {
-      glow = `hsl(${hue}, 90%, 60%)`;
-      blade = `hsl(${hue}, 80%, 52%)`;
-      edge = `hsl(${hue}, 90%, 76%)`;
-      loop = `hsl(${hue}, 90%, 70%)`;
-    } else if (natural) {
-      glow = '#ffbf00';
-      blade = '#c9d4e4';
-      edge = '#f4fbff';
-      loop = '#ffbf00';
-    } else if (red) {
-      glow = `rgb(255, ${Math.round(40 + 60 * pulse)}, ${Math.round(40 + 60 * pulse)})`;
-      blade = '#ff0000';
-      edge = '#ff4d4d';
-      loop = '#ff0000';
-    } else if (shadow) {
-      const level = Math.round(255 * shadowMix);
-      glowAlpha = shadowMix * 0.75;
-      glow = '#ff2a2a';
-      blade = `rgb(${level}, 0, 0)`;
-      edge = `rgb(${Math.min(255, level + Math.round(70 * shadowMix))}, 0, 0)`;
-      loop = `rgb(${Math.round(level * 0.8)}, 0, 0)`;
-    } else {
-      glow = palette?.accent ?? '#ff3b4a';
-      blade = palette?.body ?? '#c23b4a';
-      edge = palette?.accent ?? '#ff5a66';
-      loop = palette?.accent ?? '#ff3b4a';
+    drawKarambitBlade(ctx, entity, angle, 0, 0, karambitStyle(palette, index, time));
+  }
+}
+
+const chaosGlitchStates = new WeakMap();
+
+function chaosGlitch(entity, time) {
+  let state = chaosGlitchStates.get(entity);
+  if (!state || time < state.last) {
+    state = { last: time, next: time + 0.8 + Math.random() * 2.4, until: -1, mode: 'dual', hueA: 200, hueB: 0 };
+    chaosGlitchStates.set(entity, state);
+  }
+  state.last = time;
+  if (time >= state.next) {
+    state.until = time + 0.14 + Math.random() * 0.6;
+    state.mode = Math.random() < 0.5 ? 'dual' : 'chroma';
+    state.hueA = Math.random() * 360;
+    state.hueB = Math.random() * 360;
+    state.next = state.until + 1.2 + Math.random() * 3.6;
+  }
+  return state;
+}
+
+function drawChaosShadows(ctx, entity, time, state) {
+  const r = entity.radius;
+  const step = Math.floor(time * 42 + state.hueA);
+  if (step % 3 === 0) return;
+  const flick = 0.55 + 0.45 * Math.sin(time * 58 + state.hueB);
+  const left = state.mode === 'chroma' ? `hsl(${(state.hueA + time * 320) % 360}, 92%, 62%)` : '#3b7bff';
+  const right = state.mode === 'chroma' ? `hsl(${(state.hueB + time * 320) % 360}, 92%, 62%)` : '#ff2b2b';
+  ctx.save();
+  ctx.globalAlpha = 0.24 * flick;
+  ctx.fillStyle = left;
+  ctx.beginPath();
+  ctx.ellipse(entity.x - r * 0.42, entity.y, r * 0.92, r * 0.74, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = right;
+  ctx.beginPath();
+  ctx.ellipse(entity.x + r * 0.42, entity.y, r * 0.92, r * 0.74, 0, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+}
+
+function drawChaosKarambitRing(ctx, entity, palette, time) {
+  const state = chaosGlitch(entity, time);
+  const glitching = time < state.until;
+  if (glitching) drawChaosShadows(ctx, entity, time, state);
+  for (let index = 0; index < 3; index += 1) {
+    const angle = time * 1.6 + (index * TAU) / 3 - 0.24;
+    let jx = 0;
+    let jy = 0;
+    if (glitching) {
+      jx = (Math.sin(time * 61 + index) > 0 ? 1 : -1) * entity.radius * 0.13;
+      jy = (Math.sin(time * 73 + index * 2) > 0 ? 1 : -1) * entity.radius * 0.06;
     }
-    const point = orbitPoint(entity, angle, orbit);
-    ctx.save();
-    ctx.translate(point.x, point.y);
-    ctx.rotate(angle);
-    ctx.lineCap = 'round';
-    ctx.strokeStyle = glow;
-    ctx.globalAlpha = glowAlpha;
-    ctx.lineWidth = entity.radius * 0.1;
-    ctx.beginPath();
-    ctx.moveTo(r * 0.8, 0);
-    ctx.quadraticCurveTo(r * 0.2, -r * 1.15, -r * 0.68, -r * 0.28);
-    ctx.stroke();
-    ctx.globalAlpha = 1;
-    ctx.beginPath();
-    ctx.moveTo(r * 0.8, 0);
-    ctx.quadraticCurveTo(r * 0.2, -r * 1.15, -r * 0.68, -r * 0.28);
-    ctx.quadraticCurveTo(-r * 0.02, -r * 0.58, r * 0.8, 0);
-    ctx.closePath();
-    ctx.fillStyle = blade;
-    ctx.fill();
-    ctx.strokeStyle = edge;
-    ctx.lineWidth = entity.radius * 0.05;
-    ctx.stroke();
-    ctx.strokeStyle = '#20242c';
-    ctx.lineWidth = entity.radius * 0.2;
-    ctx.beginPath();
-    ctx.moveTo(-r * 0.68, -r * 0.28);
-    ctx.lineTo(-r * 1.06, r * 0.3);
-    ctx.stroke();
-    ctx.strokeStyle = loop;
-    ctx.lineWidth = entity.radius * 0.05;
-    ctx.beginPath();
-    ctx.arc(-r * 1.16, r * 0.44, entity.radius * 0.1, 0, TAU);
-    ctx.stroke();
-    ctx.restore();
+    drawKarambitBlade(ctx, entity, angle, jx, jy, karambitStyle(palette, index, time));
   }
 }
 
@@ -456,6 +538,60 @@ function drawSharkRing(ctx, entity, rainbow, time) {
     ctx.fillStyle = '#10233a';
     ctx.beginPath();
     ctx.arc(s * 0.74, -s * 0.18, s * 0.07, 0, TAU);
+    ctx.fill();
+    ctx.restore();
+  }
+}
+
+function drawCuttlefishRing(ctx, entity, rainbow, time) {
+  const orbit = entity.radius * 2.0;
+  const r = entity.radius * 0.42;
+  ctx.save();
+  ctx.globalAlpha = 0.5 + 0.2 * Math.sin(time * 3);
+  ctx.strokeStyle = rainbow ? `hsl(${ringHue(time, 0)}, 85%, 62%)` : '#2f6fd0';
+  ctx.lineWidth = entity.radius * 0.1;
+  ctx.beginPath();
+  ctx.arc(entity.x, entity.y, orbit * 0.9, 0, TAU);
+  ctx.stroke();
+  ctx.restore();
+  for (let index = 0; index < 3; index += 1) {
+    const angle = time * 1.1 + (index * TAU) / 3;
+    const hue = ringHue(time, index);
+    const point = orbitPoint(entity, angle, orbit);
+    ctx.save();
+    ctx.translate(point.x, point.y);
+    ctx.rotate(angle + Math.PI / 2);
+    const body = rainbow ? `hsl(${hue}, 80%, 55%)` : '#c0392b';
+    const fin = rainbow ? `hsl(${hue}, 85%, 72%)` : '#2f6fd0';
+    ctx.strokeStyle = fin;
+    ctx.lineWidth = r * 0.34;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r, r * 0.8, 0, 0, TAU);
+    ctx.stroke();
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 0.82, r * 0.68, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = fin;
+    ctx.beginPath();
+    ctx.moveTo(r * 0.6, -r * 0.24);
+    ctx.lineTo(r * 1.35, 0);
+    ctx.lineTo(r * 0.6, r * 0.24);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#f4fbff';
+    ctx.beginPath();
+    ctx.arc(-r * 0.32, -r * 0.02, r * 0.13, 0, TAU);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(r * 0.32, -r * 0.02, r * 0.13, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#10233a';
+    ctx.beginPath();
+    ctx.arc(-r * 0.3, -r * 0.02, r * 0.06, 0, TAU);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(r * 0.34, -r * 0.02, r * 0.06, 0, TAU);
     ctx.fill();
     ctx.restore();
   }

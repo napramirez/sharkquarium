@@ -46,10 +46,13 @@ export class MinigamesScene extends Scene {
       items.push({ label: 'STEALTH DIVE SOLO (1P)', action: 'stealthSolo', feeKey: 'stealth' });
       items.push({ label: 'REEF CLEANUP (2P)', action: 'cleanup', feeKey: 'cleanup' });
       items.push({ label: 'REEF CLEANUP SOLO (1P)', action: 'cleanupSolo', feeKey: 'cleanup' });
+      items.push({ label: 'DRESS UP BATTLE (2P)', action: 'dressup', highlight: true });
+      items.push({ label: 'THE POD (1P)', action: 'thepod', highlight: true });
       items.push({ label: 'TRENCH DIVE (1P)', action: 'trench', feeKey: 'trench' });
       items.push({ label: 'TRENCH EXPLORE (1P)', action: 'trenchexplore', feeKey: 'trenchexplore' });
       items.push({ label: 'REEF RUSH — LEVELS', action: 'rushlevels' });
       items.push({ label: 'REEF RUSH (1P)', action: 'reefrush', feeKey: 'reefrush' });
+      items.push({ label: 'REEF RUSH — ENDLESS (1P)', action: 'reefrushEndless', feeKey: 'reefrush' });
       items.push({ label: 'REEF RUSH — MY TRACK (1P)', action: 'reefrushcustom', feeKey: 'reefrush' });
       items.push({ label: 'REEF RUSH — MY COURSE (1P)', action: 'reefrushcourse', feeKey: 'reefrush' });
       if (!isMobilite()) items.push({ label: 'REEF RUSH — COURSE BUILDER', action: 'rushbuilder' });
@@ -62,6 +65,12 @@ export class MinigamesScene extends Scene {
     if (currentSeason() === 'halloween') {
       items.push({ label: "JACK-O'-LANTERN HUNT (1P)", action: 'jackhunt', highlight: true });
       items.push({ label: 'SPECTRE SWEEP (1P)', action: 'spectresweep', highlight: true });
+    }
+    if (currentSeason() === 'spring') {
+      items.push({ label: 'BLOSSOM DRIFT (1P)', action: 'blossomdrift', highlight: true });
+    }
+    if (currentSeason() === 'summer') {
+      items.push({ label: 'SUNSET SURF (1P)', action: 'sunsetsurf', highlight: true });
     }
     if (currentSeason() === 'newyear') {
       items.push({ label: 'MIDNIGHT FIREWORKS (1P)', action: 'fireworks', highlight: true });
@@ -122,6 +131,11 @@ export class MinigamesScene extends Scene {
       this.game.changeScene('mutators', { from: 'minigames' });
       return;
     }
+    if (item.action === 'dressup') {
+      this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
+      this.game.changeScene('shop', { battle: true });
+      return;
+    }
     if (item.action === 'reefrushcustom' && !composerHasNotes(loadComposer())) {
       this.setStatus('NO NOTES YET — OPEN THE TRACK BUILDER');
       this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.22 });
@@ -148,7 +162,10 @@ export class MinigamesScene extends Scene {
       item.action === 'jackhunt' ||
       item.action === 'spectresweep' ||
       item.action === 'fireworks' ||
-      item.action === 'confettirush'
+      item.action === 'confettirush' ||
+      item.action === 'blossomdrift' ||
+      item.action === 'sunsetsurf' ||
+      item.action === 'thepod'
     ) {
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
       this.game.changeScene(item.action);
@@ -193,6 +210,7 @@ export class MinigamesScene extends Scene {
     else if (item.action === 'trench') this.game.changeScene('trench', { mutator });
     else if (item.action === 'trenchexplore') this.game.changeScene('trenchexplore', { mutator });
     else if (item.action === 'reefrush') this.game.changeScene('reefrush', { mutator });
+    else if (item.action === 'reefrushEndless') this.game.changeScene('reefrush', { endless: true, mutator });
     else if (item.action === 'reefrushcustom') this.game.changeScene('reefrush', { custom: true, mutator });
     else if (item.action === 'reefrushcourse') this.game.changeScene('reefrush', { course: true, mutator });
     else if (item.action === 'bossrush') this.game.changeScene('bossrush', { mutator });

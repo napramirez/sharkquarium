@@ -1,4 +1,5 @@
 import { Entity } from './entity.js';
+import { drawNautilusBody } from './nautilus.js';
 import { rand, clamp, TAU } from '../engine/math.js';
 import { PETS, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 
@@ -662,39 +663,6 @@ export class Pet extends Entity {
   }
 
   renderNautilus(ctx, r) {
-    ctx.strokeStyle = COLORS.nautilusSkin;
-    ctx.lineWidth = 2;
-    ctx.lineCap = 'round';
-    for (let i = 0; i < 4; i += 1) {
-      const baseX = -r * 0.5 + i * r * 0.34;
-      const sway = Math.sin(this.age * 5 + i) * 2;
-      ctx.beginPath();
-      ctx.moveTo(baseX, r * 0.35);
-      ctx.quadraticCurveTo(baseX + sway, r * 0.9, baseX + sway * 1.4, r * 1.3);
-      ctx.stroke();
-    }
-    ctx.beginPath();
-    ctx.arc(0, 0, r * 1.05, 0, TAU);
-    ctx.fillStyle = COLORS.nautilusShell;
-    ctx.fill();
-    ctx.strokeStyle = COLORS.nautilusShellDark;
-    ctx.lineWidth = 1.6;
-    ctx.beginPath();
-    for (let i = 0; i < 18; i += 1) {
-      const t = i / 17;
-      const angle = t * TAU * 2.1;
-      const spiral = r * 0.9 * (1 - t * 0.8);
-      if (i === 0) ctx.moveTo(Math.cos(angle) * spiral, Math.sin(angle) * spiral);
-      else ctx.lineTo(Math.cos(angle) * spiral, Math.sin(angle) * spiral);
-    }
-    ctx.stroke();
-    ctx.fillStyle = COLORS.nautilusSkin;
-    ctx.beginPath();
-    ctx.ellipse(r * 0.7, r * 0.3, r * 0.36, r * 0.24, 0.4, 0, TAU);
-    ctx.fill();
-    ctx.fillStyle = '#10233a';
-    ctx.beginPath();
-    ctx.arc(r * 0.8, r * 0.28, r * 0.11, 0, TAU);
-    ctx.fill();
+    drawNautilusBody(ctx, r, { age: this.age });
   }
 }

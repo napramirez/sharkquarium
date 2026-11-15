@@ -82,6 +82,7 @@ export class ChristmasTrailScene extends Scene {
     this.trail = trailByKey(shop.trail);
     setActiveCompanion(companionByKey(this.content.companion));
     this.shark = new Shark(LOGICAL_WIDTH * 0.5, LOGICAL_HEIGHT * 0.6);
+    this.shark.noIdleFlip = true;
     if (this.game.music) {
       this.previousTrack = this.game.music.source ?? this.game.music.track;
       this.previousHold = this.game.music.hold;

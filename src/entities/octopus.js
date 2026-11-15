@@ -108,64 +108,13 @@ export class Octopus extends Entity {
   }
 
   render(ctx) {
-    const radius = this.radius;
-    const alert = this.state === 'lunge';
-    const body = alert ? COLORS.octopusAlert : COLORS.octopus;
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.rotate(this.heading);
-
-    ctx.strokeStyle = body;
-    ctx.lineCap = 'round';
-    const reach = alert ? radius * 2.7 : radius * 2.2;
-    for (let i = 0; i < 6; i += 1) {
-      const spread = (i - 2.5) * 0.34;
-      const wave = Math.sin(this.armPhase + i * 1.2) * radius * 0.4;
-      ctx.globalAlpha = 0.92;
-      ctx.lineWidth = radius * 0.3;
-      ctx.beginPath();
-      ctx.moveTo(-radius * 0.5, spread * radius * 0.5);
-      ctx.quadraticCurveTo(
-        -radius * 1.4,
-        spread * radius + wave * 0.5,
-        -reach,
-        spread * radius * 1.5 + wave,
-      );
-      ctx.stroke();
-    }
-    ctx.globalAlpha = 1;
-
-    ctx.beginPath();
-    ctx.ellipse(-radius * 0.15, 0, radius * 1.05, radius * 0.95, 0, 0, TAU);
-    ctx.fillStyle = body;
-    ctx.fill();
-    ctx.strokeStyle = COLORS.octopusDark;
-    ctx.lineWidth = 3;
-    ctx.stroke();
-
-    ctx.fillStyle = 'rgba(124, 61, 88, 0.5)';
-    for (let i = 0; i < 4; i += 1) {
-      ctx.beginPath();
-      ctx.arc(
-        -radius * 0.5 + i * radius * 0.32,
-        -radius * 0.3 + (i % 2) * radius * 0.5,
-        radius * 0.09,
-        0,
-        TAU,
-      );
-      ctx.fill();
-    }
-
-    for (const side of [-1, 1]) {
-      ctx.beginPath();
-      ctx.arc(radius * 0.55, side * radius * 0.42, radius * 0.24, 0, TAU);
-      ctx.fillStyle = '#f4fbff';
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(radius * 0.62, side * radius * 0.42, radius * 0.12, 0, TAU);
-      ctx.fillStyle = '#10233a';
-      ctx.fill();
-    }
+    drawOctopusBody(ctx, this.radius, {
+      alert: this.state === 'lunge',
+      armPhase: this.armPhase,
+    });
     ctx.restore();
 
     if (this.state === 'stunned') {
@@ -180,5 +129,63 @@ export class Octopus extends Entity {
       }
       ctx.restore();
     }
+  }
+}
+
+export function drawOctopusBody(ctx, radius, pose = {}) {
+  const alert = pose.alert ?? false;
+  const armPhase = pose.armPhase ?? 0;
+  const body = alert ? COLORS.octopusAlert : COLORS.octopus;
+
+  ctx.strokeStyle = body;
+  ctx.lineCap = 'round';
+  const reach = alert ? radius * 2.7 : radius * 2.2;
+  for (let i = 0; i < 6; i += 1) {
+    const spread = (i - 2.5) * 0.34;
+    const wave = Math.sin(armPhase + i * 1.2) * radius * 0.4;
+    ctx.globalAlpha = 0.92;
+    ctx.lineWidth = radius * 0.3;
+    ctx.beginPath();
+    ctx.moveTo(-radius * 0.5, spread * radius * 0.5);
+    ctx.quadraticCurveTo(
+      -radius * 1.4,
+      spread * radius + wave * 0.5,
+      -reach,
+      spread * radius * 1.5 + wave,
+    );
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+
+  ctx.beginPath();
+  ctx.ellipse(-radius * 0.15, 0, radius * 1.05, radius * 0.95, 0, 0, TAU);
+  ctx.fillStyle = body;
+  ctx.fill();
+  ctx.strokeStyle = COLORS.octopusDark;
+  ctx.lineWidth = 3;
+  ctx.stroke();
+
+  ctx.fillStyle = 'rgba(124, 61, 88, 0.5)';
+  for (let i = 0; i < 4; i += 1) {
+    ctx.beginPath();
+    ctx.arc(
+      -radius * 0.5 + i * radius * 0.32,
+      -radius * 0.3 + (i % 2) * radius * 0.5,
+      radius * 0.09,
+      0,
+      TAU,
+    );
+    ctx.fill();
+  }
+
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.arc(radius * 0.55, side * radius * 0.42, radius * 0.24, 0, TAU);
+    ctx.fillStyle = '#f4fbff';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(radius * 0.62, side * radius * 0.42, radius * 0.12, 0, TAU);
+    ctx.fillStyle = '#10233a';
+    ctx.fill();
   }
 }

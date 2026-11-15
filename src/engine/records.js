@@ -1,5 +1,6 @@
 import { loadJSON, saveJSON } from './storage.js';
 import { RECORDS_KEY } from '../config.js';
+import { checkAchievements } from './achievements.js';
 
 function load() {
   return loadJSON(RECORDS_KEY, {});
@@ -29,6 +30,7 @@ export function recordWin(mode, { time = null, score = null } = {}) {
   rec.cleared = true;
   all[mode] = rec;
   saveJSON(RECORDS_KEY, all);
+  checkAchievements({ clearedMode: mode });
   return result;
 }
 

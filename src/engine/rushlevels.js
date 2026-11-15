@@ -48,7 +48,7 @@ const MODE_PAGES = {
   ],
   eel: [
     {
-      title: 'DART EEL — CLIMB AND ZIG',
+      title: 'ZIP EEL — CLIMB AND ZIG',
       lines: [
         'HOLD TO CLIMB ALONG THE DIAGONAL.',
         'A SHORT TAP MAKES A SMALL ZIG.',
@@ -148,7 +148,7 @@ export const RUSH_LEVELS = [
   },
   {
     id: 'tut-eel',
-    name: 'DART EEL ZIG',
+    name: 'ZIP EEL ZIG',
     blurb: 'CLIMB THE DIAGONAL',
     skin: null,
     form: 'eel',

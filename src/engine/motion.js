@@ -1,3 +1,5 @@
+import { cute } from './cute.js';
+
 let reduced = false;
 
 export function setReducedMotion(on) {
@@ -9,5 +11,5 @@ export function reducedMotion() {
 }
 
 export function motionScale() {
-  return reduced ? 0 : 1;
+  return reduced || cute() ? 0 : 1;
 }

@@ -13,6 +13,7 @@ import {
 import { renderFirstPersonLevel } from '../engine/raycastview.js';
 import { firstPersonMode } from '../engine/mode3d.js';
 import { clamp, lerp, rand, TAU } from '../engine/math.js';
+import { motionScale } from '../engine/motion.js';
 import { Shark } from '../entities/shark.js';
 import { Stingray } from '../entities/stingray.js';
 import { Squid } from '../entities/squid.js';
@@ -20,6 +21,9 @@ import { ArcticShrimp } from '../entities/arcticshrimp.js';
 import { KelpCrab } from '../entities/kelpcrab.js';
 import { MoonJelly } from '../entities/moonjelly.js';
 import { Nautilus } from '../entities/nautilus.js';
+import { Cuttlefish } from '../entities/cuttlefish.js';
+import { Dolphin } from '../entities/dolphin.js';
+import { SeaTurtle } from '../entities/seaturtle.js';
 import { Tentacle } from '../entities/tentacle.js';
 import { CeilingChunk } from '../entities/ceilingchunk.js';
 import { CeilingStub } from '../entities/ceilingstub.js';
@@ -64,6 +68,9 @@ const DIVE_CREATURES = [
   { key: 'kelpcrab', label: 'CRAB', type: KelpCrab },
   { key: 'jellyfish', label: 'JELLY', type: MoonJelly },
   { key: 'nautilus', label: 'NAUTILUS', type: Nautilus, options: { vertical: true } },
+  { key: 'cuttlefish', label: 'CUTTLEFISH', type: Cuttlefish },
+  { key: 'dolphin', label: 'DOLPHIN', type: Dolphin },
+  { key: 'seaturtle', label: 'SEA TURTLE', type: SeaTurtle },
 ];
 
 const IDLE_INPUT = { isDown: () => false, pointer: { down: false, dragX: 0, dragY: 0 } };
@@ -2155,7 +2162,7 @@ export class LabyrinthScene extends Scene {
     if (firstPersonMode()) {
       ctx.save();
       if (this.shake > 0) {
-        ctx.translate(rand(-1, 1) * 6 * this.shake, rand(-1, 1) * 6 * this.shake);
+        ctx.translate(rand(-1, 1) * 6 * this.shake * motionScale(), rand(-1, 1) * 6 * this.shake * motionScale());
       }
       renderFirstPersonLevel(ctx, this);
       ctx.restore();
@@ -2163,7 +2170,7 @@ export class LabyrinthScene extends Scene {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, LABYRINTH_PALETTE);
     ctx.save();
     if (this.shake > 0) {
-      ctx.translate(rand(-1, 1) * 6 * this.shake, rand(-1, 1) * 6 * this.shake);
+      ctx.translate(rand(-1, 1) * 6 * this.shake * motionScale(), rand(-1, 1) * 6 * this.shake * motionScale());
     }
     this.renderSquid(ctx);
     this.renderHull(ctx);
@@ -3533,7 +3540,7 @@ export class LabyrinthScene extends Scene {
       { size: 11, color: COLORS.textDim, alpha: 0.7 },
     );
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(200, 69, 90, ${this.flash * 0.3})`;
+      ctx.fillStyle = `rgba(200, 69, 90, ${this.flash * 0.3 * motionScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
   }

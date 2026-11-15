@@ -3,7 +3,8 @@ import { SelectList } from '../engine/selectlist.js';
 import { drawWater, drawText, fillCircle, fillRoundRect, strokeRoundRect } from '../engine/render.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
 import { clamp } from '../engine/math.js';
-import { setReducedMotion } from '../engine/motion.js';
+import { setCute } from '../engine/cute.js';
+import { setColorblind } from '../engine/colorblind.js';
 import { setSeason, SEASONS } from '../engine/season.js';
 import { set8Bit } from '../engine/retro.js';
 import { setMeme } from '../engine/meme.js';
@@ -38,30 +39,37 @@ export class SettingsScene extends Scene {
       sfx: true,
       threeD: false,
       firstPerson: false,
-      reduceMotion: false,
+      cute: false,
       season: 'none',
+      spring: false,
+      summer: false,
       christmas: false,
       halloween: false,
       newyear: false,
       eightBit: false,
       meme: false,
       mobilite: false,
+      colorblind: false,
       ...saved,
     };
+    if (this.settings.cute === undefined) this.settings.cute = Boolean(saved.reduceMotion);
     this.settings.season = saved.season !== undefined
       ? SEASONS.includes(saved.season)
         ? saved.season
         : 'none'
       : savedSeason;
+    this.settings.spring = this.settings.season === 'spring';
+    this.settings.summer = this.settings.season === 'summer';
     this.settings.christmas = this.settings.season === 'christmas';
     this.settings.halloween = this.settings.season === 'halloween';
     this.settings.newyear = this.settings.season === 'newyear';
     this.game.set3D(this.settings.threeD);
     this.game.setFirstPerson(this.settings.firstPerson);
-    setReducedMotion(this.settings.reduceMotion);
+    setCute(this.settings.cute);
     setSeason(this.settings.season);
     set8Bit(this.settings.eightBit);
     setMeme(this.settings.meme);
+    setColorblind(this.settings.colorblind);
     if (this.settings.mobilite) {
       this.settings.threeD = false;
       this.settings.firstPerson = false;
@@ -83,13 +91,16 @@ export class SettingsScene extends Scene {
         { label: 'SFX', action: 'sfx' },
         { label: '3D MODE', action: 'threeD' },
         { label: 'FIRST PERSON MODE', action: 'firstPerson' },
-        { label: 'REDUCE MOTION', action: 'reduceMotion' },
+        { label: 'CUTE MODE', action: 'cute' },
         { label: 'CHRISTMAS MODE', action: 'christmas' },
         { label: 'HALLOWEEN MODE', action: 'halloween' },
         { label: 'NEW YEAR MODE', action: 'newyear' },
+        { label: 'SPRING MODE', action: 'spring' },
+        { label: 'SUMMER MODE', action: 'summer' },
         { label: '8-BIT MODE', action: 'eightBit' },
         { label: 'MEME MODE', action: 'meme' },
         { label: 'MOBILITE MODE', action: 'mobilite' },
+        { label: 'COLORBLIND HAZARDS', action: 'colorblind' },
         { label: 'TRACK PLAYER', action: 'tracks' },
         { label: 'CUTSCENE THEATRE', action: 'theatre' },
         { label: 'BACK', action: 'back' },
@@ -149,6 +160,8 @@ export class SettingsScene extends Scene {
     this.settings.christmas = next === 'christmas';
     this.settings.halloween = next === 'halloween';
     this.settings.newyear = next === 'newyear';
+    this.settings.spring = next === 'spring';
+    this.settings.summer = next === 'summer';
     setSeason(next);
     if (this.game.music) this.game.music.refresh();
     saveJSON(SETTINGS_KEY, this.settings);
@@ -224,15 +237,34 @@ export class SettingsScene extends Scene {
       });
       return;
     }
-    if (item.action === 'reduceMotion') {
-      this.settings.reduceMotion = !this.settings.reduceMotion;
-      setReducedMotion(this.settings.reduceMotion);
+    if (item.action === 'cute') {
+      this.settings.cute = !this.settings.cute;
+      setCute(this.settings.cute);
       saveJSON(SETTINGS_KEY, this.settings);
       this.game.audio.tone({
-        freq: this.settings.reduceMotion ? 320 : 620,
-        duration: 0.1,
-        volume: 0.18,
+        freq: this.settings.cute ? 880 : 300,
+        endFreq: this.settings.cute ? 1240 : 180,
+        type: 'triangle',
+        duration: 0.14,
+        volume: 0.2,
       });
+      return;
+    }
+    if (item.action === 'colorblind') {
+      this.settings.colorblind = !this.settings.colorblind;
+      setColorblind(this.settings.colorblind);
+      saveJSON(SETTINGS_KEY, this.settings);
+      this.game.audio.tone({
+        freq: this.settings.colorblind ? 880 : 300,
+        endFreq: this.settings.colorblind ? 1240 : 180,
+        type: 'triangle',
+        duration: 0.14,
+        volume: 0.2,
+      });
+      return;
+    }
+    if (item.action === 'spring' || item.action === 'summer') {
+      this.toggleSeason(item.action);
       return;
     }
     if (item.action === 'christmas' || item.action === 'halloween' || item.action === 'newyear') {
@@ -278,6 +310,7 @@ export class SettingsScene extends Scene {
     if (item.action === 'meme') {
       this.settings.meme = !this.settings.meme;
       setMeme(this.settings.meme);
+    setColorblind(this.settings.colorblind);
       saveJSON(SETTINGS_KEY, this.settings);
       this.game.audio.tone({
         freq: this.settings.meme ? 880 : 300,
@@ -361,10 +394,13 @@ export class SettingsScene extends Scene {
       sfx: 'SOUND EFFECTS ON / OFF',
       threeD: 'TILT THE WHOLE TANK ONTO A PERSPECTIVE PLANE',
       firstPerson: 'THE MOUSE LOOKS AROUND A CLOSE-UP VIEW',
-      reduceMotion: 'DAMP THE HORROR TANKS\u2019 SHAKE, ZOOM, AND FLASH',
+      cute: 'BIG EYES, BLUSH AND GENTLER SCARES \u2014 EVERYTHING GOES ADORABLE',
       christmas: 'CAROL THEMES AND SLOW SINKING SNOWFLAKES',
       halloween: 'EERIE THEMES AND DRIFTING AUTUMN LEAVES',
+      spring: 'BLOSSOM THEMES AND DRIFTING PETALS',
+      summer: 'SUNSET THEMES AND RISING HEAT SHIMMER',
       newyear: 'PARTY THEMES AND FALLING CONFETTI',
+      colorblind: 'SWAP RED/GREEN DANGER CUES FOR HIGH-CONTRAST MARKS',
       eightBit: 'PIXELATED 8-BIT LOOK AND CHIPTUNE SOUND',
       meme: 'SILLY COMIC POP-UPS AND CAPTIONS EVERYWHERE',
       mobilite: 'ON-SCREEN WASD, SPACE, E AND ESC BUTTONS; DISABLES 3D, FIRST PERSON, 8-BIT AND THE COURSE BUILDER',
@@ -395,19 +431,22 @@ export class SettingsScene extends Scene {
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 3, this.settings.sfx);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 4, this.settings.threeD);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 5, this.settings.firstPerson);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 6, this.settings.reduceMotion);
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 6, this.settings.cute);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 7, this.settings.christmas);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 8, this.settings.halloween);
     this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 9, this.settings.newyear);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 10, this.settings.eightBit);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 11, this.settings.meme);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 12, this.settings.mobilite);
-    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 14, {
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 10, this.settings.spring);
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 11, this.settings.summer);
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 12, this.settings.eightBit);
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 13, this.settings.meme);
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 14, this.settings.mobilite);
+    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 15, this.settings.colorblind);
+    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 17, {
       size: 13,
       color: COLORS.textDim,
       alpha: 0.85,
     });
-    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 13, {
+    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 16, {
       size: 13,
       color: COLORS.textDim,
       alpha: 0.85,

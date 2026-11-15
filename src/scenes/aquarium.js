@@ -15,6 +15,7 @@ import { IceChunk } from '../entities/icechunk.js';
 import { SardineSchool } from '../entities/sardineschool.js';
 import { Archway } from '../entities/archway.js';
 import { Ledges } from '../entities/ledges.js';
+import { ReefGarden } from '../entities/reefgarden.js';
 import { LabPiece } from '../entities/labpiece.js';
 import { LabBurster } from '../entities/labburster.js';
 import { BreachChunk } from '../entities/breachchunk.js';
@@ -23,7 +24,7 @@ import { Jellyfish } from '../entities/jellyfish.js';
 import { Turtle } from '../entities/turtle.js';
 import { Pufferfish } from '../entities/pufferfish.js';
 import { Anglerfish } from '../entities/anglerfish.js';
-import { DartEel } from '../entities/darteel.js';
+import { ZipEel } from '../entities/zipeel.js';
 import { Eel } from '../entities/eel.js';
 import { Seal } from '../entities/seal.js';
 import { Shark } from '../entities/shark.js';
@@ -33,6 +34,9 @@ import { ArcticShrimp } from '../entities/arcticshrimp.js';
 import { KelpCrab } from '../entities/kelpcrab.js';
 import { MoonJelly } from '../entities/moonjelly.js';
 import { Nautilus } from '../entities/nautilus.js';
+import { Cuttlefish } from '../entities/cuttlefish.js';
+import { Dolphin } from '../entities/dolphin.js';
+import { SeaTurtle } from '../entities/seaturtle.js';
 import {
   AQUARIUM,
   AQUARIUM_KEY,
@@ -56,8 +60,11 @@ const DIVE_CREATURES = [
   { label: 'CRAB', type: KelpCrab },
   { label: 'JELLY', type: MoonJelly },
   { label: 'NAUTILUS', type: Nautilus, options: { vertical: true } },
+  { label: 'CUTTLEFISH', type: Cuttlefish },
+  { label: 'DOLPHIN', type: Dolphin },
+  { label: 'SEA TURTLE', type: SeaTurtle },
 ];
-const HABITATS = ['ARCHWAY', 'LEDGES'];
+const HABITATS = ['ARCHWAY', 'LEDGES', 'REEFGARDEN'];
 
 export class AquariumScene extends Scene {
   enter() {
@@ -256,6 +263,9 @@ export class AquariumScene extends Scene {
     }
     if (kind === 'ARCHWAY') return new Archway();
     if (kind === 'LEDGES') return new Ledges();
+    if (kind === 'REEFGARDEN') return new ReefGarden();
+    if (kind === 'CORALFAN') return new Coral(x, 1);
+    if (kind === 'CORALSPIRE') return new Coral(x, 2);
     if (kind === 'LAB:CRACK' || kind === 'LAB:BEAM') return new LabBurster(kind, x);
     if (kind.startsWith('LAB:')) return new LabPiece(kind, x, y);
     if (kind.startsWith('PET:')) {
@@ -288,7 +298,7 @@ export class AquariumScene extends Scene {
       return angler;
     }
     if (kind === 'ENEMY:eel') {
-      const eel = new DartEel();
+      const eel = new ZipEel();
       eel.x = x;
       eel.y = y;
       return eel;

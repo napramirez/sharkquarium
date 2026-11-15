@@ -4,7 +4,7 @@ import { RUSH_BUILDER_KEY, RUSH_COURSES_KEY } from '../config.js';
 
 export const RUSH_KINDS = ['shell', 'seaweed', 'rock', 'ceilrock', 'fakerock', 'ceilfakerock', 'ceilshell', 'ceilweed', 'pearl', 'bubble', 'gravity', 'gravpad', 'ceilgravpad', 'pad', 'ceilpad', 'ledge', 'slopeup', 'slopedown', 'portal', 'gravup', 'gravdown'];
 
-export const RUSH_PORTAL_FORMS = ['fish', 'stingray', 'eel', 'crab', 'urchin', 'jelly', 'nautilus', 'shrimp'];
+export const RUSH_PORTAL_FORMS = ['fish', 'stingray', 'eel', 'crab', 'urchin', 'jelly', 'nautilus', 'shrimp', 'cuttlefish'];
 
 export const RUSH_KIND_LABELS = {
   shell: 'SHELL',
@@ -30,7 +30,7 @@ export const RUSH_KIND_LABELS = {
   gravdown: 'NORMAL GRAVITY PORTAL',
   fish: 'FISH',
   stingray: 'STINGRAY',
-  eel: 'DART EEL',
+  eel: 'ZIP EEL',
   crab: 'CRAB',
   urchin: 'URCHIN',
   jelly: 'JELLY',

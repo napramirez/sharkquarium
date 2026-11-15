@@ -7,6 +7,7 @@ import { rand } from './math.js';
 import { ParticleSystem } from './particles.js';
 import { loadJSON } from './storage.js';
 import { recordMinigame } from './progress.js';
+import { checkAchievements } from './achievements.js';
 import { recordWin } from './records.js';
 import { applyWardrobe } from './wardrobe.js';
 import { drawSkinAura, setSkinClock } from './skin.js';
@@ -112,6 +113,7 @@ export class MinigameScene extends Scene {
     }
     this.reward = recordMinigame(won);
     this.newRecord = won ? recordWin(this.recordMode(), { time: this.elapsed }) : null;
+    checkAchievements({ score: this.score });
     this.resultsMenu.reset();
     this.game.audio.tone({ freq: 220, endFreq: 110, type: 'triangle', duration: 0.3, volume: 0.24 });
     this.game.audio.tone({ freq: 165, type: 'triangle', duration: 0.5, volume: 0.24, delay: 0.24 });
@@ -161,7 +163,7 @@ export class MinigameScene extends Scene {
       renderFirstPersonLevel(ctx, this);
       ctx.restore();
     } else {
-      drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);
+      drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, this.waterPalette());
       ctx.save();
       if (this.shake > 0) {
         ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
@@ -179,6 +181,10 @@ export class MinigameScene extends Scene {
 
   firstPersonPalette() {
     return { top: WATER_PALETTE.top, bottom: WATER_PALETTE.bottom, wall: '#3a4a52' };
+  }
+
+  waterPalette() {
+    return WATER_PALETTE;
   }
 
   firstPersonSprites() {

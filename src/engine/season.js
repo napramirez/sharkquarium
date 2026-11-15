@@ -1,9 +1,11 @@
 import { SEASON_TRACKS } from '../assets/tracks.js';
 
-export const SEASONS = ['none', 'christmas', 'halloween', 'newyear'];
+export const SEASONS = ['none', 'spring', 'summer', 'christmas', 'halloween', 'newyear'];
 
 export const SEASON_LABELS = {
   none: 'OFF',
+  spring: 'SPRING',
+  summer: 'SUMMER',
   christmas: 'CHRISTMAS',
   halloween: 'HALLOWEEN',
   newyear: 'NEW YEAR',

@@ -6,6 +6,7 @@ import { clamp, rand, TAU } from '../engine/math.js';
 import { loadJSON } from '../engine/storage.js';
 import { setSkinClock } from '../engine/skin.js';
 import { motionScale } from '../engine/motion.js';
+import { cute, renderCuteScare } from '../engine/cute.js';
 import { applyWardrobe } from '../engine/wardrobe.js';
 import { drawTrail } from '../engine/trail.js';
 import { drawCompanion } from '../engine/companion.js';
@@ -1447,6 +1448,21 @@ export class PrehistoricScene extends MinigameScene {
 
   renderScare(ctx) {
     const t = 1 - this.scareTimer / 1.5;
+    if (cute()) {
+      renderCuteScare(ctx, t, {
+        width: W,
+        height: H,
+        time: this.time,
+        caption: 'CAUGHT IN DEEP TIME — NO HARD FEELINGS!',
+        draw: (c) => {
+          if (this.zoneIndex === 0) this.drawDunkleosteus(c, 0, 0);
+          else if (this.zoneIndex === 1) this.drawRaptor(c, 0, 0);
+          else this.drawSnake(c, 0, 0);
+        },
+        radius: 54,
+      });
+      return;
+    }
     ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
     ctx.fillRect(0, 0, W, H);
     const scale = 0.7 + t * 2.2;

@@ -186,6 +186,43 @@ const SPECS = {
       buttonEye(ctx, -0.34 * r, 0.08 * r, r);
     },
   },
+  plushcuttlefish: {
+    scale: 0.66,
+    anchor: [-0.35, -0.62],
+    tilt: -0.08,
+    limbs: [
+      limb(-0.4, 0.6, 2.5, 0.7, 0.16, '#c0392b', { segs: 3, curl: 0.35, spread: -0.3 }),
+      limb(0.4, 0.6, 2.5, 0.7, 0.16, '#c0392b', { segs: 3, curl: 0.35, spread: 0.3 }),
+      limb(-0.12, 0.66, 2.8, 0.85, 0.13, '#d9534f', { segs: 3, curl: 0.3, spread: -0.12 }),
+      limb(0.12, 0.66, 2.8, 0.85, 0.13, '#d9534f', { segs: 3, curl: 0.3, spread: 0.12 }),
+    ],
+    body(ctx, r) {
+      ctx.strokeStyle = '#2f6fd0';
+      ctx.lineWidth = r * 0.16;
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r * 0.95, r * 0.82, 0, 0, TAU);
+      ctx.stroke();
+      ctx.fillStyle = '#c0392b';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r * 0.82, r * 0.7, 0, 0, TAU);
+      ctx.fill();
+      ctx.strokeStyle = '#a52f24';
+      ctx.lineWidth = r * 0.07;
+      ctx.stroke();
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+      ctx.lineWidth = r * 0.05;
+      for (let i = -2; i <= 2; i += 1) {
+        const x = i * r * 0.28;
+        ctx.beginPath();
+        ctx.moveTo(x, -r * 0.55);
+        ctx.quadraticCurveTo(x + r * 0.1, 0, x, r * 0.55);
+        ctx.stroke();
+      }
+      stitch(ctx, -0.5 * r, -0.5 * r, 0.5 * r, -0.5 * r, 'rgba(90, 20, 20, 0.5)', r, 3);
+      buttonEye(ctx, 0.42 * r, -0.05 * r, r);
+      buttonEye(ctx, -0.42 * r, -0.05 * r, r);
+    },
+  },
   plushshrimp: {
     scale: 0.7,
     anchor: [-0.35, -0.6],

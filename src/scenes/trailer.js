@@ -48,7 +48,7 @@ import { Plankton } from '../entities/plankton.js';
 import { Minnow } from '../entities/minnow.js';
 import { ChaserShark } from '../entities/chasershark.js';
 import { WhaleSkeleton } from '../entities/whaleskeleton.js';
-import { DartEel } from '../entities/darteel.js';
+import { ZipEel } from '../entities/zipeel.js';
 import { Catfish } from '../entities/catfish.js';
 import { ElectricEel } from '../entities/electriceel.js';
 import { Log } from '../entities/log.js';
@@ -482,6 +482,7 @@ export class TrailerScene extends Scene {
 
   addCrew(EntityClass, x, y, speed, bob = 10) {
     const entity = new EntityClass(x, y, { controls: {}, pointer: false });
+    entity.noIdleFlip = true;
     const phase = rand(0, TAU);
     this.performers.push({
       entity,
@@ -497,6 +498,7 @@ export class TrailerScene extends Scene {
   }
 
   addEntity(entity, build) {
+    entity.noIdleFlip = true;
     this.performers.push({ entity, update: build });
     return entity;
   }
@@ -835,7 +837,7 @@ export class TrailerScene extends Scene {
           [260, 190],
           [660, 290],
         ]) {
-          const eel = new DartEel();
+          const eel = new ZipEel();
           eel.x = x;
           eel.y = y;
           this.addEntity(eel, (dt) => eel.update(dt, 0));
@@ -846,7 +848,7 @@ export class TrailerScene extends Scene {
         shark.x = 620;
         shark.y = 130;
         this.addEntity(shark, (dt) => shark.update(dt, [], 0, 1));
-        const eel = new DartEel();
+        const eel = new ZipEel();
         eel.x = 360;
         eel.y = 300;
         this.addEntity(eel, (dt) => eel.update(dt, 0));

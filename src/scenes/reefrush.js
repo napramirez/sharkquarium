@@ -12,7 +12,8 @@ import {
 import { loadRushCourse, rushCourseHasItems, rushItemRect, RUSH_KINDS } from '../engine/rushcourse.js';
 import { rushLevelById, beatLevel } from '../engine/rushlevels.js';
 import { drawStingrayBody } from '../entities/stingray.js';
-import { drawDartEelHead } from '../entities/darteel.js';
+import { drawCuttlefishBody } from '../entities/cuttlefish.js';
+import { drawZipEelHead } from '../entities/zipeel.js';
 import { paintMorayTrail } from '../entities/eel.js';
 import { drawNautilusBody } from '../entities/nautilus.js';
 import { drawMantisShrimpBody } from '../entities/mantisshrimp.js';
@@ -26,7 +27,7 @@ const DIFFICULTY_NAMES = {
   normal: 'CHOPPY',
   hard: 'RIPTIDE',
   apocalyptic: 'MAELSTROM',
-  frenzy: 'FRENZY DOMINANCE',
+  frenzy: 'FRANTIC FRENZY',
 };
 
 const FORM_PHYSICS = {
@@ -38,6 +39,7 @@ const FORM_PHYSICS = {
   jelly: { gravity: 0.62, hop: 540, cooldown: 0.1 },
   nautilus: { gravity: 0.42, drift: 380, noContact: true },
   shrimp: { gravity: 1, low: 0.55, high: 1.6, chargeTime: 0.45 },
+  cuttlefish: { gravity: 0.24, thrust: 1400, noContact: true },
 };
 
 const PORTAL_COLORS = {
@@ -49,11 +51,12 @@ const PORTAL_COLORS = {
   jelly: '#c9a6ff',
   nautilus: '#d9a93c',
   shrimp: '#8fe14a',
+  cuttlefish: '#c0392b',
 };
 
 const SPOTTED_RAY = SKINS.find((skin) => skin.key === 'spottedray') ?? {};
 
-const DART_EEL_PALETTE = {
+const ZIP_EEL_PALETTE = {
   bodyColor: COLORS.eel,
   outlineColor: COLORS.eelDark,
   ridgeColor: COLORS.eelBelly,
@@ -80,6 +83,7 @@ export class ReefRushScene extends MinigameScene {
     this.rushCourse = Boolean(params.course) ? loadRushCourse() : null;
     this.course = Boolean(this.rushCourse) && rushCourseHasItems(this.rushCourse);
     this.fromBuilder = Boolean(params.fromBuilder);
+    this.endless = Boolean(params.endless);
     this.testStart = Number.isFinite(params.startX) ? Math.max(0, params.startX) : 0;
     this.level = params.level ? rushLevelById(params.level) : null;
     this.playTrack = this.custom ? buildCustomTrack(this.composer) : REEF_RUSH_TRACK;
@@ -165,6 +169,13 @@ export class ReefRushScene extends MinigameScene {
         : this.course
           ? this.buildItems(this.rushCourse.items, this.rushCourse.goal)
           : this.buildClassicCourse();
+    if (this.endless) {
+      this.endlessTo = this.goalDistance + W;
+      this.goalDistance = Infinity;
+      this.nextBoss = this.endlessTo + rand(600, 900);
+      this.bossesCleared = 0;
+      this.bossGates = [];
+    }
     if (this.course && this.testStart > 0) {
       const startWorld = Math.min(this.testStart + W * 0.6 - REEF_RUSH.playerX, this.goalDistance - W);
       this.scrollX = Math.max(0, startWorld);
@@ -196,9 +207,31 @@ export class ReefRushScene extends MinigameScene {
   buildBackdrop() {
     this.bg = [];
     let bx = 0;
-    while (bx < this.goalDistance + W + 400) {
+    const limit = this.endless ? this.endlessTo + W + 400 : this.goalDistance + W + 400;
+    while (bx < limit) {
       this.bg.push({ x: bx, h: rand(40, 130), w: rand(30, 70), kind: Math.random() < 0.5 ? 'coral' : 'weed' });
       bx += rand(90, 200);
+    }
+  }
+
+  extendEndless() {
+    while (this.endlessTo < this.distance + W * 3) {
+      const x = this.endlessTo;
+      if (x >= this.nextBoss) {
+        this.nextBoss = x + rand(900, 1300);
+        this.items.push({ kind: 'shell', x, h: 72, count: 1, phase: 0 });
+        this.items.push({ kind: 'ceilshell', x: x + 140, h: 66, count: 1, phase: 0 });
+        this.items.push({ kind: 'rock', x: x + 280, h: 56, count: 1, phase: 0 });
+        this.bossGates.push({ x: x + 300, passed: false });
+      } else {
+        const roll = Math.random();
+        if (roll < 0.5) this.items.push({ kind: 'shell', x, h: rand(30, 68), count: 1, phase: 0 });
+        else if (roll < 0.78) this.items.push({ kind: 'rock', x, h: rand(26, 44), count: Math.random() < 0.4 ? 2 : 1, phase: 0 });
+        else if (roll < 0.9) this.items.push({ kind: 'ceilshell', x, h: rand(30, 60), count: 1, phase: 0 });
+        else this.pearls.push({ x, y: this.groundY - rand(70, 160), taken: false, phase: rand(0, TAU) });
+      }
+      this.endlessTo += rand(260, 430);
+      this.bg.push({ x: this.endlessTo, h: rand(40, 130), w: rand(30, 70), kind: Math.random() < 0.5 ? 'coral' : 'weed' });
     }
   }
 
@@ -390,7 +423,7 @@ export class ReefRushScene extends MinigameScene {
 
     const prevBottom = player.y + player.radius;
     const prevTop = player.y - player.radius;
-    const dir = this.gravityUp ? -1 : 1;
+    let dir = this.gravityUp ? -1 : 1;
     const noContact = Boolean(form.noContact);
     player.onGround = false;
 
@@ -403,6 +436,7 @@ export class ReefRushScene extends MinigameScene {
     } else if (this.form === 'nautilus') {
       if (jumpPressed) {
         this.flipGravity(false);
+        dir = this.gravityUp ? -1 : 1;
         this.nautilusJet = 1;
         const jetDir = this.gravityUp ? 1 : -1;
         this.particles.burst(player.x - player.radius * 0.66, player.y + player.radius * 0.36, {
@@ -447,9 +481,15 @@ export class ReefRushScene extends MinigameScene {
       }
       player.vy += cfg.gravity * form.gravity * dir * dt;
     } else if (this.form === 'crab') {
-      if (jumpPressed) this.flipGravity(true);
+      if (jumpPressed) {
+        this.flipGravity(true);
+        dir = this.gravityUp ? -1 : 1;
+      }
     } else if (this.form === 'urchin') {
-      if (jumpPressed) this.flipGravity(false);
+      if (jumpPressed && (player.onGround || this.coyote > 0)) {
+        this.flipGravity(false);
+        dir = this.gravityUp ? -1 : 1;
+      }
       player.vy += cfg.gravity * dir * dt;
       player.vy *= 1 - 1.2 * dt;
       player.vy = clamp(player.vy, -700, 700);
@@ -460,7 +500,7 @@ export class ReefRushScene extends MinigameScene {
         this.jumpCooldown = form.cooldown;
         this.game.audio.tone({ freq: 620, endFreq: 900, type: 'triangle', duration: 0.08, volume: 0.14 });
       }
-    } else if (this.form === 'stingray') {
+    } else if (this.form === 'stingray' || this.form === 'cuttlefish') {
       player.vy += cfg.gravity * form.gravity * dir * dt;
       if (jumpHeld) player.vy -= form.thrust * dir * dt;
       player.vy = clamp(player.vy, -820, 760);
@@ -494,9 +534,15 @@ export class ReefRushScene extends MinigameScene {
     }
 
     if (noContact) {
-      if (player.y + player.radius >= this.groundY || player.y - player.radius <= 0) {
-        this.kill();
-        return;
+      if (player.y + player.radius >= this.groundY) {
+        player.y = this.groundY - player.radius;
+        if (player.vy > 0) player.vy = 0;
+        player.onGround = true;
+      }
+      if (player.y - player.radius <= 0) {
+        player.y = player.radius;
+        if (player.vy < 0) player.vy = 0;
+        player.onGround = true;
       }
     } else if (dir > 0) {
       if (player.y + player.radius >= this.groundY) {
@@ -524,7 +570,10 @@ export class ReefRushScene extends MinigameScene {
       const rect = rushItemRect(item, this.groundY);
       if (item.kind === 'fakerock' || item.kind === 'ceilfakerock') continue;
       if (item.kind === 'portal') {
-        if (this.form !== item.form && this.circleRect(player, rect)) this.enterPortal(item);
+        if (this.form !== item.form && this.circleRect(player, rect)) {
+          this.enterPortal(item);
+          dir = this.gravityUp ? -1 : 1;
+        }
         continue;
       }
       if (item.kind === 'gravup' || item.kind === 'gravdown') {
@@ -532,6 +581,7 @@ export class ReefRushScene extends MinigameScene {
           const wantUp = item.kind === 'gravup';
           if (this.gravityUp !== wantUp) {
             this.flipGravity(false);
+            dir = this.gravityUp ? -1 : 1;
             const cx = rect.x + rect.w / 2;
             const cy = rect.y + rect.h / 2;
             this.particles.burst(cx, cy, {
@@ -567,7 +617,10 @@ export class ReefRushScene extends MinigameScene {
       }
       if (item.kind === 'gravity') {
         if (jumpPressed && this.bubbleCooldown <= 0 && this.circleRect(player, rect, 14)) {
-          if (!this.gravityUp) this.flipGravity(false);
+          if (!this.gravityUp) {
+            this.flipGravity(false);
+            dir = this.gravityUp ? -1 : 1;
+          }
           this.bubbleCooldown = 0.35;
           this.jumpBuffer = 0;
           const cx = rect.x + rect.w / 2;
@@ -586,6 +639,7 @@ export class ReefRushScene extends MinigameScene {
       if (item.kind === 'gravpad' || item.kind === 'ceilgravpad') {
         if (this.padCooldown <= 0 && this.circleRect(player, rect, 6)) {
           this.flipGravity(false);
+          dir = this.gravityUp ? -1 : 1;
           this.padCooldown = 0.4;
           this.jumpBuffer = 0;
           const cx = rect.x + rect.w / 2;
@@ -633,7 +687,7 @@ export class ReefRushScene extends MinigameScene {
         }
         continue;
       }
-      if (!noContact && (item.kind === 'rock' || item.kind === 'ceilrock' || item.kind === 'ledge')) {
+      if (item.kind === 'rock' || item.kind === 'ceilrock' || item.kind === 'ledge') {
         const overlapX = player.x + player.radius > rect.x + 4 && player.x - player.radius < rect.x + rect.w - 4;
         if (overlapX) {
           if (dir > 0) {
@@ -697,7 +751,18 @@ export class ReefRushScene extends MinigameScene {
     if (this.coyote > 0 && !player.onGround) this.coyote = Math.max(0, this.coyote - dt);
     if (player.onGround) this.coyote = cfg.coyote;
 
-    if (this.distance >= this.goalDistance) {
+    if (this.endless) {
+      this.extendEndless();
+      for (const gate of this.bossGates) {
+        if (!gate.passed && this.distance >= gate.x) {
+          gate.passed = true;
+          this.bossesCleared += 1;
+          this.flash = Math.max(this.flash, 0.4);
+          this.coinsWon = (this.coinsWon ?? 0);
+          this.game.audio.tone({ freq: 520, endFreq: 940, type: 'triangle', duration: 0.22, volume: 0.22 });
+        }
+      }
+    } else if (this.distance >= this.goalDistance) {
       if (this.level) this.clearLevel();
       else this.finish(true);
     }
@@ -1217,14 +1282,14 @@ export class ReefRushScene extends MinigameScene {
             { x: p.x - 8, y: p.y },
           ];
     const radius = r * 0.62;
-    paintMorayTrail(ctx, radius, trail, DART_EEL_PALETTE);
+    paintMorayTrail(ctx, radius, trail, ZIP_EEL_PALETTE);
     const head = trail[0];
     const next = trail[1];
     const heading = Math.atan2(head.y - next.y, head.x - next.x);
     ctx.save();
     ctx.translate(head.x, head.y);
     ctx.rotate(heading);
-    drawDartEelHead(ctx, radius, 1);
+    drawZipEelHead(ctx, radius, 1);
     ctx.restore();
   }
 
@@ -1244,6 +1309,8 @@ export class ReefRushScene extends MinigameScene {
     if (this.gravityUp && this.form !== 'crab' && this.form !== 'urchin' && this.form !== 'nautilus') ctx.scale(1, -1);
     if (this.form === 'stingray') {
       drawSpottedRay(ctx, r * 0.85, this.time);
+    } else if (this.form === 'cuttlefish') {
+      drawCuttlefishBody(ctx, r * 1.15, { age: this.time, camo: 0, splay: 0.35, strike: 0 });
     } else if (this.form === 'nautilus') {
       drawNautilusBody(ctx, r * 0.95, { age: this.time, natural: true, jet: { strength: this.nautilusJet, dir: this.nautilusJetDir } });
     } else if (this.form === 'shrimp') {
@@ -1406,7 +1473,10 @@ export class ReefRushScene extends MinigameScene {
     const ratio = clamp(this.distance / this.goalDistance, 0, 1);
     fillRoundRect(ctx, 40, 74, 260, 8, 4, 'rgba(4, 16, 29, 0.6)');
     fillRoundRect(ctx, 40, 74, 260 * ratio, 8, 4, COLORS.accent);
-    drawText(ctx, `${Math.round(this.distance)} M / ${Math.round(this.goalDistance)} M`, 40, 96, {
+    const goalText = this.endless
+      ? `${Math.round(this.distance)} M — ${this.bossesCleared} BOSS WAVES`
+      : `${Math.round(this.distance)} M / ${Math.round(this.goalDistance)} M`;
+    drawText(ctx, goalText, 40, 96, {
       size: 12,
       color: COLORS.textDim,
       align: 'left',
@@ -1461,14 +1531,17 @@ export class ReefRushScene extends MinigameScene {
   recordMode() {
     if (this.level) return 'reefrushlevel';
     if (this.course) return 'reefrushcourse';
+    if (this.endless) return 'reefrushEndless';
     return this.custom ? 'reefrushcustom' : 'reefrush';
   }
 
   resultsHeadline() {
+    if (this.endless) return this.won ? 'ENDLESS SURVIVED!' : 'THE REEF NEVER ENDS';
     return this.won ? 'REEF CLEARED!' : 'WRECKED ON THE REEF';
   }
 
   resultsDetail() {
+    if (this.endless) return `${Math.round(this.distance)} M — ${this.bossesCleared} BOSS WAVES`;
     if (this.custom) return `${Math.round(this.distance)} M — ${this.collected} PEARLS — YOUR SONG`;
     if (this.course) return `${Math.round(this.distance)} M — ${this.collected} PEARLS — YOUR COURSE`;
     return `${Math.round(this.distance)} M — ${this.collected} PEARLS — SEED ${this.seed}`;

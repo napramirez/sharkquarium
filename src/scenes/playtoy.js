@@ -6,6 +6,8 @@ import { clamp, rand, TAU } from '../engine/math.js';
 import { firstPersonMode } from '../engine/mode3d.js';
 import { drawTetherLine, drawClampHead, drawReticle } from '../engine/tether.js';
 import { LivingToy } from '../entities/livingtoy.js';
+import { EelToy, drawEelToy } from '../entities/eeltoy.js';
+import { cute, renderCuteScare } from '../engine/cute.js';
 import {
   PLAYTOY,
   PLAYTOY_GATES,
@@ -23,6 +25,7 @@ export class PlayToyScene extends MinigameScene {
     this.collectedNotes = new Set(loadJSON(PLAYTOY_KEY, { notes: [] }).notes ?? []);
     super.enter({ ...params, solo: true });
     this.anchorIndex = 0;
+    this.enemyMult = this.mutator ? this.mutator.knobs.enemySpeedScale ?? 1 : 1;
     this.message = '';
     this.messageTimer = 0;
     this.noteTimer = 0;
@@ -91,6 +94,9 @@ export class PlayToyScene extends MinigameScene {
     }
     const span = this.worldLength - P.startPadding - 520;
     this.notesCollected = 0;
+    this.parts = [];
+    this.partsCollected = 0;
+    this.builtToy = null;
     for (let i = 0; i < P.noteCount; i += 1) {
       const taken = this.collectedNotes ? this.collectedNotes.has(i) : false;
       if (taken) this.notesCollected += 1;
@@ -135,6 +141,27 @@ export class PlayToyScene extends MinigameScene {
     }
     for (let px = 240; px < this.worldLength; px += 380) this.portholes.push({ x: px, phase: rand(0, TAU) });
     this.exitZone = { x: this.worldLength - PLAYTOY.exitLength * 0.5, y: LOGICAL_HEIGHT / 2 };
+    this.chaseStart = P.startPadding + (P.sections - 1) * P.sectionLength;
+    this.chaseSafeX = this.exitZone.x - P.exitHalf - P.chase.safePad;
+    this.chaseCheckpoint = Math.max(P.startPadding, this.chaseStart - 90);
+    const partSpan = Math.max(200, this.chaseStart - P.startPadding - 240);
+    for (let i = 0; i < 4; i += 1) {
+      this.parts.push({
+        x: P.startPadding + (i + 0.5) * (partSpan / 4),
+        y: LOGICAL_HEIGHT * 0.5 + (i % 2 === 0 ? -60 : 60),
+        taken: false,
+        phase: rand(0, TAU),
+      });
+    }
+    this.chase = { active: false, cleared: false };
+    this.eelToy = null;
+    this.chaseLatches = [
+      { kind: 'circuit', x: this.chaseStart + 430, y: 104, radius: 26, used: 0 },
+      { kind: 'cargo', x: this.chaseStart + 1180, y: 150, radius: 28, used: 0 },
+    ];
+    for (const latch of this.chaseLatches) {
+      latch._draw = (ctx) => drawChaseLatch(ctx, latch, this.time);
+    }
     this.rebuildWalls();
   }
 
@@ -222,6 +249,14 @@ export class PlayToyScene extends MinigameScene {
         best = { kind: 'toy', x: toy.x, y: toy.y, radius: toy.radius, target: toy };
       }
     }
+    for (const latch of this.chaseLatches ?? []) {
+      if (latch.used > 0) continue;
+      const d = Math.hypot(point.x - latch.x, point.y - latch.y);
+      if (d < latch.radius + PLAYTOY.clampRadius && d < bestDist) {
+        bestDist = d;
+        best = { kind: 'chaseLatch', x: latch.x, y: latch.y, radius: latch.radius, target: latch };
+      }
+    }
     if (best) return best;
     for (const wall of this.walls) {
       if (point.x > wall.x - 4 && point.x < wall.x + wall.w + 4 && point.y > wall.y - 4 && point.y < wall.y + wall.h + 4) {
@@ -256,6 +291,11 @@ export class PlayToyScene extends MinigameScene {
       t.timer = 0;
       t.head.x = hit.x;
       t.head.y = hit.y;
+      return;
+    }
+    if (hit.kind === 'chaseLatch') {
+      this.latchAction(hit.target);
+      t.state = 'returning';
       return;
     }
     if (hit.kind === 'wall') {
@@ -309,6 +349,102 @@ export class PlayToyScene extends MinigameScene {
     this.tether.state = 'returning';
     this.setMessage('THE LINE FELL SHORT');
     this.game.audio.tone({ freq: 220, endFreq: 140, duration: 0.12, volume: 0.14 });
+  }
+
+  startChase() {
+    const C = PLAYTOY.chase;
+    const player = this.players[0];
+    this.chase.active = true;
+    this.eelToy = new EelToy(player.x - C.spawnLead, LOGICAL_HEIGHT / 2, {
+      radius: C.radius,
+      speed: C.speed,
+      lungeSpeed: C.lungeSpeed,
+      lungeTime: C.lungeTime,
+      lungeEvery: C.lungeEvery,
+      sweepEvery: C.sweepEvery,
+      stunTime: C.stunTime,
+      staggerTime: C.staggerTime,
+    });
+    this.shake = 1;
+    this.flash = 0.5;
+    this.setMessage('SOMETHING HUGE STIRS IN THE HOLD \u2014 RUN!');
+    this.game.audio.noise({ duration: 1.1, volume: 0.32, type: 'lowpass', filterFreq: 820, filterEnd: 90 });
+    this.game.audio.tone({ freq: 74, endFreq: 34, type: 'sawtooth', duration: 1.2, volume: 0.3 });
+    this.particles.burst(this.eelToy.x, this.eelToy.y, {
+      count: 22,
+      speed: 210,
+      life: 0.8,
+      colors: ['#9fd0d8', '#ffffff', '#5aa87f'],
+      buoyancy: -20,
+    });
+  }
+
+  startChaseScare() {
+    if (this.phase === 'scare') return;
+    this.phase = 'scare';
+    this.scareTimer = 1.6;
+    this.shake = 1;
+    this.game.audio.noise({ duration: 0.8, volume: 0.32, type: 'lowpass', filterFreq: 900, filterEnd: 100 });
+    this.game.audio.tone({ freq: 90, endFreq: 30, type: 'square', duration: 0.6, volume: 0.3 });
+  }
+
+  respawnChase() {
+    const player = this.players[0];
+    player.x = this.chaseCheckpoint;
+    player.y = LOGICAL_HEIGHT / 2;
+    player.vx = 0;
+    player.vy = 0;
+    player.invulnerable = 1;
+    if (this.eelToy) {
+      this.eelToy.x = player.x - PLAYTOY.chase.spawnLead;
+      this.eelToy.y = LOGICAL_HEIGHT / 2;
+      this.eelToy.state = 'chase';
+      this.eelToy.stunTimer = 0;
+      this.eelToy.staggerTimer = 0;
+      this.eelToy.lungeCooldown = PLAYTOY.chase.lungeEvery;
+    }
+    this.shake = 0;
+    this.flash = 0;
+    this.phase = 'play';
+    this.setMessage('IT CAUGHT UP \u2014 SWIM AGAIN!');
+  }
+
+  clearChase() {
+    this.chase.active = false;
+    this.chase.cleared = true;
+    this.eelToy = null;
+    this.flash = 0.3;
+    this.setMessage('THE HOLD SETTLES \u2014 THE SURFACE HATCH AHEAD');
+    this.game.audio.tone({ freq: 300, endFreq: 660, type: 'triangle', duration: 0.4, volume: 0.24 });
+  }
+
+  latchAction(latch) {
+    const a = this.anchorDef();
+    if (latch.kind === 'circuit') {
+      if (a.key !== 'electric') {
+        this.setMessage('THE LIVE CIRCUIT NEEDS THE ELECTRICONDUCTOR ANCHOR');
+        return false;
+      }
+      if (this.eelToy) this.eelToy.stun(PLAYTOY.chase.stunTime);
+      this.setMessage('THE SURGE STUNS THE EEL TOY');
+    } else {
+      if (a.key !== 'pressure') {
+        this.setMessage('THE CARGO LATCH NEEDS THE PRESSURE ANCHOR');
+        return false;
+      }
+      if (this.eelToy) this.eelToy.stagger(PLAYTOY.chase.staggerTime);
+      this.setMessage('THE CARGO DROPS \u2014 THE EEL TOY STAGGERS');
+    }
+    latch.used = 3;
+    this.particles.burst(latch.x, latch.y, {
+      count: 16,
+      speed: 200,
+      life: 0.6,
+      colors: [a.color, '#ffffff'],
+      buoyancy: -10,
+    });
+    this.game.audio.tone({ freq: 420, endFreq: 180, type: 'square', duration: 0.18, volume: 0.2 });
+    return true;
   }
 
   updateTether(dt) {
@@ -444,6 +580,11 @@ export class PlayToyScene extends MinigameScene {
   }
 
   updateRound(dt, input) {
+    if (this.phase === 'scare') {
+      this.scareTimer -= dt;
+      if (this.scareTimer <= 0) this.respawnChase();
+      return;
+    }
     const player = this.players[0];
     this.messageTimer = Math.max(0, this.messageTimer - dt);
     this.noteTimer = Math.max(0, this.noteTimer - dt);
@@ -483,8 +624,45 @@ export class PlayToyScene extends MinigameScene {
       note.phase += dt;
       if (!pulling && circleOverlap(player, note)) this.collectNote(note);
     }
+    for (const part of this.parts) {
+      if (part.taken) continue;
+      part.phase += dt;
+      if (circleOverlap(player, { x: part.x, y: part.y, radius: 20 })) {
+        part.taken = true;
+        this.partsCollected += 1;
+        this.setMessage(`TOY PART ${this.partsCollected}/${this.parts.length}`);
+        this.game.audio.tone({ freq: 500, endFreq: 820, type: 'triangle', duration: 0.12, volume: 0.16 });
+        this.particles.burst(part.x, part.y, { count: 10, speed: 130, life: 0.5, colors: ['#9be564', '#ffffff'] });
+      }
+    }
+    if (!this.builtToy && this.partsCollected >= this.parts.length) {
+      this.builtToy = new LivingToy(player.x - 40, player.y, 0, {
+        detectRange: 0,
+        idleSpeed: 140,
+        chaseSpeed: 160,
+        worldLength: this.worldLength,
+      });
+      this.setMessage('BUILD-A-TOY COMPLETE — A FRIENDLY TOY JOINS YOU');
+      this.game.audio.tone({ freq: 620, endFreq: 1080, type: 'triangle', duration: 0.3, volume: 0.24 });
+    }
+    if (this.builtToy) {
+      this.builtToy.x += (player.x - 46 - this.builtToy.x) * Math.min(1, dt * 3);
+      this.builtToy.y += (player.y - this.builtToy.y) * Math.min(1, dt * 3);
+    }
     for (const gate of this.gates) {
       if (gate.open && gate.anim < 1) gate.anim = Math.min(1, gate.anim + dt * 2.4);
+    }
+    for (const latch of this.chaseLatches ?? []) {
+      latch.used = Math.max(0, latch.used - dt);
+    }
+    if (!this.chase.active && !this.chase.cleared && player.x >= this.chaseStart) this.startChase();
+    if (this.chase.active && this.eelToy) {
+      this.eelToy.update(dt, player, this.enemyMult);
+      if (this.contactCooldown <= 0 && circleOverlap(player, this.eelToy)) {
+        this.startChaseScare();
+        return;
+      }
+      if (player.x >= this.chaseSafeX) this.clearChase();
     }
     if (player.x >= this.exitZone.x - PLAYTOY.exitHalf) {
       this.finish(true);
@@ -764,11 +942,82 @@ export class PlayToyScene extends MinigameScene {
     for (const gate of this.gates) this.renderGate(ctx, gate);
     for (const anchor of this.anchors) this.renderAnchorRing(ctx, anchor);
     for (const note of this.notes) this.renderNote(ctx, note);
+    for (const part of this.parts) this.renderToyPart(ctx, part);
+    for (const latch of this.chaseLatches ?? []) {
+      if (latch.used > 0) continue;
+      this.renderChaseLatch(ctx, latch);
+    }
     this.renderExit(ctx);
     for (const toy of this.toys) toy.render(ctx);
+    if (this.builtToy) this.builtToy.render(ctx);
+    if (this.eelToy) this.eelToy.render(ctx);
     this.renderPlayers(ctx);
     this.renderTether(ctx);
     this.particles.render(ctx);
+    ctx.restore();
+  }
+
+  renderChaseLatch(ctx, latch) {
+    ctx.save();
+    ctx.translate(latch.x, latch.y);
+    drawChaseLatch(ctx, latch, this.time);
+    ctx.restore();
+  }
+
+  renderChaseScare(ctx) {
+    const t = 1 - this.scareTimer / 1.6;
+    if (cute()) {
+      renderCuteScare(ctx, t, {
+        width: LOGICAL_WIDTH,
+        height: LOGICAL_HEIGHT,
+        time: this.time,
+        caption: 'THE EEL TOY JUST WANTS A HUG!',
+        draw: (c) => drawEelToy(c, { radius: 62, age: this.time }, 1),
+        radius: 46,
+      });
+      return;
+    }
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
+    ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
+    const scale = 0.6 + t * 1.8;
+    ctx.save();
+    ctx.translate(LOGICAL_WIDTH / 2, LOGICAL_HEIGHT / 2);
+    ctx.scale(scale, scale);
+    drawEelToy(ctx, { radius: 70, age: this.time }, 1);
+    ctx.restore();
+    ctx.fillStyle = `rgba(120, 0, 20, ${0.4 * (1 - t)})`;
+    ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
+  }
+
+  render(ctx) {
+    super.render(ctx);
+    if (this.phase === 'scare') this.renderChaseScare(ctx);
+  }
+
+  renderToyPart(ctx, part) {
+    if (part.taken) return;
+    const bob = Math.sin(this.time * 2.4 + part.phase) * 4;
+    ctx.save();
+    ctx.translate(part.x, part.y + bob);
+    ctx.rotate(Math.sin(part.phase) * 0.2);
+    ctx.fillStyle = '#9be564';
+    ctx.beginPath();
+    ctx.moveTo(-14, -10);
+    ctx.lineTo(14, -10);
+    ctx.lineTo(10, 12);
+    ctx.lineTo(-10, 12);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = '#5aa87f';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+    ctx.fillStyle = '#10233a';
+    ctx.beginPath();
+    ctx.arc(-5, 0, 3.5, 0, TAU);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(5, 0, 3.5, 0, TAU);
+    ctx.fill();
     ctx.restore();
   }
 
@@ -786,7 +1035,30 @@ export class PlayToyScene extends MinigameScene {
     });
     drawText(ctx, `${a.desc} — [E] SWAP`, 20, 60, { size: 11, color: COLORS.textDim, align: 'left' });
 
-    drawText(ctx, `NOTES ${this.notesCollected}/${this.notes.length}`, LOGICAL_WIDTH - 24, 33, {
+    if (this.chase.active) {
+      const barW = 300;
+      const total = Math.max(1, this.chaseSafeX - this.chaseStart);
+      const ratio = clamp(1 - (this.chaseSafeX - this.players[0].x) / total, 0, 1);
+      fillRoundRect(ctx, 20, 90, barW, 12, 6, 'rgba(6, 20, 26, 0.78)');
+      fillRoundRect(ctx, 20, 90, barW * ratio, 12, 6, '#ff6b81');
+      strokeRoundRect(ctx, 20, 90, barW, 12, 6, 'rgba(255, 107, 129, 0.7)', 2);
+      drawText(ctx, 'TOY BOSS — REACH THE SURFACE HATCH', 20, 78, {
+        size: 11,
+        color: COLORS.danger,
+        align: 'left',
+        glow: 'rgba(255, 107, 129, 0.5)',
+        glowBlur: 8,
+      });
+    }
+
+    drawText(ctx, `TOY PARTS ${this.partsCollected}/${this.parts.length}`, LOGICAL_WIDTH - 24, 33, {
+      size: 16,
+      color: '#9be564',
+      align: 'right',
+      glow: 'rgba(155, 229, 100, 0.4)',
+      glowBlur: 8,
+    });
+    drawText(ctx, `NOTES ${this.notesCollected}/${this.notes.length}`, LOGICAL_WIDTH - 172, 33, {
       size: 16,
       color: COLORS.accent,
       align: 'right',
@@ -936,7 +1208,12 @@ export class PlayToyScene extends MinigameScene {
   }
 
   firstPersonSprites() {
-    return [...(this.players ?? []), ...(this.toys ?? [])];
+    const sprites = [...(this.players ?? []), ...(this.toys ?? [])];
+    for (const latch of this.chaseLatches ?? []) {
+      if (latch.used <= 0) sprites.push(latch);
+    }
+    if (this.eelToy) sprites.push(this.eelToy);
+    return sprites;
   }
 
   backScene() {
@@ -960,4 +1237,54 @@ export class PlayToyScene extends MinigameScene {
   resultsDetail() {
     return `${this.notesCollected}/${this.notes.length} NOTES — ${this.toysRepelled} TOYS REPELLED`;
   }
+}
+
+export function drawChaseLatch(ctx, latch, time) {
+  const pulse = 0.5 + 0.5 * Math.sin(time * 4 + latch.x * 0.01);
+  const r = latch.radius;
+  ctx.save();
+  ctx.globalAlpha = 0.24 + pulse * 0.28;
+  ctx.fillStyle = latch.kind === 'circuit' ? '#63e6ff' : '#ff8f5e';
+  ctx.beginPath();
+  ctx.arc(0, 0, r + 12, 0, TAU);
+  ctx.fill();
+  ctx.globalAlpha = 1;
+  if (latch.kind === 'circuit') {
+    fillRoundRect(ctx, -r, -r, r * 2, r * 2, 8, '#101c22');
+    strokeRoundRect(ctx, -r, -r, r * 2, r * 2, 8, '#63e6ff', 2.5);
+    ctx.fillStyle = '#63e6ff';
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.34, -r * 0.6);
+    ctx.lineTo(r * 0.12, -r * 0.06);
+    ctx.lineTo(-r * 0.08, -r * 0.02);
+    ctx.lineTo(r * 0.36, r * 0.62);
+    ctx.lineTo(-r * 0.16, r * 0.02);
+    ctx.lineTo(r * 0.06, -r * 0.04);
+    ctx.closePath();
+    ctx.fill();
+  } else {
+    fillRoundRect(ctx, -r * 0.9, -r * 0.9, r * 1.8, r * 1.8, 6, '#5a3f28');
+    strokeRoundRect(ctx, -r * 0.9, -r * 0.9, r * 1.8, r * 1.8, 6, '#ff8f5e', 2.5);
+    ctx.strokeStyle = '#c9a06a';
+    ctx.lineWidth = 2;
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(side * r * 0.9, -r * 0.9);
+      ctx.lineTo(side * r * 0.9, r * 0.9);
+      ctx.moveTo(-r * 0.9, side * r * 0.9);
+      ctx.lineTo(r * 0.9, side * r * 0.9);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = '#ff8f5e';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 1.5);
+    ctx.lineTo(0, -r * 0.9);
+    ctx.stroke();
+    ctx.fillStyle = '#ffd166';
+    ctx.beginPath();
+    ctx.arc(0, -r * 1.5, r * 0.16, 0, TAU);
+    ctx.fill();
+  }
+  ctx.restore();
 }

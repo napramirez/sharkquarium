@@ -2,8 +2,10 @@ import { MinigameScene } from '../engine/minigame.js';
 import { drawWater, drawText, fillRoundRect } from '../engine/render.js';
 import { circleOverlap } from '../engine/collision.js';
 import { clamp, rand, TAU } from '../engine/math.js';
+import { motionScale } from '../engine/motion.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
 import { setSkinClock, skinCatalog, skinByKey } from '../engine/skin.js';
+import { checkAchievements } from '../engine/achievements.js';
 import { drawMegasquid, drawMegasquidEye } from '../entities/megasquid.js';
 import { drawStingrayBody } from '../entities/stingray.js';
 import { drawMorayBody } from '../entities/eel.js';
@@ -363,6 +365,7 @@ export class TrenchExploreScene extends MinigameScene {
         if (this.net.depth > 0 && c.y <= this.net.depth) {
           c.caught = true;
           this.unlockSkin(c.skin, c.label);
+          checkAchievements({ caughtRay: true });
         }
       }
     }
@@ -1414,7 +1417,7 @@ export class TrenchExploreScene extends MinigameScene {
     drawWater(ctx, W, H, this.time, WATER_PALETTE);
     ctx.save();
     if (this.shake > 0) {
-      ctx.translate(rand(-1, 1) * 8 * this.shake, rand(-1, 1) * 8 * this.shake);
+      ctx.translate(rand(-1, 1) * 8 * this.shake * motionScale(), rand(-1, 1) * 8 * this.shake * motionScale());
     }
     ctx.translate(0, 0);
     if (this.phase === 'rising') this.renderRising(ctx);
@@ -1424,7 +1427,7 @@ export class TrenchExploreScene extends MinigameScene {
 
     if (this.phase !== 'rising') this.renderHud(ctx);
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35})`;
+      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * motionScale()})`;
       ctx.fillRect(0, 0, W, H);
     }
     if (this.phase === 'results') this.renderResults(ctx);

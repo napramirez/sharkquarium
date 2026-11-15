@@ -8,8 +8,12 @@ import { ArcticShrimp } from '../entities/arcticshrimp.js';
 import { KelpCrab } from '../entities/kelpcrab.js';
 import { MoonJelly } from '../entities/moonjelly.js';
 import { Nautilus } from '../entities/nautilus.js';
+import { Cuttlefish } from '../entities/cuttlefish.js';
+import { Dolphin } from '../entities/dolphin.js';
+import { SeaTurtle } from '../entities/seaturtle.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
 import { drawSkinAura, setActiveSkin, setSkinClock, skinCatalog } from '../engine/skin.js';
+import { checkAchievements } from '../engine/achievements.js';
 import { auraByKey, auraCatalog, auraForShop, setActiveAura } from '../engine/aura.js';
 import {
   accessoryByKey,
@@ -54,6 +58,9 @@ const CREATURES = [
   { key: 'kelpcrab', label: 'KELP CRAB', create: () => new KelpCrab(790, 300) },
   { key: 'jellyfish', label: 'JELLYFISH', create: () => new MoonJelly(790, 300) },
   { key: 'nautilus', label: 'NAUTILUS', create: () => new Nautilus(790, 300) },
+  { key: 'cuttlefish', label: 'CUTTLEFISH', create: () => new Cuttlefish(790, 300) },
+  { key: 'dolphin', label: 'DOLPHIN', create: () => new Dolphin(790, 300) },
+  { key: 'seaturtle', label: 'SEA TURTLE', create: () => new SeaTurtle(790, 300) },
 ];
 
 const SLOTS = {
@@ -116,8 +123,9 @@ const SLOTS = {
 };
 
 export class ShopScene extends Scene {
-  enter() {
+  enter(params = {}) {
     this.time = 0;
+    this.battle = Boolean(params.battle);
     this.coins = loadJSON(COINS_KEY, COINS.starting);
     const raw = loadJSON(SHOP_KEY, {});
     const legacy = accessoryByKey(raw.accessory ?? 'none');
@@ -156,24 +164,42 @@ export class ShopScene extends Scene {
     this.auraIndex = this.indexFor(SLOTS.aura.catalog, this.shop.aura);
     this.emoteIndex = this.indexFor(SLOTS.emote.catalog, this.shop.emote);
     this.creatureIndex = 0;
-    this.previewCreatures = CREATURES.map((entry) => ({ ...entry, entity: entry.create() }));
+    this.previewCreatures = CREATURES.map((entry) => {
+      const entity = entry.create();
+      entity.noIdleFlip = true;
+      return { ...entry, entity };
+    });
     this.status = null;
     this.statusTimer = 0;
     this.menu = new SelectList(
-      [
-        { label: 'COLOR', action: 'skin' },
-        { label: 'CREATURE', action: 'creature' },
-        { label: 'HEAD', action: 'head' },
-        { label: 'BODY', action: 'body' },
-        { label: 'TRAIL', action: 'trail' },
-        { label: 'DIVE BUDDIES', action: 'companion' },
-        { label: 'AURA', action: 'aura' },
-        { label: 'EMOTES', action: 'emote' },
-        { label: 'PLAYPASS', action: 'pass' },
-        { label: 'PLAYER', action: 'player' },
-        { label: 'COSTUMES', action: 'costume' },
-        { label: 'BACK', action: 'back' },
-      ],
+      this.battle
+        ? [
+            { label: 'COLOR', action: 'skin' },
+            { label: 'CREATURE', action: 'creature' },
+            { label: 'HEAD', action: 'head' },
+            { label: 'BODY', action: 'body' },
+            { label: 'TRAIL', action: 'trail' },
+            { label: 'AURA', action: 'aura' },
+            { label: 'COSTUMES', action: 'costume' },
+            { label: 'PLAYER', action: 'player' },
+            { label: 'START BATTLE', action: 'start', highlight: true },
+            { label: 'BACK', action: 'back' },
+          ]
+        : [
+            { label: 'COLOR', action: 'skin' },
+            { label: 'CREATURE', action: 'creature' },
+            { label: 'HEAD', action: 'head' },
+            { label: 'BODY', action: 'body' },
+            { label: 'TRAIL', action: 'trail' },
+            { label: 'DIVE BUDDIES', action: 'companion' },
+            { label: 'AURA', action: 'aura' },
+            { label: 'EMOTES', action: 'emote' },
+            { label: 'PLAYPASS', action: 'pass' },
+            { label: 'PLAYER', action: 'player' },
+            { label: 'COSTUMES', action: 'costume' },
+            { label: 'AURA STACK', action: 'auraStack' },
+            { label: 'BACK', action: 'back' },
+          ],
       {
         glowColor: COLORS.bubble,
         accentColor: COLORS.accent,
@@ -289,10 +315,12 @@ export class ShopScene extends Scene {
   }
 
   ownsAccessory(key) {
+    if (this.battle) return true;
     return this.shop.accessories.includes(key) || this.passGranted('accessories').includes(key);
   }
 
   ownsOption(kind, key) {
+    if (this.battle) return true;
     const option = SLOTS[kind];
     if (option.list === 'accessories') return this.ownsAccessory(key);
     return this.shop[option.list].includes(key) || this.passGranted(option.list).includes(key);
@@ -315,6 +343,7 @@ export class ShopScene extends Scene {
   }
 
   owns(key) {
+    if (this.battle) return true;
     return this.shop.owned.includes(key) || this.passGranted('skins').includes(key);
   }
 
@@ -330,8 +359,21 @@ export class ShopScene extends Scene {
   }
 
   save() {
+    if (this.battle) return;
     saveJSON(SHOP_KEY, this.shop);
     saveJSON(COINS_KEY, this.coins);
+    const owned = new Set([
+      ...(this.shop.owned ?? []),
+      ...(this.shop.accessories ?? []),
+      ...(this.shop.trails ?? []),
+      ...(this.shop.auras ?? []),
+      ...(this.shop.companions ?? []),
+    ]);
+    checkAchievements({
+      cosmeticsOwned: owned.size,
+      coins: this.coins,
+      ownsCuttlefishSet: owned.has('cuttlefishhat') && owned.has('plushcuttlefish'),
+    });
   }
 
   cycle(step) {
@@ -475,9 +517,14 @@ export class ShopScene extends Scene {
   }
 
   choose(item) {
+    if (item.action === 'start') {
+      this.game.audio.tone({ freq: 400, endFreq: 760, type: 'triangle', duration: 0.2, volume: 0.22 });
+      this.game.changeScene('dressbattle', { shop: this.shop });
+      return;
+    }
     if (item.action === 'back') {
       this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.14, volume: 0.2 });
-      this.game.changeScene('menu');
+      this.game.changeScene(this.battle ? 'minigames' : 'menu');
       return;
     }
     if (item.action === 'skin') {
@@ -486,6 +533,18 @@ export class ShopScene extends Scene {
     }
     if (item.action === 'creature') {
       this.setStatus('LEFT/RIGHT — BROWSE CREATURES');
+      return;
+    }
+    if (item.action === 'auraStack') {
+      if (this.shop.aura2) {
+        delete this.shop.aura2;
+        this.setStatus('AURA STACK CLEARED');
+      } else {
+        this.shop.aura2 = this.shop.aura ?? 'none';
+        this.setStatus('AURA STACKED — A SECOND AURA RIDES ALONG');
+      }
+      this.save();
+      this.game.audio.tone({ freq: 520, endFreq: 780, type: 'triangle', duration: 0.14, volume: 0.2 });
       return;
     }
     if (item.action === 'player') {
@@ -514,7 +573,7 @@ export class ShopScene extends Scene {
     this.statusTimer = Math.max(0, this.statusTimer - dt);
     const input = this.game.input;
     if (input.wasPressed('back')) {
-      this.game.changeScene('menu');
+      this.game.changeScene(this.battle ? 'minigames' : 'menu');
       return;
     }
     const selected = this.menu.selected;
@@ -555,6 +614,7 @@ export class ShopScene extends Scene {
   skinStatus(skin) {
     const pass = this.grantingPass('skins', skin.key);
     if (this.shop[this.skinField()] === skin.key) return 'EQUIPPED';
+    if (this.battle) return 'ENTER TO EQUIP';
     if (this.owns(skin.key)) {
       return pass ? `INCLUDED WITH ${pass.label} — ENTER TO EQUIP` : 'OWNED — ENTER TO EQUIP';
     }
@@ -569,6 +629,7 @@ export class ShopScene extends Scene {
     if (this.shop[this.fieldOf(option)] === item.key) {
       return item.key === 'none' ? `NO ${option.noun} ${this.wornLabel(kind)}` : this.wornLabel(kind);
     }
+    if (this.battle) return `ENTER TO ${this.wearAction(kind)}`;
     if (this.ownsOption(kind, item.key)) {
       return pass
         ? `INCLUDED WITH ${pass.label} — ENTER TO ${this.wearAction(kind)}`
@@ -589,7 +650,7 @@ export class ShopScene extends Scene {
 
   render(ctx) {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);
-    drawText(ctx, 'SHOP', 420, 84, {
+    drawText(ctx, this.battle ? 'DRESS UP BATTLE' : 'SHOP', 420, 84, {
       size: 40,
       color: COLORS.text,
       glow: COLORS.bubble,

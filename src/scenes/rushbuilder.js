@@ -49,7 +49,7 @@ const ITEM_LIST = [
   { label: 'SLOPE UP', kind: 'slopeup', group: 'piece' },
   { label: 'SLOPE DOWN', kind: 'slopedown', group: 'piece' },
   { label: 'STINGRAY', kind: 'portal', form: 'stingray', group: 'mode' },
-  { label: 'DART EEL', kind: 'portal', form: 'eel', group: 'mode' },
+  { label: 'ZIP EEL', kind: 'portal', form: 'eel', group: 'mode' },
   { label: 'CRAB', kind: 'portal', form: 'crab', group: 'mode' },
   { label: 'URCHIN', kind: 'portal', form: 'urchin', group: 'mode' },
   { label: 'JELLY', kind: 'portal', form: 'jelly', group: 'mode' },
@@ -58,6 +58,7 @@ const ITEM_LIST = [
   { label: 'NORMAL GRAVITY PORTAL', kind: 'gravdown', group: 'mode', color: '#63e6ff' },
   { label: 'NAUTILUS', kind: 'portal', form: 'nautilus', group: 'mode', color: '#d9a93c' },
   { label: 'SHRIMP', kind: 'portal', form: 'shrimp', group: 'mode', color: '#8fe14a' },
+  { label: 'CUTTLEFISH', kind: 'portal', form: 'cuttlefish', group: 'mode', color: '#c0392b' },
   { label: 'FAKE ROCK', kind: 'fakerock', group: 'piece' },
   { label: 'CEILING FAKE ROCK', kind: 'ceilfakerock', group: 'piece' },
 ];

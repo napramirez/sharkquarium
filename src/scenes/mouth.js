@@ -16,6 +16,7 @@ import { firstPersonMode } from '../engine/mode3d.js';
 import { renderFirstPersonLevel } from '../engine/raycastview.js';
 import { renderDarkness } from '../engine/horror.js';
 import { motionScale } from '../engine/motion.js';
+import { cute, renderCuteScare } from '../engine/cute.js';
 import { applyWardrobe } from '../engine/wardrobe.js';
 import { drawTrail } from '../engine/trail.js';
 import { drawCompanion } from '../engine/companion.js';
@@ -26,6 +27,9 @@ import { ArcticShrimp } from '../entities/arcticshrimp.js';
 import { KelpCrab } from '../entities/kelpcrab.js';
 import { MoonJelly } from '../entities/moonjelly.js';
 import { Nautilus } from '../entities/nautilus.js';
+import { Cuttlefish } from '../entities/cuttlefish.js';
+import { Dolphin } from '../entities/dolphin.js';
+import { SeaTurtle } from '../entities/seaturtle.js';
 import { QUIET_TRACK } from '../assets/tracks.js';
 import {
   MOUTH,
@@ -47,6 +51,9 @@ const DIVE_CREATURES = [
   { key: 'kelpcrab', label: 'CRAB', type: KelpCrab },
   { key: 'jellyfish', label: 'JELLY', type: MoonJelly },
   { key: 'nautilus', label: 'NAUTILUS', type: Nautilus, options: { vertical: true } },
+  { key: 'cuttlefish', label: 'CUTTLEFISH', type: Cuttlefish },
+  { key: 'dolphin', label: 'DOLPHIN', type: Dolphin },
+  { key: 'seaturtle', label: 'SEA TURTLE', type: SeaTurtle },
 ];
 
 export class MouthScene extends MinigameScene {
@@ -561,6 +568,16 @@ export class MouthScene extends MinigameScene {
 
   renderScare(ctx) {
     const t = 1 - this.scareTimer / 1.6;
+    if (cute()) {
+      renderCuteScare(ctx, t, {
+        width: LOGICAL_WIDTH,
+        height: LOGICAL_HEIGHT,
+        time: this.time,
+        caption: 'THE MAW JUST WANTS A SNUGGLE!',
+        radius: 82,
+      });
+      return;
+    }
     ctx.fillStyle = 'rgba(0, 0, 0, 0.95)';
     ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     ctx.fillStyle = '#e8e3d6';

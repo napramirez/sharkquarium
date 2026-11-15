@@ -2,7 +2,7 @@ import { Entity } from './entity.js';
 import { rand, TAU } from '../engine/math.js';
 import { NAUTILUS, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
 
-export class DartEel extends Entity {
+export class ZipEel extends Entity {
   constructor() {
     super({
       x: rand(90, LOGICAL_WIDTH - 90),
@@ -31,12 +31,12 @@ export class DartEel extends Entity {
   render(ctx) {
     ctx.save();
     ctx.translate(this.x, this.y);
-    drawDartEel(ctx, this.radius, this);
+    drawZipEel(ctx, this.radius, this);
     ctx.restore();
   }
 }
 
-export function drawDartEel(ctx, radius, pose) {
+export function drawZipEel(ctx, radius, pose) {
   const direction = pose.direction ?? 1;
   const age = pose.age ?? 0;
   const wavePhase = pose.wavePhase ?? 0;
@@ -100,11 +100,11 @@ export function drawDartEel(ctx, radius, pose) {
   const head = spine[0];
   ctx.save();
   ctx.translate(head.x, head.y);
-  drawDartEelHead(ctx, radius, direction);
+  drawZipEelHead(ctx, radius, direction);
   ctx.restore();
 }
 
-export function drawDartEelHead(ctx, radius, direction = 1) {
+export function drawZipEelHead(ctx, radius, direction = 1) {
   ctx.save();
   ctx.scale(direction, 1);
 

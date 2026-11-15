@@ -1,6 +1,7 @@
 import { TAU } from '../engine/math.js';
 import { mode3D, hiddenEntity } from '../engine/mode3d.js';
 import { seasonOn, currentSeason } from '../engine/season.js';
+import { cute, drawCuteBlush, drawCuteHeart, drawCuteFace, cuteBlink } from '../engine/cute.js';
 
 export class Entity {
   constructor(options = {}) {
@@ -13,13 +14,43 @@ export class Entity {
     this.age = 0;
     this.alive = true;
     this.facing = 1;
+    this.blinkSeed = Math.random() * 10;
+    this.idleTime = 0;
+    this.idleMode = 'rest';
+    this.idleNext = 'flip';
+    this.idleTimer = 0;
+    this.idleRest = 2 + Math.random() * 4;
+    this.flipAngle = 0;
+    this.bubbleGrow = 0;
+    this.bubblePop = 0;
+    this.eyeFlinch = 0;
     const draw = this.render.bind(this);
     const entity = this;
     this._draw = draw;
     this.render = function renderEntity(ctx) {
       if (hiddenEntity() === entity) return;
+      ctx.save();
+      const flip = entity.flipAngle ?? 0;
+      if (flip !== 0) {
+        ctx.translate(entity.x, entity.y);
+        ctx.rotate(flip);
+        ctx.translate(-entity.x, -entity.y);
+      }
       if (mode3D()) drawEntity3D(ctx, entity, draw);
       else draw(ctx);
+      if (entity.idleMode === 'bubble') drawIdleBubble(ctx, entity);
+      if (cute() && entity.radius >= 14 && !entity.noCute) {
+        if (!entity.controls && entity.radius >= 16 && !entity.noCuteFace) {
+          const faceRadius = Math.min(entity.radius, 56) * 0.9;
+          drawCuteFace(ctx, entity.x, entity.y, faceRadius, { blink: cuteBlink(entity.age) });
+        } else {
+          drawCuteBlush(ctx, entity.x, entity.y, entity.radius, 0.45);
+        }
+        if (entity.radius >= 34) {
+          const bob = Math.sin(entity.age * 2 + (entity.x % 6)) * 3;
+          drawCuteHeart(ctx, entity.x + entity.radius * 0.9, entity.y - entity.radius * 1.2 + bob, entity.radius * 0.22, 'rgba(255, 143, 192, 0.75)', 0.2);
+        }
+      }
       if (entity.santa && seasonOn()) {
         if (typeof entity.santaHat === 'function') entity.santaHat(ctx);
         else {
@@ -27,11 +58,67 @@ export class Entity {
           drawSeasonHat(ctx, entity.x, entity.y - r * 0.92, r, currentSeason());
         }
       }
+      ctx.restore();
     };
   }
 
   update(dt) {
     this.age += dt;
+    let idle = false;
+    if (this.controls) {
+      const speed = Math.hypot(this.vx ?? 0, this.vy ?? 0);
+      if (speed < 10) this.idleTime += dt;
+      else this.idleTime = 0;
+      idle = !this.noIdleFlip && this.idleTime > 1.5;
+    }
+    this.updateIdle(dt, idle);
+  }
+
+  updateIdle(dt, idle) {
+    this.eyeFlinch = Math.max(0, this.eyeFlinch - dt * 2.2);
+    this.flipAngle = 0;
+    if (!idle) {
+      this.idleMode = 'rest';
+      this.idleTimer = 0;
+      this.bubbleGrow = 0;
+      this.bubblePop = 0;
+      return;
+    }
+    if (this.idleMode === 'rest') {
+      this.idleTimer += dt;
+      if (this.idleTimer >= this.idleRest) {
+        this.idleTimer = 0;
+        this.idleMode = this.idleNext;
+        this.idleNext = this.idleMode === 'flip' ? 'bubble' : 'flip';
+      }
+    } else if (this.idleMode === 'flip') {
+      this.idleTimer += dt;
+      const u = Math.min(1, this.idleTimer / 3.7);
+      const eased = u < 0.5 ? 4 * u * u * u : 1 - Math.pow(-2 * u + 2, 3) / 2;
+      this.flipAngle = -eased * TAU;
+      if (u >= 1) {
+        this.idleMode = 'rest';
+        this.idleTimer = 0;
+        this.idleRest = 2 + Math.random() * 4;
+      }
+    } else if (this.idleMode === 'bubble') {
+      if (this.bubblePop > 0) {
+        this.bubblePop = Math.min(1, this.bubblePop + dt / 0.45);
+        if (this.bubblePop >= 1) {
+          this.idleMode = 'rest';
+          this.idleTimer = 0;
+          this.bubbleGrow = 0;
+          this.bubblePop = 0;
+          this.idleRest = 2 + Math.random() * 4;
+        }
+      } else {
+        this.bubbleGrow = Math.min(1, this.bubbleGrow + dt / 1.3);
+        if (this.bubbleGrow >= 1) {
+          this.bubblePop = 0.0001;
+          this.eyeFlinch = 1;
+        }
+      }
+    }
   }
 
   updateFacing(threshold = 6) {
@@ -44,6 +131,54 @@ export class Entity {
   kill() {
     this.alive = false;
   }
+}
+
+function drawIdleBubble(ctx, entity) {
+  const r = entity.radius;
+  const mouthX = entity.x + (entity.facing ?? 1) * r * 1.15;
+  const mouthY = entity.y - r * 0.05;
+  if (entity.bubblePop > 0) {
+    const p = entity.bubblePop;
+    const maxR = r * 2.2;
+    ctx.save();
+    ctx.globalAlpha = (1 - p) * 0.55;
+    ctx.strokeStyle = 'rgba(220, 244, 255, 0.9)';
+    ctx.lineWidth = Math.max(1.5, r * 0.12);
+    ctx.beginPath();
+    ctx.arc(mouthX, mouthY, maxR * (0.85 + p * 0.55), 0, TAU);
+    ctx.stroke();
+    for (let i = 0; i < 8; i += 1) {
+      const a = (i / 8) * TAU;
+      const d = maxR * p * 1.5;
+      ctx.globalAlpha = (1 - p) * 0.85;
+      ctx.fillStyle = i % 2 === 0 ? '#eaf9ff' : '#cfefff';
+      ctx.beginPath();
+      ctx.arc(mouthX + Math.cos(a) * d, mouthY + Math.sin(a) * d, Math.max(1, r * 0.14 * (1 - p)), 0, TAU);
+      ctx.fill();
+    }
+    ctx.restore();
+    return;
+  }
+  const grow = entity.bubbleGrow;
+  const br = r * (0.3 + grow * 2);
+  ctx.save();
+  ctx.globalAlpha = 0.26 + 0.22 * grow;
+  ctx.fillStyle = 'rgba(207, 239, 255, 0.4)';
+  ctx.beginPath();
+  ctx.arc(mouthX, mouthY, br, 0, TAU);
+  ctx.fill();
+  ctx.globalAlpha = 0.75;
+  ctx.strokeStyle = 'rgba(232, 249, 255, 0.9)';
+  ctx.lineWidth = Math.max(1.5, r * 0.06);
+  ctx.beginPath();
+  ctx.arc(mouthX, mouthY, br, 0, TAU);
+  ctx.stroke();
+  ctx.globalAlpha = 0.85;
+  ctx.fillStyle = '#ffffff';
+  ctx.beginPath();
+  ctx.arc(mouthX - br * 0.34, mouthY - br * 0.34, Math.max(1, br * 0.15), 0, TAU);
+  ctx.fill();
+  ctx.restore();
 }
 
 function drawEntity3D(ctx, entity, draw) {

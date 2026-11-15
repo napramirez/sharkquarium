@@ -24,6 +24,15 @@ const TANK_OPTIONS = [
   { label: 'THE TRENCH MOUTH', params: { scene: 'mouth' } },
   { label: 'PREHISTORIC TANK', params: { scene: 'prehistoric' } },
   { label: 'PLAYTOY EXPLORATION', params: { scene: 'playtoy' } },
+  { label: 'MANTA RAY GLIDE', params: { scene: 'manta' } },
+  { label: 'COASTAL TANK', params: { scene: 'cuttlefish' } },
+  { label: 'HERMIT CRAB HOLD', params: { scene: 'hermitcrab' } },
+  { label: 'THE LIGHTHOUSE', params: { scene: 'lighthouse' } },
+  { label: 'THE PRESSURE', params: { scene: 'pressure' } },
+  { label: 'THE CLEANER STATION', params: { scene: 'cleaner' } },
+  { label: 'THE MIGRATION', params: { scene: 'migration' } },
+  { label: 'DEAD CALM', params: { scene: 'deadcalm' } },
+  { label: 'MUTANT HORRORS', action: 'mutants', highlight: true },
   { label: 'EMPTY TANK', params: { empty: true } },
 ];
 
@@ -49,7 +58,7 @@ export class TankSelectScene extends Scene {
     return new SelectList(
       [
         { label: `CO-OP: ${this.coop ? 'ON (2P)' : 'OFF'}`, action: 'coop', highlight: this.coop },
-        ...this.tankOptions().map((tank) => ({ label: tank.label, action: 'tank', params: tank.params })),
+        ...this.tankOptions().map((tank) => ({ label: tank.label, action: tank.action ?? 'tank', params: tank.params })),
         {
           label: `MUTATOR: ${this.mutator.key === 'none' ? 'OFF' : this.mutator.label}`,
           action: 'mutators',
@@ -79,6 +88,10 @@ export class TankSelectScene extends Scene {
     }
     if (item.action === 'mutators') {
       this.game.changeScene('mutators', { from: 'tanks' });
+      return;
+    }
+    if (item.action === 'mutants') {
+      this.game.changeScene('mutantselect');
       return;
     }
     if (item.action === 'back') {

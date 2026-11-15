@@ -11,6 +11,9 @@ import { Shark } from '../entities/shark.js';
 import { COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
 
 const PLAYER_X = 220;
+const ITEM_SPREAD = 26;
+const FALL_MIN = 150;
+const FALL_MAX = 235;
 const GOAL = 25;
 const HITS = 3;
 
@@ -50,12 +53,12 @@ export class ConfettiRushScene extends MinigameScene {
 
     this.spawnTimer -= dt;
     if (this.spawnTimer <= 0) {
-      this.spawnTimer = rand(0.22, 0.5);
-      const popper = Math.random() < 0.42;
+      this.spawnTimer = rand(0.26, 0.55);
+      const popper = Math.random() < 0.38;
       this.items.push({
-        x: rand(200, LOGICAL_WIDTH - 60),
+        x: PLAYER_X + rand(-ITEM_SPREAD, ITEM_SPREAD),
         y: -20,
-        vy: rand(220, 340),
+        vy: rand(FALL_MIN, FALL_MAX),
         popper,
         spin: rand(0, TAU),
       });
@@ -64,7 +67,7 @@ export class ConfettiRushScene extends MinigameScene {
     for (const item of this.items) {
       item.y += item.vy * dt;
       item.spin += dt * 3;
-      if (Math.hypot(item.x - this.shark.x, item.y - this.shark.y) < 34) {
+      if (Math.hypot(item.x - this.shark.x, item.y - this.shark.y) < 36) {
         if (item.popper) {
           item.dead = true;
           this.hits += 1;

@@ -38,6 +38,7 @@ export class IntroScene extends Scene {
     this.trail = trailByKey(shop.trail);
     this.companion = companionByKey(shop.companion);
     this.shark = new Shark(LOGICAL_WIDTH * 0.5, LOGICAL_HEIGHT * 0.7);
+    this.shark.noIdleFlip = true;
     if (this.game.music && this.game.music.track === null) {
       this.game.music.play(MENU_TRACK);
       this.game.music.hold = true;

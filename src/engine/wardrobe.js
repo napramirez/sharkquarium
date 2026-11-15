@@ -4,7 +4,7 @@ import {
   setActiveCostume,
   setActiveHeadAccessory,
 } from './accessory.js';
-import { auraByKey, auraForShop, setActiveAura } from './aura.js';
+import { auraByKey, auraForShop, setActiveAura, setActiveAura2 } from './aura.js';
 import { companionByKey, setActiveCompanion } from './companion.js';
 import { setActiveSkin, skinByKey } from './skin.js';
 import { setActiveTrail, trailByKey } from './trail.js';
@@ -22,6 +22,7 @@ export function wardrobeFor(shop, player = 0) {
     trail: pairKey(shop, 'trail', player),
     companion: pairKey(shop, 'companion', player),
     aura: pairKey(shop, 'aura', player),
+    aura2: pairKey(shop, 'aura2', player),
   };
 }
 

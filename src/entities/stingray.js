@@ -1,7 +1,7 @@
 import { Entity } from './entity.js';
 import { clamp, lerp, lerpAngle, TAU } from '../engine/math.js';
 import { CONTROLS, PLAYER, STINGRAY, SAND, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
-import { playerColor, shadowEyeColor } from '../engine/skin.js';
+import { playerColor, eyeOpenFor, activeSkin } from '../engine/skin.js';
 import { drawAccessory } from '../engine/accessory.js';
 import { drawEmote, startEmote, updateEmote } from '../engine/emotes.js';
 
@@ -143,76 +143,174 @@ export class Stingray extends Entity {
     ctx.fillStyle = COLORS.sandDark;
     ctx.fill();
     ctx.globalAlpha = 1;
-    ctx.fillStyle = shadowEyeColor(this.eyeColor);
-    ctx.beginPath();
-    ctx.arc(this.x - radius * 0.3, this.y - radius * 0.62, radius * 0.1, 0, TAU);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(this.x + radius * 0.3, this.y - radius * 0.62, radius * 0.1, 0, TAU);
-    ctx.fill();
+    const period = 3.8 + ((this.blinkSeed * 1.7) % 1.6);
+    const phase = (((this.age + this.blinkSeed * 3.1) % period) + period) % period;
+    const blinkStart = period - 0.24;
+    const open = phase > blinkStart
+      ? Math.max(0.05, 0.1 + 0.9 * Math.abs((phase - blinkStart) / 0.24 - 0.5) * 2)
+      : 1;
+    for (const side of [-1, 1]) {
+      ctx.save();
+      ctx.translate(this.x + side * radius * 0.32, this.y - radius * 0.62);
+      ctx.rotate(side * 0.38);
+      ctx.fillStyle = '#f0cf4e';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, radius * 0.2, Math.max(0.5, radius * 0.12 * open), 0, 0, TAU);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(120, 96, 30, 0.7)';
+      ctx.lineWidth = radius * 0.02;
+      ctx.stroke();
+      ctx.fillStyle = '#101010';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, radius * 0.06, Math.max(0.4, radius * 0.06 * open), 0, 0, TAU);
+      ctx.fill();
+      ctx.restore();
+    }
     ctx.restore();
   }
 }
 
 export function drawStingrayBody(ctx, radius, pose) {
+  const r = radius;
   const bodyColor = pose.bodyColor ?? COLORS.stingray;
   const raw = Boolean(pose.raw);
   const color = (slot, fallback) => (raw ? fallback : playerColor(slot, fallback));
   const tailPhase = pose.tailPhase ?? 0;
   const tailColor = pose.tailColor ?? (raw ? bodyColor : playerColor('tail', bodyColor));
   const tailOutline = pose.tailOutline ?? (raw ? null : playerColor('tailOutline', null));
-  const drawTail = (stroke, width) => {
-    ctx.strokeStyle = stroke;
-    ctx.lineWidth = width;
-    ctx.lineCap = 'round';
-    ctx.beginPath();
-    ctx.moveTo(-radius * 0.8, 0);
-    ctx.quadraticCurveTo(
-      -radius * 1.8,
-      Math.sin(tailPhase) * radius * 0.5,
-      -radius * 2.6,
-      Math.sin(tailPhase + 1.1) * radius * 0.35,
-    );
-    ctx.stroke();
-  };
-  if (tailOutline) drawTail(tailOutline, radius * 0.17);
-  drawTail(tailColor, radius * 0.11);
+  const open = eyeOpenFor(pose);
+  const noSpots = pose.noSpots ?? (!raw && activeSkin().raySpots === false);
 
+  const tailMid = Math.sin(tailPhase) * r * 0.5;
+  const tailTipY = Math.sin(tailPhase + 1.1) * r * 0.55;
+  const tailPath = () => {
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.55, -r * 0.32);
+    ctx.quadraticCurveTo(-r * 2.7, tailMid, -r * 4.7, tailTipY);
+    ctx.quadraticCurveTo(-r * 2.3, tailMid, -r * 0.55, r * 0.32);
+    ctx.closePath();
+  };
+  ctx.save();
+  ctx.lineJoin = 'round';
+  if (tailOutline) {
+    ctx.save();
+    ctx.translate(-r * 0.1, 0);
+    ctx.scale(1.12, 1.12);
+    ctx.fillStyle = tailOutline;
+    tailPath();
+    ctx.fill();
+    ctx.restore();
+  }
+  ctx.fillStyle = tailColor;
+  tailPath();
+  ctx.fill();
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
+  tailPath();
+  ctx.fill();
+  ctx.restore();
+
+  const d = r * 2.0;
   ctx.beginPath();
-  ctx.moveTo(radius * 1.3, 0);
-  ctx.quadraticCurveTo(radius * 0.4, -radius * 1.5, -radius * 0.7, -radius * 1.1);
-  ctx.quadraticCurveTo(-radius * 1.0, -radius * 0.3, -radius * 0.9, 0);
-  ctx.quadraticCurveTo(-radius * 1.0, radius * 0.3, -radius * 0.7, radius * 1.1);
-  ctx.quadraticCurveTo(radius * 0.4, radius * 1.5, radius * 1.3, 0);
+  ctx.moveTo(0, -d);
+  ctx.lineTo(d, 0);
+  ctx.lineTo(0, d);
+  ctx.lineTo(-d, 0);
   ctx.closePath();
   ctx.fillStyle = color('body', bodyColor);
   ctx.fill();
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.16)';
+  ctx.fill();
 
-  if (pose.bigSpot) {
-    ctx.fillStyle = color('accent', pose.bigSpot);
-    ctx.beginPath();
-    ctx.arc(0, 0, radius * 0.5, 0, TAU);
-    ctx.fill();
-  } else if (!pose.noSpots) {
-    ctx.fillStyle = color('accent', pose.spotColor ?? 'rgba(70, 62, 50, 0.35)');
-    for (let i = 0; i < 4; i += 1) {
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(0, -d);
+  ctx.lineTo(d, 0);
+  ctx.lineTo(0, d);
+  ctx.lineTo(-d, 0);
+  ctx.closePath();
+  ctx.clip();
+  const edgeGrad = ctx.createLinearGradient(-d, 0, 0, 0);
+  edgeGrad.addColorStop(0, '#b8541d');
+  edgeGrad.addColorStop(0.42, '#c9905e');
+  edgeGrad.addColorStop(0.8, color('body', bodyColor));
+  edgeGrad.addColorStop(1, color('body', bodyColor));
+  ctx.strokeStyle = edgeGrad;
+  ctx.lineWidth = r * 0.42;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(0, -d);
+  ctx.lineTo(-d, 0);
+  ctx.lineTo(0, d);
+  ctx.stroke();
+  ctx.restore();
+
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 1.5, r * 0.72, 0, 0, TAU);
+  ctx.fillStyle = color('body', bodyColor);
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.18)';
+  ctx.lineWidth = r * 0.05;
+  ctx.stroke();
+
+  if (!pose.bigSpot && !noSpots) {
+    ctx.fillStyle = color('accent', pose.spotColor ?? 'rgba(70, 62, 50, 0.3)');
+    for (let i = 0; i < 6; i += 1) {
       ctx.beginPath();
-      ctx.arc(
-        -radius * 0.5 + i * radius * 0.4,
-        (i % 2 === 0 ? -1 : 1) * radius * 0.28,
-        radius * 0.11,
-        0,
-        TAU,
-      );
+      ctx.arc(-r * 0.85 + (i % 3) * r * 0.85, -r * 0.22 + (i < 3 ? 0 : r * 0.44), r * 0.09, 0, TAU);
       ctx.fill();
     }
+  } else if (pose.bigSpot) {
+    ctx.fillStyle = color('accent', pose.bigSpot);
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.5, 0, TAU);
+    ctx.fill();
   }
 
-  ctx.fillStyle = raw ? pose.eyeColor ?? '#10233a' : shadowEyeColor(pose.eyeColor ?? '#10233a');
-  ctx.beginPath();
-  ctx.arc(radius * 0.75, -radius * 0.3, radius * 0.09, 0, TAU);
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(radius * 0.75, radius * 0.3, radius * 0.09, 0, TAU);
-  ctx.fill();
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.translate(-r * 1.7, side * r * 0.3);
+    ctx.rotate(-side * (Math.PI / 4));
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 0.52, r * 0.24, 0, 0, TAU);
+    ctx.fillStyle = color('body', bodyColor);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.16)';
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+    ctx.lineWidth = r * 0.03;
+    ctx.stroke();
+    ctx.restore();
+  }
+
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.translate(r * 1.05, side * r * 0.34);
+    ctx.rotate(-side * 0.38);
+    ctx.fillStyle = '#f0cf4e';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 0.2, Math.max(0.6, r * 0.115 * open), 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(120, 96, 30, 0.7)';
+    ctx.lineWidth = r * 0.02;
+    ctx.stroke();
+    ctx.fillStyle = '#101010';
+    ctx.beginPath();
+    ctx.arc(0, 0, Math.max(0.5, r * 0.06 * open), 0, TAU);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  for (const side of [-1, 1]) {
+    ctx.save();
+    ctx.translate(r * 0.55, side * r * 0.42);
+    ctx.rotate(side * 0.6);
+    ctx.fillStyle = 'rgba(18, 22, 28, 0.62)';
+    ctx.beginPath();
+    ctx.moveTo(0, -r * 0.15);
+    ctx.bezierCurveTo(r * 0.11, -r * 0.02, r * 0.1, r * 0.11, 0, r * 0.11);
+    ctx.bezierCurveTo(-r * 0.1, r * 0.11, -r * 0.11, -r * 0.02, 0, -r * 0.15);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
+  }
 }

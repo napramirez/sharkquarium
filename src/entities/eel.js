@@ -376,7 +376,7 @@ export function drawMorayBody(ctx, radius, pose, palette = EEL_VARIANTS[0]) {
     heading,
     radius,
     palette,
-    0.12 + 0.1 * Math.sin(age * 3 + phase),
+    pose.jawOpen ?? (0.12 + 0.1 * Math.sin(age * 3 + phase)),
   );
 }
 
@@ -463,13 +463,31 @@ export function drawMorayHead(ctx, x, y, heading, radius, palette, jawOpen) {
   }
   ctx.restore();
 
-  ctx.beginPath();
-  ctx.arc(radius * 0.85, -radius * 0.32, radius * 0.24, 0, TAU);
-  ctx.fillStyle = '#f4fbff';
-  ctx.fill();
-  ctx.beginPath();
-  ctx.arc(radius * 0.89, -radius * 0.32, radius * 0.14, 0, TAU);
-  ctx.fillStyle = palette.eyeColor;
-  ctx.fill();
+  if (palette.blind) {
+    ctx.fillStyle = 'rgba(14, 20, 10, 0.9)';
+    ctx.beginPath();
+    ctx.ellipse(radius * 0.85, -radius * 0.32, radius * 0.28, radius * 0.17, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = palette.outlineColor;
+    ctx.lineWidth = radius * 0.06;
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(150, 190, 90, 0.5)';
+    ctx.lineWidth = radius * 0.04;
+    for (let i = -1; i <= 1; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(radius * (0.6 + i * 0.04), -radius * 0.42);
+      ctx.lineTo(radius * (1.05 + i * 0.04), -radius * 0.24);
+      ctx.stroke();
+    }
+  } else {
+    ctx.beginPath();
+    ctx.arc(radius * 0.85, -radius * 0.32, radius * 0.24, 0, TAU);
+    ctx.fillStyle = '#f4fbff';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(radius * 0.89, -radius * 0.32, radius * 0.14, 0, TAU);
+    ctx.fillStyle = palette.eyeColor;
+    ctx.fill();
+  }
   ctx.restore();
 }

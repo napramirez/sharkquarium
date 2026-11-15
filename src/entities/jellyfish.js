@@ -1,6 +1,7 @@
 import { Entity } from './entity.js';
 import { rand, TAU, clamp } from '../engine/math.js';
 import { HAZARD, LOGICAL_WIDTH, COLORS } from '../config.js';
+import { colorblind, hazardMark } from '../engine/colorblind.js';
 
 export class Jellyfish extends Entity {
   constructor(x, y) {
@@ -53,6 +54,7 @@ export class Jellyfish extends Entity {
     ctx.arc(-bell * 0.35, -bell * 0.42, bell * 0.14, 0, TAU);
     ctx.fillStyle = 'rgba(255, 255, 255, 0.7)';
     ctx.fill();
+    if (colorblind()) hazardMark(ctx, bell);
     ctx.restore();
   }
 }

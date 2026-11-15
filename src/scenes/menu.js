@@ -71,10 +71,14 @@ export class MenuScene extends Scene {
     if (this.shop.passes.includes('playpass9')) {
       items.push({ label: 'AQUARIUM BUILDER', action: 'aquarium' });
     }
+    items.push({ label: 'DAILY DIVE', action: 'daily' });
+    items.push({ label: 'WEEKLY CHALLENGE', action: 'weekly' });
     items.push({ label: 'SHOP', action: 'shop' });
     items.push({ label: 'SETTINGS', action: 'settings' });
     items.push({ label: 'HOW TO PLAY', action: 'help' });
     items.push({ label: 'LORE', action: 'lore' });
+    items.push({ label: 'SEA FACTS', action: 'seafacts' });
+    items.push({ label: 'ACHIEVEMENTS', action: 'achievements' });
     this.menu = new SelectList(items, {
       glowColor: COLORS.bubble,
       accentColor: COLORS.accent,
@@ -94,11 +98,15 @@ export class MenuScene extends Scene {
     else if (action === 'minigames') this.game.changeScene('minigames');
     else if (action === 'pets') this.game.changeScene('play', { tank: 'pets' });
     else if (action === 'endless') this.game.changeScene('play', { endless: true });
+    else if (action === 'daily') this.game.changeScene('play', { daily: true });
+    else if (action === 'weekly') this.game.changeScene('play', { weekly: true });
     else if (action === 'aquarium') this.game.changeScene('aquarium');
     else if (action === 'shop') this.game.changeScene('shop');
     else if (action === 'settings') this.game.changeScene('settings');
     else if (action === 'help') this.showHelp = true;
     else if (action === 'lore') this.game.changeScene('lore');
+    else if (action === 'seafacts') this.game.changeScene('seafacts');
+    else if (action === 'achievements') this.game.changeScene('achievements');
   }
 
   update(dt) {
@@ -140,6 +148,17 @@ export class MenuScene extends Scene {
             fall: rand(34, 78),
           }),
         );
+      } else if (season === 'spring') {
+        const colors = ['#ffc2e0', '#ff9ecb', '#ffe0f0', '#ffd6a8'];
+        this.bubbles.push(
+          new Snowflake(x, -24, {
+            kind: 'leaf',
+            color: colors[Math.floor(rand(0, colors.length))],
+            fall: rand(22, 48),
+          }),
+        );
+      } else if (season === 'summer') {
+        this.bubbles.push(new Bubble(rand(40, LOGICAL_WIDTH - 40), LOGICAL_HEIGHT + 24, { rise: rand(40, 84) }));
       } else if (season === 'christmas') {
         this.bubbles.push(new Snowflake(x, -24, { kind: 'snow' }));
       } else {

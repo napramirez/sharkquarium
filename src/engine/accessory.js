@@ -19,6 +19,10 @@ export function accessoryCatalog() {
   return ACCESSORIES;
 }
 
+export function activeBodyKey() {
+  return activeBody.key;
+}
+
 export function accessorySlotCatalog(slot) {
   return ACCESSORIES.filter((entry) => entry.key === 'none' || entry.slot === slot);
 }
@@ -83,6 +87,156 @@ function drawNeonJacket(ctx, rx, ry, time) {
     ctx.lineTo(side * rx * 0.72, ry * 0.22);
     ctx.stroke();
   }
+}
+
+function accessoryChaosRandom(n) {
+  const s = Math.sin(n * 12.9898) * 43758.5453;
+  return s - Math.floor(s);
+}
+
+function drawChaosCrackle(ctx, rx, ry, time, seed) {
+  const span = Math.max(rx, ry);
+  const pulse = 0.5 + 0.5 * Math.sin(time * 9 + seed);
+  const bucket = Math.floor(time * 20);
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  for (let i = 0; i < 6; i += 1) {
+    const r1 = accessoryChaosRandom(seed + bucket * 7 + i * 3 + 1);
+    const r2 = accessoryChaosRandom(seed + bucket * 11 + i * 5 + 2);
+    const r3 = accessoryChaosRandom(seed + bucket * 13 + i * 7 + 3);
+    const a = r1 * TAU;
+    const inner = span * (0.55 + r2 * 0.28);
+    const outer = span * (1.05 + r3 * 0.45);
+    const sx = Math.cos(a) * inner;
+    const sy = Math.sin(a) * inner * 0.82;
+    const ex = Math.cos(a) * outer;
+    const ey = Math.sin(a) * outer * 0.82;
+    const mx = (sx + ex) / 2 + (r2 - 0.5) * outer * 0.55;
+    const my = (sy + ey) / 2 + (r3 - 0.5) * outer * 0.55;
+    ctx.globalAlpha = 0.3 + pulse * 0.4;
+    ctx.strokeStyle = '#ff4b4b';
+    ctx.lineWidth = span * 0.14;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(mx, my);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+    ctx.globalAlpha = 0.92;
+    ctx.strokeStyle = '#ff2b2b';
+    ctx.lineWidth = span * 0.055;
+    ctx.beginPath();
+    ctx.moveTo(sx, sy);
+    ctx.lineTo(mx, my);
+    ctx.lineTo(ex, ey);
+    ctx.stroke();
+  }
+  ctx.globalAlpha = 1;
+}
+
+function drawChaosJacket(ctx, rx, ry, time) {
+  const w = (rx + ry) / 2;
+  const pulse = 0.5 + 0.5 * Math.sin(time * 9);
+  ctx.fillStyle = '#1a0a0c';
+  ctx.beginPath();
+  ctx.moveTo(-rx * 0.9, -ry * 0.35);
+  ctx.quadraticCurveTo(0, -ry * 0.92, rx * 0.9, -ry * 0.35);
+  ctx.quadraticCurveTo(rx * 0.78, ry * 0.95, 0, ry * 1.08);
+  ctx.quadraticCurveTo(-rx * 0.78, ry * 0.95, -rx * 0.9, -ry * 0.35);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = 'rgba(70, 10, 12, 0.85)';
+  ctx.lineWidth = w * 0.1;
+  ctx.stroke();
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = `rgba(255, 75, 75, ${(0.35 + pulse * 0.3).toFixed(3)})`;
+  ctx.lineWidth = w * 0.26;
+  ctx.beginPath();
+  ctx.moveTo(-rx * 0.62, -ry * 0.42);
+  ctx.quadraticCurveTo(0, -ry * 0.8, rx * 0.62, -ry * 0.42);
+  ctx.stroke();
+  ctx.strokeStyle = '#ff2b2b';
+  ctx.lineWidth = w * 0.13;
+  ctx.stroke();
+  ctx.strokeStyle = '#ff8f7a';
+  ctx.lineWidth = w * 0.1;
+  ctx.beginPath();
+  ctx.moveTo(0, -ry * 0.5);
+  ctx.lineTo(0, ry * 0.9);
+  ctx.stroke();
+  ctx.strokeStyle = `rgba(255, 75, 75, ${(0.35 + pulse * 0.3).toFixed(3)})`;
+  ctx.lineWidth = w * 0.24;
+  ctx.beginPath();
+  ctx.moveTo(-rx * 0.6, ry * 0.8);
+  ctx.quadraticCurveTo(0, ry * 1.06, rx * 0.6, ry * 0.8);
+  ctx.stroke();
+  ctx.strokeStyle = '#ff8f7a';
+  ctx.lineWidth = w * 0.12;
+  ctx.stroke();
+  for (const side of [-1, 1]) {
+    ctx.strokeStyle = '#ffd9d2';
+    ctx.lineWidth = w * 0.07;
+    ctx.beginPath();
+    ctx.moveTo(side * rx * 0.5, -ry * 0.1);
+    ctx.lineTo(side * rx * 0.72, ry * 0.22);
+    ctx.stroke();
+  }
+  drawChaosCrackle(ctx, rx, ry, time, 4);
+}
+
+function drawChaosStingrayHat(ctx, r, time) {
+  const sway = Math.sin(time * 2.8) * r * 0.1;
+  const pulse = 0.5 + 0.5 * Math.sin(time * 9 + 2);
+  ctx.lineCap = 'round';
+  ctx.strokeStyle = 'rgba(120, 20, 22, 0.75)';
+  ctx.lineWidth = r * 0.16;
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.7, -r * 0.95);
+  ctx.quadraticCurveTo(-r * 1.35 + sway, -r * 1.5, -r * 1.05 + sway, -r * 2.1);
+  ctx.stroke();
+  ctx.strokeStyle = '#ff6b5c';
+  ctx.lineWidth = r * 0.1;
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.7, -r * 0.95);
+  ctx.quadraticCurveTo(-r * 1.35 + sway, -r * 1.5, -r * 1.05 + sway, -r * 2.1);
+  ctx.stroke();
+  ctx.fillStyle = '#8a1f22';
+  ctx.beginPath();
+  ctx.ellipse(0, -r * 0.95, r * 0.85, r * 0.2, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = `rgba(255, 75, 75, ${(0.55 + pulse * 0.35).toFixed(3)})`;
+  ctx.beginPath();
+  ctx.moveTo(r * 1.15, -r * 1.15);
+  ctx.quadraticCurveTo(r * 0.3, -r * 1.78, -r * 0.55, -r * 1.4);
+  ctx.quadraticCurveTo(-r * 0.15, -r * 1.05, -r * 0.55, -r * 0.72);
+  ctx.quadraticCurveTo(r * 0.3, -r * 0.58, r * 1.15, -r * 1.15);
+  ctx.closePath();
+  ctx.fill();
+  ctx.strokeStyle = '#ff8f7a';
+  ctx.lineWidth = r * 0.07;
+  ctx.stroke();
+  ctx.fillStyle = '#ffe3d6';
+  ctx.beginPath();
+  ctx.ellipse(r * 0.15, -r * 1.05, r * 0.5, r * 0.22, 0, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#8a1f22';
+  for (const [sx, sy] of [
+    [0.5, -1.38],
+    [0.78, -1.06],
+    [0.05, -1.32],
+  ]) {
+    ctx.beginPath();
+    ctx.arc(sx * r, sy * r, r * 0.07, 0, TAU);
+    ctx.fill();
+  }
+  ctx.fillStyle = '#fff0ec';
+  ctx.beginPath();
+  ctx.arc(r * 0.78, -r * 1.28, r * 0.11, 0, TAU);
+  ctx.fill();
+  ctx.fillStyle = '#3a0a0c';
+  ctx.beginPath();
+  ctx.arc(r * 0.8, -r * 1.28, r * 0.05, 0, TAU);
+  ctx.fill();
+  drawChaosCrackle(ctx, r * 0.9, r * 1.4, time, 9);
 }
 
 function renderAccessory(ctx, key, r, time, frame) {
@@ -252,11 +406,12 @@ function renderAccessory(ctx, key, r, time, frame) {
     ctx.fill();
     return;
   }
-  if (key === 'neonjacket') {
+  if (key === 'neonjacket' || key === 'chaosjacket') {
     const fit = frame.entity?.jacketFit ?? { x: -0.5, y: 0.02, rx: 1.1, ry: 0.78 };
     ctx.save();
     ctx.translate(r * fit.x, r * fit.y);
-    drawNeonJacket(ctx, r * fit.rx, r * fit.ry, time);
+    if (key === 'chaosjacket') drawChaosJacket(ctx, r * fit.rx, r * fit.ry, time);
+    else drawNeonJacket(ctx, r * fit.rx, r * fit.ry, time);
     ctx.restore();
     return;
   }
@@ -341,6 +496,52 @@ function renderAccessory(ctx, key, r, time, frame) {
       ctx.arc(side * r * 0.3, -r * 0.95, r * 0.12, 0, TAU);
       ctx.fill();
     }
+    return;
+  }
+  if (key === 'chaosstingrayhat') {
+    drawChaosStingrayHat(ctx, r, time);
+    return;
+  }
+  if (key === 'cuttlefishhat') {
+    const sway = Math.sin(time * 2.6) * r * 0.06;
+    ctx.save();
+    ctx.translate(0, -r * 1.1 + sway);
+    ctx.strokeStyle = '#2f6fd0';
+    ctx.lineWidth = r * 0.14;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 0.72, r * 0.5, 0, 0, TAU);
+    ctx.stroke();
+    ctx.fillStyle = '#c0392b';
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * 0.6, r * 0.42, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
+    ctx.lineWidth = r * 0.035;
+    for (let i = -1; i <= 1; i += 1) {
+      const x = i * r * 0.22;
+      ctx.beginPath();
+      ctx.moveTo(x, -r * 0.32);
+      ctx.quadraticCurveTo(x + r * 0.06, 0, x, r * 0.32);
+      ctx.stroke();
+    }
+    for (const side of [-1, 1]) {
+      ctx.fillStyle = '#f4fbff';
+      ctx.beginPath();
+      ctx.arc(side * r * 0.3, -r * 0.02, r * 0.1, 0, TAU);
+      ctx.fill();
+      ctx.fillStyle = '#10233a';
+      ctx.beginPath();
+      ctx.arc(side * r * 0.33, -r * 0.02, r * 0.05, 0, TAU);
+      ctx.fill();
+    }
+    ctx.fillStyle = '#b5322a';
+    ctx.beginPath();
+    ctx.moveTo(r * 0.5, -r * 0.18);
+    ctx.lineTo(r * 0.98, 0);
+    ctx.lineTo(r * 0.5, r * 0.18);
+    ctx.closePath();
+    ctx.fill();
+    ctx.restore();
     return;
   }
   if (key === 'stingrayhat') {

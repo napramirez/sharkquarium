@@ -23,8 +23,10 @@ Engine modules: `game.js` (fixed-timestep loop, scene registry, DPR-aware resize
 (WebAudio synth bus), `music.js` (step-sequenced tank themes), `render.js` (draw
 helpers), `selectlist.js` (navigable list widget), `joystick.js` (on-screen thumbstick),
 `minigame.js` (the shared minigame scene scaffold with fees-agnostic results plumbing),
-`skin.js` (shop color catalog and player recoloring), `accessory.js` (shop trinkets
-rendered onto the creatures, routed through `plushie.js` for the ragdoll plushie pack),
+`skin.js` (shop color catalog and player recoloring — specials SHADOW, RAINBOW, and the
+red-sparking CHAOS), `accessory.js` (shop trinkets rendered onto the creatures, routed
+through `plushie.js` for the ragdoll plushie pack, plus the CHAOS STINGRAY HAT and CHAOS
+JACKET red-crackle variants),
 `trail.js` (per-entity swim wakes), `companion.js` (per-entity follower pals),
 `aura.js` (per-entity orbiting rings — creature, weapon, neon, and bubble auras; the
 karambit reads `palette.key` so NATURAL wears a silver blade with a gold loop, RED a
@@ -38,7 +40,12 @@ JSON).
 Game modules: `config.js` holds every tuning value referenced by `FEATURES.md`;
 entities share the `Entity` base (center x/y, velocity, collision radius, age, alive);
 scenes follow the `Scene` base (`enter`/`exit`/`update`/`render`); `ui/hud.js` consumes
-a state object only, so it works with any gameplay content.
+a state object only, so it works with any gameplay content. `Entity` also owns shared
+per-entity animation: a `blinkSeed` (via `skin.js` `eyeOpen()/eyeOpenFor()` and
+`drawEye()/drawPupil()`) for time-to-time eye blinks, and an idle state machine
+(`updateIdle`) for controllable players that alternates a slow backflip (`flipAngle`) and
+blowing a huge bubble (`drawIdleBubble()`) whose pop sets `eyeFlinch` so the eyes screw
+shut in surprise.
 
 Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
 (minifier), `build.mjs` (artifact writer), `dev.mjs` (static dev server), `smoke.mjs`
@@ -122,11 +129,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   pass-exclusive MONSOON/EMBER colors and PIRATE HAT/PROPELLER CAP trinkets (ownership
   checks union `passGranted()` over `PASSES`, so granted items equip for free and cannot
   be coin-bought), pass 3 unlocks the pets tank, pass 4 unlocks the endless dive, pass 5
-  grants the cosmetics bundle — eleven ragdoll plushies, the hue-cycling NEON JACKET
+  grants the cosmetics bundle — twelve ragdoll plushies, the hue-cycling NEON JACKET
   tailored to each wearer through a per-entity `jacketFit` metric, and the removable
   EEL AURA trinket (`auraForShop()` feeds `skin.js` from the shop's `aura` key,
   defaulting legacy session saves that own pass 5 to the attached ring) — pass 6
-  unlocks the rare pets and trained fetching, pass 7 grants the five TRAILS, pass 8
+  unlocks the rare pets and trained fetching, pass 7 grants the six TRAILS, pass 8
   grants the twenty-one DIVE BUDDIES (the five favourites plus mini versions of every playable
   creature and every enemy, and the MINI MEGASQUID boss buddy), and pass 9 unlocks the
   aquarium builder.
@@ -135,7 +142,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   plushie keeps its appendage chains in a `WeakMap` of spring/damper joints
    (`STIFFNESS` 55, `DAMPING` 5.5) whose targets trail opposite `vx`/`vy` (mapped into the
    entity's mirrored render space), straighten under speed, and sway at rest,
-   with per-creature specs for the seven divers, the moray, and the three rare pets.
+   with per-creature specs for the eight divers, the moray, and the three rare pets.
    `src/engine/ripcord.js` (`drawRagdollRipcord()`) is a lighter verlet rope (position-based
    segments with gravity, damping, and velocity-driven inertia) used by the **RIP CORD** body
    trinket and CHAIN-FIN's starter pull-cord; it stores its rope state on the wearer under
@@ -149,8 +156,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   velocity or heading, and the seven buddies that mirror the playable creatures redraw
   them through the divers' own exported `drawSharkBody`/`drawStingrayBody`/`drawSquidBody`/
   `drawArcticShrimpBody`/`drawKelpCrabBody`/`drawMoonJellyBody`/`drawNautilusBody`
-  helpers at buddy scale, so they inherit every silhouette and the equipped color, while
-  `drawMorayBody`, `drawDartEel`, and `drawElectricEel` do the same for the moray, dart
+  helpers at buddy scale, so they inherit every silhouette and the equipped color. Those
+  `drawXBody` models got a realism pass — realistic anatomy, counter-shading, gills/spiracles,
+  fins, and natural detail on every playable creature — while still routing their colors
+  through `playerColor()` so the equipped COLOR recolors them, while
+  `drawMorayBody`, `drawZipEel`, and `drawElectricEel` do the same for the moray, zip
   eel, and volt eel buddies, and the MINI MEGASQUID redraws the labyrinth boss through
   the shared `drawMegasquid`/`drawMegasquidEye` helpers from
   `src/entities/megasquid.js` (periodic blinks, the eye tracking forward). It
@@ -161,7 +171,18 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   under `SHOP_KEY` (legacy `accessory` saves migrate into their slot on entry) and the
   bank under
   `COINS_KEY`. `MinigamesScene` (`minigames`) lists the unlocked playpass content and
-  starts the two-player race with `{ race: true }`; `PlayScene` then forces co-op but
+  also offers **DRESS UP BATTLE**, which opens `ShopScene` with `{ battle: true }` (a
+  private dresser replica that hides pass/emote/companion rows, treats every cosmetic as
+  owned so nothing is bought or saved to `SHOP_KEY`, and adds START BATTLE, passing the
+  dressed `shop` through to the fight) and then
+  `DressBattleScene` (`dressbattle`, a `MinigameScene`): two `Shark` fighters with
+  per-player wardrobes, free 2D movement, and a lunge (`KeyJ`/`Digit1`) + aura deploy
+  (`KeyK`/`Digit2`) kit whose effects come from the equipped cosmetics — an aura-kind
+  table (`weapon`/`living`/`power`), weapon styles (karambit boomerang vs trident/sword
+  shots + cooldown), aura creatures drawn with the matching `companion.js` models (`drawMiniOctopus`,
+  `drawMiniStingray`, `drawMiniShark`, `drawBabyMoray`), and statuses (stun, slow, blind,
+  knockback) plus food-costume healing and trail-stun. It also lists the co-op race; `MinigamesScene`
+  starts the two-player race with `{ race: true }`, and `PlayScene` forces co-op but
   keeps the selected difficulty rules (the race clock scales with `timeScale`), tracks
   per-player bubble counts (`playerBubbles`), skips the
   tank chain and best/stat/coin writes, and hands the race results to the game over
@@ -178,13 +199,21 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   compresses its endless ramp by `rampScale`. The active color is applied at render time via `skin.js` — entities call
   `playerColor(slot, fallback)`, so specials like SHADOW (pulsing red accents, plus
   white dot eyes on the shrimp, stingray, and nautilus via `shadowEyeColor()`) and
-  RAINBOW (hue cycling) work across every creature.
+  RAINBOW (hue cycling) work across every creature. CHAOS is one pulsing pure red for
+  body/accent/belly, inverts the eyes (white part black via `eyeLight()`, pupil white via
+  `shadowEyeColor()`), pulses the `tail` slot black, and draws `drawChaosCrackle()` red
+  lightning bolts around the diver's edge.
 - `LoreScene` (`lore`, opened from the menu's LORE row) is the codex: it reads the
-  `LORE` catalog — THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MINIGAMES, and
-  THE MODES, eighty-four named entries in all — and renders Left/Right section tabs, an Up/Down
+  `LORE` catalog — THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MUTANT HORRORS,
+  THE MINIGAMES, and THE MODES, ninety-four named entries in all — and renders Left/Right section tabs, an Up/Down
   entry list with a centered window and `n/m` counters, and the wrapped story text in a side
   panel. Overlong entries are split by `paginate()` after the last complete sentence that fits
   (ENTER turns pages, and the panel shows `PAGE n/m`).
+- `SeaFactsScene` (`seafacts`, opened from the menu's SEA FACTS row) is a lighter cousin of the
+  codex: it reads the `SEA_FACTS` catalog of real-world trivia about each playable creature,
+  one entry at a time. Up/Down (and Left/Right) browse creatures, ENTER turns pages when an
+  entry is long, and Esc returns to the menu; it reuses the same sentence-aware `paginate()`
+  wrapping as the lore codex.
 - `TrackPlayerScene` (`tracks`, opened from SETTINGS) lists `TRACK_LIBRARY` from
   `src/assets/tracks.js` and plays or stops any tank theme through the shared
   `MusicPlayer`; playing sets `music.hold`, so the chosen theme keeps playing after the
@@ -287,7 +316,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `1`–`0`) lists the pieces (SHELL/SEAWEED/CEILING SHELL/CEILING WEED/ROCK/CEILING ROCK/PEARL/
   PRESSURE BUBBLE/GRAVITY BUBBLE/GRAVITY BUBBLE PAD/CEILING GRAVITY BUBBLE PAD/THRUST BUBBLE
   PAD/CEILING THRUST BUBBLE PAD/FLOATING LEDGE/SLOPE UP/SLOPE DOWN/FAKE ROCK/CEILING FAKE ROCK)
-  then the modes (STINGRAY/DART EEL/CRAB/URCHIN/JELLY/FISH/NAUTILUS/SHRIMP) and the gravity portals (GRAVITY PORTAL flips gravity,
+  then the modes (STINGRAY/ZIP EEL/CRAB/URCHIN/JELLY/FISH/NAUTILUS/SHRIMP) and the gravity portals (GRAVITY PORTAL flips gravity,
   NORMAL GRAVITY PORTAL restores it in any mode), Enter/click places (a portal carries the selected
   mode's `form`), **clicking a rock or ceiling rock again stacks it**, a **hold + vertical drag
   resizes a piece**, `X` removes, `C` clears, `G-`/`G+` set the goal; `TEST` launches it from the
@@ -347,7 +376,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   card) and `buildTankShot(view, tank)` stages that tank's real cast — reef corals with
   jelly lines, the moray archway and a tinted freshwater ray, angler ledges with the crab
   and squid, ice perches with diving seals, kelp forest with the octopus, minnow clouds
-  with the turtle, whale bones with the chaser shark and dart eels,
+  with the turtle, whale bones with the chaser shark and zip eels,
   logs/piranha/electric-eel freshwater sets, and the pets tank menagerie — under
   `PALETTES[tank]`. `enter({ minigame })` gives the four minigames the same three-card
   treatment with `buildMinigameShot(view)`: racing sharks and rising `GoldenBubble`s for
@@ -371,7 +400,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   dress-up-then-dive); the shop branch of `update()` cycles the trailer's live cosmetics
   (`skinByKey` / `accessoryByKey` on the color, head, and body shelves and
   `trailByKey` / `companionByKey` / `auraByKey` on the trail and aura shelves),
-  `buildShopShot()` lines the seven creatures up mid-water, `render()` feeds the actives
+  `buildShopShot()` lines the eight creatures up mid-water, `render()` feeds the actives
   to `drawSkinAura` / `drawTrail` / `drawCompanion` for every performer, and the overlay
   header reads `SHARKQUARIUM — SHOP TRAILER`.
 - Six paid arcade games share `MinigameScene` (`src/engine/minigame.js`), which owns the
@@ -433,9 +462,9 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `kill()` instead of landing), and `shrimp` (a **jumper** \u2014 no robot, it just leaps high \u2014: holding on the ground builds
   `robotCharge`, releasing launches `vy = -jump * (low + charge*(high-low))` — a tap is a low hop). `enterPortal()` sets `this.form` when the
   player overlaps a portal of a different form, and `renderPlayer()` draws each mode. The
-  **DART EEL** wears the Nautilus Tank's dart-eel head (`drawDartEelHead()`) but paints its
+  **ZIP EEL** wears the Nautilus Tank's zip-eel head (`drawZipEelHead()`) but paints its
   tail with the **moray eel's trail renderer** (`paintMorayTrail()` from `src/entities/eel.js`,
-  given a green dart-eel palette): the last ~34 head positions from `dartTrail` become the
+  given a green zip-eel palette): the last ~34 head positions from `dartTrail` become the
   spine, so the tapering, ridged body **trails behind the head along the path it has swum**,
   curving through its previous turns. It draws at a **0.62 scale** (smaller); the other four
   modes draw at **0.78 scale** so they sit comfortably inside the same hitbox.
@@ -486,6 +515,60 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   ceiling/floor gradient with a live minimap; the round is won by collecting every bubble
   then reaching `exitPoint`. Both extend `MinigameScene` for the results/particle
   scaffolding but override `backScene()`/`chooseResult()` to return to `tanks`.
+- `MantaScene` (`manta`), `CuttlefishScene` (`cuttlefish`), and `HermitCrabScene`
+  (`hermitcrab`) are three playable-creature tanks that share the same shape: a `{ scene }`
+  tank-select option, a swimmable creature entity in `src/entities/` (`MantaRay`,
+  `Cuttlefish`, `HermitCrab`), a long scrolling world with a HUD bar, three lives, and
+  checkpoint respawns. **MANTA** flaps against a constant sink (`MANTA.gravity`/`thrust`)
+  to thread scoring rings; **CUTTLEFISH** runs a camouflage meter (`CUTTLEFISH.camoFade`)
+  that fades the diver while a hunter shark detects it only when visible; **HERMIT CRAB**
+  swaps `HERMIT.shells` for armor vs speed and bounces off urchins weaker than its shell.
+  Each sets `this.name` so it records under its own mode and returns to `tanks` on exit.
+- `LighthouseScene` (`lighthouse`), `PressureScene` (`pressure`), `CleanerScene`
+  (`cleaner`), and `MigrationScene` (`migration`) are four more standalone tank-select
+  scenes on the same `MinigameScene` shape (`{ scene }` option, three lives, checkpoint
+  respawns, a CUTE-MODE scare card, records under their own `this.name`). **THE LIGHTHOUSE**
+  scrolls a vertical shaft past a rotating `beam` cone (a point-in-cone `isLit()` fills an
+  exposure meter); **THE PRESSURE** descends a tall shaft with a depth-scaled pressure meter
+  vented by air columns, and both use the `Shark` entity's new `maxY` option so a player can
+  travel the full world height instead of being clamped to the screen;
+- `ThePodScene` (`thepod`), `BlossomDriftScene` (`blossomdrift`), and `SunsetSurfScene`
+  (`sunsetsurf`) are three leaner minigames. **THE POD** is a fixed arena where a pod of five
+  `drawDolphinBody` dolphins sweeps on a timer and the diver survives each sweep by standing
+  inside a coral clump (`hidden()`); six sweeps win. **BLOSSOM DRIFT** drops blossoms (score)
+  and bees (danger) into a movable basket, and **SUNSET SURF** is a hold-to-rise glide past
+  rocks to a distance goal. Both carry their own `this.name` record and return to `minigames`.
+- `DeadCalmScene` (`deadcalm`) is a side-scrolling pistol-shrimp platformer: the player
+  (`this.player`, plain object) runs with gravity/`jump` physics from `DEAD_CALM`, jumps high
+  and flutter-sinks while holding up, aims a drawn giant claw from the pointer's Y, and fires silent
+  `bubbles` that **pop** into small `shockwaves`, knocking `creatures` (sea snails / small
+  shrimps) off one-way stone platforms into the mutagen line (`MUTAGEN_Y`); only the **pop**
+  emits a ripple (`popBubble()`), never the launch. `addNoise()` emits expanding `ripples`; touching the mutagen
+  runs `trapInMutagen()` (the shrimp is held, `struggle` fills while mashing jump, and
+  `freeFromMutagen()` sets it back on a stone). The eyeless `monster` is a **giant mutated moray** (drawn via `drawMorayBody` with a `blind`
+  palette) confined to the mutagen line with a `roam → dive → burst → recover` state machine:
+  it dives at `monsterDiveSpeed` (faster than the echoeel's `EEL.returnSpeed`) toward the
+  **most recent** heard ripple (never the player directly), then bursts up out of the sludge to
+  snap before sinking back;
+  running and jumping are silent, so ripples come only from `popBubble()`, creatures hitting
+  the sludge, and the trap splash. Its contact is a catch. Registered in the
+  tank select and recorded under `deadcalm`.
+- `ReefRushScene` gained an **endless** mode: with `params.endless` it sets
+  `goalDistance = Infinity`, generates course chunks procedurally in `extendEndless()` as the
+  diver advances, and plants **boss gates** (a shell/ceiling-shell/rock cluster) at intervals
+  that award a flash and a counter when passed, recorded under `reefrushEndless`. A
+  `cuttlefish` portal form joins `RUSH_PORTAL_FORMS`, gliding like the stingray with
+  `noContact` camouflage.
+- The **AQUARIUM** palette gained `CORALFAN`/`CORALSPIRE` cor-`Coral` variants and a
+  `REEFGARDEN` habitat (`src/entities/reefgarden.js`, drawn like the other habitats). **PLAYTOY**
+  Exploration gained **BUILD-A-TOY**: four scattered `parts` collect into a friendly
+  `LivingToy` that trails the diver. The shop gained an **AURA STACK** row (`shop.aura2`,
+  drawn as a second `drawAuraRing` layer), **PLAYPASS 10/11**, and the **CORAL** skin;
+  `colorblind.js` swaps the danger palette and stamps `hazardMark` chevrons; and play.js's
+  daily dive now banks a day-streak bonus while a `weekly` dive uses `weeklyMutatorKey()`.
+
+    **THE CLEANER STATION** cleans drifting clients while parasites and a lurker patrol;
+  **THE MIGRATION** keeps the diver inside a sweeping school band or drains a cohesion meter.
 - `ReefQueenScene` (`reefqueen`) is the second boss tank, built on the same
   `MinigameScene` scaffold: the `SwarmQueen` entity cycles `hover → summon/telegraph →
   open` (and `telegraph → charge → open`), so its glowing core is weak only while `open`;
@@ -621,11 +704,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   preview each, so both divers pick independently. `saveProgress()` stores the progress
   part and both picks under `LABYRINTH_KEY` (`{ part, creature, creature2 }`); confirming
   hands off to `startArrival()`, the skippable `LABYRINTH.arrivalDuration` opening
-  cutscene: it builds the course, swims all seven `DIVE_CREATURES` in from off-screen
+  cutscene: it builds the course, swims all eight `DIVE_CREATURES` in from off-screen
   (`arrivalCrew`, staggered speeds and lanes, a small recoil once the boss shows), then
   rises the MEGASQUID (`arrivalMegasquid`, `reveal` ramping over 1.1 s from
   `LABYRINTH.arrivalReveal`) before calling `resetRound()` — which builds the course and
-  spawns each player's picked class (`maxX: worldLength` bounds on all seven). A start
+  spawns each player's picked class (`maxX: worldLength` bounds on all eight). A start
   matching the saved part shows the `RESUMING` banner; a hand-picked one does not.
   `finish()` clears the save on a full escape and otherwise stores the highest part
   reached (when part > 1) so the next `enter()` resumes there. `buildCourse()` lays five
@@ -676,7 +759,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   with the background watcher, the arrival cutscene, and the MINI MEGASQUID buddy — all
   now drawn fully opaque, `alpha` only fading the arrival reveal)
   tangled in the collapsing wreck with tumbling
-  debris while all seven `DIVE_CREATURES` instances (`escapees`) swim clear; the rest
+  debris while all eight `DIVE_CREATURES` instances (`escapees`) swim clear; the rest
   (`renderEndingTrench()`) cuts to a distance shot — the seven survivors float in the
   foreground facing the liner (`heading = PI`, `facing = -1`) while a hand-drawn
   `drawDistantWreck()` dangling the MEGASQUID over a `drawEndingLedge()` rock shelf tips
@@ -771,7 +854,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   the `squidBlinkMin`/`squidBlinkMax` cycle. The scene plays `LABYRINTH_TRACK` (a 138 BPM D-minor chase) with
   `music.hold` cleared on entry, and `exit()` restores the previously held theme so the
   menu family keeps its music after the wreck. The `{ trailer: true }` entry point skips
-  the picker: `startTrailer()` resets the course, casts all seven `DIVE_CREATURES` as
+  the picker: `startTrailer()` resets the course, casts all eight `DIVE_CREATURES` as
   `trailerCrew`, and runs `TRAILER_SHOTS` — seven scripted shots (`start`, `wall`,
   `support`, `ambush`, `checkpoint`, `chase`, `escape`) with per-shot cameras, push-in
   zoom, hard-cut flashes, stings, letterboxing, and title cards in `updateTrailer()` /
@@ -792,7 +875,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   is a persisted toggle (saved beside the items) that makes the dive peaceful: enemy
   updates still run but receive no targets, placed pets receive no threats, and bump
   collisions are skipped, so residents wander and nothing can touch the diver. `DIVE AS` cycles the
-  seven playable creature classes (shark, stingray, squid, arctic shrimp, kelp crab,
+  eight playable creature classes (shark, stingray, squid, arctic shrimp, kelp crab, cuttlefish,
   moon jelly, nautilus) with Left/Right and Enter switches to `phase: 'dive'`: the
   player is a normal player entity (solo controls, pointer steering) with no clock or
   scoring, placed pets flee placed enemies, and an enemy overlap only knocks the diver
@@ -966,7 +1049,28 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   travels the head each step, and resolves against `tetherHit()` (targets, then walls).
   Rendering helpers live in `src/engine/tether.js`; the scene is listed in
   `FIRST_PERSON_SCENES` and exposes `firstPersonPalette/Bounds/Sprites`, so the existing
-  raycaster renders it like the other tanks.
+  raycaster renders it like the other tanks. The final hold adds the **eel toy chase**
+  (`PLAYTOY.chase`, `src/entities/eeltoy.js`): crossing `chaseStart` spawns an `EelToy`
+  (an `Entity` with `flat3D`, radius 76, `santa` hat-friendly) that pursues the diver with
+  timed lunges and body sweeps, scaled by the mutator's `enemySpeedScale`. A catch enters a
+  `scare` phase and `respawnChase()` returns the diver to the stretch checkpoint; reaching
+  `chaseSafeX` calls `clearChase()`. Two scene-owned latches (`chaseLatches`) mirror the
+  typed gates: the `circuit` stuns the eel toy for the ELECTRICONDUCTOR head and the `cargo`
+  latch staggers it for the PRESSURE head, both resolved through `tetherHit()`/`attachTether()`.
+- **Mutant Horrors** (`src/scenes/mutant.js`, a `MinigameScene`, plus `src/scenes/mutantselect.js`
+  for the submenu) is one scene that runs all ten variants off `MUTANT`/`MUTANT_VARIANTS` and a
+  `params.variant` key: a scrolling dark facility with drop-gap walls, checkpoints, three
+  lives, a scare phase (cute-aware `renderCuteScare`), and a single grotesque hunter whose
+  `updateHunter`/`drawHunterLocal` switch on the variant. The player is a `Shark` with
+  `maxX = worldLength`, WASD movement that resolves circle-vs-wall, and a `confirm` action.
+  Per-variant gimmicks live in `setupVariant()` and `updateVariant()`: GRAFT regrows limbs
+  from corpses + a torch action, BROODMOTHER births swarmers and needs a held cauterize on the
+  sac, SPINE reads player speed for an alert meter, EYESWARM has a rotating gaze cone, MOULT
+  sheds decoys and re-positions, PUPIL toggles gate blocks on a blink, MUTAGEN tracks exposure
+  (leaks raise it, scrubbers purge it, thresholds mutate + buff/penalize), HARVEST frees
+  grafts while the collector rages, SOMATIC damages stillness and vents to clear flesh, and
+  TERATOMA severs numbered veins in order on a timer. `recordMode()` returns `mutant_<variant>`
+  so each banks its own record (`MODE_LABELS`/`RECORD_GROUPS`).
 
 ## 3. Game Loop and Timing
 
@@ -1049,9 +1153,17 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `setSfxEnabled(flag)` mutes cues; `src/main.js` re-applies the persisted settings on
   startup.
 - **Comfort + shared horror helpers** — `src/engine/motion.js` exports
-  `motionScale()` (1, or 0 when the persisted `SETTINGS_KEY.reduceMotion` is on) so horror
-  scenes can damp shake/zoom/flash, and `src/engine/horror.js` provides `renderDarkness()`,
-  `renderConeLight()`, and angle helpers shared by the dark tanks.
+  `motionScale()` (1, or 0 when the persisted `SETTINGS_KEY.cute` is on) so horror scenes
+  can damp shake/zoom/flash, and `src/engine/horror.js` provides `renderDarkness()`,
+  `renderConeLight()`, and angle helpers shared by the dark tanks. `src/engine/cute.js`
+  owns the CUTE MODE flag (`setCute()/cute()`), an `Entity`-level overlay in `entity.js`
+  that gives the diver blush-and-heart and gives every non-player creature with
+  `radius >= 16` a blinking `drawCuteFace()` cartoon face (`cuteBlink()`), a global pastel
+  grade drawn
+  by `Game.renderScene` (`renderCuteGrade`), and `renderCuteScare()` — the pastel big-eyed
+  card the horror scenes (`quiet`, `watcher`, `mouth`, `prehistoric`, and PlayToy's chase)
+  show in place of their dark zoom when CUTE MODE is on. CUTE MODE replaced the earlier
+  REDUCE MOTION switch (a saved `reduceMotion` is migrated to `cute` on load).
 - `MusicPlayer` (`src/engine/music.js`) step-sequences looping themes (the menu lullaby
   plus one per tank) from
   `src/assets/tracks.js` (MIDI-note bass/lead arrays plus a beat length). `Game` drives
@@ -1187,7 +1299,7 @@ placements, single-instance habitats, diving as every character, bump knockbacks
 persisted chill toggle, moray jaw proximity, the moray bite chomp, and saved layouts), the tank
 select with
 co-op toggle, the settings switches, difficulty selector (through
-FRENZY DOMINANCE), and
+FRANTIC FRENZY), and
 volume slider with persistence, co-op two-creature control, the empty tank clock
 reaching game over, and the game over menu — failing on any runtime error. It also
 covers the shop (coin banking with difficulty scaling, failed and successful purchases,

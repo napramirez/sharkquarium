@@ -35,7 +35,7 @@ dimming, and the tank is settling into its quiet blue dark.
 - Collecting 25 bubbles there pulls the run into the Jelly Tank: the player is a
   jellyfish tangling minnows while dodging a charging turtle miniboss.
 - Clearing the Jelly Tank drops the run into the Nautilus Tank: the chase turns
-  vertical — a nautilus sinks past whale skeletons and darting eels while a shark stalks
+  vertical — a nautilus sinks past whale skeletons and zip eels while a shark stalks
   from above, and the squids it dodges become shark bait.
 - Collecting 120 bubbles in the Nautilus Tank pulls the run into the Freshwater Tank: a
   scrolling river chase where a freshwater stingray outruns a giant catfish through logs,
@@ -93,7 +93,7 @@ Requirements:
   be started directly with an optional co-op toggle. A chosen tank starts with a fresh
   score and continues the normal chain from there.
 - SETTINGS holds the `CO-OP TANK SELECT` switch, the `DIFFICULTY` selector
-  (EASY / NORMAL / HARD / APOCALYPTIC WIPEOUT / FRENZY DOMINANCE), the `VOLUME` slider (stepped in 10%
+  (EASY / NORMAL / HARD / APOCALYPTIC WIPEOUT / FRANTIC FRENZY), the `VOLUME` slider (stepped in 10%
   steps; `Left`/`Right` adjust, clicking the track sets it), the `SFX` switch, the
   `3D MODE` switch (renders the game in 3D: every enemy, bubble, prop, and the player is
   drawn as a shaded 3D volume with a ground shadow, the background becomes a perspective
@@ -128,10 +128,10 @@ Requirements:
   cast from that tank's real roster and bathed in its palette, and a nested
   **MINIGAME TRAILERS** page with a three-shot cut-down for competitions, tag,
   pufferfish dodgeball, and labyrinth. A **SHOP TRAILER** stages the shop itself in
-  motion: nine shots that cycle the thirteen colors, head and body trinkets, the five
-  trails and twenty-one dive buddies, and the nine auras live across a seven-creature
+  motion: nine shots that cycle the thirteen colors, head and body trinkets, the six
+  trails and twenty-five dive buddies, and the twelve auras live across a seven-creature
   lineup, bracketed by sea-coin, playpass, and play-now cards. A **WRECK ARRIVAL**
-  reel plays the labyrinth's opening: the seven divers swim in to the sunken liner and
+  reel plays the labyrinth's opening: the eight divers swim in to the sunken liner and
   the MEGASQUID rises out of the dark behind it.
 - SHOP (always on the menu) sells character colors, accessories, and the playpasses:
   `Left`/`Right` browses the color and pass catalogs, and `Enter` buys with enough sea
@@ -145,10 +145,10 @@ Requirements:
   clock at all** — three hits end the run and the HUD shows `LIVES` pips; goals still
   teleport through every tank, and the sunrise cutscene still wins the run.
 - AQUARIUM BUILDER appears with PLAYPASS 9: a decorator and free-swim tank saved under
-  `sharkquarium.aquarium`. `ITEM` browses twenty-two palette entries with `Left`/`Right` —
-  coral, rock, weed, ice floes, sardine schools, all eight pets, seven enemies (jellyfish,
-  turtle, pufferfish, anglerfish, dart eel, moray eel, seal), and two habitats (eel
-  archway, angler ledges); clicking the tank places as many as you like, `UNDO` removes the last one, and
+  `sharkquarium.aquarium`. `ITEM` browses twenty-five palette entries with `Left`/`Right` —
+  coral, coral fan, coral spire, rock, weed, ice floes, sardine schools, all eight pets, seven enemies (jellyfish,
+  turtle, pufferfish, anglerfish, zip eel, moray eel, seal), and three habitats (eel
+  archway, angler ledges, reef garden); clicking the tank places as many as you like, `UNDO` removes the last one, and
   `CLEAR ALL` empties it. `LABYRINTH MODE: ON/OFF` raises the wreck's furniture in your
   tank — four gate walls with lane gaps and hull tunnels, alternating stubs, two hanging
   cracked supports, floor crack mounds, and creaking ceiling beams — placed clear of the
@@ -168,8 +168,8 @@ Requirements:
   club-tipped squid feeding rope with a pale diamond at the end — and leans after
   the diver until it runs out of reach. Bursters only arm in
   `DIVE AS`, and never in CHILL mode.
-  `DIVE AS` picks one of seven playable creatures (shark,
-  stingray, squid, shrimp, crab, jelly, nautilus) and Enter dives in — `WASD`, arrows, or
+  `DIVE AS` picks one of ten playable creatures (shark,
+  stingray, squid, shrimp, crab, jelly, nautilus, cuttlefish, dolphin, sea turtle) and Enter dives in — `WASD`, arrows, or
   drag to swim (the nautilus can swim up and down here, unlike its tank); a bump with a
   resident only knocks the diver back, and Esc surfaces to
   the workshop (Esc again returns to the menu). `CHILL MODE` toggles the residents'
@@ -181,17 +181,17 @@ Requirements:
 | Boot          | —                                    | Loads the asset manifest, then hands off to the intro splash          |
 | Intro splash  | —                                    | Story cards over the ambient shark; ENTER or a click begins, auto-advances after 8 s |
 | Descent       | —                                    | One per tank teleport: the tank name and tagline rise through streaking bubbles; ENTER skips, auto-advances after 1.7 s |
-| Main menu     | START DIVE, CHOOSE TANK, CO-OP DIVE (2P), MINIGAMES (with playpass 1), PETS TANK (with playpass 3), ENDLESS DIVE (with playpass 4), AQUARIUM BUILDER (with playpass 9), SHOP, SETTINGS, HOW TO PLAY, LORE | Story blurb, best score, and sea-coin balance above the list; HOW TO PLAY opens an overlay closed with Enter or Esc |
-| LORE          | THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MINIGAMES, THE MODES       | The story codex: every character, level, and mode name with its lore; Left/Right switches sections, Up/Down steps entries (with an n/m counter), long entries split onto extra pages you turn with Enter, and Esc returns to the menu |
+| Main menu     | START DIVE, CHOOSE TANK, CO-OP DIVE (2P), MINIGAMES (with playpass 1), PETS TANK (with playpass 3), ENDLESS DIVE (with playpass 4), AQUARIUM BUILDER (with playpass 9), DAILY DIVE, WEEKLY CHALLENGE, SHOP, SETTINGS, HOW TO PLAY, LORE, SEA FACTS, ACHIEVEMENTS | Story blurb, best score, and sea-coin balance above the list; HOW TO PLAY opens an overlay closed with Enter or Esc; DAILY DIVE is a fresh date-seeded endless dive with a rotating mutator (and a hidden day-streak coin bonus); WEEKLY CHALLENGE starts a week-seeded endless dive; SEA FACTS is a browsable board of real-world facts about each playable creature; ACHIEVEMENTS opens the trophy board |
+| LORE          | THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MUTANT HORRORS, THE MINIGAMES, THE MODES       | The story codex: every character, level, and mode name with its lore; Left/Right switches sections, Up/Down steps entries (with an n/m counter), long entries split onto extra pages you turn with Enter, and Esc returns to the menu |
 | Shop          | COLOR picker, CREATURE, HEAD, BODY, TRAIL, DIVE BUDDIES, AURA, EMOTES, PLAYPASS, PLAYER, COSTUMES, BACK | Left/Right browses the selected shelf and Enter buys/wears with sea coins (pass cosmetics equip for free); EMOTES is a set of cheap (≤15 coin) performances — equip one and press **V** in a dive to play it (CHAIN-FIN TRANSFORM yanks the belly rip cord to slide the chainsaw visor on, then off after three seconds); the playpass adds MINIGAMES to the menu |
-| Minigames     | COMPETITIONS (2P RACE), RACE (1P), TAG (2P + 5 CPU), TAG SOLO (1P + 5 CPU), PUFFERFISH DODGEBALL (2P), DODGEBALL SOLO (1P), LABYRINTH (2P), LABYRINTH SOLO (1P), PUFFER BALL (2P), PUFFER BALL VS CPU (1P), SCHOOL ROUNDUP (1P), JELLY ASCENT (1P), STEALTH DIVE (2P), STEALTH DIVE SOLO (1P), REEF CLEANUP (2P), REEF CLEANUP SOLO (1P), TRENCH DIVE (1P), TRENCH EXPLORE (1P), REEF RUSH — LEVELS, REEF RUSH (1P), REEF RUSH — MY TRACK (1P), REEF RUSH — MY COURSE (1P), REEF RUSH — COURSE BUILDER, BOSS RUSH (1P), WRAP THE PRESENTS (1P)†, SANTA'S NET (1P)†, JACK-O'-LANTERN HUNT (1P)‡, SPECTRE SWEEP (1P)‡, MIDNIGHT FIREWORKS (1P)§, CONFETTI RUSH (1P)§, AI CHAT (CPU), MUTATOR: OFF/ON, RECORDS, BACK | Listed when the competitions playpass is owned; every game has a singleplayer variant beside its two-player mode. The arcade games charge a sea-coin ticket on every entry from this menu (the bank and each price are shown); the free games never charge. REEF RUSH is the original rhythm-runner (one-click jump, cone-shell spikes, cube-rock blocks, an original hand-authored course in the classic rhythm-runner pacing), REEF RUSH — MY TRACK runs it on a course built from the player's saved composer song, REEF RUSH — LEVELS is a sideways-scrolling shelf with eight demonstration levels that teach each portal mode plus five original hand-built levels (each level opens a paged briefing before the run, and a first clear plays an end cutscene and unlocks a free skin), REEF RUSH — MY COURSE runs a hand-built course and COURSE BUILDER is its editor, BOSS RUSH chains every horror boss into one gauntlet (also ticketed), MUTATOR opens the modifier picker, RECORDS opens the best-time board, and TAG LEADERBOARD opens the tag taggers/runners board. †WRAP THE PRESENTS and SANTA'S NET are CHRISTMAS-mode exclusives; ‡JACK-O'-LANTERN HUNT and SPECTRE SWEEP are HALLOWEEN-mode exclusives; §MIDNIGHT FIREWORKS and CONFETTI RUSH are NEW YEAR-mode exclusives. Each pair only appears while its mode is on. AI CHAT (CPU) opens a chat with FINN, the CPU you dive with — its bubbles are yellow with black text and yours are light blue with gray text; FINN answers real questions about tanks, minigames, the shop, difficulty and more. The SELECT list scrolls with the arrow keys and the mouse wheel. |
-| Tank select   | CO-OP: OFF/ON, REEF TANK, STINGRAY TANK, DEEP SEA TANK, ARCTIC TANK, KELP FOREST TANK, JELLY TANK, NAUTILUS TANK, FRESHWATER TANK, ABYSS TRENCH TANK, REEF SWARM QUEEN, RAYCAST TANK, MYSTERIOUSLY QUIET TANK, THE ESCAPE, THE WATCHER, THE TRENCH MOUTH, PREHISTORIC TANK, PLAYTOY EXPLORATION, PETS TANK (with playpass 3), EMPTY TANK, MUTATOR: OFF/ON, BACK | ESC or BACK returns to the menu; choosing a tank starts it immediately. ABYSS TRENCH and REEF SWARM QUEEN run boss arenas (the leviathan and the swarm queen), RAYCAST runs the first-person wreck maze, MYSTERIOUSLY QUIET is the horror stealth tank, THE ESCAPE is its standalone escape chase, THE WATCHER is the look-away horror tank, THE TRENCH MOUTH is the anchor-against-the-gulp horror tank, PREHISTORIC TANK is the playable-lungfish chase, and PLAYTOY EXPLORATION is the sunken toy-liner exploration tank (Anchor-Pack tool). The list is long, so it **scrolls in a fixed window** (with up/down caret hints) as you move the selection, keeping the highlighted tank always on screen. MUTATOR opens the modifier picker; each tank card shows your best time/score |
-| Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, 3D MODE switch, FIRST PERSON MODE switch, REDUCE MOTION switch, CHRISTMAS MODE switch, HALLOWEEN MODE switch, NEW YEAR MODE switch, 8-BIT MODE switch, MEME MODE switch, MOBILITE MODE switch, TRACK PLAYER, CUTSCENE THEATRE, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD/APOCALYPTIC WIPEOUT/FRENZY DOMINANCE (Left/Right or click), adjusts master volume plus SFX, renders every object and background in 3D (extruded volumes, sphere bubbles, a perspective floor) and tilts the canvas, and switches every dive and minigame to a fullscreen, pointer-locked first-person raycast view from the selected creature (diver hidden, cursor hidden, mouse looks endlessly, WASD steers, a corner minimap); REDUCE MOTION damps the horror tanks' screen shake, zoom, and flash; the three mutually exclusive seasonal modes swap the soundtrack, menu particles, enemy hats, cosmetics, and theatre trailers; 8-BIT MODE renders everything to a tiny blocky pixel buffer with chiptune audio; MEME MODE sprinkles original comic pop-up words, speed lines and goofy captions over every screen; MOBILITE MODE adds large on-screen WASD, SPACE, E and ESC buttons and forces 3D, first person, 8-bit and the course builder off; opens the track player or the cutscene theatre; preferences persist |
+| Minigames     | COMPETITIONS (2P RACE), RACE (1P), TAG (2P + 5 CPU), TAG SOLO (1P + 5 CPU), PUFFERFISH DODGEBALL (2P), DODGEBALL SOLO (1P), LABYRINTH (2P), LABYRINTH SOLO (1P), PUFFER BALL (2P), PUFFER BALL VS CPU (1P), SCHOOL ROUNDUP (1P), JELLY ASCENT (1P), STEALTH DIVE (2P), STEALTH DIVE SOLO (1P), REEF CLEANUP (2P), REEF CLEANUP SOLO (1P), DRESS UP BATTLE (2P), TRENCH DIVE (1P), TRENCH EXPLORE (1P), THE POD (1P), REEF RUSH — LEVELS, REEF RUSH (1P), REEF RUSH — ENDLESS (1P), REEF RUSH — MY TRACK (1P), REEF RUSH — MY COURSE (1P), REEF RUSH — COURSE BUILDER, BOSS RUSH (1P), WRAP THE PRESENTS (1P)†, SANTA'S NET (1P)†, JACK-O'-LANTERN HUNT (1P)‡, SPECTRE SWEEP (1P)‡, MIDNIGHT FIREWORKS (1P)§, CONFETTI RUSH (1P)§, BLOSSOM DRIFT (1P)¶, SUNSET SURF (1P)‖, AI CHAT (CPU), MUTATOR: OFF/ON, RECORDS, BACK | Listed when the competitions playpass is owned; every game has a singleplayer variant beside its two-player mode. The arcade games charge a sea-coin ticket on every entry from this menu (the bank and each price are shown); the free games never charge. REEF RUSH is the original rhythm-runner (one-click jump, cone-shell spikes, cube-rock blocks, an original hand-authored course in the classic rhythm-runner pacing), REEF RUSH — MY TRACK runs it on a course built from the player's saved composer song, REEF RUSH — LEVELS is a sideways-scrolling shelf with eight demonstration levels that teach each portal mode plus five original hand-built levels (each level opens a paged briefing before the run, and a first clear plays an end cutscene and unlocks a free skin), REEF RUSH — MY COURSE runs a hand-built course and COURSE BUILDER is its editor, REEF RUSH — ENDLESS runs a procedurally generated, never-ending course with ramping speed and periodic boss waves, BOSS RUSH chains every horror boss into one gauntlet (also ticketed), MUTATOR opens the modifier picker, RECORDS opens the best-time board, and TAG LEADERBOARD opens the tag taggers/runners board. †WRAP THE PRESENTS and SANTA'S NET are CHRISTMAS-mode exclusives; ‡JACK-O'-LANTERN HUNT and SPECTRE SWEEP are HALLOWEEN-mode exclusives; §MIDNIGHT FIREWORKS and CONFETTI RUSH are NEW YEAR-mode exclusives; ¶BLOSSOM DRIFT is a SPRING-mode exclusive and ‖SUNSET SURF a SUMMER-mode exclusive. Each only appears while its mode is on. THE POD is a coastal hide-and-seek where a pod of five dolphins sweeps the water and you must duck inside the coral clumps to survive every sweep. AI CHAT (CPU) opens a chat with FINN, the CPU you dive with — its bubbles are yellow with black text and yours are light blue with gray text; FINN answers real questions about tanks, minigames, the shop, difficulty and more. The SELECT list scrolls with the arrow keys and the mouse wheel. |
+| Tank select   | CO-OP: OFF/ON, REEF TANK, STINGRAY TANK, DEEP SEA TANK, ARCTIC TANK, KELP FOREST TANK, JELLY TANK, NAUTILUS TANK, FRESHWATER TANK, ABYSS TRENCH TANK, REEF SWARM QUEEN, RAYCAST TANK, MYSTERIOUSLY QUIET TANK, THE ESCAPE, THE WATCHER, THE TRENCH MOUTH, PREHISTORIC TANK, PLAYTOY EXPLORATION, MANTA RAY GLIDE, COASTAL TANK, HERMIT CRAB HOLD, THE LIGHTHOUSE, THE PRESSURE, THE CLEANER STATION, THE MIGRATION, DEAD CALM, MUTANT HORRORS (a submenu of ten original flesh-horror tanks), PETS TANK (with playpass 3), EMPTY TANK, MUTATOR: OFF/ON, BACK | ESC or BACK returns to the menu; choosing a tank starts it immediately. ABYSS TRENCH and REEF SWARM QUEEN run boss arenas (the leviathan and the swarm queen), RAYCAST runs the first-person wreck maze, MYSTERIOUSLY QUIET is the horror stealth tank, THE ESCAPE is its standalone escape chase, THE WATCHER is the look-away horror tank, THE TRENCH MOUTH is the anchor-against-the-gulp horror tank, PREHISTORIC TANK is the playable-lungfish chase, PLAYTOY EXPLORATION is the sunken toy-liner exploration tank (Anchor-Pack tool), MANTA RAY GLIDE is a flap-to-glide ring run, COASTAL TANK is a camouflage stealth dive where the cuttlefish grabs sea slugs with its feeding tentacles while turtles drift through the brightest blue water, HERMIT CRAB HOLD is a shell-swapping seabed crawl, THE LIGHTHOUSE is a shadow-stealth tower climb under a sweeping beam, THE PRESSURE is a vent-to-vent depth descent, THE CLEANER STATION is a clean-the-clients symbiosis run past parasites and a lurker, THE MIGRATION is a stay-in-the-school current ride, DEAD CALM is a pistol-shrimp platformer over a mutagenic seabed stalked by an eyeless vibration-hunter, and MUTANT HORRORS opens a submenu of ten original flesh-horror tanks (THE GRAFT, THE BROODMOTHER, THE SPINE, THE EYESWARM, THE MOULT, THE PUPIL, THE MUTAGEN, THE HARVEST, THE SOMATIC, and THE TERATOMA), each with its own monster and gimmick. The list is long, so it **scrolls in a fixed window** (with up/down caret hints) as you move the selection, keeping the highlighted tank always on screen. MUTATOR opens the modifier picker; each tank card shows your best time/score |
+| Settings      | CO-OP TANK SELECT switch, DIFFICULTY selector, VOLUME slider, SFX switch, 3D MODE switch, FIRST PERSON MODE switch, CUTE MODE switch, CHRISTMAS MODE switch, HALLOWEEN MODE switch, NEW YEAR MODE switch, SPRING MODE switch, SUMMER MODE switch, 8-BIT MODE switch, MEME MODE switch, MOBILITE MODE switch, COLORBLIND HAZARDS switch, TRACK PLAYER, CUTSCENE THEATRE, BACK | Toggles co-op tank select, picks EASY/NORMAL/HARD/APOCALYPTIC WIPEOUT/FRANTIC FRENZY (Left/Right or click), adjusts master volume plus SFX, renders every object and background in 3D (extruded volumes, sphere bubbles, a perspective floor) and tilts the canvas, and switches every dive and minigame to a fullscreen, pointer-locked first-person raycast view from the selected creature (diver hidden, cursor hidden, mouse looks endlessly, WASD steers, a corner minimap); CUTE MODE gives every creature blush and a floating heart, gives every enemy model a big-eyed smiling cartoon face that blinks, drifts pink glow over the water, and replaces the horror tanks' jump scares with a pastel big-eyed card while damping shake, zoom, and flash (it does the job of the old REDUCE MOTION switch); the seasonal modes (SPRING, SUMMER, CHRISTMAS, HALLOWEEN, NEW YEAR) swap the soundtrack, menu particles, enemy hats, cosmetics, and theatre trailers; COLORBLIND HAZARDS swaps the red/green danger cues for a high-contrast palette and stamps shape-coded chevrons on hazards; 8-BIT MODE renders everything to a tiny blocky pixel buffer with chiptune audio; MEME MODE sprinkles original comic pop-up words, speed lines and goofy captions over every screen; MOBILITE MODE adds large on-screen WASD, SPACE, E and ESC buttons and forces 3D, first person, 8-bit and the course builder off; opens the track player or the cutscene theatre; preferences persist |
 | Track player  | MENU TRACK, REEF TRACK, STINGRAY TRACK, DEEP SEA TRACK, ARCTIC TRACK, KELP TRACK, PETS TRACK, JELLY TRACK, FRESHWATER TRACK, NAUTILUS TRACK, LABYRINTH TRACK, QUIET TRACK, REEF RUSH TRACK, MY TRACK, RUSH MY TRACK, EDIT MY TRACK, BACK | Plays or stops any level theme through the shared sequencer; the selected track shows its mood and BPM, the playing one shows a live equalizer; MY TRACK plays (or stops) the saved composition, RUSH MY TRACK runs REEF RUSH on a course built from it, and EDIT MY TRACK opens the builder; ESC returns to settings and the chosen track keeps playing |
 | Cutscene theatre | GAME TRAILER, SHARKQUARIUM: THE MOVIE, ALL-TANK GAMEPLAY, TANK TRAILERS, MINIGAME TRAILERS, SHOP TRAILER, INTRO SPLASH, DESCENT: REEF, DESCENT: STINGRAY, DESCENT: DEEP SEA, DESCENT: ARCTIC, DESCENT: KELP FOREST, DESCENT: JELLY, DESCENT: NAUTILUS, DESCENT: FRESHWATER, DAWN BREAKS, LABYRINTH TRAILER, WRECK ARRIVAL, MEGASQUID ENDING, THE ESCAPE, THE RISING, BACK | Replays any cutscene on demand without reaching it in play; each cutscene returns to the theatre when skipped or finished; SHARKQUARIUM: THE MOVIE is the longest cut — every tank and minigame in one ~55 s feature — ALL-TANK GAMEPLAY cuts the whole gauntlet into one run, TANK TRAILERS opens a nested nine-tank page of three-shot cut-downs, MINIGAME TRAILERS does the same for race, tag, dodgeball, and labyrinth, SHOP TRAILER tours the shop shelves with live-cycling colors, trinkets, trails, buddies, and auras, WRECK ARRIVAL stages the divers' arrival before the MEGASQUID appears on cue, THE ESCAPE replays the flooded-lab glass-shatter finale, and THE RISING replays the megasquid tearing a wreck apart |
 | Dawn cutscene | —                                    | Plays when the freshwater goal is met; ENTER returns to the menu |
-| Labyrinth arrival | —                                 | Plays once after the labyrinth picker and replays from the theatre: all seven playable creatures swim in to the sunken liner, then the MEGASQUID rises out of the dark and its glowing yellow eye locks onto them; ENTER skips straight into the part |
-| Labyrinth ending | —                                 | Plays after escaping all seven labyrinth parts: the MEGASQUID tangles in the wreck and sinks into the trench as the seven creatures escape; ENTER skips to the results |
+| Labyrinth arrival | —                                 | Plays once after the labyrinth picker and replays from the theatre: all eight playable creatures swim in to the sunken liner, then the MEGASQUID rises out of the dark and its glowing yellow eye locks onto them; ENTER skips straight into the part |
+| Labyrinth ending | —                                 | Plays after escaping all seven labyrinth parts: the MEGASQUID tangles in the wreck and sinks into the trench as the eight creatures escape; ENTER skips to the results |
 | Aquarium builder | DIVE AS (character), CHILL MODE, ITEM, UNDO, CLEAR ALL, LABYRINTH MODE, BACK | Left/Right cycles the dive character on the DIVE AS row or the palette on the ITEM row; clicking the tank places the current item with no cap (habitats are single-instance); Enter on DIVE AS dives as the chosen creature (Esc surfaces); CHILL MODE turns residents peaceful and persists; LABYRINTH MODE raises a seeded wreck course (gates, tunnels, stubs, supports, cracks, beams) that blocks the diver in DIVE AS, and adds nine hand-placed wreck pieces to the palette — walls, stubs, supports, and two tentacle bursters that spear out and knock the diver back; every change saves immediately |
 | Play          | —                                    | HUD visible; Esc opens the pause overlay                              |
 | Pause overlay | RESUME, RESTART, QUIT TO MENU        | Gameplay state stays intact; Esc also resumes; RESTART keeps the mode |
@@ -227,10 +227,10 @@ Two standalone tanks sit at the bottom of the tank select:
   research lab that the alien attacked**, laid out like the labyrinth in scrolling
   **sections with checkpoint masts**: metal bulkheads split by swim-through gaps, dead
   consoles and canisters strewn across the flooded decks, and flickering warning lights. It
-  opens with a **diver picker** (all seven playable creatures) and an **arrival cutscene**:
+  opens with a **diver picker** (all eight playable creatures) and an **arrival cutscene**:
   an **intergalactic atom rift tears open in the lab** and the **ECHOEEL comes through**
   it — driven here when its home planet ran out of prey — just as the
-  **seven divers arrive**. It
+  **eight divers arrive**. It
   is banked from **checkpoint masts**: pass one and it lights up, and if the ECHOEEL
   catches you the jumpscare plays and you **respawn at the last mast** instead of losing
   the run. A really dark-grey, finless, eyeless **ECHOEEL** — a long,
@@ -325,7 +325,16 @@ Two standalone tanks sit at the bottom of the tank select:
   Up/Down browses the papers, `I`/`Esc` closes). **Typed gates** seal some bulkhead gaps — a
   **BOLT LATCH**, a **LIVE
   CIRCUIT**, and a **PRESSURE VALVE** — and only the matching head of the **ANCHOR-PACK**
-  opens each. Reach the surface hatch to win.
+  opens each. Past the third hold, waking the **EEL TOY** — PlayToy's giant stitched plush
+  eel whose face has come apart (button eyes ripped out and dangling by threads, lips torn
+  off to bare pink gums and interlocking teeth) — turns the last stretch into a **chase**:
+  the toy ripples through the bulkheads after you, lunging and sweeping its long body, and
+  the diver must outrun it to the surface hatch (a catch plays a zoom-in scare and returns
+  you to the stretch's checkpoint). Two chase latches help: the **LIVE CIRCUIT** stuns the
+  eel toy with the ELECTRICONDUCTOR head, and the **CARGO LATCH** drops a crate to stagger
+  it with the PRESSURE head. Four **toy parts** are tucked around the holds — collect all
+  four and the wreck assembles them into a friendly **BUILT TOY** that trails your diver
+  (the EEL TOY chase is billed as the **TOY BOSS**). Reach the surface hatch to win.
 - **THE ANCHOR-PACK** — the PlayToy tank's tool, and an original design (not a licensed
   gadget): a wrist **winch** that fires a barbed **clamp head** on a tether line. Fire with
   `F` or **right-click**, aimed at the pointer (or the crosshair in first-person); swap
@@ -336,6 +345,92 @@ Two standalone tanks sit at the bottom of the tank select:
   so you cannot accidentally pin yourself to the wreck; a **grapple** only takes on the
   glowing **anchor rings**.
   The tank plays third-person, but the **FIRST PERSON MODE** switch still applies to it.
+- **MUTANT HORRORS** — a submenu of ten original flesh-horror tanks, each a scrolling dive
+  through a dark facility with **three lives**, **checkpoint respawns**, and a scare card on
+  death (softened in CUTE MODE). The shared kit is **WASD / drag to swim** and **SPACE / click**
+  for the tank's action. **THE GRAFT**: a stitched hunter that grafts limbs from corpses —
+  burn the corpses to keep it slow. **THE BROODMOTHER**: it births spawn waves; reach the
+  incubator sac and hold the action to cauterize it. **THE SPINE**: an eyeless vertebral
+  hunter that hears movement, so go still to lose it. **THE EYESWARM**: a mass of eyes with
+  one blind cone — stay inside it. **THE MOULT**: it sheds decoy skins and re-appears
+  elsewhere. **THE PUPIL**: a colossal eye; the gates open only on its blink. **THE MUTAGEN**:
+  an exposure meter buds grotesque parts on your diver (faster, then twitchy) — purge at the
+  scrubbers before you turn. **THE HARVEST**: a collector grafting divers into the walls —
+  free the grafted, then run. **THE SOMATIC**: flesh walls digest whatever holds still, so
+  vent heat and never stop. **THE TERATOMA**: sever four numbered veins in order before the
+  clock runs out. Every name, monster, and design is original.
+- **MANTA RAY GLIDE** — an original third-person glide (`src/scenes/mantaray.js`,
+  `src/entities/mantaray.js`): you fly a manta ray through open water, **holding UP / SPACE to
+  flap** against a constant sink, steering with WASD / drag. Thread the pulsing **scoring
+  rings** for points and drift past drifting **jellyfish** that cost a life on contact. Three
+  lives, checkpoint respawns (which return you up-current), and a CUTE-MODE scare card; reach
+  the far **OPEN WATER** to win.
+- **COASTAL TANK** — an original hunting tank (`src/scenes/cuttlefish.js`,
+  `src/entities/cuttlefish.js`): the **brightest, bluest water** on the map, with **turtles**
+  paddling through the background and a **coral-lined seabed** below. The **cuttlefish** wears a translucent blue **mantle fin**
+  along its mantle edges and a solid **triangle-shaped clump of short tentacles** at the front
+  (with lines drawn across it; the clump **frays open when it swims or shoots**). **Two
+  feeding tentacles** — the same color as the body — hide inside the clump until you press
+  **SPACE**, when they shoot out, each tipped with a diamond **sucker pad**, to hook prey and
+  **drag it into the beak**. Prey is wary: approach a **sea slug** while visible and it grows
+  frightened and, if it fills with fear, **poisons the water**, so hold **RIGHT CLICK** to
+  **camouflage** before closing in. **Small octopuses** (drawn with the kelp forest's own
+  octopus model) **jet away** the instant you near them unless you **hold E** to emit a
+  **HYPNO-COLOR-PULSE** — while pulsing, a **bright-blue gradient wave ripples across** the
+  cuttlefish's body — that
+  **stuns** them so they can be grabbed. Every so often a **pod of five dolphins** sweeps the
+  shallows (a warning flashes first); a visible cuttlefish in their path is **eaten**, so
+  camouflage and hold against the coral beds — tall, short, big and small — until they pass.
+  Three lives, checkpoint respawns, and a scare card; reach the **WARMER WATERS** exit to win.
+- **HERMIT CRAB HOLD** — an original seabed crawl (`src/scenes/hermitcrab.js`,
+  `src/entities/hermitcrab.js`): a **hermit crab** walks the ocean floor (A / D to crawl,
+  SPACE to hop) and **swaps shells with E** — bigger shells raise its **armor** but slow it
+  down. **Urchins** bristle along the floor; a shell whose armor is too thin means a catch,
+  while a strong enough shell **bounces you off** smaller urchins unharmed. Touch **shell
+  pickups** to upgrade mid-run. Three lives, checkpoint respawns, and a scare card; reach the
+  **SAFE ROCK** to win.
+- **THE LIGHTHOUSE** — an original vertical stealth climb (`src/scenes/lighthouse.js`): a
+  flooded lighthouse shaft with a rotating **lantern beam**. Swim the shaft with WASD / drag;
+  the beam does not touch you, but while it covers you an **EXPOSURE** meter fills (drains in
+  the dark), and a full meter means the keeper finds you. **Falling debris** rains down the
+  shaft. Reach the **lantern room** at the top to win. Three lives, checkpoint respawns, a
+  CUTE-MODE scare card, and its own record.
+- **THE PRESSURE** — an original depth-descent (`src/scenes/pressure.js`): dive from the top
+  of a trench to the floor while a **PRESSURE** meter rises with depth (faster the deeper you
+  are). Warm **air vents** bubble along the walls — hold still inside one and pressure bleeds
+  off. Roaming **trench fish** ram you on contact. Three lives, checkpoint respawns, a scare
+  card; reach the **floor** to win.
+- **THE CLEANER STATION** — an original symbiosis run (`src/scenes/cleaner.js`): you are a
+  **cleaning shrimp** (orange and translucent, a red back stripe laced with a thinner white
+  stripe, white antennae and legs), and the clients are the stingray tank's own **moray
+  eels**. Each moray wears a **speech bubble**: a bubble showing the **cleaning shrimp**
+  means it wants its mouth debris picked clean — swim to its **face** (the cleaning hitbox)
+  and hold **SPACE**; a bubble showing an **open mouth** means it is **hungry** and will snap
+  you up, so steer clear. **Parasites** drift loose and burrow into whatever they touch, and a
+  **lurker** patrols the reef for distracted cleaners. Clean **every shrimp-bubble moray** to
+  win. Three lives, checkpoint respawns, and a scare card.
+- **THE MIGRATION** — an original current ride (`src/scenes/migration.js`): stay inside the
+  drifting **band of the school** as it snakes across the ocean; slip outside and your
+  **SCHOOL** meter drains until the current takes you. **Hunters** break the line from below.
+  Reach the **spawning grounds** at the far end to win. Three lives, checkpoint respawns, and
+  a scare card.
+- **DEAD CALM** — an original platformer (`src/scenes/deadcalm.js`): the shallow channel's old
+  floor is **natural, accidental mutagen** \u2014 fall in and it **traps and holds you with a loud
+  splash** (mash jump to break free). You are a **PISTOL SHRIMP**
+  — solid red with white stripes and one **giant claw** — leaping the wide stone causeways.
+  **A / D** runs, **W / UP** jumps high (and holding it **flutters** the swimmerets so you
+  sink slowly, then drop), and the **mouse** raises or lowers the claw. **Left-click fires a
+  cavitation bubble** \u2014 silent as it flies, but it **pops in a small shockwave** (or bursts on
+  the mutagen) that knocks **sea snails and smaller shrimps** off the stones and into the
+  sludge; the **pop** is the noise the hunter hears. Fall into the sludge and it **traps you with a loud splash** — **mash jump to break free**
+  before the hunter arrives. Down there is a **giant mutated moray eel** — grown huge, its **eyes dissolved away by the
+  mutagen**. It swims only in the sludge, and when it **locks onto a splash** it **swims faster
+  than the echoeel ever could**, **dives**, then **bursts up out of the mutagen and snaps**
+  (its long body braced beneath the strike), heading for the **most recent splash**. You are **silent as you run and jump**
+  (the only noises are your bubble **popping** and creatures you knock into the sludge), and
+  since it can only shift along the mutagen you are safe up on the stones — make noise
+  somewhere else and it heads there. Three lives, checkpoint respawns, a CUTE-MODE scare card,
+  and its own record.
 
 ### 3.x Replayability: Mutators, Boss Rush, and Records
 - **Mutators** — an optional handicap chosen before any dive or minigame (from the
@@ -407,9 +502,18 @@ target the nearest visible player.
 ### 5.1 Shark (player)
 
 - Role: player avatar.
-- Look: soft gray-blue body (ellipse), pale belly, two-lobe tail that wiggles faster as
-  speed rises, dorsal and pectoral fins, single eye with pupil; blinks translucent
-  while invulnerable.
+- Look: a soft gray-blue symmetrical **leaf-shaped** body with counter-shading,
+  **back-slanted triangle fins** (dorsal, second dorsal, pectoral, and pelvic), five gill
+  slits, a lateral line, a nostril, and a single eye with pupil; a short horizontal **trapezoid tail
+  stalk** extends from the back of the body, wiggling faster as speed rises, capped with the
+  original two-lobe **tail**. Blinks translucent while invulnerable. (Every playable creature — shark, stingray, squid, arctic shrimp, kelp crab,
+  moon jelly, lungfish, and nautilus — now draws with this detailed, natural anatomy while
+  still recoloring to the equipped COLOR.)
+- Idle & eyes (shared by every playable creature): the eyes blink from time to time,
+  and while the diver drifts still it runs an idle routine that alternates — a slow full
+  backflip (upright → upside down → upright), then blowing a huge bubble that grows, pops
+  in a burst of droplets, and makes its eyes flinch shut from the surprise, then another
+  backflip, and so on.
 - Movement: exponential steering toward the input direction; max speed 430 px/s,
   response 7/s, turn response 12/s; always confined to the tank.
 - Collision radius: 26 px.
@@ -482,7 +586,7 @@ target the nearest visible player.
 
 - Role: the Stingray Tank's threat: five moray eels, one in each archway hole.
 - Look: long eel bodies — a smooth torso that tapers from the head to a thin tail with a
-  lighter dorsal ridge, and an elongated snout in the dart eel's face style (rounded
+  lighter dorsal ridge, and an elongated snout in the zip eel's face style (rounded
   wedge, a single white-rimmed eye, small pectoral fins) whose hinged lower jaw is lined
   with small, needle-like white teeth. The jaws gape open only when a hunting moray comes
   within 140 px of a surfaced stingray — or of the Aquarium Builder's diver, even when
@@ -786,7 +890,7 @@ target the nearest visible player.
 - Contact: −10 points, knockback 320, 1 s invulnerability.
 - Collision radius: 46 px.
 
-### 5.34 Dart Eel (Nautilus Tank obstacle)
+### 5.34 Zip Eel (Nautilus Tank obstacle)
 
 - Role: the fast sideways sweeper.
 - Look: slim green eel with a long tapered ribbon body that ripples head-to-tail, a pale
@@ -856,6 +960,8 @@ target the nearest visible player.
   the pets are the stars.
 - Pets: one of each shop creature — shark, stingray, squid, arctic shrimp, kelp crab,
   jellyfish, nautilus, and a moray eel — swims freely around the tank as miniature pets.
+  The **nautilus** pet shares the playable NAUTILUS and mini-nautilus dive-buddy body, so
+  all three read the same.
 - Menagerie: eight pets by default, and eleven with PLAYPASS 6 (the pass adds a golden
   bubble-fish, a baby shark, and a ghost jelly). The same pass trains the pets: **every
   snack they eat counts twice** toward the goal.
@@ -949,7 +1055,7 @@ target the nearest visible player.
 - Score = bubbles collected, +5 for golden bubbles, +10 for angelfish and shrimps, +15
   for crabs, +5 for plankton, +5 per tangled minnow. Penalties: −5 for logs and plant
   tangles, −10 for rocks, piranhas, whale skeletons, intercepting squids, and octopus
-  body hits, −15 for catfish bites, darting eels, and shark bites; octopus head stuns
+  body hits, −15 for catfish bites, zip eels, and shark bites; octopus head stuns
   award +10. The timer is the only resource; there
   are no lives.
 - Difficulty ramps over the first 60 seconds of a dive:
@@ -960,14 +1066,14 @@ target the nearest visible player.
   | Jellyfish spawn interval | 4.5–7.5 s   | ×0.5 by 60 s                          |
   | Jellyfish cap            | 3           | +1 every 30 s, up to 5                |
 
-- Difficulty (SETTINGS): EASY / NORMAL / HARD / APOCALYPTIC WIPEOUT / FRENZY DOMINANCE
+- Difficulty (SETTINGS): EASY / NORMAL / HARD / APOCALYPTIC WIPEOUT / FRANTIC FRENZY
   are a dramatic
   spread over enemy speeds (×0.5 / ×1 / ×1.6 / ×2.4 / ×4.5), spawn intervals (×2 / ×1 / ×0.5 /
   ×0.3 / ×0.15), score penalties (×0.4 / ×1 / ×2 / ×3 / ×5, rounded), invulnerability grace (×1.5 /
   ×1 / ×0.6 / ×0.35 / ×0.15), tank clocks (×1.5 / ×1 / ×0.75 / ×0.6 / ×0.35), and pack charge
   thresholds (×1.5 / ×1 / ×0.6 / ×0.4 / ×0.2). APOCALYPTIC WIPEOUT compresses the
   spawn-rate ramp from 60 s to 30 s and floods the reef's jellyfish caps with two extra
-  slots; **FRENZY DOMINANCE** is the deliberately absurd top tier — the fastest, tightest,
+  slots; **FRANTIC FRENZY** is the deliberately absurd top tier — the fastest, tightest,
   most crowded run in the game (ramp 15 s, five extra hazard slots). NORMAL is the default and
   matches the tuning tables above.
 - Best score persists under `sharkquarium.best-score` and is shown on the menu, the
@@ -1054,7 +1160,7 @@ target the nearest visible player.
 - ENDLESS DIVE: three `LIVES` pips in the top-centre instead of the time bar; the
   results panel reads `OUT OF LIVES` when the last hit lands.
 - Shop: the coin balance, the browsable color-and-creature panel — every playable
-  creature (shark, stingray, squid, arctic shrimp, kelp crab, jellyfish, nautilus)
+  creature (shark, stingray, squid, arctic shrimp, kelp crab, jellyfish, nautilus, cuttlefish, dolphin, sea turtle)
   rendered live with the selected color, including the SHADOW and RAINBOW specials — plus its
   price/owned/equipped status, its dive payout bonus (`DIVE PAYOUT +n%`), a worn-accessory
   line, the accessory panel (label, cheap price, `WORN`/`OWNED — ENTER TO WEAR`/`TAKE
@@ -1105,9 +1211,9 @@ Palette:
 | rock       | `#6d7178`                 | archway rock, reef boulders      |
 | rockDark   | `#565a61`                 | rock texture and shading         |
 | stingray   | `#8b8272`                 | stingray body                    |
-| eel        | `#5d7a52`                 | dart eel bodies (Nautilus Tank)  |
-| eelDark    | `#3f5a37`                 | dart eel outline and fins        |
-| eelBelly   | `#c7d6a4`                 | dart eel dorsal ridge            |
+| eel        | `#5d7a52`                 | zip eel bodies (Nautilus Tank)  |
+| eelDark    | `#3f5a37`                 | zip eel outline and fins        |
+| eelBelly   | `#c7d6a4`                 | zip eel dorsal ridge            |
 | shrimp     | `#e26052`                 | red shrimp                       |
 | squid      | `#d29aa6`                 | squid body                       |
 | angler     | `#454e5b`                 | anglerfish body                  |
@@ -1234,7 +1340,7 @@ loop.
 | Catfish bite | Sawtooth 70 → 35 Hz, 0.5 s                                       |
 | Shark bite | Sawtooth 70 → 35 Hz, 0.5 s                                        |
 | Skeleton crash | Sawtooth 90 → 45 Hz, 0.4 s                                    |
-| Dart eel zap | Sawtooth 240 → 90 Hz, 0.22 s                                   |
+| Zip eel zap | Sawtooth 240 → 90 Hz, 0.22 s                                   |
 | Squid intercept | Triangle 200 → 110 Hz, 0.25 s                               |
 | Squid fed  | Triangle 420 → 180 Hz, 0.3 s                                      |
 | Electric shock | Sawtooth 300 → 80 Hz, 0.3 s                                    |
@@ -1309,7 +1415,7 @@ ends in game over, PLAY AGAIN keeps the mode, and it never writes score or stats
 
 Sea coins are the soft currency, earned by completing dives — never in EMPTY TANK or in
 competitions. A completed dive banks `5 + 2 × score + 1 × elapsed seconds`, multiplied
-by the difficulty (EASY ×1, NORMAL ×1.5, HARD ×2.5, APOCALYPTIC WIPEOUT ×4, FRENZY DOMINANCE ×8) and by the
+by the difficulty (EASY ×1, NORMAL ×1.5, HARD ×2.5, APOCALYPTIC WIPEOUT ×4, FRANTIC FRENZY ×8) and by the
 equipped color's payout bonus (below). The bank persists under `sharkquarium.coins`; new
 players start with a 500-coin welcome bank (`COINS.starting`), the game over panel shows
 the payout, and the menu shows the balance.
@@ -1324,23 +1430,23 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   Purchases stay shared: one unlock dresses both. The second set lives in the `*2` keys,
   defaults to matching P1 on old saves, and follows P2 into every co-op dive, race,
   dodgeball match, and labyrinth run (solo dives always use the P1 set).
-- COLOR — thirteen character colors. NATURAL is free; the accessory-priced PINK 60,
+- COLOR — thirty-six character colors. NATURAL is free; the accessory-priced PINK 60,
   RED 90, GRAY 120, and SUNSET ORANGE 150 open the catalog; then LAGOON 200, CORAL 450,
   MIDNIGHT 900, GOLD 1400; the pass-exclusive MONSOON and EMBER arrive with PLAYPASS 2;
-  and the rare SHADOW and RAINBOW sit at 2500 each. A purchase
+  and the rare SHADOW, RAINBOW and CHAOS sit at 2500 each. A purchase
   deducts the coins and equips immediately; owned colors re-equip for free.
-- CREATURE — browses all seven playable creatures (shark, stingray, squid, arctic
-  shrimp, kelp crab, jellyfish, nautilus) in the preview panel, each rendered live in
-  the selected color.
+- CREATURE — browses all ten playable creatures (shark, stingray, squid, arctic
+  shrimp, kelp crab, jellyfish, nautilus, cuttlefish, dolphin, sea turtle) in the preview panel, each rendered
+  live in the selected color.
 - HEAD and BODY trinkets are two independent slots — a hat and a back item combine.
   Every trinket belongs to one slot (NONE is free in both). Coin trinkets: HEAD — PARTY
   CONE 60, SUNGLASSES 70, TOP HAT 80, EYE PATCH 90, SNORKEL & MASK 110, DEVIL HORNS 120,
-  CROWN 150, STINGRAY HAT 160; BODY — BOW TIE 50, SHELL ARMOR 120, EEL SCARF 140,
+  CROWN 150, STINGRAY HAT 160, CUTTLEFISH HAT 170; BODY — BOW TIE 50, SHELL ARMOR 120, EEL SCARF 140,
   **RIP CORD 160** (a starter-cord handle dangling on a verlet-physics rope that lags and swings
   with your motion), ANGEL WINGS 220 — plus
   the pass-exclusive PIRATE HAT, PROPELLER CAP, and the PLAYPASS 5 cosmetics: the
-  hue-cycling **NEON JACKET** and **eleven ragdoll plushies** (shark, stingray, squid,
-  shrimp, crab, jelly, nautilus, moray, goldfish, baby shark, ghost jelly) that ride on
+  hue-cycling **NEON JACKET** and **twelve ragdoll plushies** (shark, stingray, squid,
+  shrimp, crab, jelly, nautilus, moray, goldfish, baby shark, ghost jelly, cuttlefish) that ride on
   the creature's back and let their limbs, tails, and tentacles flop: each appendage is
   a springy chain that trails opposite the swimmer's motion, stretches out at speed, and
   sways when idle. Left/Right browses the slot's own catalog; Enter buys and wears the
@@ -1348,12 +1454,16 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   hat with a red band, a striped pink party cone with a gold pompom, dark sunglasses
   with a white outline and glints, a red bow tie, a scalloped cream shell breastplate,
   a gold crown, a dark back-worn jacket with RGB neon collar/zip/hem glow, tailored per
-  creature to hug every body — shark, stingray, squid, shrimp, crab, jelly, nautilus —
+  creature to hug every body — shark, stingray, squid, shrimp, crab, jelly, nautilus, cuttlefish —
   while leaving its eyes clear, a leather eye patch
   with a strap, a snorkel mask with a tinted lens and an orange tube, red curved devil
   horns, a coiled moray eel scarf with a yellow eye, feathered wings that flap harder
-  with speed, a perching stingray hat with spots, button eyes, and a swaying tail plume,
-  and eleven stitched button-eyed plushies with dark fabric outlines.
+  with speed, a perching stingray hat with spots, button eyes, and a swaying tail plume, a perching
+  red cuttlefish hat with a blue mantle fin, dark stripes, and a forward tentacle triangle,
+  and twelve stitched button-eyed plushies with dark fabric outlines.
+  The cuttlefish is also the newest official shop creature in the CREATURE browser. The **CHAOS STINGRAY
+  HAT** 340 and **CHAOS JACKET** 340 are red-glow chaos redraws of the STINGRAY HAT and
+  NEON JACKET, edged in crackling red lightning like the CHAOS color.
   Trinkets ride on the creature in every tank, on the menu shark, and in the shop
   preview; old saves with a single `accessory` migrate into their slot automatically.
 - **COSTUMES** — a third equip slot turns a diver into a dish: **SHARK FIN DISH** 130 (a
@@ -1384,17 +1494,22 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
 - TRAIL — a separate equip slot for swim wakes, browsed on the TRAIL row with its
   PLAYPASS 7 catalog: **BUBBLE STREAM** (wobbling bubbles), **STARDUST** (twinkling
   gold sparks), **INK PUFF** (dark spreading clouds), **ELECTRIC CRACKLE** (three-layer
-  jagged lightning) and **RAINBOW RIBBON** (a hue-cycling tapered ribbon). Each wake
+  jagged lightning), **RAINBOW RIBBON** (a hue-cycling tapered ribbon) and **CHAOS VOLT
+  CRACKLE** (red chaos electricity: the swimmer crackles with red sparks, and the lines you
+  leave behind are glowing red lightning that crackle and spark in place, fizzling into
+  smaller sparks before they fade, laid down only while you swim — a big spark down the
+  middle of the path with smaller sparks scattered unevenly on either side, and the whole
+  wake flaring bright with a high-pitched zap whenever the diver takes a hit). Each wake
   samples the swimmer's recent world positions, so it curls through every turn, and
   draws behind the creature in every tank, minigame, the menu, and the shop preview.
 - DIVE BUDDIES — an equip slot, browsed on the DIVE BUDDIES row with its PLAYPASS 8
-  catalog of **twenty-one floating buddies**: the five favourites (BUBBLE PAL, BABY MORAY,
+  catalog of **twenty-five floating buddies**: the five favourites (BUBBLE PAL, BABY MORAY,
   LANTERN FISH, TINY JELLY, MINI CRAB), mini versions of every playable creature
   (MINI SHARK, MINI STINGRAY, MINI SQUID, MINI SHRIMP, MINI NAUTILUS — the crab, jelly,
   and moray join via MINI CRAB, TINY JELLY, and BABY MORAY), mini versions of every
   enemy (MINI ANGLER with its glowing lure, MINI SEAL with whiskers, MINI OCTOPUS with
   wavy arms and angry brows, MINI TURTLE with paddling flippers, MINI CHASER with a red
-  eye and jagged teeth, MINI DART EEL, MINI CATFISH with swaying barbels, MINI VOLT EEL
+  eye and jagged teeth, MINI ZIP EEL, MINI CATFISH with swaying barbels, MINI VOLT EEL
   with crackling sparks, MINI PIRANHA, and the inflating MINI PUFFER), and the **MINI
   MEGASQUID** — the labyrinth's boss shrunk to buddy size, arms and tentacles waving,
   a periodically blinking glowing yellow eye, and drawn through the same megasquid
@@ -1403,19 +1518,24 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   the diver appears in; the seven buddies that mirror the playable creatures wear their
   exact silhouettes and colors — shark, stingray, squid, shrimp, crab, jelly, and
   nautilus alike — down to the stingray's waving tail, wing curve, spots, and side eyes,
-  and the BABY MORAY, MINI DART EEL, and MINI VOLT EEL redraw the tank eels through the
+  and the BABY MORAY, MINI ZIP EEL, and MINI VOLT EEL redraw the tank eels through the
   same shared renderers: the moray's jaws, teeth, ridge, and olive palette, the dart
   eel's ribbon body and head fins, and the volt eel's crackling field, fins, and sparks.
   Because they are living pets, the shop asks you to pick a buddy (`ENTER — PICK`,
   `DIVE BUDDY PICKED`) rather than wear one.
 - AURA — a separate equip slot for full-body rings, browsed on the AURA row: the
-  PLAYPASS 5 **EEL AURA** sends three morays orbiting the diver, and nine coin auras
+  PLAYPASS 5 **EEL AURA** sends three morays orbiting the diver, and eleven coin auras
   join it — **BUBBLE AURA** 180 (a ring of rising bubbles), **NEON AURA** 200 (glowing
   streaks), **STINGRAY AURA** 220 (three mini stingrays), **TRIDENT AURA** 240 (three
   pronged spears), **KARAMBIT AURA** 260 (three curved claws), **SHARK AURA** 280 (three mini
   sharks), **SWORD AURA** 300 (three blades), **OCTOPUS AURA** 320 (three curling
-  suckered arms), and **SNOWFLAKE AURA** 200 (orbiting six-pointed snow crystals, an icy
-  halo, and drifting sparkles). Every aura is fully removable and attachable — NONE takes the ring off
+  suckered arms), **CUTTLEFISH AURA** 320 (three little cuttlefish orbiting with a pulsing
+  ring), **SNOWFLAKE AURA** 200 (orbiting six-pointed snow crystals, an icy
+  halo, and drifting sparkles) and **CHAOS KARAMBIT** 340 (the KARAMBIT AURA's own curved
+  claws, glitching from time to time: a short burst
+  where a transparent blue shadow flickers on the diver's left edge and a red one on the
+  right, or each edge flickers its own random color, while the blades jitter — mostly the
+  glitch is not there at all). Every aura is fully removable and attachable — NONE takes the ring off
   and Enter wears it again for free. The rings keep their own palettes and hue-cycle
   with RAINBOW — except the KARAMBIT AURA, whose short, curved blades and loop follow the
   diver's equipped color (the handle stays black): NATURAL gives a silver blade with a
@@ -1424,7 +1544,7 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   menu, and the shop preview.
 - Payout bonus — the equipped color raises dive payouts by `1 + cost / 8000`: the
   accessory-priced colors add +1–2%, LAGOON +3%, CORAL +6%, MIDNIGHT +11%, GOLD +18%,
-  and SHADOW and RAINBOW +31%. It stacks on top of the difficulty scale, so bought
+  and SHADOW, RAINBOW and CHAOS +31%. It stacks on top of the difficulty scale, so bought
   colors pay more even on EASY. The shop shows each color's bonus (`DIVE PAYOUT +n%`).
 - SHADOW is near-black with pulsing red fins and a pulsing red aura ring. The shrimp,
   stingray, and nautilus switch their dot eyes to white in this color so they stay
@@ -1434,6 +1554,12 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
 - RAINBOW cycles body, accent, and belly through hues over time and draws rotating
   rainbow aura rings. The EEL AURA trinket adds three hue-cycling morays orbiting the
   diver.
+- CHAOS is a pure glowing red all over — body, fins, and belly share one pulsing red, with
+  no separate belly shade — while short red lightning bolts flicker around the diver's edge,
+  so it glows like the CHAOS VOLT CRACKLE sparks. Its eyes invert (the white part turns
+  black and the pupil turns white) and its tail pulses black. The shop's chaos trinkets
+  carry the same red crackle: **CHAOS STINGRAY HAT** 340 (a red, glowing redraw of the
+  STINGRAY HAT) and **CHAOS JACKET** 340 (a red, glowing redraw of the NEON JACKET).
 - Colors recolor the player creature in every tank and the menu shark: body, accent
   (fins/spots/shell), and belly slots map onto each creature's palette.
 - PLAYPASSES — every pass costs 1200 sea coins, browsed with `Left`/`Right` and bought
@@ -1446,7 +1572,7 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
     and they equip for free).
   - PLAYPASS 3 unlocks special play: the PETS TANK menu entry and tank-select option.
   - PLAYPASS 4 unlocks ENDLESS DIVE: the gauntlet with no clock and three lives.
-  - PLAYPASS 5 unlocks a cosmetics bundle: eleven ragdoll plushies, the per-creature RGB
+  - PLAYPASS 5 unlocks a cosmetics bundle: twelve ragdoll plushies, the per-creature RGB
     NEON JACKET trinket, and the removable EEL AURA trinket (blood-red, hue-cycling with
     RAINBOW). Pass items cannot be bought with coins —
     owning the pass owns them (the shop labels them `INCLUDED WITH PLAYPASS 5`, and they
@@ -1454,11 +1580,14 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   - PLAYPASS 6 unlocks PET PLAY: three rare pets (golden bubble-fish, baby shark, ghost
     jelly) and trained fetching — every snack a pet eats counts twice.
   - PLAYPASS 7 unlocks TRAILS: the five swim wakes browsed on the shop's TRAIL row.
-  - PLAYPASS 8 unlocks DIVE BUDDIES: the twenty-one floating buddies browsed on the shop's
+  - PLAYPASS 8 unlocks DIVE BUDDIES: the twenty-five floating buddies browsed on the shop's
     DIVE BUDDIES row, covering the five favourites plus mini versions of every playable
-    creature (wearing the playable shape and color) and every enemy.
+    creature (wearing the playable shape and color) and every enemy, plus a mini cuttlefish.
   - PLAYPASS 9 unlocks the AQUARIUM BUILDER: decorate your own tank with decor, pets,
-    enemies, and habitats, then dive in as any of the seven playable creatures. The
+    enemies, and habitats, then dive in as any of the ten playable creatures.
+  - PLAYPASS 10 unlocks the CUTTLEFISH PACK: the cuttlefish hat, plush cuttlefish, and
+    cuttlefish aura, plus the mini-cuttlefish dive buddy (from pass 8).
+  - PLAYPASS 11 unlocks DEEP CORAL: a DEEP CORAL color for every diver. The
     layout is kept between visits and placements are unlimited.
 
 MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
@@ -1549,7 +1678,9 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   score. Land **10** bursts before three misses (or the timer) fizzle the party.
 - **CONFETTI RUSH** (New Year-exclusive) — an auto-swim dash across the party deck: steer your
   **current shark** up and down (**W/S or Up/Down**) to catch falling **stars** and dodge red
-  **party poppers**. Collect **25** stars before three hits or the clock runs out; bursts, trail
+  **party poppers**. Every star and popper now drops down the shark's own lane at a gentler
+  fall speed, so the run is won with well-timed vertical dodging rather than a sideways chase
+  you cannot make. Collect **25** stars before three hits or the clock runs out; bursts, trail
   speed lines and confetti sell the sprint.
 - LABYRINTH — a seven-part shipwreck escape split into 1500 px sections, played by two
   players or LABYRINTH SOLO (1P). Every run opens with a picker: a `PART: n/7` row lets
@@ -1559,7 +1690,7 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   nautilus) with a live preview. Solo gets one `CREATURE` row; co-op gives P1 and P2
   their own rows and previews, so each diver picks independently. Both picks are saved
   separately under `sharkquarium.labyrinth`, and Enter plays a skippable **arrival
-  cutscene** — all seven creatures swim in to the sunken liner as a group, then the
+  cutscene** — all eight creatures swim in to the sunken liner as a group, then the
   MEGASQUID rises out of the dark behind the wreck with its glowing yellow eye tracking
   them, and the chase begins. The CUTSCENE THEATRE
   can also replay the arrival on demand, or play a **LABYRINTH TRAILER**: a letterboxed cinematic montage — seven
@@ -1618,8 +1749,8 @@ MINIGAMES hosts the unlocked passes. The COMPETITIONS pass unlocks the arcade:
   drag them under — **that ends the run for everyone**. Escaping every player is what
   opens the next part, and clearing the seventh with nobody caught wins the bonus — which
   plays the **ending cutscene** in two beats: first the wreck collapses around the
-  entangled MEGASQUID as all seven creatures (shark, stingray, squid, shrimp, crab, jelly,
-  nautilus) race clear with the wreck's planks tumbling; then the scene cuts to a distance
+  entangled MEGASQUID as all eight creatures (shark, stingray, squid, shrimp, crab, jelly,
+  nautilus, cuttlefish) race clear with the wreck's planks tumbling; then the scene cuts to a distance
   view where the seven survivors float in the foreground and look back at the liner
   perched on a ledge, and the wreck and the MEGASQUID topple off the rim and sink into the
   dark trench. ENTER skips straight to
@@ -1670,6 +1801,21 @@ The six arcade games (tickets in the payouts note below):
   holes (the stingray tank's brown, olive, and spotted-yellow morays) smoothly peek
   their long bodies out, bite, and retreat from the floor; there is **no clock at all**
   — the HUD counts `RECYCLED n/8` and the round ends when the target is recycled.
+- DRESS UP BATTLE (2P) — both divers first dress in an in-game replica of the SHOP
+  (COLOR, CREATURE, HEAD, BODY, TRAIL, AURA, COSTUMES, PLAYER; no playpasses) and then
+  brawl, using their cosmetics as weapons. The dresser is private — it never changes the
+  main shop avatar or spends coins, and only the battle fighters wear the choices. **J / 1** lunges (with a **CHAIN-FIN** costume
+  it becomes a heavier saw-lunge) and **K / 2** deploys the equipped aura for 5 seconds.
+  Weapon auras shoot — trident and sword fire straight shots then cool down, while the
+  karambits (normal and CHAOS) are thrown one at a time and boomerang back on their loop,
+  so they need no cooldown. Living auras (octopus, stingray, shark, eel) unleash an
+  attack creature — drawn in the matching octopus, stingray, shark, or eel model with its
+  natural colors, flipping to face the way it swims — that chases and chips the foe (it can be killed) and upgrades the owner's lunge to an
+  unstoppable dive. Power auras do power damage — NEON kills aura creatures
+  outright and blinds the foe, SNOWFLAKE freezes the foe's tail (slowing them), and
+  BUBBLE knocks them back. Food costumes (SHARK FIN DISH, SAMBAL STINGRAY, GRILLED SQUID,
+  PRAWN CRACKERS) auto-heal their eater when health is low, and a trail stuns a foe on a
+  fast contact. Drop the other diver to zero HP to win.
 - TRENCH DIVE — a 60-second descent through scrolling ice barriers, gold pearls, pushing
   currents, and bands of black water; three crunches and the trench keeps you. Each ice
   wall's gap is placed within a diver's reach of the last one (`maxGapShift`), so the run
@@ -1690,7 +1836,7 @@ The six arcade games (tickets in the payouts note below):
   **seaweed**, **crabs** scuttling the floor that bolt away when you near them, and
   **octopus** and **squid** (each with a pair of eyes) that jet around the trench **hunting the small shrimps** that dart through it. A whole **rainbow of stingrays** drifts it —
   spotted (dark yellow, bright blue spots, orange-ringed dark blue tail), plain gray, tiger,
-  blue, green, violet, crimson, sunset, mint, gold, silver, pink, cyan, copper, and night,
+  blue, green, violet, crimson, red, sunset, mint, gold, silver, pink, cyan, copper, and night,
   plus tiny translucent **baby rays** with one big spot (pink, blue, green, yellow, or
   purple). Chase any ray toward the descending net and it is **scooped up**, unlocking that
   ray's **free color skin** in the shop — no coins needed (twenty ray skins in all). The
@@ -1718,13 +1864,15 @@ The six arcade games (tickets in the payouts note below):
   carry the swimmer smoothly uphill or downhill. **PORTAL** pieces transform you into one
   of eight swimmer **modes** — a plain **FISH** portal turns you back into the normal fish —
   with their own movement — **STINGRAY** (hold to fly up), **DART
-  EEL** (the Nautilus Tank's dart-eel head on a body that trails behind along the path it has
+  EEL** (the Nautilus Tank's zip-eel head on a body that trails behind along the path it has
   swum, rendered with the moray eel's own trail; hold to climb, tap for a small zig, and it
   dives back down on its own), **CRAB** (each click flips gravity, snapping it to the nearest
   landable surface — floor, ceiling, rock, or floating ledge — so it can hop between ledges),
-  **URCHIN** (like the crab but it drifts up instead of snapping), **JELLY** (tap to hop; holding
+  **URCHIN** (like the crab but it drifts up instead of snapping, and it can only flip gravity
+  while touching a surface), **JELLY** (tap to hop; holding
   does nothing and it sinks back, so spam the click to hover), **NAUTILUS** (a **swing**: each click
-  flips gravity in mid-air, but touching the floor, ceiling, or any obstacle is fatal), and
+  flips gravity in mid-air; shells and weeds are fatal, but it can rest on the floor, cling to
+  the ceiling, and land on top of rocks or beneath ceiling rocks), and
   **MANTIS SHRIMP** (a bright lime-and-cyan **jumper** — no robot, it just leaps as high as one —
   with clubbed forelimbs, pink eyestalk eyes, and a long segmented tail: a short tap is a low hop,
   while press-and-hold charges a super-jump on release).
@@ -1732,13 +1880,13 @@ The six arcade games (tickets in the payouts note below):
   back to normal, regardless of mode.
   The **STINGRAY** mode uses the game's own **spotted-ray model** and skin (drawn smaller) so
   it matches the Stingray Tank, and the HUD shows your current mode. Reach the distance marker
-  to win. Difficulty renames the settings tiers **CALM / CHOPPY / RIPTIDE / MAELSTROM / FRENZY DOMINANCE** and
+  to win. Difficulty renames the settings tiers **CALM / CHOPPY / RIPTIDE / MAELSTROM / FRANTIC FRENZY** and
   scales speed, gap spacing, and spike height. Costs 40 sea coins.
 - **REEF RUSH — LEVELS** is a **sideways-scrolling** shelf of original hand-built courses
   (scroll with Left/Right, play with Enter). **Clearing a level plays an end cutscene** (bubbles
   and confetti, the level name, your time and pearls) and, on the **first clear**, **unlocks a
   free skin**; progress is saved. The more levels cleared, the more skins unlocked. Each level
-  is a mode showcase, and **eight of the cards are demonstration levels** — **FISH BASICS, STINGRAY FLIGHT, DART EEL ZIG, CRAB HOP, URCHIN DRIFT, JELLY HOVER, NAUTILUS SWING, SHRIMP SUPER-JUMP** — each teaching one mode. **Every level opens a paged briefing first**: turn pages with Left/Right, advance with Enter/click, and the last page starts the run. The five classic courses are **SUNLIT REEF** (fish — simple shell jumps), **KELP CROSSING** (dart eel —
+  is a mode showcase, and **eight of the cards are demonstration levels** — **FISH BASICS, STINGRAY FLIGHT, ZIP EEL ZIG, CRAB HOP, URCHIN DRIFT, JELLY HOVER, NAUTILUS SWING, SHRIMP SUPER-JUMP** — each teaching one mode. **Every level opens a paged briefing first**: turn pages with Left/Right, advance with Enter/click, and the last page starts the run. The five classic courses are **SUNLIT REEF** (fish — simple shell jumps), **KELP CROSSING** (zip eel —
   tight weed-and-rock gates), **STINGRAY ALLEY** and **JELLY BLOOM** (those swimmers — pillars of
   ceiling rocks and rocks with a hole to thread), and **DEEP CURRENT** (urchin pillars then a
   crab section of ceiling shells and shells with gaps, via portals).
@@ -1748,7 +1896,7 @@ The six arcade games (tickets in the payouts note below):
   ceiling shells/weeds** on synth beats. It is built to be **clearable but lively**: a chord
   becomes a single spike/block, every obstacle is capped at a jumpable height, consecutive
   ground obstacles are kept at least a jump apart, and the gaps between them **rotate through
-  gamemode devices** — a **portal** (stingray / dart eel / crab / urchin / jelly / nautilus / shrimp / fish), a
+  gamemode devices** — a **portal** (stingray / zip eel / crab / urchin / jelly / nautilus / shrimp / fish), a
   **floating ledge**, a **thrust bubble pad**, or a **gravity bubble** — so the course suits
   every mode's movement. The run plays your song and banks its own record.
 - **REEF RUSH — COURSE BUILDER** lets the player design their own course by hand (no
@@ -1758,7 +1906,7 @@ The six arcade games (tickets in the payouts note below):
   CEILING SHELL / CEILING WEED / ROCK / CEILING ROCK / FAKE ROCK / CEILING FAKE ROCK / PEARL / PRESSURE BUBBLE / GRAVITY
   BUBBLE / GRAVITY BUBBLE PAD / CEILING GRAVITY BUBBLE PAD / THRUST BUBBLE PAD / CEILING
   THRUST BUBBLE PAD / FLOATING LEDGE / SLOPE UP / SLOPE DOWN — then the **modes** — STINGRAY /
-  DART EEL / CRAB / URCHIN / JELLY / FISH / NAUTILUS / SHRIMP (each places a
+  ZIP EEL / CRAB / URCHIN / JELLY / FISH / NAUTILUS / SHRIMP (each places a
   portal with that target) — and the **gravity portals**: **GRAVITY PORTAL** flips you
   upside-down and **NORMAL GRAVITY PORTAL** sets gravity back to normal. A **scrub slider at the
   bottom of the course** lets you drag the cursor quickly across the whole track (a goal tick marks

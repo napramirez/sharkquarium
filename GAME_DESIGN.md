@@ -205,15 +205,24 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   lightning bolts around the diver's edge.
 - `LoreScene` (`lore`, opened from the menu's LORE row) is the codex: it reads the
   `LORE` catalog — THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MUTANT HORRORS,
-  THE MINIGAMES, and THE MODES, ninety-four named entries in all — and renders Left/Right section tabs, an Up/Down
+  THE MINIGAMES, and THE MODES, one hundred and twenty named entries in all — and renders Left/Right section tabs, an Up/Down
   entry list with a centered window and `n/m` counters, and the wrapped story text in a side
   panel. Overlong entries are split by `paginate()` after the last complete sentence that fits
-  (ENTER turns pages, and the panel shows `PAGE n/m`).
+  (ENTER turns pages, and the panel shows `PAGE n/m`). Each entry also shows a **creature
+  portrait** beside the text via `drawCreatureIcon()` (`src/engine/codexicons.js`).
 - `SeaFactsScene` (`seafacts`, opened from the menu's SEA FACTS row) is a lighter cousin of the
   codex: it reads the `SEA_FACTS` catalog of real-world trivia about each playable creature,
   one entry at a time. Up/Down (and Left/Right) browse creatures, ENTER turns pages when an
   entry is long, and Esc returns to the menu; it reuses the same sentence-aware `paginate()`
-  wrapping as the lore codex.
+  wrapping as the lore codex, and draws each creature with `drawCreatureIcon()`.
+- `drawCreatureIcon()` (`src/engine/codexicons.js`) maps an entry name to a renderer with a
+  keyword table (`RULES`): most creatures reuse their in-game body draws (`drawSharkBody`,
+  `drawLoosejaw`, `drawGoblinShark`, `drawOarfishBody`, …), the ANGLERFISH now uses `drawAnglerBody`, the six real-fish tanks' creatures
+  (`drawArcherfish`, `drawNeedlefish`, `drawSawfish`, `drawMudskipper`, `drawFrogfish`,
+  `drawOceanSunfish`, `drawSeaLion` from `src/entities/realfish.js`) join the table, HAGFISH and
+  LANTERNFISH get small local portraits, and anything unmatched falls back to a generic fish.
+  It clips to a circular portrait, forces the `natural` skin (`setActiveSkin`) so codex art
+  never inherits the player's equipped color, and animates with the scene clock.
 - `TrackPlayerScene` (`tracks`, opened from SETTINGS) lists `TRACK_LIBRARY` from
   `src/assets/tracks.js` and plays or stops any tank theme through the shared
   `MusicPlayer`; playing sets `music.hold`, so the chosen theme keeps playing after the
@@ -246,11 +255,23 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `ConfettiRushScene` (`confettirush`), all `MinigameScene`s sharing
   `src/engine/seasonroom.js` (`drawSeasonRoom()` draws the crypt or the party deck) and, where
   the shark is visible, `applyWardrobe()` + `Shark`. The MINIGAMES list itself is a windowed
-  `SelectList` (`visible: 15`, `wheel: true`), and   `SelectList` now scrolls on `Input.wheel`. `ChatScene` (`chat`, opened from MINIGAMES) is a
+  `SelectList` (`visible: 15`, `wheel: true`); the MAIN MENU and CHOOSE TANK now also use a fixed visible window (`visible` 8 / 11, `wheel: true`) so their growing lists scroll instead of overlapping, and `SelectList` scrolls on `Input.wheel`. - `AccountScene` (`account`, opened from the main menu's ACCOUNT row) is a local profile screen backed by
+  `src/engine/accounts.js`: it lists accounts, and its CREATE / LOG IN forms capture a name and password
+  from raw key codes (name and password fields, `Tab` switches, `Enter` submits). `createAccount()` stores
+  a salted-hash password plus a **snapshot of every `sharkquarium.` progress key** (`snapshotProgress()`),
+  `login()` verifies the password and `restoreProgress()`s that snapshot, `saveAccount()` re-snapshots, and
+  `logout()` clears the current account. `revealPassword()` returns the exact password the player keyed (kept as an `obfuscate`d field, for the FORGOT PASSWORD option). For cross-device use, `exportTransfer(password)` verifies the password and emits a **numeric transfer code** (a decimal digit sequence, 3 digits per UTF-8 byte, of `{name, salt, created, encrypted progress}`), where the progress is XOR-encrypted with a keystream derived from the password and salt; `importTransfer(code, password)` parses the digits, decrypts, installs the account, and restores the progress — so the correct password is required to claim an account on another device. `deleteAccount(name)` removes an account (and clears the session if it was current). No network is involved.
+- `ChatScene` (`chat`, opened from MINIGAMES) is a
   local, rule-based chatbot for FINN the CPU: it captures raw key codes for typing, word-wraps
   bubbles with `FONT`, draws CPU bubbles in yellow (`#ffd166`, black text) and player bubbles in
   light blue (`#bfe9ff`, gray text) over `drawWater`, and answers from a scored keyword knowledge base covering
   controls, tanks, minigames, the shop, difficulty, settings, coins, lore, and his own opinions/favourites — no network service.
+  The matcher tokenizes the message (with a 1-edit fuzzy pass for typos), weights multi-word phrases, adds a
+  boost for several distinct matches, and decays recently used facts so answers do not repeat. On top of the
+  knowledge base `reply()` runs chat intents — name capture/recall (`this.memory.name`), a small arithmetic
+  evaluator (`evalExpr`/`tryMath`), jokes and riddles (with the answer on "give up"), greetings/thanks/bye,
+  mood and win reactions, tips, recommendations, existential questions, topic follow-ups via `relatedEntry()`,
+  and a yes/no path — then `composeFact()`/`improvise()` wrap the answer in randomized, de-duplicated FINN voice.
 - **8-bit mode** lives in `src/engine/retro.js` (`set8Bit()`/`is8Bit()`). `Game.renderFrame()`
   renders the scene into a fixed 256×144 offscreen canvas (`ensurePixelBuffer()`, drawn with a
   `PIXEL_WIDTH/width` transform so scenes keep their 960×540 logical coordinates), blits it to
@@ -263,8 +284,15 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
 - **Meme mode** lives in `src/engine/meme.js` (`setMeme()`/`isMeme()`); `Game.renderFrame()` calls
   `drawMemeOverlay()` after the scene in both the normal and the 8-bit path. It is a purely
   cosmetic, all-original overlay: comic words from a local list, radiating speed lines, a bottom
-  caption bar, and a corner badge, cycling every 1.7 s with deterministic hashing. No third-party
-  meme assets are used.
+  caption bar, and a corner badge, cycling every 1.7 s with deterministic hashing. It also exports
+  `memeName(name)` (returns `'FEH'` while on), which the SEA FACTS, LORE and SHOP screens use to
+  display every creature as FEH without mutating the underlying names. It also gates the
+  **SACABAMBASPIS** RUSH skin: `skin.js` (`skinByKey`/`skinCatalog`) and `rushShopLadder()` hide any
+  skin flagged `meme: true` while it is off, so the skin only exists in meme mode. It is also flagged
+  `rushScope: true`, so `skinByKey` returns NATURAL for it in every dive (it never colours the diver);
+  `ReefRushScene` reads the equipped skin with `skinByKey(key, true)` into `this.sacaSkin` and draws the
+  REEF RUSH fish as a **Sacabambaspis** (`drawSacabambaspis` in `src/entities/sacabambaspis.js`). No
+  third-party meme assets are used.
 - **Mobilite mode** lives in `src/engine/mobilite.js` (`setMobilite()`/`isMobilite()`). `Game`
   calls `updateMobilite()` before each scene step and `renderMobilite()` after the meme overlay to
   draw large on-screen key buttons (W/A/S/D, SPACE, E, ESC); in `chat`, and in `tag` while
@@ -545,13 +573,24 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   shrimps) off one-way stone platforms into the mutagen line (`MUTAGEN_Y`); only the **pop**
   emits a ripple (`popBubble()`), never the launch. `addNoise()` emits expanding `ripples`; touching the mutagen
   runs `trapInMutagen()` (the shrimp is held, `struggle` fills while mashing jump, and
-  `freeFromMutagen()` sets it back on a stone). The eyeless `monster` is a **giant mutated moray** (drawn via `drawMorayBody` with a `blind`
-  palette) confined to the mutagen line with a `roam → dive → burst → recover` state machine:
-  it dives at `monsterDiveSpeed` (faster than the echoeel's `EEL.returnSpeed`) toward the
-  **most recent** heard ripple (never the player directly), then bursts up out of the sludge to
-  snap before sinking back;
-  running and jumping are silent, so ripples come only from `popBubble()`, creatures hitting
-  the sludge, and the trap splash. Its contact is a catch. Registered in the
+  `freeFromMutagen()` sets it back on a stone). The eyeless `monster` is a **giant mutated moray** (a `blind` + `grotesque`
+  palette) confined to the mutagen line with a `roam → charge → dive → burst → recover` state machine.
+  It **hears the whole map** (`monsterHearRange` is far larger than the level), wandering the channel
+  (`roamX`/`roamTimer` waypoints) until it hears a ripple, then it courses at `monsterDiveSpeed` — five times
+  the echoeel's `EEL.returnSpeed` — along the surface toward the **most recent** heard ripple (never the
+  player directly). Stopping `monsterArcWidth` short it **dives down into the sludge** (`monsterDiveDepth`),
+  then **erupts out in a rainbow arch**: the head rides from `takeoffX` to `splashX` while `ny` lifts it to
+  `monsterJumpHeight` and back to the surface, so it **lands right on the splash**, jaw wide. Its body is a
+  chain of `monsterSegments` tapering segments (`drawSerpentBody`, even `resampleTrail()` spacing so it never
+  clumps) built from its recorded `trail` of past head positions — during the arch the trail follows the head
+  through the air, so the whole *segmented* body curves like a rainbow; `renderMonster()` draws that then the
+  `drawMorayHead`. When the position jumps (a teleport), the trail is re-prefilled instead
+  of smearing across the map. The stone `platforms` sit low (`ledgeTopMin`/`ledgeTopMax` near the mutagen) so
+  the eel rides right beside the diver; while free the diver is safe, and the moray only
+  **jumpscares** — `catchPlayer()` — at the moment the **arch jump ends** if the diver is within range of the
+  landing splash (trapped in the mutagen, or just standing on the splash/pop it aimed at). `drawMorayHead()`
+  mirrors the head (`scale(1, -1)` when `cos(heading) < 0`) so it never renders upside down when facing left. Its bubbles have no cooldown (`vortexCooldown` 0); running and jumping are silent, so ripples come
+  only from `popBubble()`, creatures hitting the sludge, and the trap splash. Registered in the
   tank select and recorded under `deadcalm`.
 - `ReefRushScene` gained an **endless** mode: with `params.endless` it sets
   `goalDistance = Infinity`, generates course chunks procedurally in `extendEndless()` as the
@@ -559,6 +598,29 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   that award a flash and a counter when passed, recorded under `reefrushEndless`. A
   `cuttlefish` portal form joins `RUSH_PORTAL_FORMS`, gliding like the stingray with
   `noContact` camouflage.
+- **REEF RUSH SHOP** (`src/engine/rushshop.js` + `src/scenes/rushshop.js`, `rushshop`) is the
+  endless-distance reward screen, reached from a `kind: 'shop'` card in `RushLevelsScene`. It is split
+  into **form tabs** (`RUSH_FORMS`, one per portal form: FISH, STINGRAY, ZIP EEL, CRAB, URCHIN, JELLY,
+  NAUTILUS, MANTIS SHRIMP, CUTTLEFISH; Up/Down switch tabs, Left/Right pick a skin, Enter/click equips).
+  Eight `rushOnly` skins (`RUSH BLUE`…`RUSH VOID`, each with a `rushAt` distance) form
+  `rushShopLadder()` and live on the **FISH** tab (the meme-gated `SACABAMBASPIS` joins them).
+  `bankRushDistance(distance)` stores the best distance under `RUSH_SHOP_KEY` and pushes every newly
+  reached `rushOnly` skin into the shop's `owned` list (`SHOP_KEY`); `ReefRushScene` calls it once a
+  second while `endless` and shows an **UNLOCKED** callout. The FISH tab renders each skin's swatch and
+  a `best / rushAt` progress bar and, on Enter, equips an owned skin (via `setActiveSkin`). The other
+  tabs list **form skins** (`RUSH_FORM_SKINS`): the form's default plus a cross-over creature — the
+  ZIP EEL gets **STOPLIGHT LOOSEJAW** (drawn with `drawLoosejawHead` on a `paintMorayTrail` body so it
+  keeps the zip eel's trailing-tail physics), the NAUTILUS gets **AMMONITE**, the STINGRAY gets **DOLPHIN**
+  and the URCHIN gets **PUFFERFISH** — each rendered as a live preview and stored per form under
+  `SHOP_KEY.rushForm` by `equipFormSkin()`; `ReefRushScene` reads them via `equippedFormSkins()` into
+  `this.formSkins` and draws the matching creature in `renderPlayer()`. The main
+  SHOP refuses to sell `rushOnly` skins (`EARN IN REEF RUSH — ENDLESS`).
+- The **REEF RUSH** `placeMotif('shellstair')` triple-shell cluster and the `extendEndless()` boss
+  gate were retuned so triples are physically clearable: `maxClearableShell()` caps every shell
+  height to the height one jump can clear at the current speed (and `spikeHeight()` clamps to it),
+  the stair shells sit `18px` apart at `clusterCap(18)` heights (rising `0.5→0.9`), which the smoke
+  verifies leaves a clear jump window of at least 24px, and the boss gate spaces the
+  shell/ceiling-shell/rock `260px` apart.
 - The **AQUARIUM** palette gained `CORALFAN`/`CORALSPIRE` cor-`Coral` variants and a
   `REEFGARDEN` habitat (`src/entities/reefgarden.js`, drawn like the other habitats). **PLAYTOY**
   Exploration gained **BUILD-A-TOY**: four scattered `parts` collect into a friendly
@@ -569,6 +631,77 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
 
     **THE CLEANER STATION** cleans drifting clients while parasites and a lurker patrol;
   **THE MIGRATION** keeps the diver inside a sweeping school band or drains a cohesion meter.
+  **THE TWILIGHT TANK** is a light-stealth swim: the hatchetfish's GLOW climbs with its speed,
+  and the stoplight loosejaw (a long thin jet-black dragonfish drawn by `drawLoosejaw` with small rounded black back fins beside the tail on each side, a long, thin super-dark-gray rounded dorsal fin spanning its whole back (its base and top edges both follow the body wave), and a black pizza-slice tail fin (point at the tail-body junction), its head drawn at
+  roughly six-tenths the body's scale and pinned by its snout, with a long underbite lower jaw, poking a little past the body front tip and angled forward and
+  up ~50°) hunts the brightest source, sensing the diver's GLOW from anywhere in the tank (`hunterSense` spans the level) and racing at a doubled `hunterChargeSpeed`, so a SPACE FLASH dumps the light into a
+  drifting decoy and leaves the fish counter-illuminated dark until the bait is snapped; its short, offset teeth interlock rather than overlap. The head
+  hinges at the head-to-body junction: the hunter normally hangs its jaw open (`jaw` ~0.75), and its `bite`
+  state runs a two-part sequence — a `windup` leans the **head/upper jaw backward** (`swing` → 1) and gapes
+  the mouth, then a `shut` phase snaps the jaws closed (`jaw` → 0) while the head is **still leaned back**;
+  each phase is eased with `smoothstep` over its timer for a smooth, frame-rate-independent bite. The instant
+  the `shut` completes it resolves the bite (a `catchPlayer` on the diver, or swallowing a decoy it removes)
+  and the head **swings smoothly back to normal** (no hold) as `recover` eases `swing`/`jaw` home. The same bite plays for the player and the bait; `respawn()` resets the
+  jaws to hanging open. Its head is drawn at `0.7` of the body's scale.
+  **THE HAGFISH BLOOM** (`src/scenes/hagfish.js`) is a scent-stealth swim (`HAGFISH`): the player is a
+  gray Caridean shrimp (drawn with `drawArcticShrimpBody` and gray colour overrides) drifting in a
+  one-way `currentSpeed` channel. A `player.scent` meter rises with speed (`scentGrowth`) and with
+  the bloom's proximity (`scentFear`/`scentFearRange`), and drains slowly or fast inside a `cleans`
+  upwelling column (`scentWash`). While scent > 0.15 the shrimp drops drifting `puffs`
+  (`scentPuffLife`); `SPACE` drops a strong **CHUM** puff (`chumStrength`, `chumCooldown`). The
+  eyeless `bloom` picks the strongest `bestScent()` (anywhere in the channel, `bloomSense`), chases it
+  at `bloomChaseSpeed` scaled by strength, swallows a puff it reaches (brief `recover`), and
+  `catchPlayer`s the shrimp on contact; `respawn()` clears the puffs and pushes the bloom away. Reach
+  `exitZone` for the win.
+- **THE OARFISH** (`src/scenes/oarfish.js`) is a minimalist crossing (`OARFISH`): the player (a `Shark`
+  spawned with `maxX: worldLength`) swims right across open blue while a single colossal `oarfish`
+  drifts up and down. Its danger is a **lateral line**: when the player's `y` is within
+  `lateralRange` and `x` within `senseLength` of the oarfish, a fast stroke (speed over
+  `strokeThreshold` of max) builds `oarfish.alert` at `alertRise`; it drains at `alertFall`/`idleDrain`
+  otherwise. At full alert the oarfish enters `strike`, racing at `strikeSpeed`; within reach
+  (`strikeRange`) it `catchPlayer`s, then `recover`s. `drawOarfishBody` renders the long silver ribbon
+  with a red crest, a big eye, and oar-tipped pelvic fins. Reach `exitZone` for the win.
+- **THE WHALE FALL** (`src/scenes/whalefall.js`) is a scavenger stealth (`WHALEFALL`) where the player (a **Japanese juvenile spider crab**, drawn by `drawJapaneseSpiderCrab`
+  in `src/entities/spidercrab.js`) climbs a giant whale lump lying on the seafloor
+  `ribs` (bone arches) and a `carcass` mound. The player collects `scrapItems` up to `scrapGoal`; the
+  `concealed()` check hides the player inside a rib. A `sixgill` shark patrols an ellipse, then
+  `charge`s the player when in the open (`sixgillSight`) and `catchPlayer`s on contact, with a
+  `recover` between passes. `hagfish` knots fill the gaps: touching one sets `snag` (the player is held
+  `snagTime`s) and pushes the sixgill straight into `charge`. Pick `scrapGoal` scraps, then reach
+  `exitZone` for the win; `Sixgill`/`HagfishKnot` are drawn inline.
+- **THE GOBLIN DEEP** (`src/scenes/goblindep.js`) is an original arena hunt (`GOBLIN`) where the player
+  is the **loosejaw** (`drawLoosejaw`), the same light-hunter model (and bite animation) used by the
+  twilight tank; `drawLoosejaw` now draws **three rows of small photophores** down its body by default. Small `squids` drift a clamped arena but are near-invisible in the dark; eating `shrimp`
+  fills the `meter` (and `charged` unlocks the tool), and `E` (`KeyE`) toggles `stoplight`, whose meter
+  drains while on. While lit, `revealAmount(squid)` shows a squid only if it is inside the forward cone
+  (`beamAngle`, `beamHalfAngle`) within `beamLength` — and a squid can only be eaten while revealed
+  (`rev > 0.35`). A slow `shark` (drawn by `drawGoblinShark` in `src/entities/goblinshark.js` — a
+  pale greyish-pink blacktip-shark body with dark-tipped fins, a super flat leaf rostrum and black circle
+  eyes) wanders,
+  senses the player within `sharkSight` while lit (else `sharkDarkSight`), and when the player is within
+  `lungeRange` and in front it cycles `patrol → wind → shoot (extend/hold/retract) → recover`, shooting
+  its jaws out `lungeReach` and `catchPlayer`ing on contact with the `jawTip()`. Eating `squidGoal`
+  squids wins; `respawn()` returns the player and the shark to their start corners.
+- **SIX REAL-FISH TANKS** (`src/entities/realfish.js` holds their art): **`ArcherScene`** (`archer`,
+  `ARCHER`) — an archerfish below a surface spits **jets** (`jets[]`, auto-aimed at the nearest insect or
+  aimed at the pointer) that knock perched insects into the water to eat, dodging a patrolling
+  `needle`; **`ThresherScene`** (`thresher`, `THRESHER`) — a sardine eats `krill` while a thresher cycles
+  `swim → wind → whip → recover`, its **tail** sweeping `tailPoints()` for the catch; **`SawfishScene`**
+  (`sawfish`, `SAWFISH`) — hold confirm to ramp `saw`, unearthing buried `prey` under the rostrum while a
+  `bull` shark patrols; **`MudskipperScene`** (`mudskipper`, `MUDSKIPPER`) — a plain-object player with
+  **land/water** physics (gravity + hop on the bank past `BANK_X`, free swim in the pool) catching hovering
+  `bugs` away from a `crab`; **`FrogfishScene`** (`frogfish`, `FROGFISH`) — the player camouflages while
+  still and holds confirm to raise `lure`, drawing `prey` to the mouth, while a `moray` charges whatever
+  moves; **`SunfishScene`** (`sunfish`, `SUNFISH`) — a sinking sunfish (`sink` drift) with an `oxygen`
+  meter refilled at the surface, eating `jellies` and dodging a batting `lion`. All six are reached from
+  CHOOSE TANK with their own records and LORE entries.
+- **THE EVOLUTION TANK** (`src/scenes/evolution.js`, `EVOLUTION`) is a two-phase scene: a `setup` screen
+  (`regionIndex`, `categoryIndex`, `row`) picks a depth region, a category and the lives, then `startPlay()`
+  spawns the first `draws[stage]` form as a `Shark` player at `stageRadius(0)`. Eating `foods` raises
+  `growth`; at `foodPerStage` the `stage` increments, the radius grows and a burst plays, and reaching the
+  last stage wins. A `predator` (a big `drawSharkBody` or `drawAnglerBody`, by the region's `hazard`)
+  charges until the player reaches stage 2, and `catchPlayer`'s `respawn()` **devolves** one stage. All the
+  stage art is dispatched by `drawEvolveCreature()` over the shared entity draws plus a few local forms.
 - `ReefQueenScene` (`reefqueen`) is the second boss tank, built on the same
   `MinigameScene` scaffold: the `SwarmQueen` entity cycles `hover → summon/telegraph →
   open` (and `telegraph → charge → open`), so its glowing core is weak only while `open`;

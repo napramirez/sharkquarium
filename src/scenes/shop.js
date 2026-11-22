@@ -12,6 +12,7 @@ import { Cuttlefish } from '../entities/cuttlefish.js';
 import { Dolphin } from '../entities/dolphin.js';
 import { SeaTurtle } from '../entities/seaturtle.js';
 import { loadJSON, saveJSON } from '../engine/storage.js';
+import { memeName } from '../engine/meme.js';
 import { drawSkinAura, setActiveSkin, setSkinClock, skinCatalog } from '../engine/skin.js';
 import { checkAchievements } from '../engine/achievements.js';
 import { auraByKey, auraCatalog, auraForShop, setActiveAura } from '../engine/aura.js';
@@ -455,6 +456,13 @@ export class ShopScene extends Scene {
       this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.22 });
       return;
     }
+    if (skin.rushOnly && !this.owns(skin.key)) {
+      this.setStatus(skin.meme
+        ? 'EARN IT IN REEF RUSH — ENDLESS (MEME MODE), THEN VISIT THE REEF RUSH SHOP'
+        : 'EARN IT IN REEF RUSH — ENDLESS, THEN VISIT THE REEF RUSH SHOP');
+      this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.22 });
+      return;
+    }
     if (skin.caught && !this.owns(skin.key)) {
       this.setStatus('CATCH IT IN TRENCH EXPLORE — THEN IT IS FREE');
       this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.22 });
@@ -619,6 +627,7 @@ export class ShopScene extends Scene {
       return pass ? `INCLUDED WITH ${pass.label} — ENTER TO EQUIP` : 'OWNED — ENTER TO EQUIP';
     }
     if (skin.passOnly) return `${pass ? pass.label : 'PLAYPASS'} EXCLUSIVE`;
+    if (skin.rushOnly) return skin.meme ? 'EARN IN REEF RUSH \u2014 ENDLESS \u00B7 MEME MODE' : 'EARN IN REEF RUSH \u2014 ENDLESS';
     if (skin.caught) return 'CATCH IT IN TRENCH EXPLORE — FREE';
     return `${skin.cost} SEA COINS — ENTER TO BUY`;
   }
@@ -714,7 +723,7 @@ export class ShopScene extends Scene {
     const pair = this.playerIndex === 1 ? '2' : '';
     const values = [
       bonus > 0 ? `${this.skin.label} +${bonus}%` : this.skin.label,
-      this.creature.label,
+      memeName(this.creature.label),
       `HEAD: ${accessoryByKey(this.shop[`head${pair}`]).label}`,
       `BODY: ${accessoryByKey(this.shop[`back${pair}`]).label}`,
       `TRAIL: ${trailByKey(this.shop[`trail${pair}`]).label}`,
@@ -739,7 +748,7 @@ export class ShopScene extends Scene {
     strokeRoundRect(ctx, 660, 180, 260, 280, 20, 'rgba(207, 239, 255, 0.3)', 2);
     const skin = this.skin;
     const pair = this.playerIndex === 1 ? '2' : '';
-    drawText(ctx, `P${this.playerIndex + 1} — ${this.creature.label}`, 790, 208, {
+    drawText(ctx, `P${this.playerIndex + 1} — ${memeName(this.creature.label)}`, 790, 208, {
       size: 19,
       color: COLORS.text,
       glow: COLORS.bubble,

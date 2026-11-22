@@ -2,9 +2,11 @@ import { Scene } from '../engine/scene.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
 import { clamp } from '../engine/math.js';
 import { LORE, COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE } from '../config.js';
+import { drawCreatureIcon, isCreatureName } from '../engine/codexicons.js';
+import { memeName } from '../engine/meme.js';
 
 const VISIBLE = 9;
-const LINE_WIDTH = 44;
+const LINE_WIDTH = 34;
 const LINES_PER_PAGE = 10;
 
 function wrap(text) {
@@ -66,6 +68,10 @@ export class LoreScene extends Scene {
 
   get entry() {
     return this.section.entries[this.entryIndex];
+  }
+
+  entryLabel() {
+    return isCreatureName(this.entry.name) ? memeName(this.entry.name) : this.entry.name;
   }
 
   moveSection(step) {
@@ -136,7 +142,8 @@ export class LoreScene extends Scene {
       if (active) {
         fillRoundRect(ctx, 110, y - 14, 292, 28, 9, 'rgba(255, 209, 102, 0.14)');
       }
-      drawText(ctx, entry.name, 126, y, {
+      const label = isCreatureName(entry.name) ? memeName(entry.name) : entry.name;
+      drawText(ctx, label, 126, y, {
         size: 14,
         color: active ? COLORS.accent : COLORS.text,
         align: 'left',
@@ -154,7 +161,8 @@ export class LoreScene extends Scene {
   renderPanel(ctx) {
     fillRoundRect(ctx, 448, 158, 416, 316, 18, 'rgba(10, 39, 64, 0.8)');
     strokeRoundRect(ctx, 448, 158, 416, 316, 18, 'rgba(207, 239, 255, 0.22)', 2);
-    drawText(ctx, this.entry.name, 480, 196, {
+    const title = this.entryLabel();
+    drawText(ctx, title, 480, 196, {
       size: 20,
       color: COLORS.accent,
       align: 'left',
@@ -170,6 +178,7 @@ export class LoreScene extends Scene {
     const pages = paginate(this.entry.text);
     const page = Math.min(this.page, pages.length - 1);
     const lines = pages[page];
+    drawCreatureIcon(ctx, this.entry.name, 790, 300, 118, this.time);
     lines.forEach((line, index) => {
       drawText(ctx, line, 480, 244 + index * 22, {
         size: 13,

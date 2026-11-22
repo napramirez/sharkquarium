@@ -37,7 +37,7 @@ export const INSTRUMENTS = [
 ];
 
 export const DRUM_SOUNDS = [
-  { kind: 'noise', duration: 0.05, volume: 0.08, type: 'highpass', filterFreq: 6500 },
+  { kind: 'noise', duration: 0.06, volume: 0.18, type: 'highpass', filterFreq: 4200 },
   { kind: 'noise', duration: 0.11, volume: 0.15, type: 'bandpass', filterFreq: 2100, q: 2 },
   { kind: 'noise', duration: 0.14, volume: 0.17, type: 'highpass', filterFreq: 1400 },
   { kind: 'tone', freq: 130, endFreq: 42, type: 'sine', duration: 0.2, volume: 0.24 },

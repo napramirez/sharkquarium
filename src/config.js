@@ -18,6 +18,7 @@ export const TRACK_BUILDER_KEY = 'sharkquarium.trackbuilder';
 export const RUSH_BUILDER_KEY = 'sharkquarium.rushcourse';
 export const RUSH_COURSES_KEY = 'sharkquarium.rushcourses';
 export const RUSH_PROGRESS_KEY = 'sharkquarium.rushprogress';
+export const RUSH_SHOP_KEY = 'sharkquarium.rushshop';
 export const ACHIEVEMENTS_KEY = 'sharkquarium.achievements';
 export const DAILY_KEY = 'sharkquarium.daily';
 
@@ -140,6 +141,15 @@ export const SKINS = [
     accent: '#ffb08a',
     belly: '#ffe2d0',
   },
+  { key: 'rushblue', label: 'RUSH BLUE', cost: 0, rushOnly: true, rushAt: 250, body: '#2ec4ff', accent: '#7fe3ff', belly: '#d6f6ff' },
+  { key: 'rushlime', label: 'RUSH LIME', cost: 0, rushOnly: true, rushAt: 550, body: '#8ef03a', accent: '#c6ff7a', belly: '#e9ffcf' },
+  { key: 'rushpink', label: 'RUSH PINK', cost: 0, rushOnly: true, rushAt: 900, body: '#ff5fb0', accent: '#ff9ed0', belly: '#ffdcef' },
+  { key: 'rushgold', label: 'RUSH GOLD', cost: 0, rushOnly: true, rushAt: 1300, body: '#ffc233', accent: '#ffe08a', belly: '#fff3cd' },
+  { key: 'rushviolet', label: 'RUSH VIOLET', cost: 0, rushOnly: true, rushAt: 1800, body: '#a05cff', accent: '#c9a3ff', belly: '#ece0ff' },
+  { key: 'rushteal', label: 'RUSH TEAL', cost: 0, rushOnly: true, rushAt: 2500, body: '#1fd6c0', accent: '#7cf0e2', belly: '#d4fff8' },
+  { key: 'rushcrimson', label: 'RUSH CRIMSON', cost: 0, rushOnly: true, rushAt: 3300, body: '#ff3b4e', accent: '#ff8a97', belly: '#ffd6da' },
+  { key: 'rushvoid', label: 'RUSH VOID', cost: 0, rushOnly: true, rushAt: 4400, body: '#2a2f52', accent: '#7a86ff', belly: '#c8ccff' },
+  { key: 'sacabamba', label: 'SACABAMBASPIS', cost: 0, rushOnly: true, meme: true, rushScope: true, rushAt: 2000, body: '#cbb98a', accent: '#e8dcb0', belly: '#f4eeda', tail: '#b3a071' },
   { key: 'shadow', label: 'SHADOW', cost: 2500, special: 'shadow' },
   { key: 'rainbow', label: 'RAINBOW', cost: 2500, special: 'rainbow' },
   {
@@ -774,6 +784,18 @@ export const MODE_LABELS = {
   cleaner: 'THE CLEANER STATION',
   migration: 'THE MIGRATION',
   deadcalm: 'DEAD CALM',
+  twilight: 'THE TWILIGHT TANK',
+  hagfish: 'THE HAGFISH BLOOM',
+  oarfish: 'THE OARFISH',
+  whalefall: 'THE WHALE FALL',
+  goblindep: 'THE GOBLIN DEEP',
+  archer: "THE ARCHER'S MANGROVE",
+  thresher: "THE THRESHER'S LAGOON",
+  sawfish: 'THE SAWFISH FLATS',
+  mudskipper: 'THE TIDE-POOL WALKER',
+  frogfish: 'THE FROGFISH GARDEN',
+  sunfish: 'THE SUNFISH DRIFT',
+  evolution: 'THE EVOLUTION TANK',
 };
 
 export const MANTA = {
@@ -812,7 +834,7 @@ export const SOLO_VARIANT_SCENES = ['tag', 'dodgeball', 'labyrinth', 'pufferball
 export const RECORD_GROUPS = [
   {
     title: 'THE TANKS',
-    modes: ['reef', 'stingray', 'deepsea', 'arctic', 'kelp', 'jelly', 'nautilus', 'freshwater', 'pets', 'manta', 'cuttlefish', 'hermitcrab', 'lighthouse', 'pressure', 'cleaner', 'migration', 'deadcalm'],
+    modes: ['reef', 'stingray', 'deepsea', 'arctic', 'kelp', 'jelly', 'nautilus', 'freshwater', 'pets', 'manta', 'cuttlefish', 'hermitcrab', 'lighthouse', 'pressure', 'cleaner', 'migration', 'deadcalm', 'twilight', 'hagfish', 'oarfish', 'whalefall', 'goblindep', 'archer', 'thresher', 'sawfish', 'mudskipper', 'frogfish', 'sunfish', 'evolution'],
   },
   {
     title: 'MUTANT HORRORS',
@@ -1347,6 +1369,37 @@ export const REEF_RUSH = {
   },
 };
 
+export const RUSH_FORMS = [
+  { key: 'fish', label: 'FISH' },
+  { key: 'stingray', label: 'STINGRAY' },
+  { key: 'eel', label: 'ZIP EEL' },
+  { key: 'crab', label: 'CRAB' },
+  { key: 'urchin', label: 'URCHIN' },
+  { key: 'jelly', label: 'JELLY' },
+  { key: 'nautilus', label: 'NAUTILUS' },
+  { key: 'shrimp', label: 'MANTIS SHRIMP' },
+  { key: 'cuttlefish', label: 'CUTTLEFISH' },
+];
+
+export const RUSH_FORM_SKINS = {
+  stingray: [
+    { key: 'default', label: 'SPOTTED RAY' },
+    { key: 'dolphin', label: 'DOLPHIN' },
+  ],
+  eel: [
+    { key: 'default', label: 'ZIP EEL' },
+    { key: 'loosejaw', label: 'STOPLIGHT LOOSEJAW' },
+  ],
+  urchin: [
+    { key: 'default', label: 'URCHIN' },
+    { key: 'puffer', label: 'PUFFERFISH' },
+  ],
+  nautilus: [
+    { key: 'default', label: 'NAUTILUS' },
+    { key: 'ammonite', label: 'AMMONITE' },
+  ],
+};
+
 export const REEF_RUSH_PALETTE = {
   top: '#08203a',
   bottom: '#020911',
@@ -1365,22 +1418,275 @@ export const DEAD_CALM = {
   platformMax: 280,
   gapMin: 210,
   gapMax: 430,
-  ledgeTopMin: 250,
-  ledgeTopMax: 430,
+  ledgeTopMin: 330,
+  ledgeTopMax: 470,
   mutagenDrop: 46,
   vortexSpeed: 640,
   vortexLife: 0.92,
-  vortexCooldown: 0.32,
+  vortexCooldown: 0,
   clawRange: 150,
   creatureCount: 9,
-  monsterSpeed: 70,
-  monsterDiveSpeed: 560,
-  monsterBurstHeight: 180,
-  monsterBurstTime: 0.55,
-  monsterRecoverTime: 0.8,
-  monsterRadius: 46,
-  monsterHearRange: 760,
+  monsterSpeed: 120,
+  monsterDiveSpeed: 1600,
+  monsterDiveDepth: 130,
+  monsterJumpHeight: 430,
+  monsterArcWidth: 220,
+  monsterJumpTime: 1.5,
+  monsterRecoverTime: 0.7,
+  monsterRadius: 58,
+  monsterHearRange: 100000,
+  monsterSegments: 44,
+  monsterBodyLength: 1150,
   lives: 3,
+};
+
+export const TWILIGHT = {
+  worldLength: 5200,
+  startX: 200,
+  maxSpeed: 300,
+  accel: 8,
+  topBound: 74,
+  bottomBound: 500,
+  lives: 3,
+  glowSprint: 300,
+  flashCooldown: 3.4,
+  flashLife: 3.2,
+  dimTime: 1.6,
+  hunterSpeed: 190,
+  hunterChargeSpeed: 1280,
+  hunterBiteRadius: 42,
+  hunterSense: 100000,
+  hunterTurn: 5,
+  hunterRadius: 34,
+  hunterRecover: 0.9,
+  hunterBiteTime: 0.12,
+};
+
+export const HAGFISH = {
+  worldLength: 5200,
+  startX: 200,
+  maxSpeed: 300,
+  accel: 8,
+  topBound: 70,
+  bottomBound: 500,
+  lives: 3,
+  currentSpeed: 55,
+  scentGrowth: 0.5,
+  scentDecay: 0.12,
+  scentWash: 1.5,
+  scentFear: 0.55,
+  scentFearRange: 260,
+  scentInterval: 0.32,
+  scentPuffLife: 2.6,
+  puffRise: 34,
+  chumCooldown: 3.2,
+  chumStrength: 1.7,
+  bloomRadius: 40,
+  bloomSpeed: 90,
+  bloomChaseSpeed: 430,
+  bloomSense: 100000,
+  cleanWidth: 130,
+  cleanCount: 3,
+  exitPad: 170,
+};
+
+export const OARFISH = {
+  worldLength: 5200,
+  startX: 220,
+  topBound: 70,
+  bottomBound: 500,
+  lives: 3,
+  driftSpeed: 55,
+  lateralRange: 92,
+  senseLength: 820,
+  strokeThreshold: 0.35,
+  alertRise: 2.4,
+  alertFall: 0.8,
+  idleDrain: 0.35,
+  strikeSpeed: 1040,
+  strikeTime: 0.75,
+  strikeRange: 340,
+  recoverTime: 1.2,
+  radius: 66,
+  exitPad: 180,
+};
+
+export const WHALEFALL = {
+  worldLength: 4600,
+  startX: 200,
+  topBound: 70,
+  bottomBound: 500,
+  lives: 3,
+  scrapGoal: 9,
+  scrapCount: 13,
+  ribCount: 6,
+  sixgillSpeed: 130,
+  sixgillChargeSpeed: 560,
+  sixgillSight: 380,
+  sixgillTurn: 4,
+  sixgillRadius: 32,
+  sixgillRecover: 1.1,
+  captureRadius: 42,
+  hagfishCount: 5,
+  snagTime: 1.1,
+  exitPad: 180,
+};
+
+export const GOBLIN = {
+  topBound: 62,
+  bottomBound: 500,
+  lives: 3,
+  maxSpeed: 320,
+  accel: 9,
+  playerRadius: 30,
+  shrimpCount: 6,
+  squidCount: 7,
+  squidGoal: 12,
+  spawnInterval: 1.4,
+  meterPerShrimp: 0.34,
+  meterDrain: 0.05,
+  catchPad: 8,
+  squidPad: 26,
+  beamLength: 440,
+  beamHalfAngle: 0.5,
+  sharkRadius: 50,
+  sharkSpeed: 60,
+  sharkApproachSpeed: 120,
+  sharkTurn: 2.2,
+  sharkSight: 9999,
+  sharkDarkSight: 150,
+  sharkRecover: 1.2,
+  lungeRange: 150,
+  lungeFront: 0.75,
+  lungeTelegraph: 0.28,
+  lungeExtend: 0.1,
+  lungeHold: 0.06,
+  lungeRetract: 0.22,
+  lungeReach: 25,
+  lungeHitRadius: 40,
+  lungeCooldown: 1,
+};
+
+export const ARCHER = {
+  topBound: 70,
+  bottomBound: 500,
+  surfaceY: 150,
+  lives: 3,
+  maxSpeed: 300,
+  accel: 8,
+  playerRadius: 22,
+  insectCount: 5,
+  insectGoal: 8,
+  spawnInterval: 2.2,
+  cooldown: 0.45,
+  jetSpeed: 900,
+  needleSpeed: 150,
+  needleRadius: 20,
+};
+
+export const THRESHER = {
+  topBound: 70,
+  bottomBound: 500,
+  lives: 3,
+  maxSpeed: 330,
+  accel: 9,
+  playerRadius: 15,
+  foodGoal: 10,
+  foodCount: 6,
+  sharkRadius: 42,
+  sharkSpeed: 120,
+  telegraph: 0.7,
+  whipTime: 0.5,
+  recover: 1.6,
+};
+
+export const SAWFISH = {
+  topBound: 90,
+  bottomBound: 500,
+  floorY: 470,
+  lives: 3,
+  maxSpeed: 280,
+  accel: 8,
+  playerRadius: 26,
+  preyGoal: 9,
+  preyCount: 12,
+  bullSpeed: 130,
+  bullChargeSpeed: 520,
+  bullRadius: 40,
+  bullSight: 360,
+  bullRecover: 1.2,
+};
+
+export const MUDSKIPPER = {
+  topBound: 80,
+  bottomBound: 500,
+  lives: 3,
+  swimSpeed: 300,
+  walkSpeed: 220,
+  gravity: 1500,
+  jump: 560,
+  playerRadius: 20,
+  bugGoal: 8,
+  bugCount: 5,
+  crabSpeed: 90,
+  crabRadius: 26,
+};
+
+export const FROGFISH = {
+  topBound: 80,
+  bottomBound: 500,
+  lives: 3,
+  maxSpeed: 150,
+  accel: 6,
+  playerRadius: 28,
+  preyGoal: 8,
+  preyCount: 6,
+  lureRange: 260,
+  moraySpeed: 110,
+  morayCharge: 380,
+  morayRadius: 30,
+  moraySight: 300,
+};
+
+export const SUNFISH = {
+  topBound: 80,
+  bottomBound: 520,
+  surfaceY: 140,
+  lives: 3,
+  maxSpeed: 200,
+  accel: 5,
+  playerRadius: 46,
+  jellyGoal: 10,
+  jellyCount: 6,
+  sink: 40,
+  oxygenDrain: 0.06,
+  oxygenRefill: 0.6,
+  seLionSpeed: 120,
+  seLionRadius: 36,
+  seLionBat: 620,
+};
+
+export const EVOLUTION = {
+  topBound: 70,
+  bottomBound: 500,
+  lives: 3,
+  maxSpeed: 320,
+  accel: 9,
+  foodPerStage: 6,
+  foodCount: 8,
+  regions: [
+    { key: 'shallows', label: 'THE SHALLOWS', top: '#6fc6de', bottom: '#2a86a6', hazard: 'shark' },
+    { key: 'reef', label: 'THE REEF', top: '#4fb0c0', bottom: '#166070', hazard: 'shark' },
+    { key: 'midwater', label: 'MIDWATER', top: '#2a6f96', bottom: '#0d3b57', hazard: 'shark' },
+    { key: 'deep', label: 'THE DEEP', top: '#123048', bottom: '#04101c', hazard: 'angler' },
+    { key: 'abyss', label: 'THE ABYSS', top: '#0a0f1c', bottom: '#000000', hazard: 'angler' },
+  ],
+  categories: [
+    { key: 'cartilage', label: 'CARTILAGINOUS', stages: ['COOKIECUTTER SHARK', 'STINGRAY', 'REEF SHARK', 'HAMMERHEAD', 'GREAT WHITE'], draws: ['cookiecutter', 'stingray', 'shark', 'hammerhead', 'shark'] },
+    { key: 'exo', label: 'EXOSKELETAL', stages: ['COPEPOD', 'KRILL', 'SHRIMP', 'CRAB', 'LOBSTER'], draws: ['copepod', 'krill', 'shrimp', 'crab', 'lobster'] },
+    { key: 'boneless', label: 'BONELESS', stages: ['JELLY', 'OCTOPUS', 'SQUID', 'CUTTLEFISH', 'GIANT SQUID'], draws: ['jelly', 'octopus', 'squid', 'cuttlefish', 'squid'] },
+    { key: 'deep', label: 'DEEP SEA', stages: ['GLOWING PLANKTON', 'HATCHETFISH', 'LOOSEJAW', 'DRAGONFISH', 'SPIDER CRAB'], draws: ['plankton', 'hatchet', 'loosejaw', 'dragonfish', 'spidercrab'] },
+  ],
 };
 
 export const LORE = [  {
@@ -1505,7 +1811,55 @@ export const LORE = [  {
       },
       {
         name: 'THE MIGRATION',
-        text: 'Once a year the whole reef empties into a single current, and the school knows the way. Stay inside the drifting band of the school — slip outside it and your SCHOOL meter drains until the current takes you — while you ride the stream toward the spawning grounds. Hunters break the line from below, so keep to the crowd and keep moving until the grounds.',
+        text: 'Once a year the whole reef empties into a single current, and the school knows the way. Stay inside the drifting band of the school \u2014 slip outside it and your SCHOOL meter drains until the current takes you \u2014 while you ride the stream toward the spawning grounds. Hunters break the line from below, so keep to the crowd and keep moving until the grounds.',
+      },
+      {
+        name: 'THE TWILIGHT TANK',
+        text: 'Half a mile down, between the sunlit shallows and the lightless deep, the twilight zone flickers with living light. You are a hatchetfish \u2014 thin as a blade, silvered, with a row of photophores along your belly. The stoplight loosejaw hunts this band by light, so swim slowly and your glow stays dim while a fast dash lights you up like a beacon. When it closes in, FLASH with SPACE: you dump all your light into a drifting decoy and go counter-illuminated dark while the loosejaw chases the bait instead. Slip past it and reach the far dark.',
+      },
+      {
+        name: 'THE HAGFISH BLOOM',
+        text: 'A slow, silty channel where the current always runs one way. You are a Caridean shrimp \u2014 a plain gray one, no big claw, just the ordinary shape. The terror here is the HAGFISH BLOOM: a knot of blind, eyeless slime-worms that can feel nothing but the water, and it follows SCENT alone. Every fast stroke and every scare floods your own fear-and-blood plume into the current, and the bloom reads it from anywhere in the channel. So swim gently, ride the current, and pass through the clean upwelling columns \u2014 standing in one WASHES your scent away. When it closes in, press SPACE to drop CHUM: a rich bait plume that the bloom will follow instead. The bloom is blind, so it only wants the strongest smell in the water \u2014 which is never you, if you wash and bait well. Reach the clear water at the far end.',
+      },
+      {
+        name: 'THE OARFISH',
+        text: 'Open, featureless blue with nothing to hide behind but distance. A colossal OARFISH \u2014 a silvery ribbon longer than the tank, crested in red \u2014 drifts through it, up and down and side to side, and its LATERAL LINE along the whole body senses the water you push. Swim fast while you are on that line and it accumulates: the further it builds, the more the ribbon gives away, until it whips around and sweeps you aside in one lunging pass. A slow, quiet stroke lets it settle back to drifting. Cross the whole blue and reach open water without ever startling it.',
+      },
+      {
+        name: 'THE WHALE FALL',
+        text: 'A dead whale lies along the seafloor as one enormous lump of grey-pink blubber \u2014 eyes shut, mouth a long crooked line, its hide torn into pink, flesh-colored gashes, some showing thick white ribs. You are a JAPANESE JUVENILE SPIDER CRAB scuttling over it: climb the whale from head to tail, picking SCRAPS off the corpse. When the SIXGILL SHARK comes lunging, tuck into a gash in the blubber to go hidden and let it cruise past. Pale-pink HAGFISH \u2014 lone eels with tiny vestigial white eyes, two short stumpy antennae and a diamond-shaped tail \u2014 burst out of the blubber lumps, and blunder into one and it snarls you in place, thrashing loud enough to bring the sixgill running; mash to wriggle free. Pick the carcass clean, then reach the far ledge.',
+      },
+      {
+        name: 'THE GOBLIN DEEP',
+        text: 'The last of the light is gone and the dark is almost total. Now YOU are the loosejaw \u2014 the same light-hunting stoplight dragonfish that stalks the twilight band, its body carrying three rows of small blue photophores. Small SQUIDS drift all around you, invisible: red light is invisible to them, and without the right chemical in your eye it is invisible to you too. Catch SHRIMP \u2014 they carry that chemical \u2014 and your STOPLIGHT METER fills. Once it is charged, press E to switch your RED RAY on (and E again to switch it off): a beam of red light that reveals the deep-sea squids ahead so you can snap them up. But that glow is a beacon to a GOBLIN SHARK that prowls the deep. It is slow, so you can outswim it, but its jaws are slung on elastic ligaments and SHOOT FORWARD at close range. Keep your distance, charge up on shrimp, light the squids, and eat your fill to survive the dark.',
+      },
+      {
+        name: "THE ARCHER'S MANGROVE",
+        text: 'A sunlit mangrove creek where the surface is a ceiling of light. You are an ARCHERFISH \u2014 a silver shot with a big upturned mouth \u2014 and the insects you eat perch just out of reach on the branches. Spit a jet of water (click or SPACE) to knock them off their leaves, then eat them as they float; rise too close to the surface and a NEEDLEFISH skewers you. Shoot down enough insects to fill up.',
+      },
+      {
+        name: "THE THRESHER'S LAGOON",
+        text: 'Open lagoon water with a sardine-sized you and a very big THRESHER SHARK. It never has to bite you \u2014 its tail is a whip as long as its body, and when it winds up it scythes a whole arc of the lagoon. Graze on drifting krill, and when the tail starts to wind, get out of the swing. Eat your fill of krill without ever being in the arc.',
+      },
+      {
+        name: 'THE SAWFISH FLATS',
+        text: 'A shallow sand flat. You are a SMALLTOOTH SAWFISH, and your long rostrum is a comb of teeth. Hold SPACE to press the saw into the sand and sweep \u2014 buried prey pop out to be eaten \u2014 but while you sweep you are slow and loud, and a BULL SHARK patrols the flat. Read when it is safe to sweep and when to move, then eat enough prey to clear the flats.',
+      },
+      {
+        name: 'THE TIDE-POOL WALKER',
+        text: 'A muddy tide flat where the sea meets the air. You are a MUDSKIPPER, a fish that walks: hop onto the mud (SPACE) to snap up the flies hovering above it, and dive back into the pool the moment a shore CRAB charges \u2014 it cannot follow you into the water. Catch enough flies to be full, using the water as your escape.',
+      },
+      {
+        name: 'THE FROGFISH GARDEN',
+        text: 'A tangle of weeds where you are a FROGFISH: a lump of sponge-textured ambush. Stay still and you go all but invisible; hold SPACE to wave the little lure on your head and draw shrimp and small fish within reach, then swallow them. Move too much and you flash in the open \u2014 and a GREEN MORAY hunts anything that moves. Lure and eat enough prey without ever startling the moray.',
+      },
+      {
+        name: 'THE SUNFISH DRIFT',
+        text: 'Open column water beneath a bright surface. You are an OCEAN SUNFISH \u2014 a great slow disc of a fish \u2014 and you sink unless you keep rising to gulp air at the surface; your air runs out if you dive too long. Feed on drifting MOON JELLIES down the column, and mind the SEA LION that patrols and will bat you around like a toy. Eat enough jellies and keep breathing.',
+      },
+      {
+        name: 'THE EVOLUTION TANK',
+        text: 'Pick a REGION OF DEPTH, a CATEGORY, and how many LIVES you want, then begin as the smallest thing in your line and EAT to grow. CARTILAGINOUS starts you as a COOKIECUTTER SHARK and runs STINGRAY, REEF SHARK, HAMMERHEAD and GREAT WHITE; EXOSKELETAL runs COPEPOD, KRILL, SHRIMP, CRAB and LOBSTER; BONELESS runs JELLY, OCTOPUS, SQUID, CUTTLEFISH and GIANT SQUID; and DEEP SEA runs GLOWING PLANKTON, HATCHETFISH, LOOSEJAW, DRAGONFISH and SPIDER CRAB. Fill the growth bar to evolve (you get bigger and faster), reach the final form to win \u2014 but a PREDATOR stalks the water until you are grown, and a catch drops you back a form.',
       },
     ],
   },
@@ -1542,7 +1896,19 @@ export const LORE = [  {
       },
       {
         name: 'CUTTLEFISH',
-        text: 'A red, round-finned shape-shifter with a blue mantle fin and dark stripes, playable as a diver in every tank and minigame that lets you pick one. It is a creature of the shallows and does not care for the deep. Hold right-click and its skin fades toward the water for camouflage, SPACE flicks its two sucker-tipped feeding tentacles out, and its short arm cluster frays open when it moves.',
+        text: 'The giant Australian cuttlefish (Ascarosepion apama): a red, round-finned shape-shifter with a blue mantle fin and dark stripes, playable as a diver in every tank and minigame that lets you pick one. It is a creature of the shallows and does not care for the deep. Hold right-click and its skin fades toward the water for camouflage, SPACE flicks its two sucker-tipped feeding tentacles out, and its short arm cluster frays open when it moves.',
+      },
+      {
+        name: 'DOLPHIN',
+        text: 'A sleek, air-breathing diver, now pickable wherever you choose a creature. It banks on a wide fluke, breezes in loops around the tank, and its echo-clicking snout and easy grin make it the friendliest thing in the water — until a pod decides you are a snack.',
+      },
+      {
+        name: 'SEA TURTLE',
+        text: 'A slow, steady paddler under a hard shell, pickable as a diver. Its flippers are built for long, effortless glides, it shrugs off currents that shove everything else, and it never seems to be in a hurry about anything.',
+      },
+      {
+        name: 'MANTA RAY',
+        text: 'A wide-winged glider and the largest ray, pickable as a diver. It sinks unless you keep flapping, and it turns a whole corridor into one long, floating flight past the reef life.',
       },
       {
         name: 'THE ANCHOR-PACK',
@@ -1644,6 +2010,18 @@ export const LORE = [  {
       {
         name: 'THE EEL TOY',
         text: 'PlayToy\u2019s biggest line and the reason the final hold was sealed: a huge stitched plush eel whose face has come apart. Its button eyes are torn out and hang by their threads, its lips are ripped off to bare pink gums and interlocking teeth, and stuffing leaks from the seams. Cross into the last hold and it wakes, rippling through the bulkheads to run you down, lunging in bursts and sweeping its long body. Fire the ELECTRICONDUCTOR anchor into the live circuit to stun it, or the PRESSURE anchor into the cargo latch to drop a crate and stagger it, and keep swimming for the surface hatch.',
+      },
+      {
+        name: 'STOPLIGHT LOOSEJAW',
+        text: 'A long, thin blackish-dark-grey dragonfish of the twilight zone. Its flat, leaf-shaped head tilts at the front of its body, with a solid red eye with a black pupil, a soft red bean-shaped stoplight photophore just behind it, three rows of small glowing bright-blue dots down its body, small rounded black back fins beside the tail, and a black pizza-slice tail fin. It hunts by light: swim fast and your glow betrays you. When it strikes it hinges its head at the junction and jabs its jaws shut on you.',
+      },
+      {
+        name: 'HAGFISH BLOOM',
+        text: 'A knot of blind, eyeless slime-worms that can feel nothing but the water, and follows scent alone. Fast strokes and fear pump your own plume into the current, and the strongest smell in the channel wins its attention; wash in a clean upwelling or drop chum to send it elsewhere.',
+      },
+      {
+        name: 'MUTANT MORAY EEL',
+        text: 'The eyeless giant moray of the DEAD CALM channel — grown huge, its eyes dissolved away by the mutagen, its long body a chain of tapering segments that trail behind it without clumping. It hears the whole channel, dives into the sludge and erupts out in a rainbow arch to land on the splash, and it only snaps you up at the end of that jump.',
       },
     ],
   },
@@ -1774,7 +2152,7 @@ export const LORE = [  {
       },
       {
         name: 'AI CHAT',
-        text: 'A chat screen in the minigames menu where you talk to FINN, the CPU you dive with. Type with the keyboard — letters, numbers, and Space; Backspace deletes and Enter sends. Your messages sit on the right in light-blue bubbles with gray text, and FINN’s replies sit on the left in yellow bubbles with black text, both in the game’s own font over the navy tank water. FINN gives real answers about controls, every tank and minigame, Reef Rush, the seasonal games, the shop and emotes, difficulty, settings, coins, lore, and his own favourites and opinions.',
+        text: 'A chat screen in the minigames menu where you talk to FINN, the CPU you dive with. Type with the keyboard — letters, numbers, and Space; Backspace deletes and Enter sends. Your messages sit on the right in light-blue bubbles with gray text, and FINN’s replies sit on the left in yellow bubbles with black text, both in the game’s own font over the navy tank water. FINN gives real answers about controls, every tank and minigame, Reef Rush, the seasonal games, the shop and emotes, difficulty, settings, coins, lore, and his own favourites and opinions \u2014 and he is now a lot smarter: he remembers your name, solves simple arithmetic, tells jokes and riddles (answering his own if you give up), reacts to how you feel, hands out tips and recommendations, and follows up when you say \u201ctell me more\u201d.',
       },
       {
         name: 'MUTATORS',
@@ -1810,7 +2188,7 @@ export const LORE = [  {
       },
       {
         name: 'MEME MODE',
-        text: 'A purely cosmetic switch that sprinkles all-original internet-style silliness over every screen: comic pop-up words (BONK, BLORP, SPLOOSH, CHOMP, ZOOP and more) that pop, spin and shoot speed lines, a rotating goofy caption bar (CERTIFIED REEF MOMENT, SHARK.EXE IS VIBING, SIR THIS IS A KELP FOREST), and a little MEME MODE badge. No third-party memes, images, or characters are used, and it changes no gameplay.',
+        text: 'A purely cosmetic switch that sprinkles all-original internet-style silliness over every screen: comic pop-up words (BONK, BLORP, SPLOOSH, CHOMP, ZOOP and more) that pop, spin and shoot speed lines, a rotating goofy caption bar (CERTIFIED REEF MOMENT, SHARK.EXE IS VIBING, SIR THIS IS A KELP FOREST), and a little MEME MODE badge. It also renames the creatures wherever a name is shown — the SEA FACTS board, the LORE codex, and the SHOP\u2019s creature shelf: the shark is SHIRCK, the stingray WATER PANCAKE, the squid SQUITT, the shrimp SHROMP, the crab CROMB, the jelly JIGGLE BLUB BLUB, the nautilus VERY OLD SQUITT, the cuttlefish THAT ONE TOY LOOKIN SQUITT, the dolphin AIR BREATHING FIH and the turtle TURDLE (everything else is FEH). It also unlocks a hidden SACABAMBASPIS colour in the REEF RUSH SHOP that, only in a REEF RUSH run, turns the fish into the goofy flat oval-bodied Ordovician jawless fish (it never changes your diver in a normal dive). No third-party memes, images, or characters are used, and it changes no gameplay.',
       },
       {
         name: 'LORE PAGES',
@@ -1867,7 +2245,7 @@ export const SEA_FACTS = [
   },
   {
     name: 'CUTTLEFISH',
-    text: 'The cuttlefish is the chameleon of the sea with a far better screen: two thin, undulating fins run the length of its body, and its skin changes colour, pattern, and even texture on demand to bluff predators or mesmerise prey. It can glow, it can pulse bands of colour across its mantle, and it can HYPNO-COLOR-PULSE a shrimp with ripples of light before striking with two long feeding tentacles. Instead of bones it carries a flat chalky \u201ccuttlebone\u201d that steers its buoyancy \u2014 the same one that washes up on beaches. It keeps to the sunlit shallows and the reef rather than the cold deep, so you will usually find it near the coast and the coral.',
+    text: 'The giant Australian cuttlefish (Ascarosepion apama) is the chameleon of the sea with a far better screen: two thin, undulating fins run the length of its body, and its skin changes colour, pattern, and even texture on demand to bluff predators or mesmerise prey. It can glow, it can pulse bands of colour across its mantle, and it can HYPNO-COLOR-PULSE a shrimp with ripples of light before striking with two long feeding tentacles. Instead of bones it carries a flat chalky \u201ccuttlebone\u201d that steers its buoyancy \u2014 the same one that washes up on beaches. It keeps to the sunlit shallows and the reef rather than the cold deep, so you will usually find it near the coast and the coral.',
   },
   {
     name: 'MANTA RAY',
@@ -1898,8 +2276,84 @@ export const SEA_FACTS = [
     text: 'The anglerfish carries its own light: a glowing lure on a fishing-rod spine grown from its head, lit by bacteria it keeps in a little bulb. In the black deep that light is the whole world, so prey swims right toward it. Its stomach can stretch to swallow a meal larger than itself, and its teeth fold inward so nothing swims back out.',
   },
   {
+    name: 'HATCHETFISH',
+    text: 'The hatchetfish is a hatchet in profile: a deep, blade-thin silver body no wider than a coin edge, so from the front it almost vanishes. Its huge eyes point upward to catch the last of the light from above, and a row of belly photophores glows just bright enough to erase its own silhouette from anything looking down. It hunts the twilight zone, gliding slowly so its countershine stays subtle.',
+  },
+  {
+    name: 'STOPLIGHT LOOSEJAW',
+    text: 'The stoplight loosejaw is a dragonfish built around one trick: a lower jaw slung so loosely forward it seems unhinged. It cannot see ordinary red light but carries its own \u2014 a red stoplight photophore tucked under the eye to spotlight prey that never knew red existed this deep. Its jaws are lined with glassy fangs, and it strikes by throwing the whole jaw forward. It is one of the very few animals that can see red at all, because the red end of the spectrum never reaches this deep. It can see its own red light, thanks to a red-sensitive pigment it builds from the shrimps it eats.',
+  },
+  {
+    name: 'HAGFISH',
+    text: 'A hagfish is a jawless knot of muscle and slime. Touched, it dumps a bowlful of milky slime that thickens in the water and can choke a predator’s gills, so it rarely has to fight. It has a skull but no backbone, ties itself in knots to wring the slime off, and can go months between meals by taking food in through its skin.',
+  },
+  {
+    name: 'MUTANT MORAY EEL',
+    text: 'A moray is a length of muscle that lives in a hole and strikes anything that drifts past. It looks forever snarling because it must hold its jaw open to pump water over its gills, and it has a second set of jaws deep in its throat that lunge forward to drag food down. The DEAD CALM moray is a moray warped by a natural mutagen: it outgrew its eyes until they dissolved away, so it hunts by vibration across the whole channel, gathering itself in the sludge and throwing its body up and over in an arc to land on the splash it heard.',
+  },
+  {
+    name: 'PISTOL SHRIMP',
+    text: 'A pistol shrimp carries one outsized claw with a plunger-and-socket joint. Snapped shut, it fires a jet that collapses a bubble so violently it throws a flash of light and cracks the water like a whip, stunning prey at a hand’s length. It spends the rest of its life quietly, one eye out for anything that heard the snap.',
+  },
+  {
+    name: 'CLEANING SHRIMP',
+    text: 'A cleaning shrimp runs a station. Bigger fish line up at a marked spot and hold still while it picks parasites, dead skin and mouth debris clean — even from inside a moray’s jaws, which it is careful never to overstay. Its bold stripes and waving antennae are a signal that says, unmistakably, I am the cleaner, not lunch.',
+  },
+  {
+    name: 'LANTERNFISH',
+    text: 'Lanternfish are the small silver swarm of the twilight zone, and the most numerous fish in the sea. Each wears a row of tiny light organs along its belly that match the faint light from above, hiding its outline from anything peering up, and at night the whole school rises to feed and sinks again by dawn.',
+  },
+  {
+    name: 'OARFISH',
+    text: 'The oarfish is the longest bony fish in the sea, a ribbon of silver that can run eight metres and more. It swims by rippling a red crest along its back like a slow wave, hangs head-up in the water, and steers with two long oar-like pelvic fins tipped with paddles. Its whole body is lined with a lateral line that reads the faintest water movement, so a fast stroke near it tells it exactly where you are.',
+  },
+  {
+    name: 'SIXGILL SHARK',
+    text: 'The bluntnose sixgill is a living fossil: six gill slits instead of five, one dorsal fin set far back by the tail, and a body plan almost unchanged for hundreds of millions of years. It haunts the deep by day and rises into the shallows by night, cruising whale falls and other carrion on a slow, wide circuit — and it explodes into a fast, straight lunge the instant it smells or sees a meal in the open.',
+  },
+  {
+    name: 'GOBLIN SHARK',
+    text: 'The goblin shark is the deep\u2019s loose jaw taken to an extreme: its jaws are slung on elastic ligaments so they can be thrown forward almost the whole length of its head to snatch prey, then snap back under the snout. It is soft, flabby and pale pink, since it never needs to be fast inside the dark, and its long, flat snout carries jelly-filled pores that read the faint electric fields of a meal. Because it lives in near-total darkness, a single red glow can draw it in from far away.',
+  },
+  {
     name: 'THE SHOP',
     text: 'Everything in the shop is a color, a creature, a head or body trinket, a costume, a trail, a dive buddy, an aura, or an emote \u2014 and every one of them rides on the diver you take into any tank. Trinkets are just for looks, but in DRESS UP BATTLE they become your weapons, so a hat you bought for fun can also be a fighting style.',
+  },
+  {
+    name: 'ARCHERFISH',
+    text: 'The archerfish hunts by spitting: it presses its tongue to a groove in the roof of its mouth to make a barrel, snaps its gill covers shut to fire a jet of water, and can bring down an insect from a metre or two away. It learns to aim fast and even leads a moving target, and it swims straight to where a hit insect will land so it eats its own shot before a rival can steal it.',
+  },
+  {
+    name: 'THRESHER SHARK',
+    text: 'The thresher is the shark with a tail as long as its body. It herdes a shoal of small fish into a tight ball, then whips that scythe of an upper lobe forward over its head to stun several at once. It is otherwise shy and cool-watered, and its body is slim and bullet-like for a shark.',
+  },
+  {
+    name: 'SAWFISH',
+    text: 'The sawfish is a ray with a rostrum like a hedge trimmer: a long flat blade whose edges are set with tooth-like denticles. It sweeps the saw across the seabed to sense buried prey by the electric fields they give off, then slashes sideways to stun a fish in open water. It is critically endangered, and its saw makes it one of the easiest rays to tangle in a net.',
+  },
+  {
+    name: 'MUDSKIPPER',
+    text: 'The mudskipper is a goby that left the sea a little way. Its pectoral fins have become little arms it walks on, its eyes sit on top of its head like a frog, and it can breathe air through its skin and the linings of its mouth. It skips across mudflats at low tide snatching insects, and when the tide returns it simply swims away.',
+  },
+  {
+    name: 'FROGFISH',
+    text: 'A frogfish is an anglerfish flattened into a walking sponge. Its skin is covered in lumps and filaments that mimic rock or weed, and it has a modified fin spine on its head trailing a lure it waves to draw prey within reach. Its mouth can open wider than its own body in a few milliseconds, swallowing prey almost as large as itself in a strike too fast to see.',
+  },
+  {
+    name: 'OCEAN SUNFISH',
+    text: 'The ocean sunfish is the heaviest bony fish alive, a great disc that has lost its tail fin entirely and steers with a fringe of the dorsal and anal fins clapped together. It basks flat on the surface to warm up after deep dives and to let birds pick parasites off it, and it grazes jellyfish down the column despite being one of the slowest, clumsiest fish in the sea.',
+  },
+  {
+    name: 'NEEDLEFISH',
+    text: 'A needlefish is a living spear: a long, thin, green-backed fish that skims just under the surface and lunges sideways with its great length of jaw. It can leap clear of the water, and accidents happen when one aiming at a baitfish misjudges and hits a person.',
+  },
+  {
+    name: 'BULL SHARK',
+    text: 'The bull shark is one of the few sharks that tolerates fresh water; it has been caught far up rivers and in lakes. It is stocky, blunt-snouted and unusually aggressive in shallow water, and it gives birth in estuaries rather than at sea.',
+  },
+  {
+    name: 'SEA LION',
+    text: 'A sea lion is not a fish but a mammal that came back to the sea: it breathes air, has fur and whiskers, and swims with its two long front flippers while steering with its hind legs. It can walk on land, and it learns quickly and plays, batting around prey or other animals mostly out of curiosity.',
   },
 ];
 

@@ -2,7 +2,7 @@ import { MinigameScene } from '../engine/minigame.js';
 import { drawText, fillCircle, fillRoundRect, strokeRoundRect } from '../engine/render.js';
 import { clamp, rand, TAU } from '../engine/math.js';
 import { drawArcticShrimpBody } from '../entities/arcticshrimp.js';
-import { drawMorayBody } from '../entities/eel.js';
+import { drawSerpentBody, drawMorayHead } from '../entities/eel.js';
 import { cute, renderCuteScare } from '../engine/cute.js';
 import {
   CONTROLS,
@@ -21,6 +21,7 @@ const MUTANT_MORAY = {
   eyeColor: '#101010',
   spots: false,
   blind: true,
+  grotesque: true,
 };
 
 export class DeadCalmScene extends MinigameScene {
@@ -52,7 +53,7 @@ export class DeadCalmScene extends MinigameScene {
 
     this.platforms = [];
     let x = 0;
-    let top = LOGICAL_HEIGHT - 150;
+    let top = LOGICAL_HEIGHT - 100;
     this.platforms.push({ x: 0, y: top, w: 260 });
     x = 260;
     while (x < this.worldLength - 320) {
@@ -63,7 +64,7 @@ export class DeadCalmScene extends MinigameScene {
       this.platforms.push({ x, y: top, w });
       x += w;
     }
-    this.platforms.push({ x: this.exitZone.x - 40, y: LOGICAL_HEIGHT - 170, w: 300 });
+    this.platforms.push({ x: this.exitZone.x - 40, y: LOGICAL_HEIGHT - 110, w: 300 });
 
     const start = this.platforms[0];
     this.player = {
@@ -103,13 +104,56 @@ export class DeadCalmScene extends MinigameScene {
       radius: DEAD_CALM.monsterRadius,
       tx: this.startX + 900,
       ty: MUTAGEN_Y,
-      burstY: MUTAGEN_Y - DEAD_CALM.monsterBurstHeight,
+      splashX: this.startX + 900,
+      splashY: MUTAGEN_Y + 6,
+      takeoffX: this.startX + 900,
+      jumpT: 1,
+      burstHeading: -Math.PI / 2,
+      roamX: this.startX + 900,
+      roamTimer: rand(2, 4),
       state: 'roam',
       timer: 0,
       jaw: 0.18,
       alert: 0,
       phase: rand(0, TAU),
+      trail: [],
     };
+    this.prefillMonsterTrail();
+  }
+
+  prefillMonsterTrail() {
+    const m = this.monster;
+    const cy = m.y;
+    const step = 14;
+    const count = Math.ceil(DEAD_CALM.monsterBodyLength / step) + 1;
+    m.trail.length = 0;
+    for (let i = 0; i < count; i += 1) {
+      m.trail.push({ x: m.x - i * step, y: cy });
+    }
+  }
+
+  updateMonsterTrail() {
+    const m = this.monster;
+    const cy = m.y;
+    const head = m.trail[0];
+    if (!head) {
+      this.prefillMonsterTrail();
+      return;
+    }
+    const step = Math.hypot(m.x - head.x, cy - head.y);
+    if (step > 140) {
+      this.prefillMonsterTrail();
+      return;
+    }
+    if (step > 2) m.trail.unshift({ x: m.x, y: cy });
+    let total = 0;
+    for (let i = 1; i < m.trail.length; i += 1) {
+      total += Math.hypot(m.trail[i].x - m.trail[i - 1].x, m.trail[i].y - m.trail[i - 1].y);
+      if (total >= DEAD_CALM.monsterBodyLength) {
+        m.trail.length = i + 1;
+        break;
+      }
+    }
   }
 
   firstPersonActor() {
@@ -152,6 +196,7 @@ export class DeadCalmScene extends MinigameScene {
     this.monster.jaw = 0.18;
     this.monster.alert = 0;
     this.monster.tx = this.monster.x;
+    this.prefillMonsterTrail();
     this.ripples = [];
     this.invuln = 1.8;
     this.flash = 0;
@@ -336,47 +381,82 @@ export class DeadCalmScene extends MinigameScene {
       }
     }
 
+    const m = this.monster;
+    m.phase += dt;
     let target = null;
     for (const rip of this.ripples) {
       if (rip.x === undefined) continue;
-      if (Math.hypot(rip.x - this.monster.x, rip.y - this.monster.y) > C.monsterHearRange) continue;
+      if (Math.hypot(rip.x - m.x, rip.y - m.y) > C.monsterHearRange) continue;
       if (!target || rip.life < target.life) target = rip;
     }
-    const m = this.monster;
-    m.phase += dt;
     if (target) {
       m.alert = Math.max(m.alert, target.strength);
       m.tx = target.x;
       m.ty = target.y;
-      if (m.state === 'roam' || m.state === 'recover') m.state = 'dive';
+      if (m.state === 'roam' || m.state === 'recover') m.state = 'charge';
     }
 
     if (m.state === 'roam') {
       m.jaw += (0.18 - m.jaw) * (1 - Math.exp(-6 * dt));
       m.y += ((MUTAGEN_Y + 6) - m.y) * (1 - Math.exp(-3 * dt));
-      const dxr = m.tx - m.x;
+      m.roamTimer -= dt;
+      if (m.roamTimer <= 0 || Math.abs(m.roamX - m.x) < 40) {
+        m.roamTimer = rand(2.5, 5);
+        m.roamX = rand(80, this.worldLength - 80);
+      }
+      const dxr = m.roamX - m.x;
       m.vx += (Math.sign(dxr) * C.monsterSpeed - m.vx) * (1 - Math.exp(-2 * dt));
       m.x = clamp(m.x + m.vx * dt, 0, this.worldLength);
-    } else if (m.state === 'dive') {
-      m.jaw += (0.24 - m.jaw) * (1 - Math.exp(-6 * dt));
-      m.y += ((MUTAGEN_Y + 30) - m.y) * (1 - Math.exp(-6 * dt));
+    } else if (m.state === 'charge') {
+      m.jaw += (0.3 - m.jaw) * (1 - Math.exp(-6 * dt));
+      m.y += ((MUTAGEN_Y + 6) - m.y) * (1 - Math.exp(-6 * dt));
       const dxr = m.tx - m.x;
-      m.vx += (Math.sign(dxr) * C.monsterDiveSpeed - m.vx) * (1 - Math.exp(-9 * dt));
+      m.vx += (Math.sign(dxr) * C.monsterDiveSpeed - m.vx) * (1 - Math.exp(-12 * dt));
       m.x = clamp(m.x + m.vx * dt, 0, this.worldLength);
-      if (Math.abs(dxr) < 44) {
+      if (Math.abs(dxr) < C.monsterArcWidth * 0.9) {
+        m.state = 'dive';
+        m.diveY = MUTAGEN_Y + C.monsterDiveDepth;
+        m.takeoffX = m.x;
+        m.splashX = clamp(m.tx, 40, this.worldLength - 40);
+        m.splashY = clamp(m.ty, 60, MUTAGEN_Y - 4);
+        m.vx = 0;
+        m.vy = 0;
+      }
+    } else if (m.state === 'dive') {
+      m.jaw += (0.5 - m.jaw) * (1 - Math.exp(-6 * dt));
+      m.y += (m.diveY - m.y) * (1 - Math.exp(-8 * dt));
+      if (Math.abs(m.y - m.diveY) < 6) {
         m.state = 'burst';
-        m.timer = C.monsterBurstTime;
-        m.burstY = clamp(m.ty - 10, 90, MUTAGEN_Y - 6);
+        m.jumpT = 0;
       }
     } else if (m.state === 'burst') {
-      m.timer -= dt;
       m.jaw += (1 - m.jaw) * (1 - Math.exp(-12 * dt));
-      m.y += (m.burstY - m.y) * (1 - Math.exp(-9 * dt));
-      m.vx *= Math.exp(-3 * dt);
-      m.x = clamp(m.x + m.vx * dt, 0, this.worldLength);
-      if (m.timer <= 0) {
+      m.jumpT = Math.min(1, m.jumpT + dt / C.monsterJumpTime);
+      const u = m.jumpT;
+      const diveY = MUTAGEN_Y + C.monsterDiveDepth;
+      const endY = clamp(m.splashY ?? (MUTAGEN_Y + 6), 60, MUTAGEN_Y - 4);
+      const peak = MUTAGEN_Y - C.monsterJumpHeight;
+      const amp = (diveY + endY) / 2 - peak;
+      const span = m.splashX - m.takeoffX;
+      const nx = m.takeoffX + span * u;
+      const ny = diveY + (endY - diveY) * u - amp * Math.sin(Math.PI * u);
+      m.burstHeading = Math.atan2(ny - m.y, nx - m.x);
+      m.x = clamp(nx, 40, this.worldLength - 40);
+      m.y = ny;
+      if (u >= 1) {
+        this.particles.burst(m.x, MUTAGEN_Y, {
+          count: 20,
+          speed: 200,
+          life: 0.7,
+          colors: ['#9be564', '#dfffa8', '#ffffff'],
+          buoyancy: -40,
+        });
+        this.game.audio.tone({ freq: 160, endFreq: 60, type: 'sawtooth', duration: 0.3, volume: 0.22 });
         m.state = 'recover';
         m.timer = C.monsterRecoverTime;
+        if (this.invuln <= 0 && Math.hypot(p.x - m.x, p.y - m.y) < p.radius + m.radius) {
+          if (this.catchPlayer('THE MUTAGEN-EYED MORAY SNAPPED YOU UP')) return;
+        }
       }
     } else {
       m.timer -= dt;
@@ -385,13 +465,11 @@ export class DeadCalmScene extends MinigameScene {
       if (m.timer <= 0) {
         m.state = 'roam';
         m.alert = 0;
+        m.roamTimer = 0;
       }
     }
     m.alert = Math.max(0, m.alert - dt * 0.5);
-
-    if (this.invuln <= 0 && Math.hypot(p.x - m.x, p.y - m.y) < p.radius + m.radius) {
-      if (this.catchPlayer('THE MUTAGEN-EYED MORAY SNAPPED YOU UP')) return;
-    }
+    this.updateMonsterTrail();
 
     for (const rip of this.ripples) {
       rip.life += dt;
@@ -579,13 +657,40 @@ export class DeadCalmScene extends MinigameScene {
 
   renderMonster(ctx) {
     const m = this.monster;
-    const facing = (m.vx || 1) >= 0 ? 1 : -1;
+    const trail = m.trail;
+    if (!trail || trail.length < 2) return;
     ctx.save();
-    ctx.translate(m.x, m.y);
-    ctx.scale(facing, 1);
-    if (m.state === 'dive') ctx.globalAlpha = 0.4;
+    if (m.state === 'charge') ctx.globalAlpha = 0.55;
     else if (m.state === 'roam') ctx.globalAlpha = 0.7;
-    drawMorayBody(ctx, m.radius * 0.62, { age: this.time, phase: m.phase, jawOpen: m.jaw }, MUTANT_MORAY);
+    const r = m.radius * 0.72;
+    drawSerpentBody(ctx, r, trail, MUTANT_MORAY, {
+      spacing: r * 0.6,
+      segments: DEAD_CALM.monsterSegments,
+    });
+    const base = trail[0];
+    const neck = trail[Math.min(1, trail.length - 1)];
+    const emerged = m.y < MUTAGEN_Y - 4;
+    if (emerged) {
+      ctx.strokeStyle = MUTANT_MORAY.outlineColor;
+      ctx.lineWidth = r * 1.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(m.x, m.y);
+      ctx.lineTo(base.x, base.y);
+      ctx.stroke();
+      ctx.strokeStyle = MUTANT_MORAY.bodyColor;
+      ctx.lineWidth = r * 1.1;
+      ctx.stroke();
+    }
+    let hx = base.x;
+    let hy = base.y;
+    let heading = Math.atan2(base.y - neck.y, base.x - neck.x);
+    if (emerged) {
+      hx = m.x;
+      hy = m.y;
+      heading = m.state === 'burst' ? m.burstHeading : -Math.PI / 2;
+    }
+    drawMorayHead(ctx, hx, hy, heading, r, MUTANT_MORAY, m.jaw);
     ctx.restore();
   }
 
@@ -672,7 +777,13 @@ export class DeadCalmScene extends MinigameScene {
     ctx.translate(LOGICAL_WIDTH / 2 + 60, LOGICAL_HEIGHT / 2);
     const s = 1.1 + (1 - this.scareTimer / 1.4) * 1.1;
     ctx.scale(s, s);
-    drawMorayBody(ctx, 44, { age: this.time, phase: 0, jawOpen: 1 }, MUTANT_MORAY);
+    const trail = [];
+    for (let i = 0; i < 40; i += 1) {
+      const t = i / 39;
+      trail.push({ x: -t * 560, y: Math.sin(t * 7) * 54 * t });
+    }
+    drawSerpentBody(ctx, 32, trail, MUTANT_MORAY, { spacing: 17, segments: 40 });
+    drawMorayHead(ctx, trail[0].x, trail[0].y, Math.atan2(trail[0].y - trail[1].y, trail[0].x - trail[1].x), 32, MUTANT_MORAY, 1);
     ctx.restore();
     drawText(ctx, this.scareReason, LOGICAL_WIDTH / 2, LOGICAL_HEIGHT - 60, { size: 16, color: COLORS.danger });
   }

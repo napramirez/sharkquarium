@@ -8,6 +8,7 @@ import { setColorblind } from '../engine/colorblind.js';
 import { setSeason, SEASONS } from '../engine/season.js';
 import { set8Bit } from '../engine/retro.js';
 import { setMeme } from '../engine/meme.js';
+import { setActiveSkin, skinByKey } from '../engine/skin.js';
 import { setMobilite } from '../engine/mobilite.js';
 import {
   AUDIO,
@@ -15,6 +16,7 @@ import {
   DIFFICULTY,
   DIFFICULTY_ORDER,
   SETTINGS_KEY,
+  SHOP_KEY,
   WATER_PALETTE,
   LOGICAL_WIDTH,
   LOGICAL_HEIGHT,
@@ -310,8 +312,9 @@ export class SettingsScene extends Scene {
     if (item.action === 'meme') {
       this.settings.meme = !this.settings.meme;
       setMeme(this.settings.meme);
-    setColorblind(this.settings.colorblind);
+      setColorblind(this.settings.colorblind);
       saveJSON(SETTINGS_KEY, this.settings);
+      setActiveSkin(skinByKey(loadJSON(SHOP_KEY, {}).skin));
       this.game.audio.tone({
         freq: this.settings.meme ? 880 : 300,
         endFreq: this.settings.meme ? 1320 : 180,

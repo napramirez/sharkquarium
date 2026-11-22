@@ -11,6 +11,28 @@ export function isMeme() {
   return meme;
 }
 
+const MEME_CREATURES = [
+  [/CUTTLEFISH/, 'that one toy lookin squitt'],
+  [/NAUTILUS/, 'very old squitt'],
+  [/SQUID/, 'squitt'],
+  [/STINGRAY/, 'water pancake'],
+  [/SHRIMP/, 'shromp'],
+  [/CRAB/, 'cromb'],
+  [/JELLY/, 'jiggle blub blub'],
+  [/DOLPHIN/, 'air breathing fih'],
+  [/TURTLE/, 'turdle'],
+  [/SHARK/, 'shirck'],
+];
+
+export function memeName(name) {
+  if (!meme) return name;
+  const key = String(name).toUpperCase();
+  for (const [pattern, label] of MEME_CREATURES) {
+    if (pattern.test(key)) return label;
+  }
+  return 'FEH';
+}
+
 const WORDS = [
   'BONK', 'BLORP', 'SPLOOSH', 'CHOMP', 'ZOOP', 'GLUB',
   'WHEE', 'NICE', 'OOPS', 'WHOA', 'SHEESH', 'GULP', 'SPLASH', 'BWOMP',

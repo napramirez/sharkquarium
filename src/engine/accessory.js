@@ -3,6 +3,7 @@ import { TAU } from './math.js';
 import { drawPlushie } from './plushie.js';
 import { drawRagdollRipcord } from './ripcord.js';
 import { drawChainFin } from './chainfin.js';
+import { drawCuttlefishGlyph } from '../entities/cuttlefishshape.js';
 
 const catalog = new Map(ACCESSORIES.map((accessory) => [accessory.key, accessory]));
 const NONE = catalog.get('none');
@@ -503,44 +504,11 @@ function renderAccessory(ctx, key, r, time, frame) {
     return;
   }
   if (key === 'cuttlefishhat') {
-    const sway = Math.sin(time * 2.6) * r * 0.06;
+    const sway = Math.sin(time * 2.6) * r * 0.05;
     ctx.save();
-    ctx.translate(0, -r * 1.1 + sway);
-    ctx.strokeStyle = '#2f6fd0';
-    ctx.lineWidth = r * 0.14;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, r * 0.72, r * 0.5, 0, 0, TAU);
-    ctx.stroke();
-    ctx.fillStyle = '#c0392b';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, r * 0.6, r * 0.42, 0, 0, TAU);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(0, 0, 0, 0.5)';
-    ctx.lineWidth = r * 0.035;
-    for (let i = -1; i <= 1; i += 1) {
-      const x = i * r * 0.22;
-      ctx.beginPath();
-      ctx.moveTo(x, -r * 0.32);
-      ctx.quadraticCurveTo(x + r * 0.06, 0, x, r * 0.32);
-      ctx.stroke();
-    }
-    for (const side of [-1, 1]) {
-      ctx.fillStyle = '#f4fbff';
-      ctx.beginPath();
-      ctx.arc(side * r * 0.3, -r * 0.02, r * 0.1, 0, TAU);
-      ctx.fill();
-      ctx.fillStyle = '#10233a';
-      ctx.beginPath();
-      ctx.arc(side * r * 0.33, -r * 0.02, r * 0.05, 0, TAU);
-      ctx.fill();
-    }
-    ctx.fillStyle = '#b5322a';
-    ctx.beginPath();
-    ctx.moveTo(r * 0.5, -r * 0.18);
-    ctx.lineTo(r * 0.98, 0);
-    ctx.lineTo(r * 0.5, r * 0.18);
-    ctx.closePath();
-    ctx.fill();
+    ctx.translate(r * 0.02, -r * 0.95 + sway);
+    ctx.rotate(-0.12 + Math.sin(time * 1.8) * 0.05);
+    drawCuttlefishGlyph(ctx, r * 0.5, { age: time, camo: 0, strike: 0.3, hypno: 0, splay: 0.8 }, '#c0392b');
     ctx.restore();
     return;
   }

@@ -1,10 +1,14 @@
 import { Scene } from '../engine/scene.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
+import { clamp } from '../engine/math.js';
 import { SEA_FACTS, COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE } from '../config.js';
 import { checkAchievements } from '../engine/achievements.js';
+import { drawCreatureIcon } from '../engine/codexicons.js';
+import { memeName } from '../engine/meme.js';
 
-const LINE_WIDTH = 46;
-const LINES_PER_PAGE = 11;
+const LINE_WIDTH = 62;
+const LINES_PER_PAGE = 10;
+const VISIBLE = 10;
 
 function wrap(text) {
   const words = text.split(' ');
@@ -63,6 +67,10 @@ export class SeaFactsScene extends Scene {
     return SEA_FACTS[this.index];
   }
 
+  displayName() {
+    return memeName(this.fact.name);
+  }
+
   pages() {
     return paginate(this.fact.text);
   }
@@ -85,6 +93,7 @@ export class SeaFactsScene extends Scene {
     if (input.wasPressed('down')) this.move(1);
     if (input.wasPressed('left')) this.move(-1);
     if (input.wasPressed('right')) this.move(1);
+    if (input.wheel) this.move(Math.sign(input.wheel) * Math.min(4, Math.abs(input.wheel)));
     if (input.wasPressed('confirm')) {
       const count = this.pages().length;
       if (count > 1) {
@@ -94,36 +103,54 @@ export class SeaFactsScene extends Scene {
     }
   }
 
-  renderTabs(ctx) {
+  renderList(ctx) {
+    fillRoundRect(ctx, 30, 138, 212, 336, 18, 'rgba(10, 39, 64, 0.82)');
+    strokeRoundRect(ctx, 30, 138, 212, 336, 18, 'rgba(207, 239, 255, 0.22)', 2);
     const total = SEA_FACTS.length;
-    const spacing = Math.min(96, (LOGICAL_WIDTH - 120) / total);
-    const startX = LOGICAL_WIDTH / 2 - ((total - 1) * spacing) / 2;
-    SEA_FACTS.forEach((fact, index) => {
+    const offset = clamp(this.index - Math.floor(VISIBLE / 2), 0, Math.max(0, total - VISIBLE));
+    for (let row = 0; row < Math.min(VISIBLE, total); row += 1) {
+      const index = offset + row;
+      const fact = SEA_FACTS[index];
+      const y = 170 + row * 30;
       const active = index === this.index;
-      drawText(ctx, fact.name.split(' ')[0], startX + index * spacing, 116, {
-        size: active ? 12 : 10,
-        color: active ? COLORS.accent : COLORS.textDim,
-        alpha: active ? 1 : 0.6,
+      if (active) {
+        fillRoundRect(ctx, 40, y - 15, 192, 27, 8, 'rgba(255, 209, 102, 0.16)');
+      }
+      drawText(ctx, memeName(fact.name), 54, y, {
+        size: 13,
+        color: active ? COLORS.accent : COLORS.text,
+        align: 'left',
+        alpha: active ? 1 : 0.8,
       });
-    });
+    }
+    if (total > VISIBLE) {
+      const trackTop = 150;
+      const trackH = 312;
+      const barH = Math.max(24, trackH * (VISIBLE / total));
+      const barY = trackTop + (trackH - barH) * (this.index / (total - 1));
+      fillRoundRect(ctx, 232, barY, 4, barH, 2, 'rgba(207, 239, 255, 0.35)');
+    }
   }
 
   render(ctx) {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATER_PALETTE);
-    drawText(ctx, 'SEA FACTS', LOGICAL_WIDTH / 2, 70, {
-      size: 36,
+    drawText(ctx, 'SEA FACTS', LOGICAL_WIDTH / 2, 64, {
+      size: 34,
       color: COLORS.text,
       glow: COLORS.bubble,
       glowBlur: 22,
     });
-    this.renderTabs(ctx);
+    this.renderList(ctx);
 
-    fillRoundRect(ctx, 150, 140, LOGICAL_WIDTH - 300, 320, 22, 'rgba(8, 32, 52, 0.9)');
-    strokeRoundRect(ctx, 150, 140, LOGICAL_WIDTH - 300, 320, 22, 'rgba(207, 239, 255, 0.28)', 2);
+    fillRoundRect(ctx, 258, 138, 672, 336, 22, 'rgba(8, 32, 52, 0.9)');
+    strokeRoundRect(ctx, 258, 138, 672, 336, 22, 'rgba(207, 239, 255, 0.28)', 2);
 
-    drawText(ctx, this.fact.name, LOGICAL_WIDTH / 2, 178, {
-      size: 26,
+    drawCreatureIcon(ctx, this.fact.name, 368, 302, 150, this.time);
+
+    drawText(ctx, this.displayName(), 470, 192, {
+      size: 24,
       color: COLORS.accent,
+      align: 'left',
       glow: 'rgba(255, 209, 102, 0.4)',
       glowBlur: 14,
     });
@@ -131,26 +158,34 @@ export class SeaFactsScene extends Scene {
     const pages = this.pages();
     const lines = pages[this.page] ?? [];
     lines.forEach((line, index) => {
-      drawText(ctx, line, LOGICAL_WIDTH / 2, 220 + index * 20, {
+      drawText(ctx, line, 470, 228 + index * 20, {
         size: 14,
         color: COLORS.text,
+        align: 'left',
         alpha: 0.92,
       });
     });
 
     if (pages.length > 1) {
-      drawText(ctx, `${this.page + 1}/${pages.length}`, LOGICAL_WIDTH - 172, 178, {
+      drawText(ctx, `${this.page + 1}/${pages.length}`, 910, 192, {
         size: 13,
         color: COLORS.bubble,
         align: 'right',
       });
     }
-    const count = `${this.index + 1}/${SEA_FACTS.length}`;
-    drawText(ctx, count, 172, 178, { size: 13, color: COLORS.bubble, align: 'left' });
 
-    drawText(ctx, 'UP / DOWN — NEXT CREATURE      ENTER — NEXT PAGE      ESC — BACK', LOGICAL_WIDTH / 2, LOGICAL_HEIGHT - 26, {
-      size: 12,
-      color: COLORS.textDim,
+    drawText(ctx, `${this.index + 1}/${SEA_FACTS.length}`, 910, 168, {
+      size: 13,
+      color: COLORS.bubble,
+      align: 'right',
     });
+
+    drawText(
+      ctx,
+      'UP / DOWN OR SCROLL WHEEL \u2014 CREATURE      ENTER \u2014 NEXT PAGE      ESC \u2014 BACK',
+      LOGICAL_WIDTH / 2,
+      LOGICAL_HEIGHT - 26,
+      { size: 12, color: COLORS.textDim },
+    );
   }
 }

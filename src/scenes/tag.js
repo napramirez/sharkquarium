@@ -71,6 +71,12 @@ export class TagScene extends Scene {
     this.resultsMenu.reset();
   }
 
+  playerCostume(index) {
+    const typed = (this.inputText[index] ?? '').trim().toUpperCase();
+    if (typed === 'FIH') return 'sacabamba';
+    return COSTUME_KEYS[this.costumeIndex[index]];
+  }
+
   startRound() {
     this.names = this.inputText.map((text, index) =>
       (text.trim() || `P${index + 1}`).toUpperCase().slice(0, TAG.nameMaxLength),
@@ -92,7 +98,7 @@ export class TagScene extends Scene {
         cpu: false,
         controls: CONTROLS.p1,
         speedScale: this.speedScale,
-        costume: COSTUME_KEYS[this.costumeIndex[0]],
+        costume: this.playerCostume(0),
         x: TAG.worldWidth * (this.solo ? 0.5 : 0.35),
         y: TAG.worldHeight * 0.5,
       }),
@@ -105,7 +111,7 @@ export class TagScene extends Scene {
           cpu: false,
           controls: CONTROLS.p2,
           speedScale: this.speedScale,
-          costume: COSTUME_KEYS[this.costumeIndex[1]],
+          costume: this.playerCostume(1),
           x: TAG.worldWidth * 0.65,
           y: TAG.worldHeight * 0.5,
         }),
@@ -337,7 +343,9 @@ export class TagScene extends Scene {
       fillRoundRect(ctx, 298 + measureTextWidth(ctx, text, 22) + 1, y - 12, 3, 24, 1.5, COLORS.accent);
     }
     const lineColor = active ? COLORS.accent : COLORS.textDim;
-    drawText(ctx, `COSTUME: ${costumeLabel(COSTUME_KEYS[this.costumeIndex[index]])}`, LOGICAL_WIDTH / 2 - 190, y + 42, {
+    const costumeKey = this.playerCostume(index);
+    const costumeText = costumeKey === 'sacabamba' ? 'SACABAMBASPIS (FIH)' : costumeLabel(costumeKey);
+    drawText(ctx, `COSTUME: ${costumeText}`, LOGICAL_WIDTH / 2 - 190, y + 42, {
       size: 12,
       color: lineColor,
       alpha: active ? 0.95 : 0.7,

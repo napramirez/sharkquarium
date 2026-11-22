@@ -3,6 +3,7 @@ import { TAG, COLORS } from '../config.js';
 import { drawRagdollRipcord } from '../engine/ripcord.js';
 import { drawChainFin } from '../engine/chainfin.js';
 import { drawEmote, startEmote, updateEmote } from '../engine/emotes.js';
+import { drawSacabambaspis } from './sacabambaspis.js';
 
 export class TagSwimmer {
   constructor({ name, color, cpu, controls = null, x = 0, y = 0, speedScale = 1, costume = 'none' }) {
@@ -119,6 +120,12 @@ export class TagSwimmer {
       ctx.globalAlpha = 1;
     }
     ctx.scale(this.facing, 1);
+    if (this.costume === 'sacabamba') {
+      drawSacabambaspis(ctx, radius * 0.95, { age: time });
+      drawEmote(ctx, this, radius, time);
+      ctx.restore();
+      return;
+    }
     const chainsaw = this.costume === 'chainsaw';
     const flick = Math.sin(time * 9 + this.wanderPhase) * 0.3;
     ctx.save();

@@ -1,6 +1,7 @@
 import { SKINS } from '../config.js';
 import { TAU } from './math.js';
 import { drawAuraRing } from './aura.js';
+import { isMeme } from './meme.js';
 
 const catalog = new Map(SKINS.map((skin) => [skin.key, skin]));
 const NATURAL = catalog.get('natural');
@@ -8,12 +9,15 @@ const NATURAL = catalog.get('natural');
 let active = NATURAL;
 let clock = 0;
 
-export function skinByKey(key) {
-  return catalog.get(key) ?? NATURAL;
+export function skinByKey(key, raw = false) {
+  const skin = catalog.get(key) ?? NATURAL;
+  if (skin.meme && !isMeme()) return NATURAL;
+  if (skin.rushScope && !raw) return NATURAL;
+  return skin;
 }
 
 export function skinCatalog() {
-  return SKINS;
+  return SKINS.filter((skin) => !skin.meme || isMeme());
 }
 
 export function activeSkin() {

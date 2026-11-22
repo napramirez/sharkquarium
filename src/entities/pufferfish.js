@@ -73,7 +73,6 @@ export class Pufferfish extends Entity {
       this.state === 'charge'
         ? 0.55 + 0.45 * (1 - this.stateTimer / this.chargeDuration)
         : 0.92 + Math.sin(this.age * 8) * 0.08;
-    const radius = PUFFER.radius * inflate;
     ctx.save();
     ctx.translate(this.x, this.y);
     if (this.state === 'charge') {
@@ -81,47 +80,55 @@ export class Pufferfish extends Entity {
       ctx.strokeStyle = COLORS.danger;
       ctx.lineWidth = 3;
       ctx.beginPath();
-      ctx.arc(0, 0, radius * 1.9, 0, TAU);
+      ctx.arc(0, 0, PUFFER.radius * inflate * 1.9, 0, TAU);
       ctx.stroke();
       ctx.globalAlpha = 1;
     }
     ctx.rotate(Math.sin(this.spin) * 0.25);
-    ctx.fillStyle = COLORS.pufferSpike;
-    for (let i = 0; i < 10; i += 1) {
-      const angle = (i / 10) * TAU;
-      ctx.beginPath();
-      ctx.moveTo(Math.cos(angle - 0.16) * radius * 0.88, Math.sin(angle - 0.16) * radius * 0.88);
-      ctx.lineTo(Math.cos(angle) * radius * 1.45, Math.sin(angle) * radius * 1.45);
-      ctx.lineTo(Math.cos(angle + 0.16) * radius * 0.88, Math.sin(angle + 0.16) * radius * 0.88);
-      ctx.closePath();
-      ctx.fill();
-    }
-    ctx.beginPath();
-    ctx.arc(0, 0, radius, 0, TAU);
-    ctx.fillStyle = COLORS.puffer;
-    ctx.fill();
-    ctx.strokeStyle = COLORS.pufferSpike;
-    ctx.lineWidth = 2;
-    ctx.stroke();
-    ctx.beginPath();
-    ctx.arc(0, radius * 0.28, radius * 0.62, 0, TAU);
-    ctx.fillStyle = 'rgba(255, 245, 214, 0.7)';
-    ctx.fill();
-    for (const side of [-1, 1]) {
-      ctx.beginPath();
-      ctx.arc(side * radius * 0.42, -radius * 0.35, radius * 0.2, 0, TAU);
-      ctx.fillStyle = '#f4fbff';
-      ctx.fill();
-      ctx.beginPath();
-      ctx.arc(side * radius * 0.46, -radius * 0.35, radius * 0.1, 0, TAU);
-      ctx.fillStyle = '#10233a';
-      ctx.fill();
-    }
-    ctx.beginPath();
-    ctx.arc(0, radius * 0.42, radius * 0.22, 0.3, Math.PI - 0.3);
-    ctx.strokeStyle = '#5c4a22';
-    ctx.lineWidth = 2.5;
-    ctx.stroke();
+    drawPufferBody(ctx, PUFFER.radius, { age: this.age, inflate });
     ctx.restore();
   }
 }
+
+export function drawPufferBody(ctx, radius, pose = {}) {
+  const age = pose.age ?? 0;
+  const inflate = pose.inflate ?? 1;
+  const radiusScaled = radius * inflate;
+  ctx.fillStyle = COLORS.pufferSpike;
+  for (let i = 0; i < 10; i += 1) {
+    const angle = (i / 10) * TAU;
+    ctx.beginPath();
+    ctx.moveTo(Math.cos(angle - 0.16) * radiusScaled * 0.88, Math.sin(angle - 0.16) * radiusScaled * 0.88);
+    ctx.lineTo(Math.cos(angle) * radiusScaled * 1.45, Math.sin(angle) * radiusScaled * 1.45);
+    ctx.lineTo(Math.cos(angle + 0.16) * radiusScaled * 0.88, Math.sin(angle + 0.16) * radiusScaled * 0.88);
+    ctx.closePath();
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.arc(0, 0, radiusScaled, 0, TAU);
+  ctx.fillStyle = COLORS.puffer;
+  ctx.fill();
+  ctx.strokeStyle = COLORS.pufferSpike;
+  ctx.lineWidth = 2;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.arc(0, radiusScaled * 0.28, radiusScaled * 0.62, 0, TAU);
+  ctx.fillStyle = 'rgba(255, 245, 214, 0.7)';
+  ctx.fill();
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.arc(side * radiusScaled * 0.42, -radiusScaled * 0.35, radiusScaled * 0.2, 0, TAU);
+    ctx.fillStyle = '#f4fbff';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(side * radiusScaled * 0.46, -radiusScaled * 0.35, radiusScaled * 0.1, 0, TAU);
+    ctx.fillStyle = '#10233a';
+    ctx.fill();
+  }
+  ctx.beginPath();
+  ctx.arc(0, radiusScaled * 0.42, radiusScaled * 0.22, 0.3, Math.PI - 0.3);
+  ctx.strokeStyle = '#5c4a22';
+  ctx.lineWidth = 2.5;
+  ctx.stroke();
+}
+

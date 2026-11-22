@@ -1,5 +1,6 @@
 import { AURAS, COLORS } from '../config.js';
 import { TAU } from './math.js';
+import { drawCuttlefishGlyph } from '../entities/cuttlefishshape.js';
 
 const catalog = new Map(AURAS.map((entry) => [entry.key, entry]));
 const NONE = catalog.get('none');
@@ -556,43 +557,17 @@ function drawCuttlefishRing(ctx, entity, rainbow, time) {
   ctx.restore();
   for (let index = 0; index < 3; index += 1) {
     const angle = time * 1.1 + (index * TAU) / 3;
-    const hue = ringHue(time, index);
     const point = orbitPoint(entity, angle, orbit);
     ctx.save();
     ctx.translate(point.x, point.y);
     ctx.rotate(angle + Math.PI / 2);
-    const body = rainbow ? `hsl(${hue}, 80%, 55%)` : '#c0392b';
-    const fin = rainbow ? `hsl(${hue}, 85%, 72%)` : '#2f6fd0';
-    ctx.strokeStyle = fin;
-    ctx.lineWidth = r * 0.34;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, r, r * 0.8, 0, 0, TAU);
-    ctx.stroke();
-    ctx.fillStyle = body;
-    ctx.beginPath();
-    ctx.ellipse(0, 0, r * 0.82, r * 0.68, 0, 0, TAU);
-    ctx.fill();
-    ctx.fillStyle = fin;
-    ctx.beginPath();
-    ctx.moveTo(r * 0.6, -r * 0.24);
-    ctx.lineTo(r * 1.35, 0);
-    ctx.lineTo(r * 0.6, r * 0.24);
-    ctx.closePath();
-    ctx.fill();
-    ctx.fillStyle = '#f4fbff';
-    ctx.beginPath();
-    ctx.arc(-r * 0.32, -r * 0.02, r * 0.13, 0, TAU);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(r * 0.32, -r * 0.02, r * 0.13, 0, TAU);
-    ctx.fill();
-    ctx.fillStyle = '#10233a';
-    ctx.beginPath();
-    ctx.arc(-r * 0.3, -r * 0.02, r * 0.06, 0, TAU);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(r * 0.34, -r * 0.02, r * 0.06, 0, TAU);
-    ctx.fill();
+    drawCuttlefishGlyph(ctx, r * 0.72, {
+      age: time,
+      camo: 0,
+      strike: 0.35,
+      hypno: 0,
+      splay: 0.9,
+    }, rainbow ? `hsl(${ringHue(time, index)}, 80%, 55%)` : '#c0392b');
     ctx.restore();
   }
 }

@@ -25,12 +25,13 @@ const TAB_Y = 118;
 const TABS_X = (LOGICAL_WIDTH - (INSTRUMENTS.length * TAB_W + (INSTRUMENTS.length - 1) * TAB_GAP)) / 2;
 
 const BUTTONS = {
-  play: { x: 190, y: 486, w: 104, h: 34 },
-  clear: { x: 302, y: 486, w: 88, h: 34 },
-  lenDown: { x: 408, y: 486, w: 46, h: 34 },
-  lenUp: { x: 458, y: 486, w: 46, h: 34 },
-  tempoDown: { x: 600, y: 486, w: 40, h: 34 },
-  tempoUp: { x: 644, y: 486, w: 40, h: 34 },
+  play: { x: 120, y: 486, w: 92, h: 34 },
+  clear: { x: 216, y: 486, w: 84, h: 34 },
+  undo: { x: 306, y: 486, w: 96, h: 34 },
+  lenDown: { x: 428, y: 486, w: 40, h: 34 },
+  lenUp: { x: 472, y: 486, w: 40, h: 34 },
+  tempoDown: { x: 598, y: 486, w: 38, h: 34 },
+  tempoUp: { x: 640, y: 486, w: 38, h: 34 },
 };
 
 export class TrackBuilderScene extends Scene {
@@ -48,6 +49,7 @@ export class TrackBuilderScene extends Scene {
     this.cursorLine = INSTRUMENTS[0].lines.length - 1;
     this.scrollCol = 0;
     this.drag = null;
+    this.undoTrack = null;
     this.status = 'CLICK A LINE TO PLACE A BLOCK — HOLD + DRAG RIGHT TO STRETCH IT';
     this.statusTimer = 3.6;
     if (this.game.music) {
@@ -171,11 +173,32 @@ export class TrackBuilderScene extends Scene {
   }
 
   clear() {
-    this.tracks[this.inst().key] = [];
+    const key = this.inst().key;
+    const notes = this.notes();
+    if (notes.length === 0) {
+      this.setStatus(`${key} IS ALREADY EMPTY`);
+      return;
+    }
+    this.undoTrack = { key, notes: notes.map((note) => ({ ...note })) };
+    this.tracks[key] = [];
     this.drag = null;
     this.save();
-    this.setStatus(`${this.inst().key} CLEARED`);
+    this.setStatus(`${key} CLEARED — UNDO TO RESTORE`);
     this.game.audio.tone({ freq: 220, endFreq: 120, type: 'square', duration: 0.2, volume: 0.16 });
+  }
+
+  undoClear() {
+    if (!this.undoTrack) {
+      this.setStatus('NOTHING TO UNDO');
+      this.game.audio.tone({ freq: 240, endFreq: 180, duration: 0.08, volume: 0.12 });
+      return;
+    }
+    const { key, notes } = this.undoTrack;
+    this.tracks[key] = notes;
+    this.undoTrack = null;
+    this.save();
+    this.setStatus(`RESTORED ${key} TRACK`);
+    this.game.audio.tone({ freq: 320, endFreq: 620, type: 'square', duration: 0.14, volume: 0.16 });
   }
 
   setBpm(value) {
@@ -289,6 +312,7 @@ export class TrackBuilderScene extends Scene {
     }
     if (input.wasPressed('play')) this.togglePlay();
     if (input.wasPressed('clear')) this.clear();
+    if (input.wasPressed('KeyZ')) this.undoClear();
     if (input.wasPressed('tempoDown')) this.setBpm(this.bpm - 5);
     if (input.wasPressed('tempoUp')) this.setBpm(this.bpm + 5);
     if (input.wasPressed('Minus')) this.setLength(this.steps - 4);
@@ -318,6 +342,7 @@ export class TrackBuilderScene extends Scene {
           const name = button[0];
           if (name === 'play') this.togglePlay();
           else if (name === 'clear') this.clear();
+          else if (name === 'undo') this.undoClear();
           else if (name === 'lenDown') this.setLength(this.steps - 4);
           else if (name === 'lenUp') this.setLength(this.steps + 4);
           else if (name === 'tempoDown') this.setBpm(this.bpm - 5);
@@ -501,11 +526,12 @@ export class TrackBuilderScene extends Scene {
 
     this.renderButton(ctx, BUTTONS.play, this.playing ? 'STOP' : 'PLAY', this.playing);
     this.renderButton(ctx, BUTTONS.clear, 'CLEAR', false);
+    this.renderButton(ctx, BUTTONS.undo, 'UNDO TRACK', !!this.undoTrack);
     this.renderButton(ctx, BUTTONS.lenDown, 'L-', false);
     this.renderButton(ctx, BUTTONS.lenUp, 'L+', false);
     this.renderButton(ctx, BUTTONS.tempoDown, '-', false);
     this.renderButton(ctx, BUTTONS.tempoUp, '+', false);
-    drawText(ctx, `LEN ${this.steps}`, 540, 503, { size: 12, color: COLORS.bubble, align: 'center' });
+    drawText(ctx, `LEN ${this.steps}`, 550, 503, { size: 12, color: COLORS.bubble, align: 'center' });
     drawText(ctx, `${this.bpm} BPM`, 700, 503, { size: 13, color: COLORS.accent, align: 'left' });
 
     if (this.statusTimer > 0) {
@@ -517,7 +543,7 @@ export class TrackBuilderScene extends Scene {
     }
     drawText(
       ctx,
-      'CLICK — PLACE/STRETCH      ARROWS — MOVE      L+ / L- — LONGER / SHORTER      P — PLAY      C — CLEAR      ESC — BACK',
+      'CLICK — PLACE/STRETCH      ARROWS — MOVE      L+ / L- — LONGER / SHORTER      P — PLAY      C — CLEAR      Z — UNDO CLEAR      ESC — BACK',
       LOGICAL_WIDTH / 2,
       LOGICAL_HEIGHT - 16,
       { size: 11, color: COLORS.textDim, alpha: 0.75 },

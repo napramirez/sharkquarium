@@ -17,8 +17,17 @@ import { drawZipEelHead } from '../entities/zipeel.js';
 import { paintMorayTrail } from '../entities/eel.js';
 import { drawNautilusBody } from '../entities/nautilus.js';
 import { drawMantisShrimpBody } from '../entities/mantisshrimp.js';
+import { drawSacabambaspis } from '../entities/sacabambaspis.js';
+import { drawDolphinBody } from '../entities/dolphin.js';
+import { drawAmmonite } from '../entities/ammonite.js';
+import { drawPufferBody } from '../entities/pufferfish.js';
+import { drawLoosejawHead } from '../entities/deepfish.js';
+import { skinByKey } from '../engine/skin.js';
+import { loadJSON } from '../engine/storage.js';
+import { equippedFormSkins } from '../engine/rushshop.js';
 import { recordWin } from '../engine/records.js';
-import { REEF_RUSH, COLORS, SKINS, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
+import { bankRushDistance } from '../engine/rushshop.js';
+import { REEF_RUSH, COLORS, SKINS, SHOP_KEY, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
 
 const W = LOGICAL_WIDTH;
 const H = LOGICAL_HEIGHT;
@@ -60,6 +69,13 @@ const ZIP_EEL_PALETTE = {
   bodyColor: COLORS.eel,
   outlineColor: COLORS.eelDark,
   ridgeColor: COLORS.eelBelly,
+  spots: false,
+};
+
+const LOOSEJAW_TRAIL_PALETTE = {
+  bodyColor: '#0b0b0e',
+  outlineColor: '#12171d',
+  ridgeColor: 'rgba(150, 230, 255, 0.4)',
   spots: false,
 };
 
@@ -126,6 +142,9 @@ export class ReefRushScene extends MinigameScene {
     this.spawnSharks([{ x: REEF_RUSH.playerX, y: LOGICAL_HEIGHT * 0.5 }]);
     this.player = this.players[0];
     this.player.santa = false;
+    const equipped = skinByKey(loadJSON(SHOP_KEY, {}).skin, true);
+    this.sacaSkin = equipped && equipped.rushScope ? equipped : null;
+    this.formSkins = equippedFormSkins();
     this.scrollX = 0;
     this.distance = 0;
     this.speed = REEF_RUSH.runSpeed * this.scale().speed;
@@ -219,13 +238,14 @@ export class ReefRushScene extends MinigameScene {
       const x = this.endlessTo;
       if (x >= this.nextBoss) {
         this.nextBoss = x + rand(900, 1300);
-        this.items.push({ kind: 'shell', x, h: 72, count: 1, phase: 0 });
-        this.items.push({ kind: 'ceilshell', x: x + 140, h: 66, count: 1, phase: 0 });
-        this.items.push({ kind: 'rock', x: x + 280, h: 56, count: 1, phase: 0 });
-        this.bossGates.push({ x: x + 300, passed: false });
+        const gateCap = this.maxClearableShell();
+        this.items.push({ kind: 'shell', x, h: Math.min(72, gateCap), count: 1, phase: 0 });
+        this.items.push({ kind: 'ceilshell', x: x + 260, h: 66, count: 1, phase: 0 });
+        this.items.push({ kind: 'rock', x: x + 520, h: 56, count: 1, phase: 0 });
+        this.bossGates.push({ x: x + 560, passed: false });
       } else {
         const roll = Math.random();
-        if (roll < 0.5) this.items.push({ kind: 'shell', x, h: rand(30, 68), count: 1, phase: 0 });
+        if (roll < 0.5) this.items.push({ kind: 'shell', x, h: Math.min(rand(30, 68), this.maxClearableShell()), count: 1, phase: 0 });
         else if (roll < 0.78) this.items.push({ kind: 'rock', x, h: rand(26, 44), count: Math.random() < 0.4 ? 2 : 1, phase: 0 });
         else if (roll < 0.9) this.items.push({ kind: 'ceilshell', x, h: rand(30, 60), count: 1, phase: 0 });
         else this.pearls.push({ x, y: this.groundY - rand(70, 160), taken: false, phase: rand(0, TAU) });
@@ -342,8 +362,27 @@ export class ReefRushScene extends MinigameScene {
     return this.rndState / 4294967296;
   }
 
+  maxClearableShell() {
+    const cfg = REEF_RUSH;
+    const span = cfg.shell.baseWidth + this.player.radius * 2;
+    const speed = Math.max(60, this.speed);
+    const inner = cfg.jump * cfg.jump - Math.pow((span * cfg.gravity) / (2 * speed), 2);
+    return clamp(inner / (2 * cfg.gravity) - 6, 24, cfg.shell.maxHeight);
+  }
+
+  clusterCap(gap) {
+    const cfg = REEF_RUSH;
+    const span = gap * 2 + cfg.shell.baseWidth + this.player.radius * 2;
+    const speed = Math.max(60, this.speed);
+    const inner = cfg.jump * cfg.jump - Math.pow((span * cfg.gravity) / (2 * speed), 2);
+    return clamp(inner / (2 * cfg.gravity) - 10, 18, 40);
+  }
+
   spikeHeight() {
-    return rand(REEF_RUSH.shell.minHeight, REEF_RUSH.shell.maxHeight) * this.scale().spike;
+    return Math.min(
+      rand(REEF_RUSH.shell.minHeight, REEF_RUSH.shell.maxHeight) * this.scale().spike,
+      this.maxClearableShell(),
+    );
   }
 
   placeMotif(motif, baseX) {
@@ -353,8 +392,11 @@ export class ReefRushScene extends MinigameScene {
       this.items.push({ kind: 'shell', x: baseX, h: this.spikeHeight(), count: 1, phase: rand(0, TAU) });
     } else if (motif === 'shellstair') {
       const count = 3;
+      const gap = 18;
+      const cap = this.clusterCap(gap);
       for (let i = 0; i < count; i += 1) {
-        this.items.push({ kind: 'shell', x: baseX + i * 46, h: this.spikeHeight() * (0.5 + (i / count) * 0.9), count: 1, phase: rand(0, TAU) });
+        const h = cap * (0.5 + i * 0.2);
+        this.items.push({ kind: 'shell', x: baseX + i * gap, h, count: 1, phase: rand(0, TAU) });
       }
     } else if (motif === 'rock') {
       this.items.push({ kind: 'rock', x: baseX, h: rand(cfg.rock.minSize, cfg.rock.maxSize) * scale.spike, count: 2, phase: rand(0, TAU) });
@@ -753,6 +795,20 @@ export class ReefRushScene extends MinigameScene {
 
     if (this.endless) {
       this.extendEndless();
+      this.rushBankTimer = (this.rushBankTimer ?? 1) - dt;
+      if (this.rushBankTimer <= 0) {
+        this.rushBankTimer = 1;
+        const banked = bankRushDistance(this.distance);
+        if (banked.granted.length > 0) {
+          const skin = banked.granted[banked.granted.length - 1];
+          this.rushUnlock = { text: `${skin.label} UNLOCKED — REEF RUSH SHOP`, timer: 3.4 };
+          this.game.audio.tone({ freq: 700, endFreq: 1100, type: 'triangle', duration: 0.18, volume: 0.22 });
+        }
+      }
+      if (this.rushUnlock) {
+        this.rushUnlock.timer -= dt;
+        if (this.rushUnlock.timer <= 0) this.rushUnlock = null;
+      }
       for (const gate of this.bossGates) {
         if (!gate.passed && this.distance >= gate.x) {
           gate.passed = true;
@@ -1297,6 +1353,48 @@ export class ReefRushScene extends MinigameScene {
     const p = this.player;
     const r = p.radius;
     if (this.form === 'eel') {
+      if (this.formSkins.eel === 'loosejaw') {
+        const trail = this.dartTrail.length >= 2
+          ? this.dartTrail
+          : [
+              { x: p.x + 2, y: p.y },
+              { x: p.x - 8, y: p.y },
+            ];
+        const bodyR = r * 0.62;
+        paintMorayTrail(ctx, bodyR, trail, LOOSEJAW_TRAIL_PALETTE);
+        ctx.save();
+        for (let i = 1; i < trail.length - 1; i += 2) {
+          const point = trail[i];
+          const before = trail[i - 1];
+          const after = trail[i + 1];
+          let tangentX = before.x - after.x;
+          let tangentY = before.y - after.y;
+          const len = Math.hypot(tangentX, tangentY) || 1;
+          tangentX /= len;
+          tangentY /= len;
+          const nx = -tangentY;
+          const ny = tangentX;
+          const t = 1 - i / (trail.length - 1);
+          const w = bodyR * (0.16 + 0.84 * Math.pow(t, 0.8));
+          ctx.fillStyle = 'rgba(150, 230, 255, 0.85)';
+          for (let row = -1; row <= 1; row += 1) {
+            const off = row * w * 0.8;
+            ctx.beginPath();
+            ctx.arc(point.x + nx * off, point.y + ny * off, Math.max(0.9, bodyR * 0.09), 0, TAU);
+            ctx.fill();
+          }
+        }
+        ctx.restore();
+        const head = trail[0];
+        const next = trail[1];
+        const heading = Math.atan2(head.y - next.y, head.x - next.x);
+        ctx.save();
+        ctx.translate(head.x, head.y);
+        ctx.rotate(heading);
+        drawLoosejawHead(ctx, r * 0.9, { age: this.time });
+        ctx.restore();
+        return;
+      }
       this.renderEelPlayer(ctx, p, r);
       return;
     }
@@ -1308,11 +1406,19 @@ export class ReefRushScene extends MinigameScene {
     ctx.rotate(tilt);
     if (this.gravityUp && this.form !== 'crab' && this.form !== 'urchin' && this.form !== 'nautilus') ctx.scale(1, -1);
     if (this.form === 'stingray') {
-      drawSpottedRay(ctx, r * 0.85, this.time);
+      if (this.formSkins.stingray === 'dolphin') {
+        drawDolphinBody(ctx, r * 1.1, { age: this.time });
+      } else {
+        drawSpottedRay(ctx, r * 0.85, this.time);
+      }
     } else if (this.form === 'cuttlefish') {
       drawCuttlefishBody(ctx, r * 1.15, { age: this.time, camo: 0, splay: 0.35, strike: 0 });
     } else if (this.form === 'nautilus') {
-      drawNautilusBody(ctx, r * 0.95, { age: this.time, natural: true, jet: { strength: this.nautilusJet, dir: this.nautilusJetDir } });
+      if (this.formSkins.nautilus === 'ammonite') {
+        drawAmmonite(ctx, r * 0.95, { age: this.time });
+      } else {
+        drawNautilusBody(ctx, r * 0.95, { age: this.time, natural: true, jet: { strength: this.nautilusJet, dir: this.nautilusJetDir } });
+      }
     } else if (this.form === 'shrimp') {
       drawMantisShrimpBody(ctx, r * 0.95, { armPhase: this.time * 8 });
       if (this.robotCharge > 0.05) {
@@ -1359,6 +1465,8 @@ export class ReefRushScene extends MinigameScene {
         ctx.beginPath();
         ctx.arc(r * 0.4, -r * 0.35, r * 0.16, 0, TAU);
         ctx.fill();
+      } else if (this.formSkins.urchin === 'puffer') {
+        drawPufferBody(ctx, r * 1.15, { age: this.time });
       } else {
         ctx.strokeStyle = '#3a2b46';
         ctx.lineWidth = 3;
@@ -1388,6 +1496,13 @@ export class ReefRushScene extends MinigameScene {
         ctx.quadraticCurveTo(x + Math.sin(this.time * 6 + i) * 4, r * 0.8, x, r * 1.2);
         ctx.stroke();
       }
+    } else if (this.sacaSkin) {
+      drawSacabambaspis(ctx, r, {
+        age: this.time,
+        body: this.sacaSkin.body,
+        accent: this.sacaSkin.accent,
+        belly: this.sacaSkin.belly,
+      });
     } else {
       ctx.fillStyle = '#63e6ff';
       ctx.beginPath();
@@ -1488,6 +1603,16 @@ export class ReefRushScene extends MinigameScene {
       glow: 'rgba(120, 220, 230, 0.35)',
       glowBlur: 8,
     });
+    if (this.rushUnlock) {
+      drawText(ctx, this.rushUnlock.text, 40, 138, {
+        size: 13,
+        color: COLORS.accent,
+        align: 'left',
+        glow: 'rgba(255, 209, 102, 0.6)',
+        glowBlur: 12,
+        alpha: Math.min(1, this.rushUnlock.timer),
+      });
+    }
     drawText(ctx, `PEARLS ${this.collected}`, W - 40, 34, {
       size: 16,
       color: COLORS.accent,

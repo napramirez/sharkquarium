@@ -108,8 +108,8 @@ export function drawArcticShrimpBody(ctx, radius, pose) {
   const armPhase = pose.armPhase ?? 0;
   const flick = Math.sin(armPhase * 1.5) * 0.3;
   const open = eyeOpenFor(pose);
-  const body = playerColor('body', COLORS.arcticshrimp);
-  const accent = playerColor('accent', COLORS.arcticshrimp);
+  const body = pose.bodyColor ?? playerColor('body', COLORS.arcticshrimp);
+  const accent = pose.accentColor ?? playerColor('accent', COLORS.arcticshrimp);
   const moving = (pose.speed ?? 0) > 24;
   const plate = pose.bodyColor ?? 'rgba(255, 111, 97, 0.6)';
   const shellLine = pose.shellLine ?? 'rgba(60, 68, 76, 0.4)';

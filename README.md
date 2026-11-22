@@ -30,7 +30,7 @@ index.html           dev entry that loads the ES modules
 styles/main.css      page shell styles
 src/engine/          reusable engine (loop, scenes, input, audio, rendering, UI widgets)
 src/ui/              game HUD
-src/scenes/          boot, intro, menu, tank select, settings, shop, minigames, tag, AI chat (FINN the CPU), dodgeball, dress up battle, labyrinth, puffer ball, school roundup, stealth dive, trench dive, trench explore, jelly ascent, reef cleanup, abyss boss, reef swarm queen, raycast maze, mysteriously quiet horror tank, the escape chase, the watcher look-away horror tank, the trench mouth anchor-against-the-gulp horror tank, the prehistoric lungfish chase tank, the playtoy toy-liner exploration tank, mutators screen, boss rush gauntlet, records board, REEF RUSH levels, paged briefings and course builder, track player, cutscene theatre, game trailer, movie and shop trailers, lore codex, aquarium builder and dive, play, game over, descent, dawn cutscene
+src/scenes/          boot, intro, menu, tank select, settings, shop, minigames, tag, AI chat (FINN the CPU), dodgeball, dress up battle, labyrinth, puffer ball, school roundup, stealth dive, trench dive, trench explore, jelly ascent, reef cleanup, abyss boss, reef swarm queen, raycast maze, mysteriously quiet horror tank, the escape chase, the watcher look-away horror tank, the trench mouth anchor-against-the-gulp horror tank, the prehistoric lungfish chase tank, the playtoy toy-liner exploration tank, mutators screen, boss rush gauntlet, records board, REEF RUSH levels, paged briefings and course builder, track player, cutscene theatre, game trailer, movie and shop trailers, lore codex, aquarium builder and dive, play, game over, descent, dawn cutscene, the twilight and goblin-deep loosejaw tanks, the whale fall, the hagfish bloom, the oarfish, the six real-fish tanks (archer's mangrove, thresher's lagoon, sawfish flats, tide-pool walker, frogfish garden, sunfish drift), the evolution tank, the reef rush shop, and the account screen
 src/entities/        each tank's player creatures, hazards, and collectibles
 src/config.js        all game tuning and palette
 src/assets/          image manifest (data URIs) + tank music tracks
@@ -150,7 +150,7 @@ co-op/solo
 results, the kelp forest tank with its crab
 player and octopus boss, the per-tank themed backdrops, the track player with every level theme
 (including tracks held across scenes), the endless dive with its lives carry and
-out-of-lives panel, the aquarium builder with its full palette, dive mode, chill toggle,
+out-of-lives panel, a local ACCOUNT screen that saves progress behind a custom password, the aquarium builder with its full palette, dive mode, chill toggle,
 LABYRINTH MODE with its seeded wreck course and hand-placed wall, support, and tentacle
 burster pieces, and saved
 layouts, and co-op
@@ -170,7 +170,7 @@ tentacles while turtles cross the brightest blue water; and HERMIT CRAB HOLD, a 
 seabed crawl past urchins), four new original horror-adjacent tanks (THE LIGHTHOUSE, a
 shadow-stealth tower climb under a sweeping beam; THE PRESSURE, a vent-to-vent depth descent;
 THE CLEANER STATION, a clean-the-clients symbiosis run past parasites and a lurker; and THE
-MIGRATION, a stay-in-the-school current ride),
+MIGRATION, a stay-in-the-school current ride), the TWILIGHT TANK (a glow-stealth mesopelagic swim where a HATCHETFISH baits a STOPLIGHT LOOSEJAW with bioluminescent decoys), the HAGFISH BLOOM (a scent-stealth swim where a gray CARIDEAN SHRIMP hides its fear-scent from a blind hagfish knot and washes in clean currents), the OARFISH (a minimalist crossing where you keep a colossal ribbon's lateral line calm), the WHALE FALL (a scavenger stealth run picking a carcass clean past a circling sixgill shark), the GOBLIN DEEP (a pitch-black hunt where you play the STOPLIGHT LOOSEJAW, eating shrimp to charge a stoplight meter you toggle with E to cast a red ray that reveals deep-sea squid, while a slow GOBLIN SHARK shoots its jaws out at short range), and six real-fish tanks — the ARCHER'S MANGROVE (spit water jets as an archerfish), the THRESHER'S LAGOON (dodge a thresher shark's whipping tail as a sardine), the SAWFISH FLATS (sweep a toothed saw through the sand past a bull shark), the TIDE-POOL WALKER (a mudskipper that hops onto the mud and dives back to shake a crab), the FROGFISH GARDEN (camouflage and lure prey past a green moray), and the SUNFISH DRIFT (a sinking ocean sunfish that surfaces for air between jellyfish and a sea lion), and the EVOLUTION TANK (pick a depth region and a real evolution lineage — cookiecutter shark to ray to shark, copepod to krill to shrimp, jelly to octopus to squid, plankton to hatchetfish to loosejaw to dragonfish — and eat your way up it while a predator stalks you),
 and CUTE MODE (blush and floating hearts on every creature, a
 blinking big-eyed cartoon face on every enemy, a soft
 pink grade, and pastel big-eyed scare cards that replace the horror tanks' jump scares), and

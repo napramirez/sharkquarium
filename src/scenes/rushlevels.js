@@ -32,6 +32,13 @@ export class RushLevelsScene extends Scene {
       beaten: false,
       has: rushCourseHasItems(course),
     });
+    this.cards.push({
+      id: 'shop',
+      label: 'REEF RUSH SHOP',
+      blurb: 'EARN SKINS BY RUNNING ENDLESS',
+      kind: 'shop',
+      beaten: false,
+    });
     this.index = 0;
     this.scroll = 0;
     this.status = null;
@@ -55,6 +62,10 @@ export class RushLevelsScene extends Scene {
 
   choose(card) {
     if (!card) return;
+    if (card.kind === 'shop') {
+      this.game.changeScene('rushshop');
+      return;
+    }
     if (card.kind === 'course') {
       if (!card.has) {
         this.setStatus('NO COURSE YET — OPEN THE COURSE BUILDER');
@@ -114,7 +125,7 @@ export class RushLevelsScene extends Scene {
         color: card.tutorial ? COLORS.accent : COLORS.textDim,
       });
     } else {
-      drawText(ctx, `CUSTOM`, x + CARD_W / 2, top + 30, { size: 12, color: COLORS.textDim });
+      drawText(ctx, card.kind === 'shop' ? 'SKINS' : 'CUSTOM', x + CARD_W / 2, top + 30, { size: 12, color: COLORS.textDim });
     }
     drawText(ctx, card.label, x + CARD_W / 2, top + 78, {
       size: card.label.length > 16 ? 22 : 26,
@@ -145,6 +156,10 @@ export class RushLevelsScene extends Scene {
         ctx.fill();
         drawText(ctx, '✓', x + CARD_W - 30, top + 31, { size: 14, color: '#10233a' });
       }
+    } else if (card.kind === 'shop') {
+      drawText(ctx, 'SPEND YOUR DISTANCE', x + CARD_W / 2, top + 156, { size: 14, color: COLORS.accent });
+      fillRoundRect(ctx, x + CARD_W / 2 - 70, top + 178, 140, 34, 10, 'rgba(255, 209, 102, 0.9)');
+      drawText(ctx, 'OPEN SHOP', x + CARD_W / 2, top + 195, { size: 15, color: '#10233a' });
     } else {
       drawText(ctx, card.has ? 'READY TO RUN' : 'EMPTY — BUILD ONE', x + CARD_W / 2, top + 156, {
         size: 14,

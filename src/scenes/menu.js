@@ -79,11 +79,15 @@ export class MenuScene extends Scene {
     items.push({ label: 'LORE', action: 'lore' });
     items.push({ label: 'SEA FACTS', action: 'seafacts' });
     items.push({ label: 'ACHIEVEMENTS', action: 'achievements' });
+    items.push({ label: 'ACCOUNT', action: 'account' });
     this.menu = new SelectList(items, {
       glowColor: COLORS.bubble,
       accentColor: COLORS.accent,
       color: COLORS.text,
-      spacing: items.length > 8 ? 20 : items.length > 6 ? 30 : items.length > 5 ? 34 : 42,
+      spacing: 32,
+      fontSize: 19,
+      visible: 8,
+      wheel: true,
       onChange: () => this.game.audio.tone({ freq: 640, duration: 0.05, volume: 0.08 }),
       onConfirm: (item) => this.choose(item.action),
     });
@@ -107,6 +111,7 @@ export class MenuScene extends Scene {
     else if (action === 'lore') this.game.changeScene('lore');
     else if (action === 'seafacts') this.game.changeScene('seafacts');
     else if (action === 'achievements') this.game.changeScene('achievements');
+    else if (action === 'account') this.game.changeScene('account');
   }
 
   update(dt) {

@@ -38,6 +38,7 @@ export class Input {
     this.down = new Set();
     this.pressed = new Set();
     this.released = new Set();
+    this.pasted = '';
     this.pointer = { x: 0, y: 0, down: false, moved: false, originX: 0, originY: 0, dragX: 0, dragY: 0, button: 0, lookDX: 0, lookDY: 0 };
     this.wheel = 0;
     this.canvas = null;
@@ -56,6 +57,7 @@ export class Input {
 
     window.addEventListener('keydown', this.handleKeyDown);
     window.addEventListener('keyup', this.handleKeyUp);
+    window.addEventListener('paste', this.handlePaste);
     window.addEventListener('pointerup', this.handlePointerUp);
     window.addEventListener('pointercancel', this.handlePointerUp);
     window.addEventListener('blur', this.handleBlur);
@@ -86,6 +88,7 @@ export class Input {
   update() {
     this.pressed.clear();
     this.released.clear();
+    this.pasted = '';
     this.pointer.moved = false;
     this.wheel = 0;
   }
@@ -93,6 +96,7 @@ export class Input {
   destroy() {
     window.removeEventListener('keydown', this.handleKeyDown);
     window.removeEventListener('keyup', this.handleKeyUp);
+    window.removeEventListener('paste', this.handlePaste);
     window.removeEventListener('pointerup', this.handlePointerUp);
     window.removeEventListener('pointercancel', this.handlePointerUp);
     window.removeEventListener('blur', this.handleBlur);
@@ -178,6 +182,13 @@ export class Input {
     this.pointer.button = 0;
     this.pointer.dragX = 0;
     this.pointer.dragY = 0;
+  }
+
+  handlePaste(event) {
+    const text = event.clipboardData && typeof event.clipboardData.getData === 'function'
+      ? event.clipboardData.getData('text') || ''
+      : '';
+    if (text) this.pasted = text;
   }
 
   updatePointerPosition(event) {

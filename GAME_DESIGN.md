@@ -205,7 +205,7 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   lightning bolts around the diver's edge.
 - `LoreScene` (`lore`, opened from the menu's LORE row) is the codex: it reads the
   `LORE` catalog — THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MUTANT HORRORS,
-  THE MINIGAMES, and THE MODES, one hundred and twenty named entries in all — and renders Left/Right section tabs, an Up/Down
+  THE MINIGAMES, and THE MODES, one hundred and twenty-two named entries in all — and renders Left/Right section tabs, an Up/Down
   entry list with a centered window and `n/m` counters, and the wrapped story text in a side
   panel. Overlong entries are split by `paginate()` after the last complete sentence that fits
   (ENTER turns pages, and the panel shows `PAGE n/m`). Each entry also shows a **creature
@@ -223,6 +223,15 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   LANTERNFISH get small local portraits, and anything unmatched falls back to a generic fish.
   It clips to a circular portrait, forces the `natural` skin (`setActiveSkin`) so codex art
   never inherits the player's equipped color, and animates with the scene clock.
+- `AnimationsScene` (`animations`, opened from the menu's ANIMATION CENTER row) lists every
+  sea creature that has an animation of its own (feeding strikes, lure waves, gulp, glow,
+  ripple, swim wiggle) and plays it live in a preview panel at the creature's **real in-game
+  radius**. The catalog is `ANIMATIONS` in `src/engine/animations.js`; each entry's `make()`
+  returns an animator with `update(dt)`/`draw(ctx, radius)` that drives the **same logic and
+  speeds as the tanks** (the cuttlefish and black swallower use their own entities, while the
+  goblin shark, stoplight loosejaw, frogfish, hatchetfish and oarfish reuse their tanks' state
+  machines and the `GOBLIN`/`TWILIGHT`/`OARFISH` constants). Creatures whose only animation is
+  an emote are excluded. The screen is `src/scenes/animations.js`.
 - `TrackPlayerScene` (`tracks`, opened from SETTINGS) lists `TRACK_LIBRARY` from
   `src/assets/tracks.js` and plays or stops any tank theme through the shared
   `MusicPlayer`; playing sets `music.hold`, so the chosen theme keeps playing after the

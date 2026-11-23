@@ -275,20 +275,82 @@ export function drawLoosejawHead(ctx, radius, pose = {}) {
   const snout = r * 0.6;
   const headScale = 0.62;
   ctx.save();
-  ctx.translate(-r * 0.1, 0);
-  ctx.rotate(-TILT - swing * 0.85);
+  ctx.translate(-r * 0.1 + swing * r * 0.35, 0);
+  ctx.rotate(-TILT - swing * 1.3);
   ctx.translate(snout, 0);
   ctx.scale(headScale, headScale);
   ctx.translate(-snout, 0);
 
+  const hinge = { x: bx * 0.92, y: r * 0.26 };
+  const jawAngle = jawOpen * 1.7;
+  const jawLen = (r * 4.66 + swing * r * 0.8) * 0.5;
+  const jdx = Math.cos(jawAngle);
+  const jdy = Math.sin(jawAngle);
+  const nx = jdy;
+  const ny = -jdx;
+  const jawTip = { x: hinge.x + jdx * jawLen, y: hinge.y + jdy * jawLen };
+
+  const headAngle = -TILT - swing * 1.3;
+  const toLocal = (px, py) => {
+    const ao = -headAngle;
+    const ca = Math.cos(ao);
+    const sa = Math.sin(ao);
+    const ox = px - (-r * 0.1 + swing * r * 0.35);
+    const oy = py;
+    const rx = ca * ox - sa * oy;
+    const ry = sa * ox + ca * oy;
+    return { x: (rx - snout) / headScale + snout, y: ry / headScale };
+  };
+  const ligJaw = { x: hinge.x + jdx * jawLen * 0.5 - nx * r * 0.05, y: hinge.y + jdy * jawLen * 0.5 - ny * r * 0.05 };
+  const ligNeck = toLocal(-r * 1.05, r * 0.4);
+  const ligDx = ligNeck.x - ligJaw.x;
+  const ligDy = ligNeck.y - ligJaw.y;
+  const ligLen = Math.hypot(ligDx, ligDy) || 1;
+  let ligPx = -ligDy / ligLen;
+  let ligPy = ligDx / ligLen;
+  if (ligPy < 0) {
+    ligPx = -ligPx;
+    ligPy = -ligPy;
+  }
+  const ligMid = {
+    x: (ligJaw.x + ligNeck.x) * 0.5 + ligPx * (ligLen * 0.5),
+    y: (ligJaw.y + ligNeck.y) * 0.5 + ligPy * (ligLen * 0.5),
+  };
   const noseR = r * 0.17;
+  const headPath = () => {
+    ctx.beginPath();
+    ctx.moveTo(snout - noseR, -r * 0.15);
+    ctx.quadraticCurveTo(snout - leafLen * 0.45, -r * 0.3, bx, -r * 0.26);
+    ctx.quadraticCurveTo(bx - r * 0.2, r * 0.06, bx, r * 0.42);
+    ctx.quadraticCurveTo(snout - leafLen * 0.45, r * 0.82, snout - noseR, r * 0.34);
+    ctx.quadraticCurveTo(snout + noseR * 1.02, r * 0.04, snout - noseR, -r * 0.15);
+    ctx.closePath();
+  };
+
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = '#12171d';
+  ctx.lineWidth = Math.max(1.6, r * 0.08) * (1 - jawOpen * 0.35);
   ctx.beginPath();
-  ctx.moveTo(snout - noseR, -r * 0.15);
-  ctx.quadraticCurveTo(snout - leafLen * 0.45, -r * 0.3, bx, -r * 0.26);
-  ctx.quadraticCurveTo(bx - r * 0.2, r * 0.06, bx, r * 0.42);
-  ctx.quadraticCurveTo(snout - leafLen * 0.45, r * 0.82, snout - noseR, r * 0.34);
-  ctx.quadraticCurveTo(snout + noseR * 1.02, r * 0.04, snout - noseR, -r * 0.15);
-  ctx.closePath();
+  ctx.moveTo(ligJaw.x, ligJaw.y);
+  ctx.lineTo(ligMid.x, ligMid.y);
+  ctx.lineTo(ligNeck.x, ligNeck.y);
+  ctx.moveTo(ligMid.x, ligMid.y);
+  ctx.lineTo(hinge.x, hinge.y);
+  ctx.stroke();
+  ctx.strokeStyle = '#05070a';
+  ctx.lineWidth = Math.max(1, r * 0.04) * (1 - jawOpen * 0.3);
+  ctx.beginPath();
+  ctx.moveTo(ligJaw.x, ligJaw.y);
+  ctx.lineTo(ligMid.x, ligMid.y);
+  ctx.lineTo(ligNeck.x, ligNeck.y);
+  ctx.moveTo(ligMid.x, ligMid.y);
+  ctx.lineTo(hinge.x, hinge.y);
+  ctx.stroke();
+  ctx.restore();
+
+  headPath();
   ctx.fillStyle = HEAD;
   ctx.fill();
   ctx.strokeStyle = OUTLINE;
@@ -315,11 +377,11 @@ export function drawLoosejawHead(ctx, radius, pose = {}) {
   const ey = -r * 0.05;
   ctx.save();
   ctx.beginPath();
-  ctx.ellipse(ex, ey, r * 0.15, r * 0.15, 0, 0, TAU);
+  ctx.ellipse(ex, ey, r * 0.17, r * 0.17, 0, 0, TAU);
   ctx.fillStyle = '#e23a2e';
   ctx.fill();
   ctx.beginPath();
-  ctx.ellipse(ex, ey, r * 0.095, r * 0.095, 0, 0, TAU);
+  ctx.ellipse(ex, ey, r * 0.108, r * 0.108, 0, 0, TAU);
   ctx.fillStyle = '#04060a';
   ctx.fill();
   ctx.restore();
@@ -382,12 +444,6 @@ export function drawLoosejawHead(ctx, radius, pose = {}) {
     ctx.fill();
   }
 
-  const hinge = { x: bx * 0.92, y: r * 0.26 };
-  const jawAngle = jawOpen * 1.15;
-  const jawLen = (r * 4.66 + swing * r * 0.8) * 0.5;
-  const jdx = Math.cos(jawAngle);
-  const jdy = Math.sin(jawAngle);
-  const jawTip = { x: hinge.x + jdx * jawLen, y: hinge.y + jdy * jawLen };
   ctx.strokeStyle = OUTLINE;
   ctx.lineWidth = r * 0.2;
   ctx.lineCap = 'round';
@@ -399,8 +455,6 @@ export function drawLoosejawHead(ctx, radius, pose = {}) {
   ctx.lineWidth = r * 0.12;
   ctx.stroke();
 
-  const nx = jdy;
-  const ny = -jdx;
   ctx.fillStyle = TEETH;
   for (let i = 0; i < 7; i += 1) {
     const t = 0.24 + (i / 6) * 0.72;

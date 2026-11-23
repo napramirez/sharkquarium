@@ -45,6 +45,7 @@ export class Input {
     this.viewWidth = 0;
     this.viewHeight = 0;
     this.swallowed = new Set(Object.values(bindings).flat());
+    this.codes = new Map(Object.entries(bindings));
 
     this.handleKeyDown = this.handleKeyDown.bind(this);
     this.handleKeyUp = this.handleKeyUp.bind(this);
@@ -109,7 +110,12 @@ export class Input {
   }
 
   codesFor(action) {
-    return this.bindings[action] ?? [action];
+    let codes = this.codes.get(action);
+    if (!codes) {
+      codes = [action];
+      this.codes.set(action, codes);
+    }
+    return codes;
   }
 
   handleKeyDown(event) {

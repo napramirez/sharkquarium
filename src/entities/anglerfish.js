@@ -29,7 +29,7 @@ export function drawAnglerBody(ctx, radius, pose = {}) {
     ctx.fill();
   };
 
-  const tailTips = [[-0.62, 0.95], [-0.22, 1.28], [0.22, 0.86], [0.62, 1.36]];
+  const tailTips = [[-0.62, 0.95], [-0.22, 1.28], [0.22, 0.86], [0.62, 1.36], [0.0, 1.08], [-0.44, 0.62], [-0.86, 0.72]];
   for (const [sym, lf] of tailTips) {
     finSpine(-r * 1.02, sym * r * 0.18, -r * (1.02 + 0.9 * lf), sym * r * 1.12);
   }
@@ -51,19 +51,19 @@ export function drawAnglerBody(ctx, radius, pose = {}) {
   ctx.lineWidth = r * 0.07;
   ctx.stroke();
 
-  for (let i = 0; i < 4; i += 1) {
-    const t = i / 3;
-    const bx = -r * 0.72 + t * r * 0.95;
-    const by = -r * (0.9 + 0.12 * Math.sin(t * Math.PI));
-    const len = r * (0.42 + 0.34 * Math.abs(Math.sin(i * 1.9 + 0.6)));
-    finSpine(bx, by, bx - r * 0.3, by - len);
+  for (let i = 0; i < 7; i += 1) {
+    const t = i / 6;
+    const bx = -r * 0.92 + t * r * 1.28;
+    const by = -r * (0.88 + 0.14 * Math.sin(t * Math.PI));
+    const len = r * (0.4 + 0.36 * Math.abs(Math.sin(i * 1.7 + 0.6)));
+    finSpine(bx, by, bx - r * 0.26, by - len);
   }
 
-  for (let i = 0; i < 3; i += 1) {
-    const t = i / 2;
-    const len = r * (0.85 + 0.4 * Math.abs(Math.sin(i * 2.2 + 1)));
-    const by = r * 0.2 + r * 0.2 * t;
-    finSpine(r * 0.2 - r * 0.1 * t, by, -r * (0.1 + 0.5 * t), by + len);
+  for (let i = 0; i < 6; i += 1) {
+    const t = i / 5;
+    const len = r * (0.7 + 0.45 * Math.abs(Math.sin(i * 2.1 + 1)));
+    const by = r * 0.16 + r * 0.26 * t + r * 0.05 * Math.sin(i);
+    finSpine(r * 0.26 - r * 0.12 * t, by, -r * (0.05 + 0.6 * t), by + len);
   }
 
   ctx.beginPath();

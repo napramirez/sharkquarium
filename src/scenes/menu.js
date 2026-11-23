@@ -78,6 +78,7 @@ export class MenuScene extends Scene {
     items.push({ label: 'HOW TO PLAY', action: 'help' });
     items.push({ label: 'LORE', action: 'lore' });
     items.push({ label: 'SEA FACTS', action: 'seafacts' });
+    items.push({ label: 'ANIMATION CENTER', action: 'animations' });
     items.push({ label: 'ACHIEVEMENTS', action: 'achievements' });
     items.push({ label: 'ACCOUNT', action: 'account' });
     this.menu = new SelectList(items, {
@@ -110,6 +111,7 @@ export class MenuScene extends Scene {
     else if (action === 'help') this.showHelp = true;
     else if (action === 'lore') this.game.changeScene('lore');
     else if (action === 'seafacts') this.game.changeScene('seafacts');
+    else if (action === 'animations') this.game.changeScene('animations');
     else if (action === 'achievements') this.game.changeScene('achievements');
     else if (action === 'account') this.game.changeScene('account');
   }

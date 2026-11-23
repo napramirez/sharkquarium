@@ -33,7 +33,7 @@ const FIRST_PERSON_SCENES = new Set([
 export const FIXED_STEP = 1 / 60;
 export const MAX_FRAME_TIME = 0.1;
 const MAX_STEPS = 4;
-const MAX_DPR = 1.5;
+const MAX_DPR = 3;
 
 export class Game {
   constructor({ canvas, width, height, input, audio = null }) {
@@ -252,7 +252,7 @@ export class Game {
       renderMobilite(ctx, this.input, this.currentSceneName, this.scene, this.mobilitePointerDown);
       return;
     }
-    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingEnabled = false;
     ctx.setTransform(this.scaleX, 0, 0, this.scaleY, 0, 0);
     this.renderScene(ctx);
     drawMemeOverlay(ctx, this.scene ? this.scene.time : 0, this.width, this.height);
@@ -320,12 +320,7 @@ export class Game {
     const rect = this.canvas.getBoundingClientRect();
     const cssWidth = this.canvas.clientWidth || rect.width || this.width;
     const cssHeight = this.canvas.clientHeight || rect.height || this.height;
-    const dpr = Math.min(
-      window.devicePixelRatio || 1,
-      MAX_DPR,
-      1920 / Math.max(1, cssWidth),
-      1080 / Math.max(1, cssHeight),
-    );
+    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
     const backWidth = Math.max(1, Math.round(cssWidth * dpr));
     const backHeight = Math.max(1, Math.round(cssHeight * dpr));
     if (this.canvas.width !== backWidth || this.canvas.height !== backHeight) {

@@ -17,6 +17,8 @@ import { drawOarfishBody } from '../entities/oarfish.js';
 import { drawCuttlefishGlyph } from '../entities/cuttlefishshape.js';
 import { drawHatchetFish, drawLoosejaw } from '../entities/deepfish.js';
 import { drawGoblinShark } from '../entities/goblinshark.js';
+import { drawIsopod } from '../entities/isopod.js';
+import { drawBlackSwallower } from '../entities/blackswallower.js';
 import {
   drawArcherfish,
   drawNeedlefish,
@@ -101,6 +103,10 @@ function drawGenericFishIcon(ctx, r, pose = {}) {
   ctx.fill();
 }
 
+function drawCuttlefishIcon(ctx, r, pose) {
+  drawCuttlefishGlyph(ctx, r, pose, '#c0392b');
+}
+
 const RULES = [
   [/LOOSEJAW/, drawLoosejaw, 16, 16],
   [/GOBLIN/, drawGoblinShark, 20, 0],
@@ -116,11 +122,13 @@ const RULES = [
   [/MEGASQUID|SQUID/, drawSquidBody, 28, 0],
   [/HAGFISH/, drawHagfishIcon, 26, 0],
   [/ANGLERFISH|DEEP SEA/, drawAnglerBody, 24, 0],
+  [/ISOPOD/, drawIsopod, 26, 0],
+  [/SWALLOWER/, drawBlackSwallower, 22, 0],
   [/LANTERNFISH/, drawLanternfishIcon, 24, 0],
   [/MORAY|EEL/, drawMorayBody, 22, 0],
   [/STINGRAY/, drawStingrayBody, 32, 0],
   [/MANTA/, drawMantaBody, 34, 0],
-  [/CUTTLEFISH|COASTAL/, drawCuttlefishGlyph, 28, 0],
+  [/CUTTLEFISH|COASTAL/, drawCuttlefishIcon, 28, 0],
   [/NAUTILUS/, drawNautilusBody, 30, 0],
   [/HERMIT/, drawHermitBody, 26, 0],
   [/CRAB/, drawKelpCrabBody, 26, 0],

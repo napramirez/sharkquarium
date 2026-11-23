@@ -2,7 +2,7 @@ import { MinigameScene } from '../engine/minigame.js';
 import { drawText, fillCircle, fillRoundRect } from '../engine/render.js';
 import { circleOverlap } from '../engine/collision.js';
 import { clamp, rand, TAU } from '../engine/math.js';
-import { Shark } from '../entities/shark.js';
+import { Shark, drawSharkTail } from '../entities/shark.js';
 import { drawJapaneseSpiderCrab } from '../entities/spidercrab.js';
 import { cute, renderCuteScare } from '../engine/cute.js';
 import { CONTROLS, COLORS, WHALEFALL, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
@@ -34,28 +34,15 @@ function drawSixgill(ctx, r, pose = {}) {
 
   ctx.save();
 
-  ctx.beginPath();
-  ctx.moveTo(-r * 1.7, -r * 0.26);
-  ctx.lineTo(-r * 2.4, -r * 0.13);
-  ctx.lineTo(-r * 2.4, r * 0.13);
-  ctx.lineTo(-r * 1.7, r * 0.26);
-  ctx.closePath();
-  ctx.fillStyle = bodyFill;
-  ctx.fill();
-  ctx.strokeStyle = outline;
-  ctx.lineWidth = r * 0.05;
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(-r * 2.4, -r * 0.4);
-  ctx.lineTo(-r * 3.5, -r * 1.1);
-  ctx.lineTo(-r * 2.4, r * 0.4);
-  ctx.closePath();
-  ctx.fillStyle = finFill;
-  ctx.fill();
-  ctx.strokeStyle = outline;
-  ctx.lineWidth = r * 0.05;
-  ctx.stroke();
+  ctx.save();
+  ctx.translate(-r * 2.2, 0);
+  drawSharkTail(ctx, r, finFill, finFill, bodyFill, 1, {
+    mid: '#b89a6a',
+    dark: '#8a6b42',
+    deep: '#5c4426',
+    triangle: true,
+  });
+  ctx.restore();
 
   bodyPath();
   ctx.fillStyle = bodyFill;
@@ -70,6 +57,34 @@ function drawSixgill(ctx, r, pose = {}) {
   bodyPath();
   ctx.strokeStyle = outline;
   ctx.lineWidth = r * 0.06;
+  ctx.stroke();
+
+  ctx.fillStyle = finFill;
+  ctx.strokeStyle = outline;
+  ctx.lineWidth = r * 0.05;
+
+  ctx.beginPath();
+  ctx.moveTo(r * 0.55, -r * 0.6);
+  ctx.lineTo(-r * 0.35, -r * 0.68);
+  ctx.lineTo(r * 0.0, -r * 1.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(r * 0.5, r * 0.55);
+  ctx.lineTo(-r * 0.3, r * 0.62);
+  ctx.lineTo(-r * 0.5, r * 1.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.5, r * 0.5);
+  ctx.lineTo(-r * 1.0, r * 0.44);
+  ctx.lineTo(-r * 1.2, r * 1.3);
+  ctx.closePath();
+  ctx.fill();
   ctx.stroke();
 
   ctx.beginPath();

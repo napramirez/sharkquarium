@@ -190,24 +190,26 @@ export function drawStingrayBody(ctx, radius, pose) {
     ctx.quadraticCurveTo(-r * 2.3, tailMid, -r * 0.55, r * 0.32);
     ctx.closePath();
   };
-  ctx.save();
-  ctx.lineJoin = 'round';
-  if (tailOutline) {
+  if (pose.tail !== false) {
     ctx.save();
-    ctx.translate(-r * 0.1, 0);
-    ctx.scale(1.12, 1.12);
-    ctx.fillStyle = tailOutline;
+    ctx.lineJoin = 'round';
+    if (tailOutline) {
+      ctx.save();
+      ctx.translate(-r * 0.1, 0);
+      ctx.scale(1.12, 1.12);
+      ctx.fillStyle = tailOutline;
+      tailPath();
+      ctx.fill();
+      ctx.restore();
+    }
+    ctx.fillStyle = tailColor;
+    tailPath();
+    ctx.fill();
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
     tailPath();
     ctx.fill();
     ctx.restore();
   }
-  ctx.fillStyle = tailColor;
-  tailPath();
-  ctx.fill();
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.14)';
-  tailPath();
-  ctx.fill();
-  ctx.restore();
 
   const d = r * 2.0;
   ctx.beginPath();
@@ -282,22 +284,24 @@ export function drawStingrayBody(ctx, radius, pose) {
     ctx.restore();
   }
 
-  for (const side of [-1, 1]) {
-    ctx.save();
-    ctx.translate(r * 1.05, side * r * 0.34);
-    ctx.rotate(-side * 0.38);
-    ctx.fillStyle = '#f0cf4e';
-    ctx.beginPath();
-    ctx.ellipse(0, 0, r * 0.2, Math.max(0.6, r * 0.115 * open), 0, 0, TAU);
-    ctx.fill();
-    ctx.strokeStyle = 'rgba(120, 96, 30, 0.7)';
-    ctx.lineWidth = r * 0.02;
-    ctx.stroke();
-    ctx.fillStyle = '#101010';
-    ctx.beginPath();
-    ctx.arc(0, 0, Math.max(0.5, r * 0.06 * open), 0, TAU);
-    ctx.fill();
-    ctx.restore();
+  if (!pose.noEyes) {
+    for (const side of [-1, 1]) {
+      ctx.save();
+      ctx.translate(r * 1.05, side * r * 0.34);
+      ctx.rotate(-side * 0.38);
+      ctx.fillStyle = '#f0cf4e';
+      ctx.beginPath();
+      ctx.ellipse(0, 0, r * 0.2, Math.max(0.6, r * 0.115 * open), 0, 0, TAU);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(120, 96, 30, 0.7)';
+      ctx.lineWidth = r * 0.02;
+      ctx.stroke();
+      ctx.fillStyle = '#101010';
+      ctx.beginPath();
+      ctx.arc(0, 0, Math.max(0.5, r * 0.06 * open), 0, TAU);
+      ctx.fill();
+      ctx.restore();
+    }
   }
 
   for (const side of [-1, 1]) {

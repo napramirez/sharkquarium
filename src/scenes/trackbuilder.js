@@ -6,6 +6,7 @@ import {
   COMPOSER_MAX_STEPS,
   INSTRUMENTS,
   DRUM_SOUNDS,
+  drumVoices,
   midiToFreq,
   loadComposer,
   saveComposer,
@@ -81,6 +82,12 @@ export class TrackBuilderScene extends Scene {
     const n = this.lineCount();
     if (n <= 1) return AREA_Y + AREA_H / 2;
     return AREA_Y + (line / (n - 1)) * AREA_H;
+  }
+
+  rowHeight() {
+    const n = this.lineCount();
+    if (n <= 1) return 18;
+    return Math.max(3, Math.min(18, (AREA_H / (n - 1)) * 0.82));
   }
 
   colX(col) {
@@ -159,9 +166,11 @@ export class TrackBuilderScene extends Scene {
   preview(line) {
     const inst = this.inst();
     if (inst.sound === 'drum') {
-      const sound = DRUM_SOUNDS[line];
-      if (sound.kind === 'noise') this.game.audio.noise({ ...sound, delay: 0 });
-      else this.game.audio.tone({ ...sound });
+      const sound = DRUM_SOUNDS[line] ?? DRUM_SOUNDS[0];
+      for (const voice of drumVoices(sound)) {
+        if (voice.kind === 'noise') this.game.audio.noise({ ...voice, delay: 0 });
+        else this.game.audio.tone({ ...voice });
+      }
       return;
     }
     this.game.audio.tone({
@@ -231,9 +240,11 @@ export class TrackBuilderScene extends Scene {
       for (const note of this.tracks[inst.key]) {
         if (note.col !== step) continue;
         if (inst.sound === 'drum') {
-          const sound = DRUM_SOUNDS[note.line];
-          if (sound.kind === 'noise') this.game.audio.noise({ ...sound, delay: 0 });
-          else this.game.audio.tone({ ...sound });
+          const sound = DRUM_SOUNDS[note.line] ?? DRUM_SOUNDS[0];
+          for (const voice of drumVoices(sound)) {
+            if (voice.kind === 'noise') this.game.audio.noise({ ...voice, delay: 0 });
+            else this.game.audio.tone({ ...voice });
+          }
         } else {
           this.game.audio.tone({
             freq: midiToFreq(inst.pitches[note.line]),
@@ -466,6 +477,7 @@ export class TrackBuilderScene extends Scene {
     }
 
     const hue = 170 + this.tab * 28;
+    const n2h = this.rowHeight();
     for (let t = 0; t < INSTRUMENTS.length; t += 1) {
       if (t === this.tab) continue;
       const other = INSTRUMENTS[t];
@@ -482,9 +494,9 @@ export class TrackBuilderScene extends Scene {
         strokeRoundRect(
           ctx,
           left,
-          this.lineY(line) - 9,
+          this.lineY(line) - n2h / 2,
           Math.max(6, right - left),
-          18,
+          n2h,
           5,
           `hsl(${otherHue}, 80%, 66%)`,
           2,
@@ -498,23 +510,24 @@ export class TrackBuilderScene extends Scene {
       if (right < AREA_X || left > AREA_X + AREA_W) continue;
       const y = this.lineY(note.line);
       const dragging = this.drag && this.drag.note === note;
+      const h = this.rowHeight();
       fillRoundRect(
         ctx,
         left,
-        y - 9,
+        y - h / 2,
         Math.max(6, right - left),
-        18,
+        h,
         5,
         `hsl(${hue + note.line * 6}, 75%, 60%)`,
       );
       ctx.fillStyle = 'rgba(255, 255, 255, 0.35)';
-      ctx.fillRect(left + 4, y - 6, Math.max(4, right - left - 8), 3);
+      ctx.fillRect(left + 4, y - Math.min(6, h * 0.3), Math.max(4, right - left - 8), Math.min(3, h * 0.2));
       strokeRoundRect(
         ctx,
         left,
-        y - 9,
+        y - h / 2,
         Math.max(6, right - left),
-        18,
+        h,
         5,
         dragging ? COLORS.accent : 'rgba(10, 30, 44, 0.5)',
         dragging ? 2.5 : 1,

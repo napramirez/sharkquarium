@@ -17,6 +17,8 @@ import { Plankton } from '../entities/plankton.js';
 import { Minnow } from '../entities/minnow.js';
 import { Eel } from '../entities/eel.js';
 import { Anglerfish } from '../entities/anglerfish.js';
+import { Isopod } from '../entities/isopod.js';
+import { BlackSwallower } from '../entities/blackswallower.js';
 import { Seal } from '../entities/seal.js';
 import { Turtle } from '../entities/turtle.js';
 import { Log } from '../entities/log.js';
@@ -97,6 +99,7 @@ import {
   ANGLER,
   ARCTIC,
   ARCTIC_PALETTE,
+  BLACK_SWALLOWER,
   CATFISH,
   COLORS,
   COLORSCHOOL,
@@ -115,6 +118,7 @@ import {
   FRESHWATER,
   FRESHWATER_PALETTE,
   GOLDEN,
+  ISOPOD,
   JELLY,
   JELLY_PALETTE,
   KELP,
@@ -316,6 +320,12 @@ export class PlayScene extends Scene {
         }
         this.anglers.push(angler);
       }
+    }
+    this.isopods = [];
+    this.swallowers = [];
+    if (this.deepsea) {
+      for (let i = 0; i < ISOPOD.count; i += 1) this.isopods.push(new Isopod());
+      for (let i = 0; i < BLACK_SWALLOWER.count; i += 1) this.swallowers.push(new BlackSwallower());
     }
     this.icechunk = this.arctic ? new IceChunk() : null;
     this.schools = this.arctic
@@ -1170,6 +1180,8 @@ export class PlayScene extends Scene {
     this.updateSeals(dt);
     for (const angler of this.anglers) angler.update(dt, this.players, this.rules.enemySpeed);
     this.separateAnglers();
+    for (const isopod of this.isopods) isopod.update(dt);
+    for (const swallower of this.swallowers) swallower.update(dt, this.players, this.rules.enemySpeed);
     if (this.turtle) this.turtle.update(dt, this.players, this.rules.enemySpeed);
     if (this.octopus) this.octopus.update(dt, this.players, this.rules.enemySpeed);
     for (const pet of this.pets) pet.update(dt, this.food, this.petEnemies, this.pets);
@@ -1472,6 +1484,23 @@ export class PlayScene extends Scene {
       for (const angler of this.anglers) {
         if (!circleOverlap(player, angler)) continue;
         this.bite(player, player.x - angler.x, player.y - angler.y, ANGLER.penaltyScore, ANGLER.knockback, ANGLER.invulnerableTime, [COLORS.angler, COLORS.lure, '#c9d9d2'], { freq: 100, endFreq: 50, duration: 0.45, volume: 0.3 });
+        break;
+      }
+    }
+    for (const player of this.players) {
+      if (player.concealed === true || player.invulnerable > 0) continue;
+      for (const isopod of this.isopods) {
+        if (!circleOverlap(player, isopod)) continue;
+        this.bite(player, player.x - isopod.x, player.y - isopod.y, ISOPOD.penaltyScore, ISOPOD.knockback, ISOPOD.invulnerableTime, ['#8f8b74', '#6b6753', COLORS.sand], { freq: 150, endFreq: 70, duration: 0.35, volume: 0.28 });
+        break;
+      }
+    }
+    for (const player of this.players) {
+      if (player.concealed === true || player.invulnerable > 0) continue;
+      for (const swallower of this.swallowers) {
+        if (!circleOverlap(player, swallower)) continue;
+        swallower.gulp = 1;
+        this.bite(player, player.x - swallower.x, player.y - swallower.y, BLACK_SWALLOWER.penaltyScore, BLACK_SWALLOWER.knockback, BLACK_SWALLOWER.invulnerableTime, ['#0e0e12', '#2a2a33', '#79d0ff'], { freq: 110, endFreq: 55, duration: 0.4, volume: 0.3 });
         break;
       }
     }
@@ -2157,6 +2186,8 @@ export class PlayScene extends Scene {
       ...(this.hazards ?? []),
       ...(this.eels ?? []),
       ...(this.anglers ?? []),
+      ...(this.isopods ?? []),
+      ...(this.swallowers ?? []),
       ...(this.seals ?? []),
       ...(this.minnows ?? []),
       ...(this.bonus ?? []),
@@ -2258,6 +2289,8 @@ export class PlayScene extends Scene {
     for (const hazard of this.hazards) hazard.render(ctx);
     for (const eel of this.eels) eel.render(ctx);
     for (const angler of this.anglers) angler.render(ctx);
+    for (const isopod of this.isopods) isopod.render(ctx);
+    for (const swallower of this.swallowers) swallower.render(ctx);
     for (const seal of this.seals) seal.render(ctx);
     if (this.turtle) this.turtle.render(ctx);
     if (this.octopus) this.octopus.render(ctx);

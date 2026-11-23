@@ -98,16 +98,12 @@ export class MusicPlayer {
       });
     }
     if (this.track.hat && index % 2 === 0) {
-      if (retro) {
-        this.audio.noise({
-          duration: 0.03,
-          volume: 0.026,
-          type: 'highpass',
-          filterFreq: 4200,
-        });
-      } else {
-        this.audio.tone({ freq: 6200, type: 'square', duration: 0.02, volume: 0.012 });
-      }
+      this.audio.noise({
+        duration: retro ? 0.035 : 0.03,
+        volume: retro ? 0.09 : 0.08,
+        type: 'highpass',
+        filterFreq: retro ? 4200 : 5200,
+      });
     }
   }
 }

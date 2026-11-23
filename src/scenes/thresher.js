@@ -9,6 +9,8 @@ import { CONTROLS, COLORS, THRESHER, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../co
 
 const W = LOGICAL_WIDTH;
 const H = LOGICAL_HEIGHT;
+const WHIP_SEGMENTS = 12;
+const WHIP_SEG = 20;
 
 export class ThresherScene extends MinigameScene {
   constructor() {
@@ -54,7 +56,10 @@ export class ThresherScene extends MinigameScene {
       timer: rand(1.4, 2.2),
       swing: 0,
       phase: rand(0, TAU),
+      whip: [],
+      whipStiff: 0,
     };
+    this.resetWhip();
   }
 
   firstPersonActor() {
@@ -102,6 +107,7 @@ export class ThresherScene extends MinigameScene {
     s.state = 'swim';
     s.timer = 1.6;
     s.swing = 0;
+    this.resetWhip();
     this.invuln = 1.8;
     this.flash = 0;
     this.shake = 0;
@@ -120,6 +126,44 @@ export class ThresherScene extends MinigameScene {
       pts.push({ x: s.x + Math.cos(dir) * d, y: s.y + Math.sin(dir) * d, r: s.radius * (0.34 - (i / 4) * 0.2) });
     }
     return pts;
+  }
+
+  whipTip() {
+    const s = this.shark;
+    const r = s.radius;
+    const tail = (s.swing + 1.1) / 2.2;
+    const ang = -0.15 - tail * 1.0;
+    const back = r * 0.2;
+    const dx = -r * 1.05 - back;
+    const qy = -r * 1.15;
+    const lx = -r * 2.2 + Math.cos(ang) * dx - Math.sin(ang) * qy;
+    const ly = Math.sin(ang) * dx + Math.cos(ang) * qy;
+    const py = ly * (Math.cos(s.heading) < 0 ? -1 : 1);
+    const h = s.heading;
+    return {
+      x: s.x + lx * Math.cos(h) - py * Math.sin(h),
+      y: s.y + lx * Math.sin(h) + py * Math.cos(h),
+    };
+  }
+
+  resetWhip() {
+    const s = this.shark;
+    const tip = this.whipTip();
+    const bx = -Math.cos(s.heading) * WHIP_SEG;
+    const by = -Math.sin(s.heading) * WHIP_SEG;
+    s.whip = [];
+    for (let i = 0; i <= WHIP_SEGMENTS; i += 1) {
+      s.whip.push({ x: tip.x + bx * i, y: tip.y + by * i });
+    }
+    s.whipStiff = 0;
+  }
+
+  distToSegment(px, py, ax, ay, bx, by) {
+    const dx = bx - ax;
+    const dy = by - ay;
+    const len2 = dx * dx + dy * dy || 1;
+    const t = clamp(((px - ax) * dx + (py - ay) * dy) / len2, 0, 1);
+    return Math.hypot(px - (ax + t * dx), py - (ay + t * dy));
   }
 
   updateRound(dt, input) {
@@ -211,6 +255,43 @@ export class ThresherScene extends MinigameScene {
     s.y = clamp(s.y + s.vy * dt, C.topBound, C.bottomBound);
     if (Math.hypot(s.vx, s.vy) > 10) s.heading = Math.atan2(s.vy, s.vx);
 
+    if (!s.whip || s.whip.length !== WHIP_SEGMENTS + 1) this.resetWhip();
+    const tip = this.whipTip();
+    s.whip[0].x = tip.x;
+    s.whip[0].y = tip.y;
+    const stiffTarget = s.state === 'wind' ? 1 : 0;
+    s.whipStiff += (stiffTarget - s.whipStiff) * (1 - Math.exp(-8 * dt));
+    const whip = s.whip;
+    const bx = whip[0].x - whip[1].x;
+    const by = whip[0].y - whip[1].y;
+    const bd = Math.hypot(bx, by) || 1;
+    for (let i = 1; i < whip.length; i += 1) {
+      const prev = whip[i - 1];
+      const node = whip[i];
+      const dx = node.x - prev.x;
+      const dy = node.y - prev.y;
+      const d = Math.hypot(dx, dy) || 1;
+      let tx = prev.x + (dx / d) * WHIP_SEG;
+      let ty = prev.y + (dy / d) * WHIP_SEG;
+      if (s.whipStiff > 0.01) {
+        const sx = whip[0].x - (bx / bd) * WHIP_SEG * i;
+        const sy = whip[0].y - (by / bd) * WHIP_SEG * i;
+        tx += (sx - tx) * s.whipStiff;
+        ty += (sy - ty) * s.whipStiff;
+      }
+      node.x = tx;
+      node.y = ty;
+    }
+    if (this.invuln <= 0) {
+      for (let i = 0; i < whip.length - 1; i += 1) {
+        const near = this.distToSegment(p.x, p.y, whip[i].x, whip[i].y, whip[i + 1].x, whip[i + 1].y);
+        if (near < p.radius + s.radius * 0.16) {
+          if (this.catchPlayer('THE THRESHER\u2019S WHIP CAUGHT YOU')) return;
+          break;
+        }
+      }
+    }
+
     this.particles.update(dt);
     this.flash = Math.max(0, this.flash - dt * 2.5);
     this.shake = Math.max(0, this.shake - dt * 1.8);
@@ -244,6 +325,22 @@ export class ThresherScene extends MinigameScene {
       for (const tp of this.tailPoints()) {
         ctx.beginPath();
         ctx.arc(tp.x, tp.y, tp.r * 1.6, 0, TAU);
+        ctx.stroke();
+      }
+      ctx.restore();
+    }
+
+    if (s.whip && s.whip.length > 1) {
+      ctx.save();
+      ctx.lineCap = 'round';
+      ctx.lineJoin = 'round';
+      for (let i = 0; i < s.whip.length - 1; i += 1) {
+        const t = i / (s.whip.length - 1);
+        ctx.strokeStyle = `rgba(158, 169, 180, ${0.92 - t * 0.72})`;
+        ctx.lineWidth = Math.max(1, s.radius * 0.17 * (1 - t));
+        ctx.beginPath();
+        ctx.moveTo(s.whip[i].x, s.whip[i].y);
+        ctx.lineTo(s.whip[i + 1].x, s.whip[i + 1].y);
         ctx.stroke();
       }
       ctx.restore();

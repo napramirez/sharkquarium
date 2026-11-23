@@ -1,4 +1,6 @@
 import { TAU } from '../engine/math.js';
+import { drawStingrayBody } from './stingray.js';
+import { drawSharkTail } from './shark.js';
 
 export function drawArcherfish(ctx, radius, pose = {}) {
   const age = pose.age ?? 0;
@@ -152,87 +154,117 @@ export function drawNeedlefish(ctx, radius, pose = {}) {
 export function drawThresher(ctx, radius, pose = {}) {
   const age = pose.age ?? 0;
   const r = radius;
-  const body = '#93a1ab';
-  const belly = '#eef3f5';
-  const fin = '#6f7d87';
-  const line = '#2f3a41';
+  const bodyFill = '#9aa6b0';
+  const bellyFill = '#e2e8ec';
+  const finFill = '#77828c';
+  const outline = 'rgba(44, 52, 60, 0.6)';
   const tail = pose.tail ?? 0;
+  const bodyPath = () => {
+    ctx.beginPath();
+    ctx.moveTo(r * 2.1, 0);
+    ctx.quadraticCurveTo(r * 0.4, -r * 0.7, -r * 1.2, -r * 0.42);
+    ctx.quadraticCurveTo(-r * 1.9, -r * 0.2, -r * 2.2, 0);
+    ctx.quadraticCurveTo(-r * 1.9, r * 0.2, -r * 1.2, r * 0.42);
+    ctx.quadraticCurveTo(r * 0.4, r * 0.7, r * 2.1, 0);
+    ctx.closePath();
+  };
 
   ctx.save();
-  ctx.rotate(Math.sin(age * 1.6) * 0.03);
+  ctx.rotate(Math.sin(age * 1.1) * 0.03);
 
   ctx.save();
-  ctx.translate(-r * 1.6, 0);
-  ctx.rotate(-0.2 - tail * 0.9);
-  ctx.beginPath();
-  ctx.moveTo(r * 0.2, 0);
-  ctx.quadraticCurveTo(-r * 1.6, -r * 0.5, -r * 3.6, -r * 0.9);
-  ctx.quadraticCurveTo(-r * 2.0, r * 0.1, -r * 0.4, r * 0.1);
-  ctx.closePath();
-  ctx.fillStyle = fin;
-  ctx.fill();
-  ctx.strokeStyle = line;
-  ctx.lineWidth = r * 0.05;
-  ctx.stroke();
+  ctx.translate(-r * 2.2, 0);
+  ctx.rotate(-0.15 - tail * 1.0);
+  drawSharkTail(ctx, r, finFill, finFill, bodyFill, 1, {
+    mid: '#6f7a84',
+    dark: '#4b555e',
+    deep: '#2f363c',
+    triangle: true,
+  });
   ctx.restore();
 
-  ctx.beginPath();
-  ctx.moveTo(r * 1.5, -r * 0.1);
-  ctx.quadraticCurveTo(r * 0.4, -r * 0.7, -r * 0.8, -r * 0.4);
-  ctx.quadraticCurveTo(-r * 1.5, -r * 0.15, -r * 1.6, 0);
-  ctx.quadraticCurveTo(-r * 1.5, r * 0.15, -r * 0.8, r * 0.4);
-  ctx.quadraticCurveTo(r * 0.4, r * 0.7, r * 1.5, -r * 0.1);
-  ctx.closePath();
-  ctx.fillStyle = body;
+  bodyPath();
+  ctx.fillStyle = bodyFill;
   ctx.fill();
-  ctx.strokeStyle = line;
+  ctx.save();
+  ctx.clip();
+  ctx.fillStyle = bellyFill;
+  ctx.beginPath();
+  ctx.ellipse(0, r * 0.42, r * 2.05, r * 0.6, 0, 0, TAU);
+  ctx.fill();
+  ctx.restore();
+  bodyPath();
+  ctx.strokeStyle = outline;
   ctx.lineWidth = r * 0.06;
   ctx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(r * 1.2, 0);
-  ctx.quadraticCurveTo(r * 0.2, r * 0.6, -r * 0.7, r * 0.38);
-  ctx.quadraticCurveTo(-r * 1.3, r * 0.2, -r * 1.5, 0);
-  ctx.closePath();
-  ctx.fillStyle = belly;
-  ctx.fill();
+  ctx.fillStyle = finFill;
+  ctx.strokeStyle = outline;
+  ctx.lineWidth = r * 0.05;
 
-  ctx.fillStyle = fin;
   ctx.beginPath();
-  ctx.moveTo(r * 0.4, -r * 0.55);
-  ctx.lineTo(-r * 0.4, -r * 0.9);
-  ctx.lineTo(-r * 0.1, -r * 0.4);
+  ctx.moveTo(r * 0.55, -r * 0.6);
+  ctx.lineTo(-r * 0.35, -r * 0.68);
+  ctx.lineTo(r * 0.0, -r * 1.5);
   ctx.closePath();
   ctx.fill();
-  ctx.strokeStyle = line;
-  ctx.lineWidth = r * 0.04;
   ctx.stroke();
 
-  for (const side of [1]) {
-    ctx.beginPath();
-    ctx.moveTo(r * 0.2, r * 0.4 * side);
-    ctx.lineTo(-r * 0.6, r * 1.5 * side);
-    ctx.lineTo(r * 0.1, r * 0.9 * side);
-    ctx.closePath();
-    ctx.fillStyle = fin;
-    ctx.fill();
-    ctx.stroke();
-  }
+  ctx.beginPath();
+  ctx.moveTo(r * 0.5, r * 0.55);
+  ctx.lineTo(-r * 0.3, r * 0.62);
+  ctx.lineTo(-r * 0.5, r * 1.5);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
 
-  for (let i = 0; i < 5; i += 1) {
-    const gx = r * (0.6 - i * 0.13);
+  ctx.beginPath();
+  ctx.moveTo(-r * 0.5, r * 0.5);
+  ctx.lineTo(-r * 1.0, r * 0.44);
+  ctx.lineTo(-r * 1.2, r * 1.3);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(-r * 1.6, -r * 0.38);
+  ctx.lineTo(-r * 2.0, -r * 1.1);
+  ctx.lineTo(-r * 1.2, -r * 0.42);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  ctx.strokeStyle = 'rgba(60, 70, 80, 0.45)';
+  ctx.lineWidth = r * 0.04;
+  for (let i = 0; i < 6; i += 1) {
+    const gx = r * (0.5 - i * 0.12);
     ctx.beginPath();
-    ctx.moveTo(gx, -r * 0.3);
-    ctx.lineTo(gx - r * 0.02, r * 0.18);
-    ctx.strokeStyle = 'rgba(40,50,58,0.4)';
-    ctx.lineWidth = r * 0.03;
+    ctx.moveTo(gx, -r * 0.28);
+    ctx.lineTo(gx, r * 0.18);
     ctx.stroke();
   }
 
   ctx.beginPath();
-  ctx.arc(r * 1.05, -r * 0.2, r * 0.11, 0, TAU);
+  ctx.arc(r * 1.4, -r * 0.18, r * 0.15, 0, TAU);
   ctx.fillStyle = '#0c0f12';
   ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(r * 2.1, r * 0.04);
+  ctx.quadraticCurveTo(r * 1.4, r * 0.4, r * 0.5, r * 0.24);
+  ctx.strokeStyle = 'rgba(40, 48, 56, 0.85)';
+  ctx.lineWidth = r * 0.08;
+  ctx.stroke();
+  ctx.fillStyle = '#e8e2d2';
+  for (let i = 0; i < 5; i += 1) {
+    const tx = r * (1.0 + i * 0.2);
+    ctx.beginPath();
+    ctx.moveTo(tx - r * 0.05, r * 0.06);
+    ctx.lineTo(tx + r * 0.05, r * 0.06);
+    ctx.lineTo(tx, r * 0.26);
+    ctx.closePath();
+    ctx.fill();
+  }
 
   ctx.restore();
 }
@@ -281,18 +313,26 @@ export function drawSawfish(ctx, radius, pose = {}) {
   const body = '#b0a58f';
   const belly = '#efe9dc';
   const line = '#5c523c';
-  const saw = pose.saw ?? 0;
+  const fin = '#8a7f68';
 
   ctx.save();
   ctx.rotate(Math.sin(age * 2) * 0.03);
 
   ctx.save();
-  ctx.rotate((saw - 0.5) * 0.5);
+  ctx.translate(-r * 1.9, 0);
+  ctx.rotate(Math.sin(age * 2 + 0.6) * 0.06);
+  drawSharkTail(ctx, r, fin, '#5c5240', body, 7);
+  ctx.restore();
+
+  const sawBase = r * 1.15;
+  const sawLen = r * 3.1;
+  ctx.save();
+  ctx.translate(sawBase, 0);
   ctx.beginPath();
-  ctx.moveTo(r * 0.9, -r * 0.12);
-  ctx.lineTo(r * 3.6, -r * 0.06);
-  ctx.lineTo(r * 3.6, r * 0.06);
-  ctx.lineTo(r * 0.9, r * 0.12);
+  ctx.moveTo(0, -r * 0.16);
+  ctx.lineTo(sawLen, -r * 0.06);
+  ctx.lineTo(sawLen, r * 0.06);
+  ctx.lineTo(0, r * 0.16);
   ctx.closePath();
   ctx.fillStyle = body;
   ctx.fill();
@@ -300,59 +340,50 @@ export function drawSawfish(ctx, radius, pose = {}) {
   ctx.lineWidth = r * 0.05;
   ctx.stroke();
   ctx.fillStyle = belly;
-  for (let i = 0; i < 9; i += 1) {
-    const tx = r * (1.2 + i * 0.26);
+  for (let i = 0; i < 10; i += 1) {
+    const tx = r * (0.35 + i * 0.22);
     for (const side of [-1, 1]) {
       ctx.beginPath();
-      ctx.moveTo(tx - r * 0.05, side * r * 0.06);
-      ctx.lineTo(tx + r * 0.05, side * r * 0.06);
-      ctx.lineTo(tx, side * r * 0.22);
+      ctx.moveTo(tx - r * 0.045, side * r * 0.055);
+      ctx.lineTo(tx + r * 0.045, side * r * 0.055);
+      ctx.lineTo(tx, side * r * 0.2);
       ctx.closePath();
       ctx.fill();
     }
   }
   ctx.restore();
 
-  ctx.beginPath();
-  ctx.moveTo(r * 1.0, -r * 0.2);
-  ctx.quadraticCurveTo(r * 0.5, -r * 0.75, -r * 0.4, -r * 0.7);
-  ctx.quadraticCurveTo(-r * 1.4, -r * 0.6, -r * 1.7, 0);
-  ctx.quadraticCurveTo(-r * 1.4, r * 0.6, -r * 0.4, r * 0.7);
-  ctx.quadraticCurveTo(r * 0.5, r * 0.75, r * 1.0, -r * 0.2);
-  ctx.closePath();
-  const grad = ctx.createLinearGradient(0, -r * 0.7, 0, r * 0.7);
-  grad.addColorStop(0, body);
-  grad.addColorStop(1, belly);
-  ctx.fillStyle = grad;
-  ctx.fill();
-  ctx.strokeStyle = line;
-  ctx.lineWidth = r * 0.06;
-  ctx.stroke();
+  ctx.save();
+  ctx.scale(1, 0.55);
+  drawStingrayBody(ctx, radius, {
+    age,
+    bodyColor: body,
+    raw: true,
+    tail: false,
+    noEyes: true,
+    spotColor: 'rgba(70, 62, 50, 0.28)',
+  });
+  ctx.restore();
 
+  ctx.fillStyle = fin;
+  ctx.strokeStyle = line;
+  ctx.lineWidth = r * 0.05;
   for (const side of [-1, 1]) {
     ctx.beginPath();
-    ctx.moveTo(r * 0.2, side * r * 0.5);
-    ctx.lineTo(-r * 0.4, side * r * 1.3);
-    ctx.lineTo(-r * 1.0, side * r * 0.5);
+    ctx.moveTo(-r * 0.9, side * r * 0.6);
+    ctx.lineTo(-r * 2.0, side * r * 0.02);
+    ctx.lineTo(-r * 1.3, side * r * 1.05);
     ctx.closePath();
-    ctx.fillStyle = body;
     ctx.fill();
-    ctx.strokeStyle = line;
-    ctx.lineWidth = r * 0.05;
     ctx.stroke();
   }
 
-  ctx.beginPath();
-  ctx.arc(r * 0.5, -r * 0.28, r * 0.1, 0, TAU);
-  ctx.fillStyle = '#141414';
-  ctx.fill();
-
-  ctx.beginPath();
-  ctx.moveTo(r * 0.45, r * 0.2);
-  ctx.quadraticCurveTo(r * 0.7, r * 0.34, r * 0.9, r * 0.24);
-  ctx.strokeStyle = 'rgba(70, 58, 36, 0.8)';
-  ctx.lineWidth = r * 0.05;
-  ctx.stroke();
+  for (const side of [-1, 1]) {
+    ctx.beginPath();
+    ctx.arc(r * 1.15, side * r * 0.17, r * 0.08, 0, TAU);
+    ctx.fillStyle = '#101010';
+    ctx.fill();
+  }
 
   ctx.restore();
 }

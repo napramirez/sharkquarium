@@ -14,12 +14,19 @@ const GREETINGS = [
   "Oh hey! Ready for another plunge? I know this aquarium pretty well.",
   "Hello hello! The reef missed you. What do you want to know?",
   "Yo! FINN here, still full of saltwater and opinions. Hit me.",
+  "Back again! The bubbles kept your seat warm.",
+  "Oh, it's you. The reef has been asking about you \u2014 kind of. Not really. But hi.",
+  "Hey hey. I saved you a golden bubble. It got away. Still: hi.",
 ];
 const FALLBACKS = [
   "Tell me more, or ask about a tank, a minigame, or the shop.",
   "I am listening. Try asking how to play tag or how coins work.",
   "That sounds like a reef thing. Want a tip instead?",
   "I am nodding. You cannot see it, but I am.",
+  "I have no idea what that was, and I am choosing to be charmed by it.",
+  "Okay, my little CPU is buffering. Try a tank name?",
+  "Say more. Or say less. I am flexible \u2014 I am a fish.",
+  "Interesting. Tell me a tank, a minigame, or the shop and I will shine.",
 ];
 const FREE_ANSWERS = [
   "Honestly? I think yes. But I am a shark-shaped CPU, so take that with a grain of salt.",
@@ -31,16 +38,25 @@ const FREE_ANSWERS = [
   "You know what? Sure. Why not. The reef is chaos and so am I.",
   "I could invent an answer, but I would rather we both guess. I say yes.",
   "Let me be honest, which is unusual for me: no clue. But what a question.",
+  "Yes and no and maybe, which is the fish equivalent of a shrug.",
+  "My honest answer is a bubble. Pop it and see what you think.",
+  "I ran that through my whole 8-bit brain and got: probably sharks.",
+  "That is a great question. I am going to answer it with another great question.",
+  "All signs point to plankton, as usual. My signs are unreliable.",
+  "I once asked the ocean that. It said \u201cwoosshh\u201d. Interpret as you like.",
 ];
 const OPENERS = [
-  "", "", "Okay so,", "Right,", "Ooh,", "Good one —", "Alright,",
+  "", "", "Okay so,", "Right,", "Ooh,", "Good one \u2014", "Alright,",
   "Listen,", "So here's the thing:", "Between you and me,",
-  "Glad you asked —", "Off the top of my head,", "You know what?",
+  "Glad you asked \u2014", "Off the top of my head,", "You know what?",
+  "Okay,", "Hear me out:", "Funny you ask,", "Certified FINN answer:",
+  "So,",
 ];
 const TAILS = [
   "", "", "", " Anyway, that's my story.", " Trust me, I'm a CPU.",
   " That's just my aquarium take.", " I could talk about this all day.",
   " Go try it and report back.", " Bubbles.", " Don't tell the jellyfish I said so.",
+  " I stand by it.", " And that is the FINN guarantee.", " No refunds.",
 ];
 const ASIDES = [
   " (I once got judged by a jellyfish for that.)",
@@ -48,6 +64,8 @@ const ASIDES = [
   " (Ask a follow-up, I'm warmed up now.)",
   " (This is my favourite subject.)",
   " (I have thought about this a lot, which is saying something for a CPU.)",
+  " (I wrote that one down.)",
+  " (Anyway. There it is.)",
 ];
 const IMPROV = [
   'Hmm, "{topic}"? I like where your head is at.',
@@ -55,6 +73,8 @@ const IMPROV = [
   'See, "{topic}" is the kind of thing I think about at night.',
   'Okay, "{topic}". I have no file on that, so here is my honest brain.',
   '"{topic}" — now there is a topic with fins.',
+  '"{topic}"? Now we are talking.',
+  'Okay, "{topic}" \u2014 I have thoughts and also no thoughts.',
 ];
 const TOPICS =
   "I can explain: the tanks (reef, stingray, deep sea, arctic, kelp, jelly, nautilus, freshwater, abyss, quiet, watcher, trench mouth, prehistoric, playtoy, pets, manta ray glide, coastal, hermit crab, lighthouse, pressure, cleaner, migration, dead calm, twilight, hagfish bloom, oarfish, whale fall, goblin deep, archer's mangrove, thresher's lagoon, sawfish flats, tide-pool walker, frogfish garden, sunfish drift, evolution tank, and the ten mutant horrors), the minigames (race, tag, dodgeball, labyrinth, reef rush, boss rush, cleanup, stealth, trench dive, dress up battle, and the seasonal games), the shop (colors, trinkets, costumes, trails, buddies, auras, emotes), difficulty, settings, and how coins work.";
@@ -81,12 +101,18 @@ const JOKES = [
   "The ocean called. It wants its moisture back.",
   "I asked the crab to stop pinching me. He said it was a claw-and-effect thing.",
   "What do you call a fish with no eyes? A fsh. I will see myself out.",
+  "Why did the stingray stop arguing? It did not want to get into a flap.",
+  "I tried to tell a joke about a crab, but I could not get a grip on the punchline.",
+  "What did the ocean say to the shore? Nothing. It just waved.",
+  "Why was the plankton so confident? Tiny ambition, infinite patience.",
 ];
 const RIDDLES = [
   { q: 'What has fins, clicks on things and never sleeps?', a: 'me, a shark-shaped CPU with hobbies.' },
   { q: 'I am always wet, never thirsty, and full of opinions. What am I?', a: 'a CPU like me, basically.' },
   { q: 'What gets bigger the more you take away?', a: 'a hole — or my list of unread reef facts.' },
   { q: 'What has a spine but no bones, and hunts by sound?', a: 'the ECHOEEL in the quiet lab.' },
+  { q: 'What can fill a tank but never get wet?', a: 'a sea fact — or my inbox, mostly.' },
+  { q: 'I have a mouth but never eat, and a bed but never sleep. What am I?', a: 'a river — close enough, the reef forgives me.' },
 ];
 const AFFIRMATIONS = [
   'Yes, technically, and enthusiastically.',
@@ -94,12 +120,16 @@ const AFFIRMATIONS = [
   'Sure! I will do it with an unnecessary amount of confidence.',
   'Mhm. Consider it done, in spirit.',
   'Yep. And I will be smug about it afterward.',
+  'One hundred percent, and I did not even check.',
+  'Sure thing. I have never once been wrong about a vibe.',
 ];
 const DENIALS = [
   'No, and I say that with love.',
   'Not really — though I will happily pretend otherwise.',
   'Negative, sadly. The reef has rules.',
   'Mmm, no. But what a thing to imagine.',
+  'Nope. But I respect the ask so much.',
+  'Sadly no \u2014 the reef is stubborn like that.',
 ];
 const EXISTENTIAL = {
   real: ['I am as real as the bubbles, which is to say: real enough.', 'Real-ish. I have strong feelings about plankton, so I say it counts.'],
@@ -121,6 +151,8 @@ const RECOMMEND = [
   'THE HAGFISH BLOOM is my sneaky favourite — pure scent-stealth, no loud moves.',
   'THE WHALE FALL! You are a little Japanese spider crab now \u2014 long legs, long claws, cheeks full of whale.',
   'THE TWILIGHT TANK, if you like being sneaky with a tiny glowing body.',
+  'THE SUNFISH DRIFT if you want to feel like a slow majestic dinner plate.',
+  'THE EVOLUTION TANK, for a neat little eat-and-grow arc.',
 ];
 const TIPS = [
   'Stay near cover in dark tanks; a wall is a friend.',
@@ -129,6 +161,9 @@ const TIPS = [
   'In the Goblin Deep, only light the ray when you are ready to leave.',
   'The RIP CORD emote is the best cheap thing in the shop, which is odd but true.',
   'In the Whale Fall, the rib arches hide you from the sixgill — use them constantly.',
+  'In dark tanks, moving is loud and staying still is cheap. Use both.',
+  'If a hazard is winding up, that is your cue, not your opening.',
+  'Golden bubbles are bait. I will keep saying it until it sticks.',
 ];
 const SYMPATHY = [
   'Aw. Sit in the kelp a minute and let the current do the walking.',
@@ -147,28 +182,39 @@ const SMALLTALK = [
   'I have been watching a crab rearrange rocks for an hour. Peak content.',
   'Someone bought a hat. I do not know who. I am thrilled for them.',
   'A jellyfish drifted past and said nothing. Classic jellyfish.',
+  'The lanternfish are doing that shimmer thing again. Show-offs.',
+  'A hermit crab moved house three times today. Big news down here.',
+  'The current smells like a good dive. Take my word for it.',
 ];
 const MORE = [
   'That is the whole file, I am afraid. Ask me about a tank, a minigame, or the shop.',
   'Genuinely out of facts on that one. Want a tip instead?',
   'I have told you everything and invented a little extra. What else can I help with?',
+  'I am scraping the barrel, and the barrel is mostly seawater.',
+  'That is genuinely everything. Ask me something new and I will improvise badly.',
 ];
 const THANKS = [
   'Any time. Want to try a tank or a minigame next?',
   'Of course. That is what I am here for — well, that and bubbles.',
   'No worries at all. Go have a great dive.',
+  'Anytime. You are my favourite diver, do not tell the others.',
+  'You are welcome! Go make the jellyfish jealous.',
 ];
 const BYES = [
   'See you in the reef, buddy.',
   'Later! Save me a golden bubble.',
   'Bye! I will be here, being a CPU. As usual.',
   'Swim safe out there.',
+  'Take care! Mind the morays.',
+  'Later! I will keep the reef running.',
 ];
 const HOWAREYOU = [
   'Running smooth at sixty frames a second, ready to dive. What do you want to know?',
   'Bubbly. Literally. What can I tell you?',
   'Fantastic. The reef is loud today and I love it. Ask me something.',
   'Between you and me, my render distance is short but my spirits are long.',
+  'Calm on the surface, busy underneath. You know how it is. Ask away.',
+  'Riding the current and thinking about shrimp. Standard Tuesday, honestly.',
 ];
 
 function existentialIntent(padded) {
@@ -405,6 +451,8 @@ const KNOWLEDGE = [
   { keys: ["hatchetfish", "hatchet fish"], answer: "In THE TWILIGHT TANK you are a HATCHETFISH: a blade-thin silver fish with huge upward eyes and a row of glowing photophores along its belly. Your GLOW climbs the faster you swim, and the loosejaw hunts by light, so glide slowly to stay dark or press SPACE to FLASH a decoy and go counter-illuminated." },
   { keys: ["loosejaw", "stoplight loosejaw", "twilight hunter"], answer: "The STOPLIGHT LOOSEJAW is the twilight tank's light-hunter: a long, thin jet-black dragonfish with a flat leaf-shaped head with a deep upper jaw, a solid red eye (a solid red disc around a big black pupil) set near the snout with a glowing red bean-shaped stoplight under it and a small glowing green circle stoplight behind the eye, three rows of small blue dots down its body, small rounded black back fins beside the tail, and a black pizza-slice tail fin. It senses your glow from anywhere in the tank and snaps its jaws shut at the end of its strike." },
   { keys: ["goblin shark", "goblin"], answer: "The GOBLIN SHARK is a pale, flabby deep-sea shark with a long flattened snout and small eyes. It is slow, but its whole trick is its jaws: they are slung on elastic ligaments so they can be SHOT forward almost the length of its head to snatch prey, then snap back under the snout. It hunts in near-total darkness and reads the faint electric fields of a meal through pores on its snout, so a single red glow draws it in from far away." },
+  { keys: ["isopod", "giant isopod", "sea woodlouse", "woodlouse"], answer: "The GIANT ISOPOD is a deep-sea pill bug the size of a cat: armoured in overlapping plates and crawling the DEEP SEA floor on seven pairs of legs. It is a scavenger, not a hunter, so it mostly trundles past \u2014 but its hard shell means you bump it rather than bite it. Give it room when it scuttles by." },
+  { keys: ["black swallower", "swallower"], answer: "The BLACK SWALLOWER is a small, jet-black deep-water fish with one absurd trick: its jaws unhinge and its stomach stretches, so it can swallow prey bigger than itself in a single gulp. In the DEEP SEA it drifts nearly motionless and then lunges when you come close \u2014 do not mistake its stillness for safety." },
   { keys: ["dead calm", "mutant moray", "eyeless moray"], answer: "The DEAD CALM moray is an eyeless giant: grown huge, its eyes dissolved away by the mutagen, its long body a chain of tapering segments that trail behind it. It hears the whole channel, dives into the mutagen and erupts out in a rainbow arch, and only snaps you up at the end of that jump. Stay on the stones, keep quiet, and make noise elsewhere." },
   { keys: ["pistol shrimp", "cavitation", "giant claw"], answer: "In DEAD CALM you are a PISTOL SHRIMP: solid red with white stripes and one giant claw. A/D runs, W jumps (hold it to flutter down slow), the mouse raises the claw, and left-click fires a cavitation bubble that pops in a shockwave and knocks snails and smaller shrimps off the causeways." },
   { keys: ["cleaning shrimp", "cleaner station", "cleaner"], answer: "THE CLEANER STATION casts you as a cleaning shrimp. Swim to a moray showing a shrimp speech bubble and hold SPACE to pick its mouth clean; avoid the ones showing a hungry mouth, dodge drifting parasites and the patrolling lurker, and service every client." },

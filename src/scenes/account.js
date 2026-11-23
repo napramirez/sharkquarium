@@ -9,8 +9,8 @@ import {
   saveAccount,
   logout,
   listAccounts,
-  exportTransfer,
-  importTransfer,
+  currentTransferCode,
+  claimTransferCode,
   revealPassword,
   deleteAccount,
 } from '../engine/accounts.js';
@@ -38,12 +38,11 @@ export class AccountScene extends Scene {
       case 'create':
       case 'login':
         return [{ label: 'NAME' }, { label: 'PASSWORD', mask: true }];
-      case 'export':
-        return [{ label: 'PASSWORD (TO UNLOCK YOUR TRANSFER CODE)', mask: true }];
       case 'import':
         return [
-          { label: 'TRANSFER CODE (THE NUMBERS SHOWN ON YOUR OTHER DEVICE)', paste: true, wide: true },
-          { label: 'PASSWORD FOR THAT ACCOUNT', mask: true },
+          { label: 'TRANSFER CODE (5\u20137 DIGITS, MAY END IN A LETTER)', paste: true },
+          { label: 'PASSWORD', mask: true },
+          { label: 'ACCOUNT NAME (OPTIONAL)' },
         ];
       default:
         return [];
@@ -57,7 +56,7 @@ export class AccountScene extends Scene {
     if (account) {
       items.push({ label: `SIGNED IN: ${account}`, action: 'none', disabled: true });
       items.push({ label: 'SAVE PROGRESS', action: 'save' });
-      items.push({ label: 'GET TRANSFER CODE', action: 'export' });
+      items.push({ label: 'TRANSFER CODE', action: 'showcode' });
       items.push({ label: 'FORGOT PASSWORD', action: 'forgot' });
       items.push({ label: 'DELETE ACCOUNT', action: 'delete' });
       items.push({ label: 'LOG OUT', action: 'logout' });
@@ -137,6 +136,33 @@ export class AccountScene extends Scene {
     this.inputText = this.fields().map(() => '');
   }
 
+  showTransferCode() {
+    const result = currentTransferCode();
+    if (!result.ok) {
+      this.setStatus(result.error);
+      this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.2 });
+      return;
+    }
+    this.phase = 'showcode';
+    this.activeField = 0;
+    this.inputText = [];
+    this.code = result.code;
+    this.copied = false;
+    this.copyCode();
+    this.setStatus('MEMORISE OR COPY THIS CODE, THEN ENTER IT WITH YOUR NAME AND PASSWORD ELSEWHERE');
+    this.game.audio.tone({ freq: 520, endFreq: 900, type: 'triangle', duration: 0.24, volume: 0.22 });
+  }
+
+  copyCode() {
+    if (!this.code) return;
+    if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(this.code).then(() => {
+        this.copied = true;
+      }).catch(() => {});
+    }
+    this.game.audio.tone({ freq: 600, endFreq: 820, duration: 0.1, volume: 0.16 });
+  }
+
   choose(item) {
     if (item.disabled) return;
     this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.16, volume: 0.2 });
@@ -164,12 +190,14 @@ export class AccountScene extends Scene {
       return;
     }
     if (item.action === 'delete') {
-      const account = currentAccount();
-      if (account) this.removeAccount(account);
-      else this.openPicker('delete');
+      this.openPicker('delete');
       return;
     }
-    if (item.action === 'create' || item.action === 'login' || item.action === 'export' || item.action === 'import') {
+    if (item.action === 'showcode') {
+      this.showTransferCode();
+      return;
+    }
+    if (item.action === 'create' || item.action === 'login' || item.action === 'import') {
       this.startPhase(item.action);
       if (item.action === 'login' && item.name) {
         this.inputText = [item.name, ''];
@@ -202,32 +230,14 @@ export class AccountScene extends Scene {
       this.afterAuth(result, 'SIGNED IN');
       return;
     }
-    if (this.phase === 'export') {
-      const result = exportTransfer(t[0]);
-      if (!result.ok) {
-        this.setStatus(result.error);
-        this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.2 });
-        return;
-      }
-      this.code = result.code;
-      this.copied = false;
-      if (typeof navigator !== 'undefined' && navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(result.code).then(() => {
-          this.copied = true;
-        }).catch(() => {});
-      }
-      this.setStatus('TRANSFER CODE READY \u2014 COPY IT TO YOUR OTHER DEVICE');
-      this.game.audio.tone({ freq: 520, endFreq: 900, type: 'triangle', duration: 0.24, volume: 0.22 });
-      return;
-    }
     if (this.phase === 'import') {
-      const result = importTransfer(t[0], t[1]);
+      const result = claimTransferCode(t[0], t[1], t[2]);
       if (!result.ok) {
         this.setStatus(result.error);
         this.game.audio.tone({ freq: 180, endFreq: 90, duration: 0.2, volume: 0.2 });
         return;
       }
-      this.setStatus(`ACCOUNT "${result.name}" CLAIMED \u2014 PROGRESS RESTORED`);
+      this.setStatus(`ACCOUNT "${result.name}" CLAIMED \u2014 YOU ARE SIGNED IN`);
       this.game.audio.tone({ freq: 520, endFreq: 900, type: 'triangle', duration: 0.24, volume: 0.22 });
       this.phase = 'list';
       this.rebuild();
@@ -292,7 +302,9 @@ export class AccountScene extends Scene {
     }
     if (this.phase === 'list') this.menu.update(dt, input);
     else if (this.phase === 'forgot' || this.phase === 'delete') this.pickerMenu.update(dt, input);
-    else this.updateTyping(input);
+    else if (this.phase === 'showcode') {
+      if (input.wasPressed('confirm')) this.copyCode();
+    } else this.updateTyping(input);
   }
 
   renderField(ctx, index, y) {
@@ -372,23 +384,30 @@ export class AccountScene extends Scene {
       drawText(ctx, del ? 'DELETE ACCOUNT' : 'FORGOT PASSWORD', W / 2, 168, { size: 22, color: del ? COLORS.danger : COLORS.accent });
       drawText(
         ctx,
-        del ? 'PICK AN ACCOUNT TO DELETE IT FROM THIS DEVICE' : 'PICK AN ACCOUNT TO SHOW THE PASSWORD YOU KEYED FOR IT',
+        del ? 'CLICK AN ACCOUNT TO DELETE IT FROM THIS DEVICE RIGHT AWAY' : 'PICK AN ACCOUNT TO SHOW THE PASSWORD YOU KEYED FOR IT',
         W / 2,
         194,
         { size: 12, color: COLORS.foam, alpha: 0.85 },
       );
       this.pickerMenu.render(ctx, W / 2, 330);
     } else {
-      const titles = { create: 'CREATE ACCOUNT', login: 'LOG IN', export: 'TRANSFER CODE', import: 'CLAIM AN ACCOUNT' };
+      const titles = { create: 'CREATE ACCOUNT', login: 'LOG IN', showcode: 'TRANSFER CODE', import: 'ENTER TRANSFER CODE' };
       drawText(ctx, titles[this.phase], W / 2, 168, { size: 22, color: COLORS.accent });
       if (this.phase === 'import') {
-        drawText(ctx, 'PASTE THE CODE FROM YOUR OTHER DEVICE, THEN KEY IN ITS PASSWORD', W / 2, 192, {
+        drawText(ctx, 'ENTER YOUR SHORT CODE AND PASSWORD \u2014 THE ACCOUNT NAME IS OPTIONAL', W / 2, 192, {
           size: 12,
           color: COLORS.foam,
           alpha: 0.85,
         });
       }
-      if (this.phase === 'export' && this.code) {
+      if (this.phase === 'showcode') {
+        drawText(ctx, 'MEMORISE OR COPY THIS CODE, THEN ENTER IT WITH YOUR NAME AND PASSWORD ELSEWHERE', W / 2, 192, {
+          size: 12,
+          color: COLORS.foam,
+          alpha: 0.85,
+        });
+      }
+      if (this.phase === 'showcode' && this.code) {
         this.renderCode(ctx);
       } else {
         const fields = this.fields();

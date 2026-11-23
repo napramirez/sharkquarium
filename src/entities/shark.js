@@ -65,28 +65,18 @@ export class Shark extends Entity {
   }
 }
 
-export function drawSharkBody(ctx, radius, pose) {
-  const r = radius;
-  const age = pose.age ?? 0;
-  const speed = pose.speed ?? 0;
-  const wiggle = Math.sin(age * (4 + speed * 0.02)) * 0.34;
-  const body = playerColor('body', COLORS.shark);
-  const belly = playerColor('belly', COLORS.sharkBelly);
-  const fin = chaosActive() ? playerColor('accent', COLORS.sharkFin) : COLORS.sharkFin;
-  const tailColor = playerColor('tail', fin);
-  const L = r * 1.9;
-  const W = r * 0.82;
-
-  ctx.save();
-  ctx.translate(-L, 0);
-  ctx.rotate(wiggle);
+export function drawSharkTail(ctx, r, fin, tailColor, bodyColor, peduncle = 1, options = {}) {
+  const mid = options.mid ?? '#33506a';
+  const dark = options.dark ?? '#101820';
+  const deep = options.deep ?? '#000000';
+  const back = r * 0.2 * peduncle;
   ctx.beginPath();
   ctx.moveTo(r * 0.95, -r * 0.24);
-  ctx.lineTo(-r * 0.2, -r * 0.13);
-  ctx.lineTo(-r * 0.2, r * 0.13);
+  ctx.lineTo(-back, -r * 0.13);
+  ctx.lineTo(-back, r * 0.13);
   ctx.lineTo(r * 0.95, r * 0.24);
   ctx.closePath();
-  ctx.fillStyle = body;
+  ctx.fillStyle = bodyColor;
   ctx.fill();
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.14)';
   ctx.lineWidth = r * 0.03;
@@ -94,9 +84,9 @@ export function drawSharkBody(ctx, radius, pose) {
   const finTip = (bx, by, tx, ty, baseColor) => {
     const g = ctx.createLinearGradient(bx, by, tx, ty);
     g.addColorStop(0, baseColor);
-    g.addColorStop(0.38, '#33506a');
-    g.addColorStop(0.72, '#101820');
-    g.addColorStop(1, '#000000');
+    g.addColorStop(0.38, mid);
+    g.addColorStop(0.72, dark);
+    g.addColorStop(1, deep);
     return g;
   };
 
@@ -121,13 +111,23 @@ export function drawSharkBody(ctx, radius, pose) {
   ctx.lineTo(-r * 0.17, r * 0.15);
   ctx.closePath();
   ctx.fill();
-  ctx.translate(-r * 0.2, 0);
+  ctx.translate(-back, 0);
   const tailGrad = ctx.createRadialGradient(r * 0.15, 0, r * 0.12, r * 0.15, 0, r * 1.4);
   tailGrad.addColorStop(0, tailColor);
-  tailGrad.addColorStop(0.42, '#33506a');
-  tailGrad.addColorStop(0.74, '#101820');
-  tailGrad.addColorStop(1, '#000000');
+  tailGrad.addColorStop(0.42, mid);
+  tailGrad.addColorStop(0.74, dark);
+  tailGrad.addColorStop(1, deep);
   ctx.fillStyle = tailGrad;
+  if (options.triangle) {
+    ctx.beginPath();
+    ctx.moveTo(r * 0.15, 0);
+    ctx.quadraticCurveTo(-r * 0.5, -r * 0.6, -r * 1.05, -r * 1.15);
+    ctx.lineTo(-r * 0.72, r * 0.58);
+    ctx.quadraticCurveTo(-r * 0.24, r * 0.22, r * 0.15, 0);
+    ctx.closePath();
+    ctx.fill();
+    return;
+  }
   ctx.beginPath();
   ctx.moveTo(r * 0.15, 0);
   ctx.quadraticCurveTo(-r * 0.4, -r * 0.55, -r * 0.98, -r * 0.98);
@@ -136,11 +136,37 @@ export function drawSharkBody(ctx, radius, pose) {
   ctx.quadraticCurveTo(-r * 0.24, r * 0.22, r * 0.15, 0);
   ctx.closePath();
   ctx.fill();
+}
+
+export function drawSharkBody(ctx, radius, pose) {
+  const r = radius;
+  const age = pose.age ?? 0;
+  const speed = pose.speed ?? 0;
+  const wiggle = Math.sin(age * (4 + speed * 0.02)) * 0.34;
+  const body = playerColor('body', COLORS.shark);
+  const belly = playerColor('belly', COLORS.sharkBelly);
+  const fin = chaosActive() ? playerColor('accent', COLORS.sharkFin) : COLORS.sharkFin;
+  const tailColor = playerColor('tail', fin);
+  const L = r * 1.9;
+  const W = r * 0.82;
+
+  ctx.save();
+  ctx.translate(-L, 0);
+  ctx.rotate(wiggle);
+  drawSharkTail(ctx, r, fin, tailColor, body);
   ctx.restore();
 
+  const finTip = (bx, by, tx, ty, baseColor) => {
+    const g = ctx.createLinearGradient(bx, by, tx, ty);
+    g.addColorStop(0, baseColor);
+    g.addColorStop(0.38, '#33506a');
+    g.addColorStop(0.72, '#101820');
+    g.addColorStop(1, '#000000');
+    return g;
+  };
+
   const tri = (ax, ay, bx, by, cx, cy, b0x, b0y) => {
-    ctx.fillStyle = finTip(b0x, b0y, cx, cy, fin);
-    ctx.beginPath();
+    ctx.fillStyle = finTip(b0x, b0y, cx, cy, fin);    ctx.beginPath();
     ctx.moveTo(ax, ay);
     ctx.lineTo(bx, by);
     ctx.lineTo(cx, cy);

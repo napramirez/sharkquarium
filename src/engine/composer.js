@@ -23,8 +23,14 @@ export const INSTRUMENTS = [
     sound: 'tone',
     wave: 'square',
     volume: 0.12,
-    lines: ['E5', 'C5', 'A4', 'G4', 'E4', 'D4', 'C4'],
-    pitches: [76, 72, 69, 67, 64, 62, 60],
+    lines: [
+      'E5', 'C5', 'A4', 'G4', 'E4', 'D4', 'C4', 'B3', 'A3', 'G3', 'F3', 'E3', 'D3', 'C3',
+      'B2', 'A2', 'G2', 'F2', 'E2', 'D2', 'C2', 'B1', 'A1', 'G1', 'F1', 'E1', 'D1', 'C1',
+    ],
+    pitches: [
+      76, 72, 69, 67, 64, 62, 60, 59, 57, 55, 53, 52, 50, 48,
+      47, 45, 43, 41, 40, 38, 36, 35, 33, 31, 29, 28, 26, 24,
+    ],
   },
   {
     key: 'PIANO',
@@ -39,9 +45,18 @@ export const INSTRUMENTS = [
 export const DRUM_SOUNDS = [
   { kind: 'noise', duration: 0.06, volume: 0.18, type: 'highpass', filterFreq: 4200 },
   { kind: 'noise', duration: 0.11, volume: 0.15, type: 'bandpass', filterFreq: 2100, q: 2 },
-  { kind: 'noise', duration: 0.14, volume: 0.17, type: 'highpass', filterFreq: 1400 },
+  {
+    layers: [
+      { kind: 'noise', duration: 0.16, volume: 0.2, type: 'bandpass', filterFreq: 1900, q: 1.2 },
+      { kind: 'tone', freq: 200, endFreq: 115, type: 'triangle', duration: 0.12, volume: 0.13 },
+    ],
+  },
   { kind: 'tone', freq: 130, endFreq: 42, type: 'sine', duration: 0.2, volume: 0.24 },
 ];
+
+export function drumVoices(sound) {
+  return sound && sound.layers ? sound.layers : [sound];
+}
 
 export function loadComposer() {
   const saved = loadJSON(TRACK_BUILDER_KEY, { bpm: 120, steps: COMPOSER_STEPS, tracks: {} });
@@ -54,7 +69,7 @@ export function loadComposer() {
       .map((entry) =>
         typeof entry === 'number'
           ? { col: Math.floor(entry / inst.lines.length), line: entry % inst.lines.length, length: 1 }
-          : { col: entry.c ?? 0, line: entry.l ?? 0, length: Math.max(1, entry.len || 1) },
+          : { col: entry.c ?? 0, line: clamp(Math.round(entry.l ?? 0), 0, inst.lines.length - 1), length: Math.max(1, entry.len || 1) },
       )
       .filter((note) => note.col >= 0 && note.col < steps);
   }
@@ -89,24 +104,26 @@ export function buildCustomTrack(data) {
       if (note.col < 0 || note.col >= beats) continue;
       if (inst.sound === 'drum') {
         const sound = DRUM_SOUNDS[note.line] ?? DRUM_SOUNDS[0];
-        if (sound.kind === 'noise') {
-          byStep[note.col].push({
-            kind: 'noise',
-            duration: sound.duration,
-            volume: sound.volume,
-            type: sound.type,
-            filterFreq: sound.filterFreq,
-            q: sound.q ?? 1,
-          });
-        } else {
-          byStep[note.col].push({
-            kind: 'tone',
-            freq: sound.freq,
-            endFreq: sound.endFreq ?? null,
-            type: sound.type,
-            duration: sound.duration,
-            volume: sound.volume,
-          });
+        for (const voice of drumVoices(sound)) {
+          if (voice.kind === 'noise') {
+            byStep[note.col].push({
+              kind: 'noise',
+              duration: voice.duration,
+              volume: voice.volume,
+              type: voice.type,
+              filterFreq: voice.filterFreq,
+              q: voice.q ?? 1,
+            });
+          } else {
+            byStep[note.col].push({
+              kind: 'tone',
+              freq: voice.freq,
+              endFreq: voice.endFreq ?? null,
+              type: voice.type,
+              duration: voice.duration,
+              volume: voice.volume,
+            });
+          }
         }
       } else {
         byStep[note.col].push({

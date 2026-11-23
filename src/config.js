@@ -2023,6 +2023,14 @@ export const LORE = [  {
         name: 'MUTANT MORAY EEL',
         text: 'The eyeless giant moray of the DEAD CALM channel — grown huge, its eyes dissolved away by the mutagen, its long body a chain of tapering segments that trail behind it without clumping. It hears the whole channel, dives into the sludge and erupts out in a rainbow arch to land on the splash, and it only snaps you up at the end of that jump.',
       },
+      {
+        name: 'GIANT ISOPOD',
+        text: 'A deep-sea woodlouse the size of a cat, armoured in overlapping plates and carried on seven pairs of legs that paddle it slowly along the sea floor. It is a scavenger first, built to find a fallen meal and stay on it for weeks, and it folds into a pill-bug ball when disturbed. It is neither fast nor clever, but its plated shell shrugs off the odd bump, so give it room as it scuttles across the deep.',
+      },
+      {
+        name: 'BLACK SWALLOWER',
+        text: 'A small, jet-black dragonfish with jaws that unhinge and a stomach that inflates like a balloon. It hunts prey far larger than itself anywhere in the water column — up to its own size and beyond — and swallows it whole in a single gulp. It drifts, barely moving, until something edible comes close, and then it lunges; so do not mistake its stillness for safety.',
+      },
     ],
   },
   {
@@ -2354,6 +2362,14 @@ export const SEA_FACTS = [
   {
     name: 'SEA LION',
     text: 'A sea lion is not a fish but a mammal that came back to the sea: it breathes air, has fur and whiskers, and swims with its two long front flippers while steering with its hind legs. It can walk on land, and it learns quickly and plays, batting around prey or other animals mostly out of curiosity.',
+  },
+  {
+    name: 'GIANT ISOPOD',
+    text: 'The giant isopod is a woodlouse that left the land for the abyss and grew to the size of a cat. Its back is a shield of overlapping plates and its head wears a pair of big compound eyes, and it walks the sea floor on seven pairs of legs. It is a scavenger, not a hunter: it finds a fallen whale or fish and stays on it, feeding for weeks, and it can roll into an armoured ball like its garden cousin when something nudges it.',
+  },
+  {
+    name: 'BLACK SWALLOWER',
+    text: 'The black swallower is a small deep-water fish with an oversized trick: its jaws unhinge and its stomach stretches like a balloon, letting it swallow prey larger than its own body in one gulp. It hunts the open mid-water, hanging almost motionless in the dark until something swims close, then lunging and engulfing it whole. Sometimes it swallows a fish too big to digest and pays for its greed.',
   },
 ];
 
@@ -3036,6 +3052,25 @@ export const ANGLER = {
   penaltyScore: 20,
   knockback: 520,
   invulnerableTime: 1.5,
+};
+
+export const ISOPOD = {
+  radius: 20,
+  speed: 42,
+  count: 2,
+  penaltyScore: 10,
+  knockback: 360,
+  invulnerableTime: 1.2,
+};
+
+export const BLACK_SWALLOWER = {
+  radius: 18,
+  detectRadius: 190,
+  chaseSpeed: 120,
+  count: 2,
+  penaltyScore: 14,
+  knockback: 420,
+  invulnerableTime: 1.3,
 };
 
 export const CRAB = {

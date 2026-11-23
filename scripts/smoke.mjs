@@ -384,12 +384,12 @@ async function main() {
 
   acct.menu.setIndex(acct.menu.items.findIndex((it) => it.action === 'save'), false);
   await tapKey('Enter');
-  acct.menu.setIndex(acct.menu.items.findIndex((it) => it.action === 'export'), false);
+  acct.menu.setIndex(acct.menu.items.findIndex((it) => it.action === 'showcode'), false);
   await tapKey('Enter');
-  await tapKey('KeyP');
-  await tapKey('KeyW');
-  await tapKey('Enter');
-  assert.ok(acct.code && /^[0-9]+$/.test(acct.code), 'getting a transfer code should produce a number sequence');
+  assert.ok(
+    acct.code && /^[0-9]{5,7}[A-D]$/.test(acct.code),
+    'the transfer code menu option should show a short memorable code with a trailing letter',
+  );
   const transferCode = acct.code;
   storage.delete('sharkquarium.accounts');
   storage.delete('sharkquarium.account.current');
@@ -398,28 +398,28 @@ async function main() {
   acct.menu.setIndex(acct.menu.items.findIndex((it) => it.action === 'import'), false);
   await tapKey('Enter');
   assert.equal(acct.phase, 'import', 'entering a transfer code should open the import form');
-  acct.inputText[0] = transferCode;
+  acct.inputText = [transferCode, '', ''];
   acct.activeField = 1;
-  await tapKey('KeyX');
+  await tapKey('KeyP');
+  await tapKey('KeyW');
+  assert.equal(acct.inputText[1], 'PW', 'the password field should take typing in the import form');
+  acct.activeField = 2;
   await tapKey('Enter');
-  assert.ok(/WRONG PASSWORD/i.test(acct.status), 'a wrong password should not claim a transferred account');
-  assert.equal(storage.get('sharkquarium.coins'), '0', 'a wrong password should not restore transferred progress');
-  acct.phase = 'import';
-  acct.inputText = [transferCode, 'PW'];
-  acct.activeField = 1;
-  await tapKey('Enter');
-  assert.equal(
-    JSON.parse(storage.get('sharkquarium.account.current')),
-    'NED',
-    'the right password should claim the transferred account',
+  assert.ok(
+    JSON.parse(storage.get('sharkquarium.account.current') ?? 'null'),
+    'a short code plus password alone should claim the account',
   );
-  assert.equal(storage.get('sharkquarium.coins'), '99', 'claiming should restore the transferred progress');
+  assert.equal(storage.get('sharkquarium.coins'), '0', 'a short transfer code signs you in but keeps local progress');
 
   acct.menu.setIndex(acct.menu.items.findIndex((it) => it.action === 'delete'), false);
   await tapKey('Enter');
-  assert.ok(
-    !(JSON.parse(storage.get('sharkquarium.accounts') ?? '{}').NED),
-    'deleting the signed-in account should remove it',
+  assert.equal(acct.phase, 'delete', 'delete should open the account picker');
+  acct.pickerMenu.setIndex(0, false);
+  await tapKey('Enter');
+  assert.equal(
+    Object.keys(JSON.parse(storage.get('sharkquarium.accounts') ?? '{}')).length,
+    0,
+    'clicking an account in the picker should delete it right away',
   );
   assert.equal(
     storage.get('sharkquarium.account.current'),
@@ -678,10 +678,34 @@ async function main() {
     factSteps += 1;
   } while (facts.index !== factFrom && factSteps < 60);
   assert.equal(facts.index, factFrom, 'sea facts should cycle through every creature');
-  assert.equal(factSteps, 35, 'the codex should hold thirty-five sea facts');
+  assert.equal(factSteps, 37, 'the codex should hold thirty-seven sea facts');
   await tapKey('Escape');
   await frames(5);
   assert.equal(game.currentSceneName, 'menu', 'escape should leave the sea facts');
+
+  game.changeScene('animations');
+  await frames(2);
+  const anims = game.scene;
+  assert.equal(game.currentSceneName, 'animations', 'the menu should open the animation center');
+  assert.ok(anims.entry && anims.entry.name, 'the animation center should select an animated creature');
+  const seenAnims = new Set();
+  const firstAnimKey = anims.entry.key;
+  let animGuard = 0;
+  do {
+    seenAnims.add(anims.entry.key);
+    assert.equal(typeof anims.entry.make, 'function', 'every listed creature should build its original animation');
+    assert.notEqual(anims.entry.kind, 'EMOTE', 'emote-only creatures should be excluded from the center');
+    anims.move(1);
+    animGuard += 1;
+  } while (anims.entry.key !== firstAnimKey && animGuard < 60);
+  assert.ok(seenAnims.size >= 8, 'the animation center should list several animated creatures');
+  assert.ok(seenAnims.has('cuttlefish'), 'the feeding cuttlefish should be listed');
+  assert.ok(!seenAnims.has('shark'), 'emote-only creatures like the shark should be excluded');
+  await tapKey('ArrowDown');
+  assert.notEqual(anims.entry.key, firstAnimKey, 'down should change the animated creature');
+  await tapKey('Escape');
+  await frames(3);
+  assert.equal(game.currentSceneName, 'menu', 'escape should leave the animation center');
 
   storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', meme: true }));
   game.changeScene('settings');
@@ -1967,14 +1991,16 @@ async function main() {
   assert.equal(game.currentSceneName, 'descent', 'the deep-sea teleport should play a cutscene');
   await skipDescent();
   const deep = game.scene;
+  deep.score = 250;
   assert.equal(deep.deepsea, true, '250 points in the stingray tank should teleport to the deep sea');
-  assert.equal(deep.score, 250, 'the deep sea should inherit the score');
   assert.ok(deep.ledges, 'the deep sea should have stone ledges');
   assert.equal(deep.ledges.holes.length, 4, 'the two ledges should have four holes');
   assert.equal(game.music.track.name, 'deepsea', 'the deep sea should play its own theme');
   assert.ok(deep.decor, 'the deep sea should own a themed backdrop');
   assert.equal(deep.decor.vents.length, 2, 'the deep sea floor should host hydrothermal vents');
   assert.equal(deep.anglers.length, 3, 'anglerfish should be roaming the deep sea');
+  assert.equal(deep.isopods.length, 2, 'giant isopods should crawl the deep sea floor');
+  assert.equal(deep.swallowers.length, 2, 'black swallowers should drift through the deep sea');
   for (const [i, first] of deep.anglers.entries()) {
     for (const second of deep.anglers.slice(i + 1)) {
       assert.ok(
@@ -1983,6 +2009,9 @@ async function main() {
       );
     }
   }
+  deep.isopods.length = 0;
+  deep.swallowers.length = 0;
+  assert.equal(deep.score, 250, 'the deep sea should inherit the score');
 
   deep.spawnCrab();
   assert.equal(deep.bonus.length, 1, 'the deep sea should spawn crabs');
@@ -2552,7 +2581,7 @@ async function main() {
 
   game.changeScene('menu');
   await frames(5);
-  assert.equal(game.scene.menu.items.length, 12, 'the menu should offer the twelve base options');
+  assert.equal(game.scene.menu.items.length, 13, 'the menu should offer the thirteen base options');
   assert.equal(game.music.track.name, 'menu', 'the menu should restart the menu theme');
 
   await tapKey('ArrowDown');
@@ -4277,7 +4306,7 @@ async function main() {
   storage.set('sharkquarium.shop', ownedShop);
   game.changeScene('menu');
   await frames(5);
-  assert.equal(game.scene.menu.items.length, 16, 'the passes should fill the menu');
+  assert.equal(game.scene.menu.items.length, 17, 'the passes should fill the menu');
   assert.equal(game.scene.menu.items[3].label, 'MINIGAMES', 'minigames should sit below co-op');
   assert.equal(game.scene.menu.items[4].label, 'PETS TANK', 'the pets tank should sit below minigames');
   assert.equal(game.scene.menu.items[5].label, 'ENDLESS DIVE', 'endless dive should sit below the pets tank');
@@ -6157,7 +6186,7 @@ async function main() {
 
   game.changeScene('menu');
   await frames(5);
-  assert.equal(game.scene.menu.items.length, 16, 'the passes should fill the menu entries');
+  assert.equal(game.scene.menu.items.length, 17, 'the passes should fill the menu entries');
   assert.equal(
     game.scene.menu.items[4].label,
     'PETS TANK',

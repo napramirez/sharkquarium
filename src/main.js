@@ -6,8 +6,9 @@ import { setSeason } from './engine/season.js';
 import { set8Bit } from './engine/retro.js';
 import { setActiveEmote } from './engine/emotes.js';
 import { setMeme } from './engine/meme.js';
-import { setMobilite } from './engine/mobilite.js';
+import { setMobilite, setMobiliteScale, setMobiliteThumb } from './engine/mobilite.js';
 import { setCute } from './engine/cute.js';
+import { setShakeEnabled, setFlashEnabled, setReducedMotion } from './engine/motion.js';
 import { setColorblind } from './engine/colorblind.js';
 import { setTrailFlareHandler } from './engine/trail.js';
 import { BootScene } from './scenes/boot.js';
@@ -132,7 +133,12 @@ setSeason(savedSettings.season ?? (savedSettings.christmas ? 'christmas' : 'none
 set8Bit(savedSettings.eightBit ?? false);
 setMeme(savedSettings.meme ?? false);
 setMobilite(savedSettings.mobilite ?? false);
+setMobiliteThumb(savedSettings.mobiliteThumb ? 'right' : 'left');
+setMobiliteScale(savedSettings.mobiliteBig ? 1.28 : 1);
 setCute(savedSettings.cute ?? savedSettings.reduceMotion ?? false);
+setShakeEnabled(savedSettings.shake ?? true);
+setFlashEnabled(savedSettings.flash ?? true);
+setReducedMotion(savedSettings.reduceMotion ?? false);
 setColorblind(savedSettings.colorblind ?? false);
 if (savedSettings.mobilite) {
   game.set3D(false);

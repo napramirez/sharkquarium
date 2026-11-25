@@ -33,6 +33,9 @@ The **ANIMATION CENTER** screen, a **TRANSFER CODE** account option with **insta
 - **FAVOURITE CREATURE** — a new main-menu screen (`src/scenes/favorite.js`) that lets you pick your **favourite creature out of every entry in the codex — playable or enemy**. It browses the `SEA_FACTS` names (with a portrait of each via `drawCreatureIcon`), saves the choice under `SETTINGS_KEY.favorite`, and shows it on the main menu and on the screen itself.
 
 - **Your favourite now does something** — the creature you pick on the FAVOURITE CREATURE screen actually shows up in the game: **FINN** knows it (ask him "my favourite creature" and he answers from your choice), the **SEA FACTS** board opens on it with a ★ star and a "YOUR FAVOURITE" tag, and it becomes an equippable **FAVOURITE** row on the shop's DIVE BUDDIES shelf that draws that creature's own body as your dive buddy (`src/scenes/chat.js`, `src/scenes/seafacts.js`, `src/engine/companion.js`).
+- **Accessibility switches** — SETTINGS gained separate **SCREEN SHAKE**, **SCREEN FLASH** and **REDUCE MOTION** toggles (independent of CUTE MODE); `src/engine/motion.js` now exposes `shakeScale()`/`flashScale()` and the MinigameScene/play/most tanks honour them.
+- **MOBILITE options** — two new SETTINGS rows for the on-screen controls: **MOBILITE RIGHT THUMB** (put the movement pad on the right for right-handed play) and **MOBILITE BIG BUTTONS** (larger buttons), with the hit boxes matching (`src/engine/mobilite.js`).
+- **First-run hints** — each tank and minigame now shows a one-time **tutorial card** naming the controls/goal (`src/engine/tutorial.js`, `TUTORIAL_KEY`); it fades on its own, dismisses on any input, and is remembered so it never repeats.
 
 ## November 13, 2026
 

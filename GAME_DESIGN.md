@@ -1304,9 +1304,10 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
 - `AudioBus.setVolume(value)` scales the master bus (base gain 0.9) and
   `setSfxEnabled(flag)` mutes cues; `src/main.js` re-applies the persisted settings on
   startup.
-- **Comfort + shared horror helpers** — `src/engine/motion.js` exports
-  `motionScale()` (1, or 0 when the persisted `SETTINGS_KEY.cute` is on) so horror scenes
-  can damp shake/zoom/flash, and `src/engine/horror.js` provides `renderDarkness()`,
+- **Comfort + shared horror helpers** — `src/engine/motion.js` exports `motionScale()`
+  (1, or 0 when the persisted `SETTINGS_KEY.cute` is on) plus independent `shakeScale()` and
+  `flashScale()` that also honour the `SETTINGS_KEY.shake` / `.flash` switches, so horror
+  scenes can damp shake, zoom and flash separately, and `src/engine/horror.js` provides `renderDarkness()`,
   `renderConeLight()`, and angle helpers shared by the dark tanks. `src/engine/cute.js`
   owns the CUTE MODE flag (`setCute()/cute()`), an `Entity`-level overlay in `entity.js`
   that gives the diver blush-and-heart and gives every non-player creature with
@@ -1316,6 +1317,13 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   card the horror scenes (`quiet`, `watcher`, `mouth`, `prehistoric`, and PlayToy's chase)
   show in place of their dark zoom when CUTE MODE is on. CUTE MODE replaced the earlier
   REDUCE MOTION switch (a saved `reduceMotion` is migrated to `cute` on load).
+- `src/engine/tutorial.js` shows a one-time **first-run hint card** per scene (keyed by the
+  scene name, or `tank:<key>` for the shared `play` scene): `showTutorial()` runs on the
+  scene change in `Game.applyPending()`, `updateTutorial()` dismisses it on any input or
+  after a short timeout, `renderTutorial()` draws the card over the scene, and
+  `TUTORIAL_KEY` remembers what has been seen. `src/engine/mobilite.js` gained
+  `setMobiliteScale()` / `setMobiliteThumb()` (the SETTINGS `MOBILITE BIG BUTTONS` and
+  `MOBILITE RIGHT THUMB` switches), which transform the on-screen button boxes.
 - `MusicPlayer` (`src/engine/music.js`) step-sequences looping themes (the menu lullaby
   plus one per tank) from
   `src/assets/tracks.js` (MIDI-note bass/lead arrays plus a beat length). `Game` drives

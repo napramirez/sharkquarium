@@ -779,6 +779,17 @@ async function main() {
   await frames(3);
   assert.equal(game.currentSceneName, 'menu', 'escape should leave the favourite screen');
 
+  game.changeScene('trench');
+  await frames(3);
+  await tapKey('ArrowLeft');
+  await frames(2);
+  assert.ok(
+    JSON.parse(storage.get('sharkquarium.tutorial') ?? '{}').trench,
+    'a first-run hint should show once and then be remembered',
+  );
+  await tapKey('Escape');
+  await frames(3);
+
   storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', meme: true }));
   game.changeScene('settings');
   await frames(2);
@@ -2834,6 +2845,38 @@ async function main() {
   await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
+    'shake',
+    'settings should offer screen shake',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.shake, false, 'screen shake should turn off');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.settings')).shake,
+    false,
+    'screen shake should persist',
+  );
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
+    'flash',
+    'settings should offer screen flash',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.flash, false, 'screen flash should turn off');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
+    'reduceMotion',
+    'settings should offer reduce motion',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.reduceMotion, true, 'reduce motion should turn on');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
     'christmas',
     'settings should offer christmas mode',
   );
@@ -2948,6 +2991,24 @@ async function main() {
   await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
+    'mobiliteThumb',
+    'settings should offer the right-thumb toggle',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.mobiliteThumb, true, 'the right thumb toggle should turn on');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
+    'mobiliteBig',
+    'settings should offer bigger on-screen buttons',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.mobiliteBig, true, 'bigger buttons should turn on');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
     'colorblind',
     'settings should offer colorblind hazards',
   );
@@ -3034,7 +3095,7 @@ async function main() {
   await frames(30);
   assert.ok(game.music.step > heldStep, 'the held track should keep sequencing after leaving');
 
-  for (let i = 0; i < 17; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 22; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
     'theatre',

@@ -5,7 +5,7 @@ import { drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
 import { clamp, rand, TAU } from '../engine/math.js';
 import { loadJSON } from '../engine/storage.js';
 import { setSkinClock } from '../engine/skin.js';
-import { motionScale } from '../engine/motion.js';
+import { motionScale, shakeScale, flashScale } from '../engine/motion.js';
 import { cute, renderCuteScare } from '../engine/cute.js';
 import { applyWardrobe } from '../engine/wardrobe.js';
 import { drawTrail } from '../engine/trail.js';
@@ -1485,7 +1485,7 @@ export class PrehistoricScene extends MinigameScene {
     }
     ctx.save();
     if (this.shake > 0) {
-      ctx.translate(rand(-1, 1) * 9 * this.shake * motionScale(), rand(-1, 1) * 9 * this.shake * motionScale());
+      ctx.translate(rand(-1, 1) * 9 * this.shake * shakeScale(), rand(-1, 1) * 9 * this.shake * shakeScale());
     }
     this.cameraX = clamp(this.player.x - W * 0.4, 0, Math.max(0, this.worldEnd - W));
     this.renderBackdrop(ctx);
@@ -1497,7 +1497,7 @@ export class PrehistoricScene extends MinigameScene {
     this.renderGrade(ctx);
     this.renderHud(ctx);
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * motionScale()})`;
+      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * flashScale()})`;
       ctx.fillRect(0, 0, W, H);
     }
     if (this.phase === 'scare') this.renderScare(ctx);

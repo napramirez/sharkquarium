@@ -8,7 +8,7 @@ import { ParticleSystem } from '../engine/particles.js';
 import { loadJSON } from '../engine/storage.js';
 import { renderFirstPersonLevel } from '../engine/raycastview.js';
 import { firstPersonMode } from '../engine/mode3d.js';
-import { motionScale } from '../engine/motion.js';
+import { motionScale, shakeScale, flashScale } from '../engine/motion.js';
 import { cute, renderCuteScare } from '../engine/cute.js';
 import { Echoeel } from '../entities/echoeel.js';
 import { Clutter } from '../entities/clutter.js';
@@ -1206,7 +1206,7 @@ export class QuietScene extends MinigameScene {
     this.updateCamera();
     ctx.save();
     if (this.shake > 0) {
-      ctx.translate(rand(-1, 1) * 10 * this.shake * motionScale(), rand(-1, 1) * 10 * this.shake * motionScale());
+      ctx.translate(rand(-1, 1) * 10 * this.shake * shakeScale(), rand(-1, 1) * 10 * this.shake * shakeScale());
     }
     ctx.save();
     ctx.translate(-this.cameraX, 0);
@@ -1259,7 +1259,7 @@ export class QuietScene extends MinigameScene {
 
     this.renderHud(ctx);
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * motionScale()})`;
+      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.phase === 'scare') this.renderScare(ctx);
@@ -1275,7 +1275,7 @@ export class QuietScene extends MinigameScene {
     this.renderFog(ctx);
     this.renderHud(ctx);
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * motionScale()})`;
+      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.phase === 'results') this.renderResults(ctx);
@@ -1431,7 +1431,7 @@ export class QuietScene extends MinigameScene {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, QUIET_PALETTE);
     ctx.save();
     if (this.shake > 0) {
-      ctx.translate(rand(-1, 1) * 12 * this.shake * motionScale(), rand(-1, 1) * 12 * this.shake * motionScale());
+      ctx.translate(rand(-1, 1) * 12 * this.shake * shakeScale(), rand(-1, 1) * 12 * this.shake * shakeScale());
     }
     this.renderLab(ctx);
     for (const member of this.arrivalCrew) member.entity.render(ctx);
@@ -1664,7 +1664,7 @@ export class QuietScene extends MinigameScene {
     ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 255, 255, ${this.flash * 0.5 * motionScale()})`;
+      ctx.fillStyle = `rgba(255, 255, 255, ${this.flash * 0.5 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
   }

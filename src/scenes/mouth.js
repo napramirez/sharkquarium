@@ -15,7 +15,7 @@ import { setSkinClock } from '../engine/skin.js';
 import { firstPersonMode } from '../engine/mode3d.js';
 import { renderFirstPersonLevel } from '../engine/raycastview.js';
 import { renderDarkness } from '../engine/horror.js';
-import { motionScale } from '../engine/motion.js';
+import { motionScale, shakeScale, flashScale } from '../engine/motion.js';
 import { cute, renderCuteScare } from '../engine/cute.js';
 import { applyWardrobe } from '../engine/wardrobe.js';
 import { drawTrail } from '../engine/trail.js';
@@ -686,7 +686,7 @@ export class MouthScene extends MinigameScene {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, MOUTH_PALETTE);
     ctx.save();
     if (this.shake > 0) {
-      ctx.translate(rand(-1, 1) * 8 * this.shake * motionScale(), rand(-1, 1) * 8 * this.shake * motionScale());
+      ctx.translate(rand(-1, 1) * 8 * this.shake * shakeScale(), rand(-1, 1) * 8 * this.shake * shakeScale());
     }
     this.renderRound(ctx);
     const px = this.player.x - this.cameraX;
@@ -699,11 +699,11 @@ export class MouthScene extends MinigameScene {
     ctx.restore();
     this.renderHud(ctx);
     if (this.biteFlash > 0) {
-      ctx.fillStyle = `rgba(120, 0, 20, ${this.biteFlash * 0.5 * motionScale()})`;
+      ctx.fillStyle = `rgba(120, 0, 20, ${this.biteFlash * 0.5 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * motionScale()})`;
+      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.phase === 'scare') this.renderScare(ctx);
@@ -750,7 +750,7 @@ export class MouthScene extends MinigameScene {
     ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     this.renderHud(ctx);
     if (this.biteFlash > 0) {
-      ctx.fillStyle = `rgba(120, 0, 20, ${this.biteFlash * 0.5 * motionScale()})`;
+      ctx.fillStyle = `rgba(120, 0, 20, ${this.biteFlash * 0.5 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.phase === 'results') this.renderResults(ctx);

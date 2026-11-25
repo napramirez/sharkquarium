@@ -4,12 +4,13 @@ import { drawWater, drawText, fillCircle, fillRoundRect, strokeRoundRect } from 
 import { loadJSON, saveJSON } from '../engine/storage.js';
 import { clamp } from '../engine/math.js';
 import { setCute } from '../engine/cute.js';
+import { setShakeEnabled, setFlashEnabled, setReducedMotion } from '../engine/motion.js';
 import { setColorblind } from '../engine/colorblind.js';
 import { setSeason, SEASONS } from '../engine/season.js';
 import { set8Bit } from '../engine/retro.js';
 import { setMeme } from '../engine/meme.js';
 import { setActiveSkin, skinByKey } from '../engine/skin.js';
-import { setMobilite } from '../engine/mobilite.js';
+import { setMobilite, setMobiliteScale, setMobiliteThumb } from '../engine/mobilite.js';
 import {
   AUDIO,
   COLORS,
@@ -42,6 +43,9 @@ export class SettingsScene extends Scene {
       threeD: false,
       firstPerson: false,
       cute: false,
+      shake: true,
+      flash: true,
+      reduceMotion: false,
       season: 'none',
       spring: false,
       summer: false,
@@ -51,6 +55,8 @@ export class SettingsScene extends Scene {
       eightBit: false,
       meme: false,
       mobilite: false,
+      mobiliteThumb: false,
+      mobiliteBig: false,
       colorblind: false,
       ...saved,
     };
@@ -94,6 +100,9 @@ export class SettingsScene extends Scene {
         { label: '3D MODE', action: 'threeD' },
         { label: 'FIRST PERSON MODE', action: 'firstPerson' },
         { label: 'CUTE MODE', action: 'cute' },
+        { label: 'SCREEN SHAKE', action: 'shake' },
+        { label: 'SCREEN FLASH', action: 'flash' },
+        { label: 'REDUCE MOTION', action: 'reduceMotion' },
         { label: 'CHRISTMAS MODE', action: 'christmas' },
         { label: 'HALLOWEEN MODE', action: 'halloween' },
         { label: 'NEW YEAR MODE', action: 'newyear' },
@@ -102,6 +111,8 @@ export class SettingsScene extends Scene {
         { label: '8-BIT MODE', action: 'eightBit' },
         { label: 'MEME MODE', action: 'meme' },
         { label: 'MOBILITE MODE', action: 'mobilite' },
+        { label: 'MOBILITE RIGHT THUMB', action: 'mobiliteThumb' },
+        { label: 'MOBILITE BIG BUTTONS', action: 'mobiliteBig' },
         { label: 'COLORBLIND HAZARDS', action: 'colorblind' },
         { label: 'TRACK PLAYER', action: 'tracks' },
         { label: 'CUTSCENE THEATRE', action: 'theatre' },
@@ -241,7 +252,10 @@ export class SettingsScene extends Scene {
     }
     if (item.action === 'cute') {
       this.settings.cute = !this.settings.cute;
-      setCute(this.settings.cute);
+    setCute(this.settings.cute);
+    setShakeEnabled(this.settings.shake);
+    setFlashEnabled(this.settings.flash);
+    setReducedMotion(this.settings.reduceMotion);
       saveJSON(SETTINGS_KEY, this.settings);
       this.game.audio.tone({
         freq: this.settings.cute ? 880 : 300,
@@ -249,6 +263,19 @@ export class SettingsScene extends Scene {
         type: 'triangle',
         duration: 0.14,
         volume: 0.2,
+      });
+      return;
+    }
+    if (item.action === 'shake' || item.action === 'flash' || item.action === 'reduceMotion') {
+      this.settings[item.action] = !this.settings[item.action];
+      setShakeEnabled(this.settings.shake);
+      setFlashEnabled(this.settings.flash);
+      setReducedMotion(this.settings.reduceMotion);
+      saveJSON(SETTINGS_KEY, this.settings);
+      this.game.audio.tone({
+        freq: this.settings[item.action] ? 620 : 320,
+        duration: 0.1,
+        volume: 0.18,
       });
       return;
     }
@@ -289,7 +316,9 @@ export class SettingsScene extends Scene {
     }
     if (item.action === 'mobilite') {
       this.settings.mobilite = !this.settings.mobilite;
-      setMobilite(this.settings.mobilite);
+    setMobilite(this.settings.mobilite);
+    setMobiliteThumb(this.settings.mobiliteThumb ? 'right' : 'left');
+    setMobiliteScale(this.settings.mobiliteBig ? 1.28 : 1);
       if (this.settings.mobilite) {
         this.settings.threeD = false;
         this.settings.firstPerson = false;
@@ -306,6 +335,18 @@ export class SettingsScene extends Scene {
         type: 'triangle',
         duration: 0.14,
         volume: 0.2,
+      });
+      return;
+    }
+    if (item.action === 'mobiliteThumb' || item.action === 'mobiliteBig') {
+      this.settings[item.action] = !this.settings[item.action];
+      setMobiliteThumb(this.settings.mobiliteThumb ? 'right' : 'left');
+      setMobiliteScale(this.settings.mobiliteBig ? 1.28 : 1);
+      saveJSON(SETTINGS_KEY, this.settings);
+      this.game.audio.tone({
+        freq: this.settings[item.action] ? 700 : 320,
+        duration: 0.1,
+        volume: 0.18,
       });
       return;
     }
@@ -398,6 +439,9 @@ export class SettingsScene extends Scene {
       threeD: 'TILT THE WHOLE TANK ONTO A PERSPECTIVE PLANE',
       firstPerson: 'THE MOUSE LOOKS AROUND A CLOSE-UP VIEW',
       cute: 'BIG EYES, BLUSH AND GENTLER SCARES \u2014 EVERYTHING GOES ADORABLE',
+      shake: 'CAMERA SHAKE ON / OFF',
+      flash: 'FULL-SCREEN FLASHES ON / OFF',
+      reduceMotion: 'DAMP ZOOM AND SWEEPING MOTION',
       christmas: 'CAROL THEMES AND SLOW SINKING SNOWFLAKES',
       halloween: 'EERIE THEMES AND DRIFTING AUTUMN LEAVES',
       spring: 'BLOSSOM THEMES AND DRIFTING PETALS',
@@ -407,6 +451,8 @@ export class SettingsScene extends Scene {
       eightBit: 'PIXELATED 8-BIT LOOK AND CHIPTUNE SOUND',
       meme: 'SILLY COMIC POP-UPS AND CAPTIONS EVERYWHERE',
       mobilite: 'ON-SCREEN WASD, SPACE, E AND ESC BUTTONS; DISABLES 3D, FIRST PERSON, 8-BIT AND THE COURSE BUILDER',
+      mobiliteThumb: 'PUT THE MOVEMENT PAD ON THE RIGHT SIDE FOR RIGHT-HANDED PLAY',
+      mobiliteBig: 'MAKE THE ON-SCREEN BUTTONS LARGER',
       tracks: 'PLAY ANY LEVEL THEME',
       theatre: 'REPLAY ANY CUTSCENE',
       back: 'RETURN TO THE MENU',
@@ -428,31 +474,17 @@ export class SettingsScene extends Scene {
     const centerY = LOGICAL_HEIGHT * 0.58;
     this.menu.render(ctx, LOGICAL_WIDTH / 2, centerY);
     const top = centerY - ((this.menu.items.length - 1) * this.menu.spacing) / 2;
-    this.renderSwitch(ctx, CONTROLS_X, top, this.settings.coopTankSelect);
-    this.renderDifficulty(ctx, CONTROLS_X, top + this.menu.spacing, this.settings.difficulty);
-    this.renderSlider(ctx, CONTROLS_X, top + this.menu.spacing * 2, this.settings.volume);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 3, this.settings.sfx);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 4, this.settings.threeD);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 5, this.settings.firstPerson);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 6, this.settings.cute);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 7, this.settings.christmas);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 8, this.settings.halloween);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 9, this.settings.newyear);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 10, this.settings.spring);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 11, this.settings.summer);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 12, this.settings.eightBit);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 13, this.settings.meme);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 14, this.settings.mobilite);
-    this.renderSwitch(ctx, CONTROLS_X, top + this.menu.spacing * 15, this.settings.colorblind);
-    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 17, {
-      size: 13,
-      color: COLORS.textDim,
-      alpha: 0.85,
-    });
-    drawText(ctx, 'OPEN', CONTROLS_X, top + this.menu.spacing * 16, {
-      size: 13,
-      color: COLORS.textDim,
-      alpha: 0.85,
+    this.menu.items.forEach((item, index) => {
+      const y = top + index * this.menu.spacing;
+      if (item.action === 'difficulty') {
+        this.renderDifficulty(ctx, CONTROLS_X, y, this.settings.difficulty);
+      } else if (item.action === 'volume') {
+        this.renderSlider(ctx, CONTROLS_X, y, this.settings.volume);
+      } else if (item.action === 'tracks' || item.action === 'theatre') {
+        drawText(ctx, 'OPEN', CONTROLS_X, y, { size: 13, color: COLORS.textDim, alpha: 0.85 });
+      } else if (typeof this.settings[item.action] === 'boolean') {
+        this.renderSwitch(ctx, CONTROLS_X, y, this.settings[item.action]);
+      }
     });
 
     drawText(

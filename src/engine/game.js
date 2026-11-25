@@ -5,6 +5,7 @@ import { mutatorCoinMult } from './mutators.js';
 import { drawText } from './render.js';
 import { is8Bit, PIXEL_WIDTH, PIXEL_HEIGHT } from './retro.js';
 import { drawMemeOverlay } from './meme.js';
+import { showTutorial, updateTutorial, renderTutorial } from './tutorial.js';
 import { isMobilite, renderMobilite, updateMobilite } from './mobilite.js';
 import { renderCuteGrade } from './cute.js';
 import { FIRST_PERSON } from '../config.js';
@@ -156,6 +157,7 @@ export class Game {
     while (this.accumulator >= FIXED_STEP && steps < MAX_STEPS) {
       this.applyPending();
       this.updateFirstPerson();
+      updateTutorial(FIXED_STEP, this.input);
       if (isMobilite()) {
         if (this.input.pressed.has('PointerPrimary')) this.mobilitePointerDown = true;
         if (this.input.released.has('PointerPrimary')) this.mobilitePointerDown = false;
@@ -273,6 +275,7 @@ export class Game {
         glowBlur: 6,
       });
     }
+    renderTutorial(ctx, this.width);
   }
 
   ensurePixelBuffer() {
@@ -349,5 +352,6 @@ export class Game {
     if (typeof next.setMutator === 'function') next.setMutator(params.mutator);
     setCoinMultiplier(mutatorCoinMult(next.mutator));
     next.enter(params);
+    showTutorial(name === 'play' ? `tank:${params.tank ?? 'reef'}` : name);
   }
 }

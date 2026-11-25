@@ -15,7 +15,7 @@ import { setSkinClock } from '../engine/skin.js';
 import { firstPersonMode } from '../engine/mode3d.js';
 import { renderFirstPersonLevel } from '../engine/raycastview.js';
 import { renderDarkness, renderConeLight } from '../engine/horror.js';
-import { motionScale } from '../engine/motion.js';
+import { motionScale, shakeScale, flashScale } from '../engine/motion.js';
 import { cute, renderCuteScare } from '../engine/cute.js';
 import { applyWardrobe } from '../engine/wardrobe.js';
 import { drawTrail } from '../engine/trail.js';
@@ -690,14 +690,14 @@ export class WatcherScene extends MinigameScene {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, WATCHER_PALETTE);
     ctx.save();
     if (this.shake > 0) {
-      ctx.translate(rand(-1, 1) * 8 * this.shake * motionScale(), rand(-1, 1) * 8 * this.shake * motionScale());
+      ctx.translate(rand(-1, 1) * 8 * this.shake * shakeScale(), rand(-1, 1) * 8 * this.shake * shakeScale());
     }
     this.renderRound(ctx);
     this.renderGaze(ctx);
     ctx.restore();
     this.renderHud(ctx);
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * motionScale()})`;
+      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.phase === 'scare') this.renderScare(ctx);
@@ -744,7 +744,7 @@ export class WatcherScene extends MinigameScene {
     ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     this.renderHud(ctx);
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * motionScale()})`;
+      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.phase === 'results') this.renderResults(ctx);

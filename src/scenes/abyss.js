@@ -2,7 +2,7 @@ import { MinigameScene } from '../engine/minigame.js';
 import { SelectList } from '../engine/selectlist.js';
 import { drawWater, drawText, drawMotes, fillRoundRect, strokeRoundRect, fillCircle } from '../engine/render.js';
 import { clamp, rand, TAU } from '../engine/math.js';
-import { motionScale } from '../engine/motion.js';
+import { motionScale, shakeScale, flashScale } from '../engine/motion.js';
 import { Leviathan, drawLeviathanEye } from '../entities/leviathan.js';
 import {
   ABYSS,
@@ -208,13 +208,13 @@ export class AbyssScene extends MinigameScene {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, ABYSS_PALETTE);
     ctx.save();
     if (this.shake > 0) {
-      ctx.translate(rand(-1, 1) * 8 * this.shake * motionScale(), rand(-1, 1) * 8 * this.shake * motionScale());
+      ctx.translate(rand(-1, 1) * 8 * this.shake * shakeScale(), rand(-1, 1) * 8 * this.shake * shakeScale());
     }
     this.renderAbyssBackdrop(ctx);
     this.renderRound(ctx);
     ctx.restore();
     this.renderHud(ctx);    if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * motionScale()})`;
+      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.phase === 'results') this.renderResults(ctx);

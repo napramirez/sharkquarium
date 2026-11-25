@@ -4,6 +4,7 @@ import { drawWater, drawText, fillRoundRect, strokeRoundRect } from './render.js
 import { renderFirstPersonLevel } from './raycastview.js';
 import { firstPersonMode } from './mode3d.js';
 import { rand } from './math.js';
+import { shakeScale, flashScale } from './motion.js';
 import { ParticleSystem } from './particles.js';
 import { loadJSON } from './storage.js';
 import { recordMinigame } from './progress.js';
@@ -157,23 +158,23 @@ export class MinigameScene extends Scene {
     setSkinClock(this.time);
     if (firstPersonMode()) {
       ctx.save();
-      if (this.shake > 0) {
-        ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
+      if (this.shake > 0 && shakeScale() > 0) {
+        ctx.translate(rand(-1, 1) * 7 * this.shake * shakeScale(), rand(-1, 1) * 7 * this.shake * shakeScale());
       }
       renderFirstPersonLevel(ctx, this);
       ctx.restore();
     } else {
       drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, this.waterPalette());
       ctx.save();
-      if (this.shake > 0) {
-        ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
+      if (this.shake > 0 && shakeScale() > 0) {
+        ctx.translate(rand(-1, 1) * 7 * this.shake * shakeScale(), rand(-1, 1) * 7 * this.shake * shakeScale());
       }
       this.renderRound(ctx);
       ctx.restore();
     }
     this.renderHud(ctx);
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35})`;
+      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.35 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.phase === 'results') this.renderResults(ctx);

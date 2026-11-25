@@ -1,7 +1,9 @@
 import { drawText, fillRoundRect, strokeRoundRect } from './render.js';
-import { COLORS } from '../config.js';
+import { COLORS, LOGICAL_WIDTH } from '../config.js';
 
 let active = false;
+let scale = 1;
+let thumb = 'left';
 
 export function setMobilite(on) {
   active = Boolean(on);
@@ -9,6 +11,18 @@ export function setMobilite(on) {
 
 export function isMobilite() {
   return active;
+}
+
+export function setMobiliteScale(value) {
+  scale = Math.min(1.4, Math.max(0.8, Number(value) || 1));
+}
+
+export function setMobiliteThumb(side) {
+  thumb = side === 'right' ? 'right' : 'left';
+}
+
+export function mobiliteThumb() {
+  return thumb;
 }
 
 const LAYOUT = {
@@ -52,18 +66,27 @@ function chatKeyboard() {
 
 const CHAT_KEYS = chatKeyboard();
 
+function transform(b) {
+  const w = b.w * scale;
+  const h = b.h * scale;
+  let x = b.x + b.w / 2 - w / 2;
+  const y = b.y + b.h / 2 - h / 2;
+  if (thumb === 'right') x = LOGICAL_WIDTH - (x + w);
+  return { code: b.code, label: b.label, x, y, w, h };
+}
+
 export function mobiliteButtonsFor(sceneName, scene) {
   if (!active) return [];
   if (sceneName === 'chat') return CHAT_KEYS;
   if (sceneName === 'tag') {
     if (scene && scene.phase === 'names') return CHAT_KEYS;
-    return [LAYOUT.w, LAYOUT.a, LAYOUT.s, LAYOUT.d, LAYOUT.space, LAYOUT.esc];
+    return [LAYOUT.w, LAYOUT.a, LAYOUT.s, LAYOUT.d, LAYOUT.space, LAYOUT.esc].map(transform);
   }
-  if (sceneName === 'reefrush') return [LAYOUT.space, LAYOUT.esc];
+  if (sceneName === 'reefrush') return [LAYOUT.space, LAYOUT.esc].map(transform);
   if (sceneName === 'presentwrap' || sceneName === 'santapeek' || sceneName === 'jackhunt') {
-    return [LAYOUT.w, LAYOUT.a, LAYOUT.s, LAYOUT.d, LAYOUT.e, LAYOUT.esc];
+    return [LAYOUT.w, LAYOUT.a, LAYOUT.s, LAYOUT.d, LAYOUT.e, LAYOUT.esc].map(transform);
   }
-  return [LAYOUT.w, LAYOUT.a, LAYOUT.s, LAYOUT.d, LAYOUT.space, LAYOUT.esc];
+  return [LAYOUT.w, LAYOUT.a, LAYOUT.s, LAYOUT.d, LAYOUT.space, LAYOUT.esc].map(transform);
 }
 
 export function mobiliteHit(x, y, sceneName, scene) {

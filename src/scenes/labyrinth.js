@@ -13,7 +13,7 @@ import {
 import { renderFirstPersonLevel } from '../engine/raycastview.js';
 import { firstPersonMode } from '../engine/mode3d.js';
 import { clamp, lerp, rand, TAU } from '../engine/math.js';
-import { motionScale } from '../engine/motion.js';
+import { motionScale, shakeScale, flashScale } from '../engine/motion.js';
 import { Shark } from '../entities/shark.js';
 import { Stingray } from '../entities/stingray.js';
 import { Squid } from '../entities/squid.js';
@@ -2162,7 +2162,7 @@ export class LabyrinthScene extends Scene {
     if (firstPersonMode()) {
       ctx.save();
       if (this.shake > 0) {
-        ctx.translate(rand(-1, 1) * 6 * this.shake * motionScale(), rand(-1, 1) * 6 * this.shake * motionScale());
+        ctx.translate(rand(-1, 1) * 6 * this.shake * shakeScale(), rand(-1, 1) * 6 * this.shake * shakeScale());
       }
       renderFirstPersonLevel(ctx, this);
       ctx.restore();
@@ -2170,7 +2170,7 @@ export class LabyrinthScene extends Scene {
     drawWater(ctx, LOGICAL_WIDTH, LOGICAL_HEIGHT, this.time, LABYRINTH_PALETTE);
     ctx.save();
     if (this.shake > 0) {
-      ctx.translate(rand(-1, 1) * 6 * this.shake * motionScale(), rand(-1, 1) * 6 * this.shake * motionScale());
+      ctx.translate(rand(-1, 1) * 6 * this.shake * shakeScale(), rand(-1, 1) * 6 * this.shake * shakeScale());
     }
     this.renderSquid(ctx);
     this.renderHull(ctx);
@@ -3540,7 +3540,7 @@ export class LabyrinthScene extends Scene {
       { size: 11, color: COLORS.textDim, alpha: 0.7 },
     );
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(200, 69, 90, ${this.flash * 0.3 * motionScale()})`;
+      ctx.fillStyle = `rgba(200, 69, 90, ${this.flash * 0.3 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
   }

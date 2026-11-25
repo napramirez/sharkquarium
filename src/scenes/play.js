@@ -2,6 +2,7 @@ import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
 import { renderFirstPersonLevel } from '../engine/raycastview.js';
 import { firstPersonMode } from '../engine/mode3d.js';
+import { shakeScale, flashScale } from '../engine/motion.js';
 import { Shark } from '../entities/shark.js';
 import { Stingray } from '../entities/stingray.js';
 import { Squid } from '../entities/squid.js';
@@ -2223,8 +2224,8 @@ export class PlayScene extends Scene {
     setActiveCompanion(this.companion);
     if (firstPersonMode()) {
       ctx.save();
-      if (this.shake > 0) {
-        ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
+      if (this.shake > 0 && shakeScale() > 0) {
+        ctx.translate(rand(-1, 1) * 7 * this.shake * shakeScale(), rand(-1, 1) * 7 * this.shake * shakeScale());
       }
       renderFirstPersonLevel(ctx, this);
       ctx.restore();
@@ -2252,8 +2253,8 @@ export class PlayScene extends Scene {
     );
     this.renderDepthLayer(ctx);
     ctx.save();
-    if (this.shake > 0) {
-      ctx.translate(rand(-1, 1) * 7 * this.shake, rand(-1, 1) * 7 * this.shake);
+    if (this.shake > 0 && shakeScale() > 0) {
+      ctx.translate(rand(-1, 1) * 7 * this.shake * shakeScale(), rand(-1, 1) * 7 * this.shake * shakeScale());
     }
     for (const rock of this.reefRocks) rock.render(ctx);
     for (const coral of this.corals) coral.render(ctx);
@@ -2352,7 +2353,7 @@ export class PlayScene extends Scene {
       });
     }
     if (this.flash > 0) {
-      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.45})`;
+      ctx.fillStyle = `rgba(255, 107, 129, ${this.flash * 0.45 * flashScale()})`;
       ctx.fillRect(0, 0, LOGICAL_WIDTH, LOGICAL_HEIGHT);
     }
     if (this.paused) this.renderPause(ctx);

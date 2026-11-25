@@ -1,3 +1,4 @@
+import { rulesFor } from '../engine/difficulty.js';
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
 import {
@@ -92,7 +93,7 @@ export class LabyrinthScene extends Scene {
     this.wallDelay = 0;
     this.solo = Boolean(params.solo);
     this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
-    this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
+    this.rules = rulesFor(this.difficultyKey);
     const shop = loadJSON(SHOP_KEY, {});
     this.shop = shop;
     setActiveAura(auraForShop(shop));

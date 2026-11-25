@@ -11,6 +11,18 @@ import { drawBlackSwallower } from '../entities/blackswallower.js';
 import { drawSacabambaspis } from '../entities/sacabambaspis.js';
 import { drawOarfishBody } from '../entities/oarfish.js';
 
+import {
+  drawVampireSquid, drawBarreleye, drawGulperEel, drawViperfish, drawDumboOctopus, drawFangtooth, drawTripodFish, drawSeaPig, drawYetiCrab, drawChimaera, drawCoelacanth, drawGiantGrouper, drawNapoleonWrasse, drawNudibranch, drawBlueRingedOctopus, drawEagleRay, drawWhaleShark, drawBobbitWorm, drawFrilledShark, drawSpermWhale, drawBobbitQueen,
+} from '../entities/creatures.js';
+
+function makeSimple(fn, scale = 1) {
+  let t = 0;
+  return {
+    update(dt) { t += dt; },
+    draw(ctx, r) { fn(ctx, r * scale, { age: t }); },
+  };
+}
+
 const smoothstep = (p) => {
   const q = clamp(p, 0, 1);
   return q * q * (3 - 2 * q);
@@ -420,6 +432,260 @@ export const ANIMATIONS = [
       { label: 'GILL HOLES', x: -0.4, y: 0.1 },
       { label: 'MOUTH', x: 0.75, y: 0.55 },
       { label: 'EYES', x: 0.4, y: 0.08 },
+    ],
+  },
+  {
+    key: 'vampire',
+    name: 'VAMPIRE SQUID',
+    action: 'GLIDE',
+    kind: 'ANATOMY',
+    radius: 30,
+    make: () => makeSimple(drawVampireSquid),
+    anatomy: [
+      { label: 'CLOAK', x: -1.2, y: 0 },
+      { label: 'EYES', x: 0.85, y: 0.36 },
+    ],
+  },
+  {
+    key: 'barreleye',
+    name: 'BARRELEYE',
+    action: 'DRIFT',
+    kind: 'ANATOMY',
+    radius: 34,
+    make: () => makeSimple(drawBarreleye),
+    anatomy: [
+      { label: 'CLEAR DOME', x: 0.25, y: -0.55 },
+      { label: 'TUBE EYES', x: 0.32, y: -0.5 },
+    ],
+  },
+  {
+    key: 'gulper',
+    name: 'GULPER EEL',
+    action: 'GAPE',
+    kind: 'ANATOMY',
+    radius: 12,
+    center: -1.6,
+    make: () => makeSimple(drawGulperEel),
+    anatomy: [
+      { label: 'PELICAN JAW', x: 1.8, y: 0 },
+      { label: 'LURE TAIL', x: -3.4, y: 0 },
+    ],
+  },
+  {
+    key: 'viper',
+    name: 'VIPERFISH',
+    action: 'FANG',
+    kind: 'ANATOMY',
+    radius: 20,
+    center: -0.5,
+    make: () => makeSimple(drawViperfish),
+    anatomy: [
+      { label: 'FANGS', x: 1.3, y: 0.3 },
+      { label: 'LURE', x: 0.5, y: -1.6 },
+    ],
+  },
+  {
+    key: 'dumbo',
+    name: 'DUMBO OCTOPUS',
+    action: 'FLAP',
+    kind: 'ANATOMY',
+    radius: 34,
+    make: () => makeSimple(drawDumboOctopus),
+    anatomy: [
+      { label: 'EAR FINS', x: -0.6, y: 0.7 },
+      { label: 'ARMS', x: 0, y: 1.6 },
+    ],
+  },
+  {
+    key: 'fangtooth',
+    name: 'FANGTOOTH',
+    action: 'GAPE',
+    kind: 'ANATOMY',
+    radius: 30,
+    make: () => makeSimple(drawFangtooth),
+    anatomy: [
+      { label: 'HUGE TEETH', x: 0.8, y: 0.3 },
+    ],
+  },
+  {
+    key: 'tripod',
+    name: 'TRIPOD FISH',
+    action: 'PERCH',
+    kind: 'ANATOMY',
+    radius: 24,
+    make: () => makeSimple(drawTripodFish),
+    anatomy: [
+      { label: 'STILT FINS', x: -0.4, y: 1.6 },
+      { label: 'FIN RAYS', x: 0.6, y: 0.5 },
+    ],
+  },
+  {
+    key: 'seapig',
+    name: 'SEA PIG',
+    action: 'WALK',
+    kind: 'ANATOMY',
+    radius: 30,
+    make: () => makeSimple(drawSeaPig),
+    anatomy: [
+      { label: 'TUBE FEET', x: -0.3, y: 0.9 },
+      { label: 'DORSAL PAPILLAE', x: 0, y: -0.9 },
+    ],
+  },
+  {
+    key: 'yeti',
+    name: 'YETI CRAB',
+    action: 'FARM',
+    kind: 'ANATOMY',
+    radius: 28,
+    make: () => makeSimple(drawYetiCrab),
+    anatomy: [
+      { label: 'HAIRY CLAWS', x: 1.3, y: 0.8 },
+      { label: 'SETAE', x: 1.4, y: 0.6 },
+    ],
+  },
+  {
+    key: 'chimaera',
+    name: 'CHIMAERA',
+    action: 'GLIDE',
+    kind: 'ANATOMY',
+    radius: 14,
+    center: -1.2,
+    make: () => makeSimple(drawChimaera),
+    anatomy: [
+      { label: 'WING FINS', x: 0.2, y: -0.7 },
+      { label: 'WHIP TAIL', x: -3.4, y: 0 },
+    ],
+  },
+  {
+    key: 'coelacanth',
+    name: 'COELACANTH',
+    action: 'DRIFT',
+    kind: 'ANATOMY',
+    radius: 30,
+    make: () => makeSimple(drawCoelacanth),
+    anatomy: [
+      { label: 'LOBED FINS', x: -0.4, y: 0.9 },
+    ],
+  },
+  {
+    key: 'grouper',
+    name: 'GIANT GROUPER',
+    action: 'INHALE',
+    kind: 'ANATOMY',
+    radius: 24,
+    make: () => makeSimple(drawGiantGrouper),
+    anatomy: [
+      { label: 'VAST MOUTH', x: 1.7, y: 0.3 },
+    ],
+  },
+  {
+    key: 'napoleon',
+    name: 'NAPOLEON WRASSE',
+    action: 'FOLLOW',
+    kind: 'ANATOMY',
+    radius: 24,
+    make: () => makeSimple(drawNapoleonWrasse),
+    anatomy: [
+      { label: 'FOREHEAD HUMP', x: 1.1, y: -1.0 },
+    ],
+  },
+  {
+    key: 'nudibranch',
+    name: 'NUDIBRANCH',
+    action: 'CRAWL',
+    kind: 'ANATOMY',
+    radius: 40,
+    make: () => makeSimple(drawNudibranch),
+    anatomy: [
+      { label: 'GILL PLUMES', x: -0.2, y: -0.8 },
+      { label: 'RHINOPHORES', x: 1.4, y: 0.2 },
+    ],
+  },
+  {
+    key: 'blurring',
+    name: 'BLUE-RINGED OCTOPUS',
+    action: 'FLASH',
+    kind: 'ANATOMY',
+    radius: 34,
+    make: () => makeSimple(drawBlueRingedOctopus),
+    anatomy: [
+      { label: 'BLUE RINGS', x: 0.45, y: 0.1 },
+    ],
+  },
+  {
+    key: 'eagleray',
+    name: 'EAGLE RAY',
+    action: 'SOAR',
+    kind: 'ANATOMY',
+    radius: 30,
+    center: -1,
+    make: () => makeSimple(drawEagleRay),
+    anatomy: [
+      { label: 'WINGS', x: 0, y: 1.6 },
+      { label: 'BARBED TAIL', x: -3.6, y: 0 },
+    ],
+  },
+  {
+    key: 'whaleshark',
+    name: 'WHALE SHARK',
+    action: 'CRUISE',
+    kind: 'ANATOMY',
+    radius: 10,
+    make: () => makeSimple(drawWhaleShark),
+    anatomy: [
+      { label: 'SPOTS', x: 0, y: 0.6 },
+      { label: 'WIDE MOUTH', x: 2.4, y: 0.1 },
+    ],
+  },
+  {
+    key: 'bobbit',
+    name: 'BOBBIT WORM',
+    action: 'AMBUSH',
+    kind: 'ANATOMY',
+    radius: 14,
+    center: -1.6,
+    make: () => makeSimple(drawBobbitWorm),
+    anatomy: [
+      { label: 'SCISSOR JAWS', x: 0.5, y: 0.2 },
+      { label: 'SEGMENTS', x: -2, y: 0 },
+    ],
+  },
+  {
+    key: 'frilled',
+    name: 'FRILLED SHARK',
+    action: 'STRIKE',
+    kind: 'ANATOMY',
+    radius: 10,
+    center: -1.6,
+    make: () => makeSimple(drawFrilledShark),
+    anatomy: [
+      { label: 'FRILLED GILLS', x: 1.2, y: 0 },
+      { label: 'THREE-PRONG TEETH', x: 2.1, y: 0.2 },
+    ],
+  },
+  {
+    key: 'spermwhale',
+    name: 'SPERM WHALE',
+    action: 'DIVE',
+    kind: 'ANATOMY',
+    radius: 10,
+    make: () => makeSimple(drawSpermWhale),
+    anatomy: [
+      { label: 'SQUARE HEAD', x: 2.6, y: 0 },
+      { label: 'NOSE', x: 3.0, y: 0.1 },
+    ],
+  },
+  {
+    key: 'bobbitqueen',
+    name: 'BOBBIT QUEEN',
+    action: 'STRIKE',
+    kind: 'ANATOMY',
+    radius: 9,
+    center: -1.6,
+    make: () => makeSimple(drawBobbitQueen),
+    anatomy: [
+      { label: 'CROWN', x: 0.5, y: 0.2 },
+      { label: 'ARMOUR', x: -2, y: 0 },
     ],
   },
 ];

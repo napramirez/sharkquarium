@@ -492,7 +492,7 @@ export const PASSES = [
     key: 'playpass8',
     label: 'PLAYPASS 8',
     cost: 1200,
-    grants: 'COMPANIONS — TWENTY-FOUR FLOATING PALS',
+    grants: 'COMPANIONS — FORTY-FIVE FLOATING PALS',
     skins: [],
     accessories: [],
     trails: [],
@@ -521,6 +521,27 @@ export const PASSES = [
       'minicuttlefish',
       'miniloosejaw',
       'miniswallower',
+      'minivampire',
+      'minibarreleye',
+      'minigulper',
+      'miniviper',
+      'minidumbo',
+      'minifangtooth',
+      'minitripod',
+      'miniseapig',
+      'miniyeti',
+      'minichimaera',
+      'minicoelacanth',
+      'minigrouper',
+      'mininapoleon',
+      'mininudibranch',
+      'miniblurring',
+      'minieagleray',
+      'miniwhaleshark',
+      'minibobbit',
+      'minifrilled',
+      'minispermwhale',
+      'minibobbitqueen',
     ],
   },
   {
@@ -660,6 +681,27 @@ export const COMPANIONS = [
   { key: 'minicuttlefish', label: 'MINI CUTTLEFISH', cost: 0, passOnly: true },
   { key: 'miniloosejaw', label: 'MINI STOPLIGHT LOOSEJAW', cost: 0, passOnly: true },
   { key: 'miniswallower', label: 'MINI BLACK SWALLOWER', cost: 0, passOnly: true },
+  { key: 'minivampire', label: 'MINI VAMPIRE SQUID', cost: 0, passOnly: true },
+  { key: 'minibarreleye', label: 'MINI BARRELEYE', cost: 0, passOnly: true },
+  { key: 'minigulper', label: 'MINI GULPER EEL', cost: 0, passOnly: true },
+  { key: 'miniviper', label: 'MINI VIPERFISH', cost: 0, passOnly: true },
+  { key: 'minidumbo', label: 'MINI DUMBO OCTOPUS', cost: 0, passOnly: true },
+  { key: 'minifangtooth', label: 'MINI FANGTOOTH', cost: 0, passOnly: true },
+  { key: 'minitripod', label: 'MINI TRIPOD FISH', cost: 0, passOnly: true },
+  { key: 'miniseapig', label: 'MINI SEA PIG', cost: 0, passOnly: true },
+  { key: 'miniyeti', label: 'MINI YETI CRAB', cost: 0, passOnly: true },
+  { key: 'minichimaera', label: 'MINI CHIMAERA', cost: 0, passOnly: true },
+  { key: 'minicoelacanth', label: 'MINI COELACANTH', cost: 0, passOnly: true },
+  { key: 'minigrouper', label: 'MINI GIANT GROUPER', cost: 0, passOnly: true },
+  { key: 'mininapoleon', label: 'MINI NAPOLEON WRASSE', cost: 0, passOnly: true },
+  { key: 'mininudibranch', label: 'MINI NUDIBRANCH', cost: 0, passOnly: true },
+  { key: 'miniblurring', label: 'MINI BLUE-RINGED OCTOPUS', cost: 0, passOnly: true },
+  { key: 'minieagleray', label: 'MINI EAGLE RAY', cost: 0, passOnly: true },
+  { key: 'miniwhaleshark', label: 'MINI WHALE SHARK', cost: 0, passOnly: true },
+  { key: 'minibobbit', label: 'MINI BOBBIT WORM', cost: 0, passOnly: true },
+  { key: 'minifrilled', label: 'MINI FRILLED SHARK', cost: 0, passOnly: true },
+  { key: 'minispermwhale', label: 'MINI SPERM WHALE', cost: 0, passOnly: true },
+  { key: 'minibobbitqueen', label: 'MINI BOBBIT QUEEN', cost: 0, passOnly: true },
 ];
 
 export const TANK_INTROS = {
@@ -2229,6 +2271,95 @@ export const LORE = [  {
       },
     ],
   },
+  {
+    title: 'THE DEEP & THE REEF',
+    entries: [
+      {
+        name: 'VAMPIRE SQUID',
+        text: 'The still, black-red cloak of the midwaters, drifting where the oxygen runs thin and few hunters follow. Flare it, turn it inside out, and it squirts glowing slime instead of ink.',
+      },
+      {
+        name: 'BARRELEYE',
+        text: 'A fish that carries its eyes on a clear turret, forever looking up for the shadow of a meal. Its thoughts are stored in the same transparent dome.',
+      },
+      {
+        name: 'GULPER EEL',
+        text: 'More mouth than body: a black ribbon that swims with its pelican jaw wide as a net, and a little light at the tip of its tail.',
+      },
+      {
+        name: 'VIPERFISH',
+        text: 'A jaw of needles that cannot close, hanging beneath a glowing bait in the dark. Whatever drifts too close is skewered.',
+      },
+      {
+        name: 'DUMBO OCTOPUS',
+        text: 'The gentlest thing in the deep: a pale octopus who flaps two ear-like fins to hover, with no ink to spill and nowhere to hurry.',
+      },
+      {
+        name: 'FANGTOOTH',
+        text: 'Small, spiny, and mostly teeth. For its size no fish has a bigger bite, and it simply waits for the dark to bring it dinner.',
+      },
+      {
+        name: 'TRIPOD FISH',
+        text: 'It stands on three stiff legs of fin-ray upon the mud, facing the current, feeling for food with the legs it cannot see.',
+      },
+      {
+        name: 'SEA PIG',
+        text: 'A walking sea cucumber trundling blindly through the abyss, hoovering crumbs from the coldest, emptiest floor on Earth.',
+      },
+      {
+        name: 'YETI CRAB',
+        text: 'At the scalding vents it farms bacteria in arms of pale hair, waving its claws like it dances, never once seeing the sun.',
+      },
+      {
+        name: 'CHIMAERA',
+        text: 'A ghost of the shark line: smooth, big-eyed, gliding on winged fins with a long thin tail, older than the dinosaurs and still here.',
+      },
+      {
+        name: 'COELACANTH',
+        text: 'The living fossil, thought extinct for seventy million years until a fisher hauled one up in 1938, and a second kind was not found for nearly sixty more.',
+      },
+      {
+        name: 'GIANT GROUPER',
+        text: 'The landlord of the reef. It does not chase; it opens its vast mouth and the whole neighbourhood is inhaled.',
+      },
+      {
+        name: 'NAPOLEON WRASSE',
+        text: 'A big, bold wrasse with a hump on its brow, following divers about and eating the starfish that ruin the coral.',
+      },
+      {
+        name: 'NUDIBRANCH',
+        text: 'A sea slug that discarded its shell and chose colour, stealing the stings of its prey to wear as its own warning.',
+      },
+      {
+        name: 'BLUE-RINGED OCTOPUS',
+        text: 'Tiny, shy, and deadly. The blue rings are not decoration; they are a warning, and the bite has no cure.',
+      },
+      {
+        name: 'EAGLE RAY',
+        text: 'It flies rather than swims, beating curved wings over the sand, a duck-billed head below and a barbed tail trailing after.',
+      },
+      {
+        name: 'WHALE SHARK',
+        text: 'The largest fish alive, spotted like its own fingerprint, sieving the smallest food from the widest mouth in the sea.',
+      },
+      {
+        name: 'BOBBIT WORM',
+        text: 'A metre of armoured worm hidden under the seabed, waiting to scissor anything warm that passes over its hole.',
+      },
+      {
+        name: 'FRILLED SHARK',
+        text: 'A serpent of the deep with frilled gills and a bow-and-arrow strike, once mistaken for the sea serpent of legend.',
+      },
+      {
+        name: 'SPERM WHALE',
+        text: 'The biggest brain and the biggest nose in the animal kingdom, clicking through two kilometres of black water to find squid, holding one breath for over an hour.',
+      },
+      {
+        name: 'BOBBIT QUEEN',
+        text: 'Down in the vents the bobbit grows to monstrous size: plated, armoured, and crowned with antennae, the queen of the dark.',
+      },
+    ],
+  },
 ];
 
 export const SEA_FACTS = [
@@ -2379,6 +2510,90 @@ export const SEA_FACTS = [
   {
     name: 'BLACK SWALLOWER',
     text: 'The black swallower is a small deep-water fish with an oversized trick: its jaws unhinge and its stomach stretches like a balloon, letting it swallow prey larger than its own body in one gulp. It hunts the open mid-water, hanging almost motionless in the dark until something swims close, then lunging and engulfing it whole. Sometimes it swallows a fish too big to digest and pays for its greed.',
+  },
+  {
+    name: 'VAMPIRE SQUID',
+    text: 'The vampire squid is named for its cloak, not its bite: a webbing of skin joins its arms into an umbrella it can flare over its body like a cape. It lives in the oxygen-poor midwaters where few hunters go, drifting almost still, and when frightened it turns itself inside out and squirts glowing mucus instead of ink.',
+  },
+  {
+    name: 'BARRELEYE',
+    text: 'The barreleye swims with a transparent dome of a head, and its eyes are two green tubes that point straight up through it. It hangs motionless below its own eyes, watching silhouettes against the faint light above; when it spots a meal it rotates the tubes forward. Even its brain is stored in the clear dome.',
+  },
+  {
+    name: 'GULPER EEL',
+    text: 'The gulper eel is mostly mouth: a whip of a body ending in a huge, loose pelican pouch of a jaw. It cannot chase anything, so it cruises with that jaw gaping wide like a net, scooping up whatever drifts in. It can inflate the pouch like a balloon, and the rest of the animal is a thin, black ribbon with a glowing tail tip.',
+  },
+  {
+    name: 'VIPERFISH',
+    text: 'The viperfish is a snake of the dark, its own teeth so long they cannot fit in its mouth and stick out past its lower jaw. It hangs still with a glowing lure dangling over its face, and when prey comes within reach it snaps its hinged skull up and impales it. Its unhinging jaw can open wider than its own head.',
+  },
+  {
+    name: 'DUMBO OCTOPUS',
+    text: 'The dumbo octopus flaps two ear-like fins to hover above the seafloor, the deepest-living octopus of them all. It has no ink sac, because ink is useless in the dark; instead it drifts and pulses, its soft body a pale, flapping umbrella. The largest, red kind is named for the Disney elephant, but it is just a very gentle octopus.',
+  },
+  {
+    name: 'FANGTOOTH',
+    text: 'The fangtooth looks far too small to be terrifying, until it opens its mouth: its jaws and teeth are, for its size, among the largest of any fish. It is a compact, spiny lump of dark water-meat that drifts the deep, and a young one and an old one were once thought to be two different species.',
+  },
+  {
+    name: 'TRIPOD FISH',
+    text: 'The tripod fish stands. It props itself up on three stiff, elongated fin rays like a stool on the seabed, faces into the current, and waits. Its eyes are nearly useless, so it feels for prey with the same long rays. When something touches them it springs up to feed, then settles back onto its three legs.',
+  },
+  {
+    name: 'SEA PIG',
+    text: 'The sea pig is a sea cucumber that walks the abyss on water-inflated tube feet, a pale, plump, blind scavenger sniffing through the mud for sunken scraps. It can live in the darkest, coldest, emptiest places on Earth, hoovering up tiny specks of food, and it is a distant relative of the starfish.',
+  },
+  {
+    name: 'YETI CRAB',
+    text: 'The yeti crab farms its own food. Around the hot, toxic water of a hydrothermal vent it holds up two arms covered in pale, hair-like setae, in which bacteria grow and feed it. It never sees sunlight, it lives in scalding water, and it waves those hairy claws like it is dancing in the dark.',
+  },
+  {
+    name: 'CHIMAERA',
+    text: 'The chimaera is a ghost of the deep, an old branch of the shark family with a smooth, un-scaled body, a big eye, and gill covers instead of open gill slits. It glides slowly with its large pectoral wings like a bird underwater, and its long thin tail is named for the dragon of myth.',
+  },
+  {
+    name: 'COELACANTH',
+    text: 'The coelacanth is a living fossil. It was known only from fossils and thought long extinct for seventy million years, until one was caught in 1938. It has paired lobed fins on fleshy stalks, a hinged skull, a hollow spine, and a special organ in its snout; the second living species was not found until 1997, near Indonesia.',
+  },
+  {
+    name: 'GIANT GROUPER',
+    text: 'The giant grouper is one of the largest bony fish on a reef, a big, slow, handsome brute that can grow past two metres. It does not chase its food: it opens its vast mouth and inhales so suddenly that a whole cloud of small fish is sucked in. Old ones have been around for decades and hold a territory like a landlord.',
+  },
+  {
+    name: 'NAPOLEON WRASSE',
+    text: 'The napoleon wrasse wears a big hump on its forehead as it ages, and it is one of the largest wrasse on a reef. It is bold and curious, following divers around; it even eats the crown-of-thorns starfish that ruin coral. Some of them change from female to male partway through life.',
+  },
+  {
+    name: 'NUDIBRANCH',
+    text: 'A nudibranch is a sea slug that threw away its shell and turned to colour instead. It walks the rocks on a soft foot, its back covered in waving gill plumes; many steal the stinging cells of their prey and reuse them as armour, and their bright colours are a warning that says do not eat me.',
+  },
+  {
+    name: 'BLUE-RINGED OCTOPUS',
+    text: 'The blue-ringed octopus is tiny, shy, and one of the most dangerous animals in the sea. It only shows its electric-blue rings when alarmed, flashing a warning; its bite carries a venom that can kill a person in minutes and has no antivenom. It spends the day hidden in shells and rocks and hunts small crabs at night.',
+  },
+  {
+    name: 'EAGLE RAY',
+    text: 'An eagle ray flies rather than flaps, beating its curved wing-like pectorals to soar across a sandy flat as if under sail. Its head is a flat duck-bill on a stalk, and its long tail carries a few venomous spines. Big ones travel together in loose schools, swooping over the sand to dig for shellfish.',
+  },
+  {
+    name: 'WHALE SHARK',
+    text: 'The whale shark is the largest fish in the ocean, a spotted giant the length of a bus that eats only the smallest things. It swims with its huge mouth open, sieving plankton and little fish out of the water, and its pattern of white spots is unique to each one, like a fingerprint, which divers can use to identify it.',
+  },
+  {
+    name: 'BOBBIT WORM',
+    text: 'The bobbit worm hides its whole metre of segmented body under the seabed, only its head poking out. When it feels or smells prey above it, it launches with jaws like scissors that snap shut faster than the eye can see, then drags the victim underground. Aquarium keepers have learned to fear it.',
+  },
+  {
+    name: 'FRILLED SHARK',
+    text: 'The frilled shark is a serpentine shark with an eel-like body, a snake-like head, and a row of frilly, fringed gill slits. It hunts by folding its body back like a bow and striking straight forward, with jaws full of long, three-pronged teeth. It was once photographed alive in the deep and mistaken for a sea serpent.',
+  },
+  {
+    name: 'SPERM WHALE',
+    text: 'The sperm whale has the largest brain of any animal and, inside its huge square head, the largest nose. It breathes air at the surface and dives two thousand metres into the dark to hunt squid, holding its breath for over an hour. It finds food by clicking and listening to the echo, and its clicking is the loudest sound any animal makes.',
+  },
+  {
+    name: 'BOBBIT QUEEN',
+    text: 'Down in the vents, the bobbit worm grows to monstrous size. Its plated segments are like armour, its jutting antennae and mandibles are enormous, and it guards a lair of hot water like a queen of the dark. It strikes anything warm that wanders close, and few things get to see it and leave.',
   },
 ];
 

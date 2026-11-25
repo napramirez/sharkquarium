@@ -40,6 +40,8 @@ export class SettingsScene extends Scene {
       difficulty: 'normal',
       volume: AUDIO.volume,
       sfx: true,
+      music: true,
+      musicVolume: 1,
       threeD: false,
       firstPerson: false,
       cute: false,
@@ -73,6 +75,10 @@ export class SettingsScene extends Scene {
     this.settings.newyear = this.settings.season === 'newyear';
     this.game.set3D(this.settings.threeD);
     this.game.setFirstPerson(this.settings.firstPerson);
+    if (this.game.audio) {
+      this.game.audio.setMusicEnabled(this.settings.music);
+      this.game.audio.setMusicVolume(this.settings.musicVolume);
+    }
     setCute(this.settings.cute);
     setSeason(this.settings.season);
     set8Bit(this.settings.eightBit);
@@ -97,6 +103,8 @@ export class SettingsScene extends Scene {
         { label: 'DIFFICULTY', action: 'difficulty' },
         { label: 'VOLUME', action: 'volume' },
         { label: 'SFX', action: 'sfx' },
+        { label: 'MUSIC', action: 'music' },
+        { label: 'MUSIC VOLUME', action: 'musicVolume' },
         { label: '3D MODE', action: 'threeD' },
         { label: 'FIRST PERSON MODE', action: 'firstPerson' },
         { label: 'CUTE MODE', action: 'cute' },
@@ -116,6 +124,7 @@ export class SettingsScene extends Scene {
         { label: 'COLORBLIND HAZARDS', action: 'colorblind' },
         { label: 'TRACK PLAYER', action: 'tracks' },
         { label: 'CUTSCENE THEATRE', action: 'theatre' },
+        { label: 'CUSTOM TUNING', action: 'tuning' },
         { label: 'BACK', action: 'back' },
       ],
       {
@@ -167,6 +176,15 @@ export class SettingsScene extends Scene {
     saveJSON(SETTINGS_KEY, this.settings);
   }
 
+  setMusicVolume(value) {
+    const next = Math.round(clamp(value, 0, 1) * 10) / 10;
+    if (next === this.settings.musicVolume) return;
+    this.settings.musicVolume = next;
+    if (this.game.audio) this.game.audio.setMusicVolume(next);
+    this.game.audio.tone({ freq: 480 + next * 320, duration: 0.05, volume: 0.15 });
+    saveJSON(SETTINGS_KEY, this.settings);
+  }
+
   toggleSeason(key) {
     const next = this.settings.season === key ? 'none' : key;
     this.settings.season = next;
@@ -209,6 +227,11 @@ export class SettingsScene extends Scene {
       this.game.changeScene('theatre');
       return;
     }
+    if (item.action === 'tuning') {
+      this.game.audio.tone({ freq: 300, endFreq: 620, duration: 0.14, volume: 0.2 });
+      this.game.changeScene('tuning');
+      return;
+    }
     if (item.action === 'coopTankSelect') {
       this.settings.coopTankSelect = !this.settings.coopTankSelect;
       saveJSON(SETTINGS_KEY, this.settings);
@@ -217,6 +240,24 @@ export class SettingsScene extends Scene {
         duration: 0.08,
         volume: 0.18,
       });
+      return;
+    }
+    if (item.action === 'music') {
+      const next = !this.settings.music;
+      if (!next && this.game.audio) this.game.audio.tone({ freq: 520, endFreq: 300, duration: 0.1, volume: 0.18 });
+      this.settings.music = next;
+      if (this.game.audio) this.game.audio.setMusicEnabled(next);
+      saveJSON(SETTINGS_KEY, this.settings);
+      return;
+    }
+    if (item.action === 'musicVolume') {
+      const pointer = this.game.input.pointer;
+      if (pointer.down) {
+        const target = clamp((pointer.x - (CONTROLS_X - TRACK_WIDTH / 2)) / TRACK_WIDTH, 0, 1);
+        this.setMusicVolume(Math.round(target * 10) / 10);
+      } else {
+        this.setMusicVolume(this.settings.musicVolume >= 0.95 ? 0 : this.settings.musicVolume + 0.1);
+      }
       return;
     }
     if (item.action === 'sfx') {
@@ -405,6 +446,10 @@ export class SettingsScene extends Scene {
       if (input.wasPressed('left')) this.adjustVolume(-0.1);
       if (input.wasPressed('right')) this.adjustVolume(0.1);
     }
+    if (selected && selected.action === 'musicVolume') {
+      if (input.wasPressed('left')) this.setMusicVolume(this.settings.musicVolume - 0.1);
+      if (input.wasPressed('right')) this.setMusicVolume(this.settings.musicVolume + 0.1);
+    }
     if (selected && selected.action === 'difficulty') {
       if (input.wasPressed('left')) this.cycleDifficulty(-1);
       if (input.wasPressed('right')) this.cycleDifficulty(1);
@@ -436,6 +481,8 @@ export class SettingsScene extends Scene {
       difficulty: 'SCALES ENEMY SPEED, SPAWNS, PENALTIES, AND THE CLOCK',
       volume: 'MASTER AUDIO VOLUME',
       sfx: 'SOUND EFFECTS ON / OFF',
+      music: 'MUSIC ON / OFF (INDEPENDENT OF SFX)',
+      musicVolume: 'MUSIC VOLUME',
       threeD: 'TILT THE WHOLE TANK ONTO A PERSPECTIVE PLANE',
       firstPerson: 'THE MOUSE LOOKS AROUND A CLOSE-UP VIEW',
       cute: 'BIG EYES, BLUSH AND GENTLER SCARES \u2014 EVERYTHING GOES ADORABLE',
@@ -455,6 +502,7 @@ export class SettingsScene extends Scene {
       mobiliteBig: 'MAKE THE ON-SCREEN BUTTONS LARGER',
       tracks: 'PLAY ANY LEVEL THEME',
       theatre: 'REPLAY ANY CUTSCENE',
+      tuning: 'FINE-TUNE ENEMY SPEED, CLOCK AND PENALTIES ON TOP OF THE PRESET',
       back: 'RETURN TO THE MENU',
     };
     const selected = this.menu.selected;
@@ -480,7 +528,9 @@ export class SettingsScene extends Scene {
         this.renderDifficulty(ctx, CONTROLS_X, y, this.settings.difficulty);
       } else if (item.action === 'volume') {
         this.renderSlider(ctx, CONTROLS_X, y, this.settings.volume);
-      } else if (item.action === 'tracks' || item.action === 'theatre') {
+      } else if (item.action === 'musicVolume') {
+        this.renderSlider(ctx, CONTROLS_X, y, this.settings.musicVolume);
+      } else if (item.action === 'tracks' || item.action === 'theatre' || item.action === 'tuning') {
         drawText(ctx, 'OPEN', CONTROLS_X, y, { size: 13, color: COLORS.textDim, alpha: 0.85 });
       } else if (typeof this.settings[item.action] === 'boolean') {
         this.renderSwitch(ctx, CONTROLS_X, y, this.settings[item.action]);

@@ -28,6 +28,29 @@ import {
   drawOceanSunfish,
   drawSeaLion,
 } from '../entities/realfish.js';
+import {
+  drawVampireSquid,
+  drawBarreleye,
+  drawGulperEel,
+  drawViperfish,
+  drawDumboOctopus,
+  drawFangtooth,
+  drawTripodFish,
+  drawSeaPig,
+  drawYetiCrab,
+  drawChimaera,
+  drawCoelacanth,
+  drawGiantGrouper,
+  drawNapoleonWrasse,
+  drawNudibranch,
+  drawBlueRingedOctopus,
+  drawEagleRay,
+  drawWhaleShark,
+  drawBobbitWorm,
+  drawFrilledShark,
+  drawSpermWhale,
+  drawBobbitQueen,
+} from '../entities/creatures.js';
 
 function drawHagfishIcon(ctx, r, pose = {}) {
   const age = pose.age ?? 0;
@@ -108,6 +131,27 @@ function drawCuttlefishIcon(ctx, r, pose) {
 }
 
 const RULES = [
+  [/VAMPIRE SQUID/, drawVampireSquid, 28, 0],
+  [/BARRELEYE/, drawBarreleye, 28, 0],
+  [/GULPER EEL/, drawGulperEel, 22, 0],
+  [/VIPERFISH/, drawViperfish, 22, 0],
+  [/DUMBO OCTOPUS/, drawDumboOctopus, 30, 0],
+  [/FANGTOOTH/, drawFangtooth, 26, 0],
+  [/TRIPOD FISH/, drawTripodFish, 22, 0],
+  [/SEA PIG/, drawSeaPig, 28, 0],
+  [/YETI CRAB/, drawYetiCrab, 26, 0],
+  [/CHIMAERA/, drawChimaera, 22, 0],
+  [/COELACANTH/, drawCoelacanth, 26, 0],
+  [/GIANT GROUPER/, drawGiantGrouper, 26, 0],
+  [/NAPOLEON WRASSE/, drawNapoleonWrasse, 24, 0],
+  [/NUDIBRANCH/, drawNudibranch, 30, 0],
+  [/BLUE-RINGED OCTOPUS/, drawBlueRingedOctopus, 30, 0],
+  [/EAGLE RAY/, drawEagleRay, 30, 0],
+  [/WHALE SHARK/, drawWhaleShark, 22, 0],
+  [/BOBBIT WORM/, drawBobbitWorm, 18, 0],
+  [/BOBBIT QUEEN/, drawBobbitQueen, 16, 0],
+  [/FRILLED SHARK/, drawFrilledShark, 20, 0],
+  [/SPERM WHALE/, drawSpermWhale, 20, 0],
   [/LOOSEJAW/, drawLoosejaw, 16, 16],
   [/GOBLIN/, drawGoblinShark, 20, 0],
   [/ARCHERFISH/, drawArcherfish, 26, 0],

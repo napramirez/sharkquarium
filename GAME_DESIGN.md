@@ -205,21 +205,25 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   lightning bolts around the diver's edge.
 - `LoreScene` (`lore`, opened from the menu's LORE row) is the codex: it reads the
   `LORE` catalog — THE WRECK, THE TANKS, THE DIVERS, THE HAZARDS, THE MUTANT HORRORS,
-  THE MINIGAMES, and THE MODES, one hundred and twenty-two named entries in all — and renders Left/Right section tabs, an Up/Down
+  THE DEEP & THE REEF, THE MINIGAMES, and THE MODES, one hundred and forty-three named entries in all — and renders Left/Right section tabs, an Up/Down
   entry list with a centered window and `n/m` counters, and the wrapped story text in a side
   panel. Overlong entries are split by `paginate()` after the last complete sentence that fits
   (ENTER turns pages, and the panel shows `PAGE n/m`). Each entry also shows a **creature
   portrait** beside the text via `drawCreatureIcon()` (`src/engine/codexicons.js`).
 - `SeaFactsScene` (`seafacts`, opened from the menu's SEA FACTS row) is a lighter cousin of the
-  codex: it reads the `SEA_FACTS` catalog of real-world trivia about each playable creature,
-  one entry at a time. Up/Down (and Left/Right) browse creatures, ENTER turns pages when an
+  codex: it reads the `SEA_FACTS` catalog of real-world trivia about each playable creature
+  (fifty-eight entries), one entry at a time. Up/Down (and Left/Right) browse creatures, ENTER turns pages when an
   entry is long, and Esc returns to the menu; it reuses the same sentence-aware `paginate()`
   wrapping as the lore codex, and draws each creature with `drawCreatureIcon()`.
 - `drawCreatureIcon()` (`src/engine/codexicons.js`) maps an entry name to a renderer with a
   keyword table (`RULES`): most creatures reuse their in-game body draws (`drawSharkBody`,
   `drawLoosejaw`, `drawGoblinShark`, `drawOarfishBody`, …), the ANGLERFISH now uses `drawAnglerBody`, the six real-fish tanks' creatures
   (`drawArcherfish`, `drawNeedlefish`, `drawSawfish`, `drawMudskipper`, `drawFrogfish`,
-  `drawOceanSunfish`, `drawSeaLion` from `src/entities/realfish.js`) join the table, HAGFISH and
+  `drawOceanSunfish`, `drawSeaLion` from `src/entities/realfish.js`) join the table, the 21
+  deep-sea and reef creatures (vampire squid, barreleye, gulper eel, viperfish, dumbo octopus,
+  fangtooth, tripod fish, sea pig, yeti crab, chimaera, coelacanth, giant grouper, napoleon
+  wrasse, nudibranch, blue-ringed octopus, eagle ray, whale shark, bobbit worm, frilled shark,
+  sperm whale, bobbit queen) route to their own draws in `src/entities/creatures.js`, HAGFISH and
   LANTERNFISH get small local portraits, and anything unmatched falls back to a generic fish.
   It clips to a circular portrait, forces the `natural` skin (`setActiveSkin`) so codex art
   never inherits the player's equipped color, and animates with the scene clock.
@@ -230,7 +234,9 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   returns an animator with `update(dt)`/`draw(ctx, radius)` that drives the **same logic and
   speeds as the tanks** (the cuttlefish and black swallower use their own entities, while the
   goblin shark, stoplight loosejaw, frogfish, hatchetfish and oarfish reuse their tanks' state
-  machines and the `GOBLIN`/`TWILIGHT`/`OARFISH` constants). Creatures whose only animation is
+  machines and the `GOBLIN`/`TWILIGHT`/`OARFISH` constants). The 21 deep-sea and reef creatures
+  join as compact `ANATOMY` entries (each draws its `src/entities/creatures.js` body behind a
+  small labelled anatomy overlay). Creatures whose only animation is
   an emote are excluded. The screen is `src/scenes/animations.js`. Pressing ENTER toggles an
   **anatomy overlay** that draws leader lines and labels to each `anatomy` entry's part.
 - `HatcheryScene` (`hatchery`, opened from the menu's HATCHERY row) combines two owned

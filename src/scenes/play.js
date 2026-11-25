@@ -1,3 +1,4 @@
+import { rulesFor } from '../engine/difficulty.js';
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
 import { renderFirstPersonLevel } from '../engine/raycastview.js';
@@ -218,7 +219,7 @@ export class PlayScene extends Scene {
         ? mutatorByKey(weeklyMutatorKey())
         : mutatorByKey(params.mutator ?? (this.mutator ? this.mutator.key : undefined));
     this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
-    this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
+    this.rules = rulesFor(this.difficultyKey);
     this.eelNeed = Math.max(1, Math.round(EEL.bubblesPerHunt * this.rules.chargeScale));
     this.sealNeed = Math.max(1, Math.round(SEAL.chargePlankton * this.rules.chargeScale));
     this.coop = (this.race && !this.solo) || Boolean(params.coop);

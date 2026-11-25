@@ -1,3 +1,4 @@
+import { rulesFor } from '../engine/difficulty.js';
 import { Scene } from '../engine/scene.js';
 import { SelectList } from '../engine/selectlist.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect, fillCircle, measureTextWidth } from '../engine/render.js';
@@ -34,7 +35,7 @@ export class TagScene extends Scene {
   enter(params = {}) {
     this.time = 0;
     this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
-    this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
+    this.rules = rulesFor(this.difficultyKey);
     this.speedScale = this.rules.enemySpeed;
     this.phase = 'names';
     this.solo = Boolean(params.solo);

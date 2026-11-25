@@ -1,3 +1,4 @@
+import { rulesFor } from './difficulty.js';
 import { Scene } from './scene.js';
 import { SelectList } from './selectlist.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect } from './render.js';
@@ -34,7 +35,7 @@ export class MinigameScene extends Scene {
     this.time = 0;
     this.solo = Boolean(params.solo);
     this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
-    this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
+    this.rules = rulesFor(this.difficultyKey);
     this.shop = loadJSON(SHOP_KEY, {});
     this.resultsMenu = new SelectList(
       [

@@ -1,3 +1,4 @@
+import { rulesFor } from '../engine/difficulty.js';
 import { MinigameScene } from '../engine/minigame.js';
 import { recordWin } from '../engine/records.js';
 import { SelectList } from '../engine/selectlist.js';
@@ -61,7 +62,7 @@ export class MouthScene extends MinigameScene {
     this.time = 0;
     this.solo = true;
     this.difficultyKey = loadJSON(SETTINGS_KEY, {}).difficulty ?? 'normal';
-    this.rules = DIFFICULTY[this.difficultyKey] ?? DIFFICULTY.normal;
+    this.rules = rulesFor(this.difficultyKey);
     this.enemyMult = this.mutator ? this.mutator.knobs.enemySpeedScale ?? 1 : 1;
     this.shop = loadJSON(SHOP_KEY, {});
     if (this.game.music) {

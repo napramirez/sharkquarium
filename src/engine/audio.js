@@ -6,6 +6,8 @@ export class AudioBus {
     this.master = null;
     this.enabled = true;
     this.sfxEnabled = true;
+    this.musicEnabled = true;
+    this.musicVolume = 1;
     this.volume = 1;
     this.baseGain = 0.9;
     this.convolver = null;
@@ -36,6 +38,14 @@ export class AudioBus {
 
   setSfxEnabled(enabled) {
     this.sfxEnabled = Boolean(enabled);
+  }
+
+  setMusicEnabled(enabled) {
+    this.musicEnabled = Boolean(enabled);
+  }
+
+  setMusicVolume(value) {
+    this.musicVolume = Math.min(1, Math.max(0, value));
   }
 
   unlock() {
@@ -129,7 +139,8 @@ export class AudioBus {
   }
 
   tone(options = {}) {
-    if (!this.enabled || !this.sfxEnabled) return;
+    const music = Boolean(options.music);
+    if (!this.enabled || (music ? !this.musicEnabled : !this.sfxEnabled)) return;
     this.unlock();
     if (!this.context) return;
     const {
@@ -142,6 +153,7 @@ export class AudioBus {
       pan = 0,
       reverb = 0,
     } = options;
+    const vol = volume * (music ? this.musicVolume : 1);
     const waveType = is8Bit() ? 'square' : type;
     const start = this.context.currentTime + delay;
     const stop = start + duration;
@@ -156,7 +168,7 @@ export class AudioBus {
       oscillator.frequency.exponentialRampToValueAtTime(Math.max(1, endFreq), stop);
     }
     if (retro) {
-      const level = volume * 0.85;
+      const level = vol * 0.85;
       const attack = Math.min(0.008, duration * 0.4);
       gain.gain.setValueAtTime(0.0001, start);
       gain.gain.linearRampToValueAtTime(level, start + attack);
@@ -164,7 +176,7 @@ export class AudioBus {
       gain.gain.linearRampToValueAtTime(0.0001, stop);
     } else {
       gain.gain.setValueAtTime(0.0001, start);
-      gain.gain.exponentialRampToValueAtTime(volume, start + duration * 0.12);
+      gain.gain.exponentialRampToValueAtTime(vol, start + duration * 0.12);
       gain.gain.exponentialRampToValueAtTime(0.0001, stop);
     }
     oscillator.connect(gain);
@@ -174,7 +186,8 @@ export class AudioBus {
   }
 
   noise(options = {}) {
-    if (!this.enabled || !this.sfxEnabled) return;
+    const music = Boolean(options.music);
+    if (!this.enabled || (music ? !this.musicEnabled : !this.sfxEnabled)) return;
     this.unlock();
     if (!this.context) return;
     const {
@@ -188,6 +201,7 @@ export class AudioBus {
       pan = 0,
       reverb = 0,
     } = options;
+    const vol = volume * (music ? this.musicVolume : 1);
     const start = this.context.currentTime + delay;
     const stop = start + duration;
     const source = this.context.createBufferSource();
@@ -202,7 +216,7 @@ export class AudioBus {
     }
     const gain = this.context.createGain();
     gain.gain.setValueAtTime(0.0001, start);
-    gain.gain.exponentialRampToValueAtTime(volume, start + duration * 0.18);
+    gain.gain.exponentialRampToValueAtTime(vol, start + duration * 0.18);
     gain.gain.exponentialRampToValueAtTime(0.0001, stop);
     source.connect(filter);
     filter.connect(gain);

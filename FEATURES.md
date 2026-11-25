@@ -133,7 +133,7 @@ Requirements:
   **MINIGAME TRAILERS** page with a three-shot cut-down for competitions, tag,
   pufferfish dodgeball, and labyrinth. A **SHOP TRAILER** stages the shop itself in
   motion: nine shots that cycle the thirteen colors, head and body trinkets, the six
-  trails and twenty-seven dive buddies, and the twelve auras live across a seven-creature
+  trails and forty-eight dive buddies, and the twelve auras live across a seven-creature
   lineup, bracketed by sea-coin, playpass, and play-now cards. A **WRECK ARRIVAL**
   reel plays the labyrinth's opening: the eight divers swim in to the sunken liner and
   the MEGASQUID rises out of the dark behind it.
@@ -1164,7 +1164,25 @@ target the nearest visible player.
   repulsion push), so they roam the tank instead of pressing into the glass. Pets are never lost or removed — an enemy bite only scares them
   into a 1.5 s dart away and drains the snack tally.
 
-## 6. Scoring, Progression, and Persistence
+### 5.42 Deep-Sea and Reef Codex Creatures (21)
+
+- Twenty-one new real creatures join the codex with original art in `src/entities/creatures.js`:
+  the **VAMPIRE SQUID** (webbed cloak arms and glowing photophores), **BARRELEYE** (a
+  transparent dome over upward tube eyes), **GULPER EEL** (a pelican jaw and a glowing tail
+  lure), **VIPERFISH** (needle fangs and a long dorsal lure), **DUMBO OCTOPUS** (flapping
+  ear fins), **FANGTOOTH** (oversized teeth), **TRIPOD FISH** (stilted fin legs), **SEA PIG**
+  (tube feet and dorsal papillae), **YETI CRAB** (hairy vent claws), **CHIMAERA** (ghost-shark
+  wing fins and a whip tail), **COELACANTH** (lobed fins and heavy scales), **GIANT GROUPER**
+  (a vast inhaling mouth), **NAPOLEON WRASSE** (a forehead hump), **NUDIBRANCH** (gill plumes
+  and rhinophores), **BLUE-RINGED OCTOPUS** (flashing blue warning rings), **EAGLE RAY**
+  (soaring wings and a barbed tail), **WHALE SHARK** (a spotted hide and a wide mouth),
+  **BOBBIT WORM** (scissor jaws and armoured segments), **FRILLED SHARK** (a gill frill and
+  three-prong teeth), **SPERM WHALE** (a squared head), and the **BOBBIT QUEEN**.
+- Each gets a SEA FACTS entry, a LORE section entry (THE DEEP & THE REEF), a FINN answer, a
+  circular codex portrait, a DIVE BUDDIES mini buddy, and an ANATOMY entry in the ANIMATION
+  CENTER. They are browsable, described, and collectible but are not playable divers.
+
+
 
 - Score = bubbles collected, +5 for golden bubbles, +10 for angelfish and shrimps, +15
   for crabs, +5 for plankton, +5 per tangled minnow. Penalties: −5 for logs and plant
@@ -1622,14 +1640,14 @@ The SHOP (always on the menu) persists under `sharkquarium.shop` as
   samples the swimmer's recent world positions, so it curls through every turn, and
   draws behind the creature in every tank, minigame, the menu, and the shop preview.
 - DIVE BUDDIES — an equip slot, browsed on the DIVE BUDDIES row with its PLAYPASS 8
-  catalog of **twenty-seven floating buddies**: the five favourites (BUBBLE PAL, BABY MORAY,
+  catalog of **forty-eight floating buddies**: the five favourites (BUBBLE PAL, BABY MORAY,
   LANTERN FISH, TINY JELLY, MINI CRAB), mini versions of every playable creature
   (MINI SHARK, MINI STINGRAY, MINI SQUID, MINI SHRIMP, MINI NAUTILUS — the crab, jelly,
   and moray join via MINI CRAB, TINY JELLY, and BABY MORAY), mini versions of every
   enemy (MINI ANGLER with its glowing lure, MINI SEAL with whiskers, MINI OCTOPUS with
   wavy arms and angry brows, MINI TURTLE with paddling flippers, MINI CHASER with a red
   eye and jagged teeth, MINI ZIP EEL, MINI CATFISH with swaying barbels, MINI VOLT EEL
-  with crackling sparks, MINI PIRANHA, and the inflating MINI PUFFER), the deep-sea **MINI STOPLIGHT LOOSEJAW** and **MINI BLACK SWALLOWER**, and the **MINI
+  with crackling sparks, MINI PIRANHA, and the inflating MINI PUFFER), the deep-sea **MINI STOPLIGHT LOOSEJAW** and **MINI BLACK SWALLOWER**, mini versions of the 21 deep-sea and reef creatures (MINI VAMPIRE SQUID, MINI BARRELEYE, MINI GULPER EEL, MINI VIPERFISH, MINI DUMBO OCTOPUS, MINI FANGTOOTH, MINI TRIPOD FISH, MINI SEA PIG, MINI YETI CRAB, MINI CHIMAERA, MINI COELACANTH, MINI GIANT GROUPER, MINI NAPOLEON WRASSE, MINI NUDIBRANCH, MINI BLUE-RINGED OCTOPUS, MINI EAGLE RAY, MINI WHALE SHARK, MINI BOBBIT WORM, MINI FRILLED SHARK, MINI SPERM WHALE, MINI BOBBIT QUEEN — each drawn through its own codex body in `src/entities/creatures.js`), and the **MINI
   MEGASQUID** — the labyrinth's boss shrunk to buddy size, arms and tentacles waving,
   a periodically blinking glowing yellow eye, and drawn through the same megasquid
   shapes as the cutscene — solid and opaque like the boss. The buddy eases

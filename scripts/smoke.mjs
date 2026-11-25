@@ -678,7 +678,33 @@ async function main() {
     factSteps += 1;
   } while (facts.index !== factFrom && factSteps < 60);
   assert.equal(facts.index, factFrom, 'sea facts should cycle through every creature');
-  assert.equal(factSteps, 37, 'the codex should hold thirty-seven sea facts');
+  assert.equal(factSteps, 58, 'the codex should hold fifty-eight sea facts');
+  const creatureFacts = new Set();
+  for (let i = 0; i < 58; i += 1) {
+    facts.index = i;
+    creatureFacts.add(facts.fact.name);
+  }
+  assert.ok(creatureFacts.has('VAMPIRE SQUID'), 'the codex should hold the VAMPIRE SQUID fact');
+  assert.ok(creatureFacts.has('BARRELEYE'), 'the codex should hold the BARRELEYE fact');
+  assert.ok(creatureFacts.has('GULPER EEL'), 'the codex should hold the GULPER EEL fact');
+  assert.ok(creatureFacts.has('VIPERFISH'), 'the codex should hold the VIPERFISH fact');
+  assert.ok(creatureFacts.has('DUMBO OCTOPUS'), 'the codex should hold the DUMBO OCTOPUS fact');
+  assert.ok(creatureFacts.has('FANGTOOTH'), 'the codex should hold the FANGTOOTH fact');
+  assert.ok(creatureFacts.has('TRIPOD FISH'), 'the codex should hold the TRIPOD FISH fact');
+  assert.ok(creatureFacts.has('SEA PIG'), 'the codex should hold the SEA PIG fact');
+  assert.ok(creatureFacts.has('YETI CRAB'), 'the codex should hold the YETI CRAB fact');
+  assert.ok(creatureFacts.has('CHIMAERA'), 'the codex should hold the CHIMAERA fact');
+  assert.ok(creatureFacts.has('COELACANTH'), 'the codex should hold the COELACANTH fact');
+  assert.ok(creatureFacts.has('GIANT GROUPER'), 'the codex should hold the GIANT GROUPER fact');
+  assert.ok(creatureFacts.has('NAPOLEON WRASSE'), 'the codex should hold the NAPOLEON WRASSE fact');
+  assert.ok(creatureFacts.has('NUDIBRANCH'), 'the codex should hold the NUDIBRANCH fact');
+  assert.ok(creatureFacts.has('BLUE-RINGED OCTOPUS'), 'the codex should hold the BLUE-RINGED OCTOPUS fact');
+  assert.ok(creatureFacts.has('EAGLE RAY'), 'the codex should hold the EAGLE RAY fact');
+  assert.ok(creatureFacts.has('WHALE SHARK'), 'the codex should hold the WHALE SHARK fact');
+  assert.ok(creatureFacts.has('BOBBIT WORM'), 'the codex should hold the BOBBIT WORM fact');
+  assert.ok(creatureFacts.has('FRILLED SHARK'), 'the codex should hold the FRILLED SHARK fact');
+  assert.ok(creatureFacts.has('SPERM WHALE'), 'the codex should hold the SPERM WHALE fact');
+  assert.ok(creatureFacts.has('BOBBIT QUEEN'), 'the codex should hold the BOBBIT QUEEN fact');
   await tapKey('Escape');
   await frames(5);
   assert.equal(game.currentSceneName, 'menu', 'escape should leave the sea facts');
@@ -699,6 +725,27 @@ async function main() {
     animGuard += 1;
   } while (anims.entry.key !== firstAnimKey && animGuard < 60);
   assert.ok(seenAnims.size >= 8, 'the animation center should list several animated creatures');
+  assert.ok(seenAnims.has('vampire'), 'the animation center should list the VAMPIRE SQUID');
+  assert.ok(seenAnims.has('barreleye'), 'the animation center should list the BARRELEYE');
+  assert.ok(seenAnims.has('gulper'), 'the animation center should list the GULPER EEL');
+  assert.ok(seenAnims.has('viper'), 'the animation center should list the VIPERFISH');
+  assert.ok(seenAnims.has('dumbo'), 'the animation center should list the DUMBO OCTOPUS');
+  assert.ok(seenAnims.has('fangtooth'), 'the animation center should list the FANGTOOTH');
+  assert.ok(seenAnims.has('tripod'), 'the animation center should list the TRIPOD FISH');
+  assert.ok(seenAnims.has('seapig'), 'the animation center should list the SEA PIG');
+  assert.ok(seenAnims.has('yeti'), 'the animation center should list the YETI CRAB');
+  assert.ok(seenAnims.has('chimaera'), 'the animation center should list the CHIMAERA');
+  assert.ok(seenAnims.has('coelacanth'), 'the animation center should list the COELACANTH');
+  assert.ok(seenAnims.has('grouper'), 'the animation center should list the GIANT GROUPER');
+  assert.ok(seenAnims.has('napoleon'), 'the animation center should list the NAPOLEON WRASSE');
+  assert.ok(seenAnims.has('nudibranch'), 'the animation center should list the NUDIBRANCH');
+  assert.ok(seenAnims.has('blurring'), 'the animation center should list the BLUE-RINGED OCTOPUS');
+  assert.ok(seenAnims.has('eagleray'), 'the animation center should list the EAGLE RAY');
+  assert.ok(seenAnims.has('whaleshark'), 'the animation center should list the WHALE SHARK');
+  assert.ok(seenAnims.has('bobbit'), 'the animation center should list the BOBBIT WORM');
+  assert.ok(seenAnims.has('frilled'), 'the animation center should list the FRILLED SHARK');
+  assert.ok(seenAnims.has('spermwhale'), 'the animation center should list the SPERM WHALE');
+  assert.ok(seenAnims.has('bobbitqueen'), 'the animation center should list the BOBBIT QUEEN');
   assert.ok(seenAnims.has('cuttlefish'), 'the feeding cuttlefish should be listed');
   assert.ok(!seenAnims.has('shark'), 'emote-only creatures like the shark should be excluded');
   await tapKey('ArrowDown');
@@ -720,6 +767,27 @@ async function main() {
   const buddyKeys = new Set(hatch.catalog.map((entry) => entry.key));
   assert.ok(buddyKeys.has('miniloosejaw'), 'the mini stoplight loosejaw should be a dive buddy');
   assert.ok(buddyKeys.has('miniswallower'), 'the mini black swallower should be a dive buddy');
+  assert.ok(buddyKeys.has('minivampire'), 'the mini vampire squid should be a dive buddy');
+  assert.ok(buddyKeys.has('minibarreleye'), 'the mini barreleye should be a dive buddy');
+  assert.ok(buddyKeys.has('minigulper'), 'the mini gulper eel should be a dive buddy');
+  assert.ok(buddyKeys.has('miniviper'), 'the mini viperfish should be a dive buddy');
+  assert.ok(buddyKeys.has('minidumbo'), 'the mini dumbo octopus should be a dive buddy');
+  assert.ok(buddyKeys.has('minifangtooth'), 'the mini fangtooth should be a dive buddy');
+  assert.ok(buddyKeys.has('minitripod'), 'the mini tripod fish should be a dive buddy');
+  assert.ok(buddyKeys.has('miniseapig'), 'the mini sea pig should be a dive buddy');
+  assert.ok(buddyKeys.has('miniyeti'), 'the mini yeti crab should be a dive buddy');
+  assert.ok(buddyKeys.has('minichimaera'), 'the mini chimaera should be a dive buddy');
+  assert.ok(buddyKeys.has('minicoelacanth'), 'the mini coelacanth should be a dive buddy');
+  assert.ok(buddyKeys.has('minigrouper'), 'the mini giant grouper should be a dive buddy');
+  assert.ok(buddyKeys.has('mininapoleon'), 'the mini napoleon wrasse should be a dive buddy');
+  assert.ok(buddyKeys.has('mininudibranch'), 'the mini nudibranch should be a dive buddy');
+  assert.ok(buddyKeys.has('miniblurring'), 'the mini blue-ringed octopus should be a dive buddy');
+  assert.ok(buddyKeys.has('minieagleray'), 'the mini eagle ray should be a dive buddy');
+  assert.ok(buddyKeys.has('miniwhaleshark'), 'the mini whale shark should be a dive buddy');
+  assert.ok(buddyKeys.has('minibobbit'), 'the mini bobbit worm should be a dive buddy');
+  assert.ok(buddyKeys.has('minifrilled'), 'the mini frilled shark should be a dive buddy');
+  assert.ok(buddyKeys.has('minispermwhale'), 'the mini sperm whale should be a dive buddy');
+  assert.ok(buddyKeys.has('minibobbitqueen'), 'the mini bobbit queen should be a dive buddy');
   hatch.coins = 999;
   hatch.indexA = 0;
   hatch.indexB = 1;
@@ -734,9 +802,41 @@ async function main() {
   );
   assert.ok(hatch.coins < 999, 'hatching should cost sea coins');
   assert.equal(hatch.hybridName, 'GHOST SNOWFISH', 'the hatchling should combine the parents\u2019 traits into a name');
+  assert.ok(
+    Array.isArray(hatched.history) && hatched.history.length >= 1,
+    'the hatch should be recorded in the hybrid gallery history',
+  );
   await tapKey('Escape');
   await frames(3);
   assert.equal(game.currentSceneName, 'menu', 'escape should leave the hatchery');
+
+  game.changeScene('hybridgallery');
+  await frames(2);
+  assert.equal(game.currentSceneName, 'hybridgallery', 'the hybrid gallery should open');
+  assert.ok(game.scene.history.length >= 1 && game.scene.current, 'the gallery should show a hatched hybrid');
+  await tapKey('Escape');
+  await frames(3);
+
+  game.changeScene('tuning');
+  await frames(2);
+  const tuned = game.scene;
+  assert.equal(game.currentSceneName, 'tuning', 'the custom difficulty screen should open');
+  tuned.index = 0;
+  await tapKey('ArrowRight');
+  assert.ok(
+    JSON.parse(storage.get('sharkquarium.settings')).tuning.enemySpeed > 1,
+    'tuning should persist the enemy-speed knob',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.settings')).tuning.enemySpeed,
+    1,
+    'enter should reset the knob',
+  );
+  await tapKey('Escape');
+  await frames(3);
+  assert.equal(game.currentSceneName, 'settings', 'escape should leave the tuning screen');
 
   game.changeScene('favorite');
   await frames(2);
@@ -2774,6 +2874,25 @@ async function main() {
   await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
+    'music',
+    'settings should offer the music switch',
+  );
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.music, false, 'music should turn off independently of sfx');
+  assert.equal(game.audio.musicEnabled, false, 'the audio bus should mute music');
+  await tapKey('Enter');
+  await frames(2);
+  assert.equal(game.scene.settings.music, true, 'music should turn back on');
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
+    'musicVolume',
+    'settings should offer the music volume slider',
+  );
+  await tapKey('ArrowDown');
+  assert.equal(
+    game.scene.menu.items[game.scene.menu.index].action,
     'threeD',
     'settings should offer 3D mode',
   );
@@ -3095,7 +3214,7 @@ async function main() {
   await frames(30);
   assert.ok(game.music.step > heldStep, 'the held track should keep sequencing after leaving');
 
-  for (let i = 0; i < 22; i += 1) await tapKey('ArrowDown');
+  for (let i = 0; i < 24; i += 1) await tapKey('ArrowDown');
   assert.equal(
     game.scene.menu.items[game.scene.menu.index].action,
     'theatre',

@@ -59,6 +59,7 @@ export class MusicPlayer {
       for (const note of this.track.byStep[index] ?? []) {
         if (note.kind === 'noise') {
           this.audio.noise({
+          music: true,
             duration: note.duration,
             volume: note.volume,
             type: note.type,
@@ -67,6 +68,7 @@ export class MusicPlayer {
           });
         } else {
           this.audio.tone({
+          music: true,
             freq: note.freq,
             endFreq: note.endFreq ?? null,
             type: note.type,
@@ -83,6 +85,7 @@ export class MusicPlayer {
     const retro = is8Bit();
     if (bass[index] > 0) {
       this.audio.tone({
+          music: true,
         freq: midiToFreq(bass[index]),
         type: 'triangle',
         duration: this.track.beat * (retro ? 0.92 : 0.85),
@@ -91,6 +94,7 @@ export class MusicPlayer {
     }
     if (lead[index] > 0) {
       this.audio.tone({
+          music: true,
         freq: midiToFreq(lead[index]),
         type: 'square',
         duration: this.track.beat * (retro ? 0.72 : 0.6),
@@ -99,6 +103,7 @@ export class MusicPlayer {
     }
     if (this.track.hat && index % 2 === 0) {
       this.audio.noise({
+          music: true,
         duration: retro ? 0.035 : 0.03,
         volume: retro ? 0.09 : 0.08,
         type: 'highpass',

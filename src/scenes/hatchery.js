@@ -62,12 +62,16 @@ export class HatcheryScene extends Scene {
     saveJSON(COINS_KEY, this.coins);
     this.hatchling = { a, b };
     this.hybridName = hybridLabel(a, b);
-    saveJSON(HATCHERY_KEY, this.hatchling);
+    const prior = loadJSON(HATCHERY_KEY, {}) ?? {};
+    const history = Array.isArray(prior.history) ? prior.history.slice() : [];
+    const sig = [a, b].sort().join('|');
+    if (!history.some((h) => [h.a, h.b].sort().join('|') === sig)) history.push({ a, b });
+    saveJSON(HATCHERY_KEY, { a, b, history });
     const shop = loadJSON(SHOP_KEY, {});
     shop.companion = 'hybrid';
     saveJSON(SHOP_KEY, shop);
     setActiveCompanion(companionByKey('hybrid'));
-    this.setStatus('A HYBRID HATCHED \u2014 IT IS NOW YOUR DIVE BUDDY');
+    this.setStatus('A HYBRID HATCHED \u2014 IT IS NOW YOUR DIVE BUDDY  (G \u2014 GALLERY)');
     this.game.audio.tone({ freq: 320, endFreq: 760, type: 'triangle', duration: 0.3, volume: 0.24 });
     this.game.audio.tone({ freq: 480, endFreq: 980, type: 'triangle', duration: 0.24, volume: 0.18, delay: 0.2 });
   }
@@ -85,6 +89,12 @@ export class HatcheryScene extends Scene {
     if (input.wasPressed('left')) this.moveSlot(-1);
     if (input.wasPressed('right')) this.moveSlot(1);
     if (input.wasPressed('confirm')) this.hatch();
+    for (const code of input.pressed) {
+      if (code === 'KeyG') {
+        this.game.changeScene('hybridgallery');
+        return;
+      }
+    }
   }
 
   renderParent(ctx, x, key, slotIndex, label) {
@@ -143,7 +153,7 @@ export class HatcheryScene extends Scene {
       drawText(ctx, this.status, W / 2, 436, { size: 14, color: COLORS.accent, alpha: Math.min(1, this.statusTimer) });
     }
 
-    drawText(ctx, 'UP / DOWN \u2014 CHOOSE A BUDDY      LEFT / RIGHT \u2014 SWITCH SLOT      ENTER \u2014 HATCH      ESC \u2014 BACK', W / 2, H - 20, {
+    drawText(ctx, 'UP / DOWN \u2014 CHOOSE A BUDDY      LEFT / RIGHT \u2014 SWITCH SLOT      ENTER \u2014 HATCH      G \u2014 GALLERY      ESC \u2014 BACK', W / 2, H - 20, {
       size: 11,
       color: COLORS.textDim,
       alpha: 0.75,

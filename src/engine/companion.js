@@ -50,6 +50,27 @@ const TRAITS = {
   minicuttlefish: { adj: 'CUTTLEFISH', color: '#b8541d', shape: 'tentacle' },
   miniloosejaw: { adj: 'DEEP', color: '#e23a2e', shape: 'glow' },
   miniswallower: { adj: 'SWALLOWER', color: '#1a1a20', shape: 'tooth' },
+  minivampire: { adj: 'VAMPIRE', color: '#7a1626', shape: 'tentacle' },
+  minibarreleye: { adj: 'BARREL', color: '#4fd6a0', shape: 'eye' },
+  minigulper: { adj: 'GULPER', color: '#1b2028', shape: 'tooth' },
+  miniviper: { adj: 'VIPER', color: '#2b3a44', shape: 'tooth' },
+  minidumbo: { adj: 'DUMBO', color: '#d67a98', shape: 'wing' },
+  minifangtooth: { adj: 'FANG', color: '#3a2626', shape: 'tooth' },
+  minitripod: { adj: 'TRIPOD', color: '#b0a074', shape: 'whisker' },
+  miniseapig: { adj: 'PIG', color: '#e8d8ee', shape: 'whisker' },
+  miniyeti: { adj: 'YETI', color: '#efe9df', shape: 'claws' },
+  minichimaera: { adj: 'GHOST', color: '#b8c4cd', shape: 'glow' },
+  minicoelacanth: { adj: 'FOSSIL', color: '#8fa6b4', shape: 'fin' },
+  minigrouper: { adj: 'GROUPER', color: '#87976a', shape: 'fin' },
+  mininapoleon: { adj: 'WRASSE', color: '#4fb397', shape: 'fin' },
+  mininudibranch: { adj: 'NUDI', color: '#ff8fb0', shape: 'spark' },
+  miniblurring: { adj: 'RINGED', color: '#3a7bff', shape: 'spark' },
+  minieagleray: { adj: 'EAGLE', color: '#8a8266', shape: 'wing' },
+  miniwhaleshark: { adj: 'SPOTTED', color: '#5f7d95', shape: 'fin' },
+  minibobbit: { adj: 'BOBBIT', color: '#7a4a6a', shape: 'tentacle' },
+  minifrilled: { adj: 'FRILLED', color: '#7a6258', shape: 'fin' },
+  minispermwhale: { adj: 'SPERM', color: '#6a7078', shape: 'fin' },
+  minibobbitqueen: { adj: 'QUEEN', color: '#8a2f5a', shape: 'tentacle' },
 };
 
 export function hybridLabel(a, b) {
@@ -99,6 +120,31 @@ function drawShellPart(ctx, r, color, edge, scutes) {
   }
   ctx.restore();
 }
+
+
+const BUDDY_CREATURES = {
+  minivampire: 'VAMPIRE SQUID',
+  minibarreleye: 'BARRELEYE',
+  minigulper: 'GULPER EEL',
+  miniviper: 'VIPERFISH',
+  minidumbo: 'DUMBO OCTOPUS',
+  minifangtooth: 'FANGTOOTH',
+  minitripod: 'TRIPOD FISH',
+  miniseapig: 'SEA PIG',
+  miniyeti: 'YETI CRAB',
+  minichimaera: 'CHIMAERA',
+  minicoelacanth: 'COELACANTH',
+  minigrouper: 'GIANT GROUPER',
+  mininapoleon: 'NAPOLEON WRASSE',
+  mininudibranch: 'NUDIBRANCH',
+  miniblurring: 'BLUE-RINGED OCTOPUS',
+  minieagleray: 'EAGLE RAY',
+  miniwhaleshark: 'WHALE SHARK',
+  minibobbit: 'BOBBIT WORM',
+  minifrilled: 'FRILLED SHARK',
+  minispermwhale: 'SPERM WHALE',
+  minibobbitqueen: 'BOBBIT QUEEN',
+};
 
 const PARTS = {
   minicuttlefish: (ctx, r, age, phase) => drawCuttlefishMantleFin(ctx, r, { age: age + phase }),
@@ -1104,4 +1150,17 @@ export function drawBuddyByKey(ctx, key, r, age, phase) {
   else if (key === 'miniloosejaw') drawMiniLoosejaw(ctx, r, age, phase);
   else if (key === 'miniswallower') drawMiniSwallower(ctx, r, age, phase);
   else if (key === 'favourite') drawFavouriteBuddy(ctx, r, age, phase, active.favorite);
+  else if (BUDDY_CREATURES[key]) {
+    drawCreatureMascot(ctx, BUDDY_CREATURES[key], r * 0.6, {
+      age,
+      armPhase: age * 3 + phase,
+      legPhase: age * 4 + phase,
+      tailPhase: age * 5 + phase,
+      pulsePhase: age * 3 + phase,
+      speed: 0,
+      flap: Math.sin(age * 2 + phase) * 0.6,
+      natural: true,
+      raw: true,
+    });
+  }
 }

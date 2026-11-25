@@ -43,6 +43,7 @@ const TANK_OPTIONS = [
   { label: 'THE TIDE-POOL WALKER', params: { scene: 'mudskipper' } },
   { label: 'THE FROGFISH GARDEN', params: { scene: 'frogfish' } },
   { label: 'THE SUNFISH DRIFT', params: { scene: 'sunfish' } },
+  { label: 'THE BLACK SWALLOWER', params: { scene: 'swallower' } },
   { label: 'THE EVOLUTION TANK', params: { scene: 'evolution' } },
   { label: 'MUTANT HORRORS', action: 'mutants', highlight: true },
   { label: 'EMPTY TANK', params: { empty: true } },

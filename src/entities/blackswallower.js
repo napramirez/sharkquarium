@@ -70,17 +70,19 @@ export function drawBlackSwallower(ctx, radius, pose = {}) {
   ctx.lineJoin = 'round';
   ctx.stroke();
 
-  const hingeX = r * 1.15;
-  const hingeY = leafTop(hingeX) + r * 0.12;
-  const mouthX = L - r * 0.1;
-  const topSlope = (leafTop(L) - leafTop(hingeX)) / (L - hingeX);
-  const lowerSlope = topSlope + 0.5;
-  const upTip = { x: mouthX, y: hingeY + topSlope * (mouthX - hingeX) };
-  const loTip = { x: mouthX, y: hingeY + lowerSlope * (mouthX - hingeX) };
+  const bite = pose.swallow ?? gulp;
+  const jawHingeX = r * 1.18;
+  const jawHingeY = r * 0.32;
+  const jawLen = Math.hypot(L - jawHingeX, -jawHingeY);
+  const closedAng = Math.atan2(-jawHingeY, L - jawHingeX);
+  const jawAng = closedAng + bite * 0.85;
+  const jawTipX = jawHingeX + Math.cos(jawAng) * jawLen;
+  const jawTipY = jawHingeY + Math.sin(jawAng) * jawLen;
+
   ctx.beginPath();
-  ctx.moveTo(hingeX, hingeY);
-  ctx.lineTo(upTip.x, upTip.y);
-  ctx.lineTo(loTip.x, loTip.y);
+  ctx.moveTo(jawHingeX, jawHingeY);
+  ctx.lineTo(L, 0);
+  ctx.lineTo(jawTipX, jawTipY);
   ctx.closePath();
   ctx.fillStyle = CAVITY;
   ctx.fill();
@@ -88,53 +90,65 @@ export function drawBlackSwallower(ctx, radius, pose = {}) {
   ctx.lineWidth = Math.max(1, r * 0.03);
   ctx.stroke();
 
-  const toothRow = (ax, ay, bx, by, sign, count, size) => {
-    const dx = bx - ax;
-    const dy = by - ay;
-    const len = Math.hypot(dx, dy) || 1;
-    const ux = dx / len;
-    const uy = dy / len;
-    let nx = uy;
-    let ny = -ux;
-    if (sign * ny < 0) {
-      nx = -nx;
-      ny = -ny;
-    }
-    ctx.fillStyle = TEETH;
-    for (let i = 0; i < count; i += 1) {
-      const t = 0.16 + (i / (count - 1)) * 0.78;
-      const px = ax + dx * t;
-      const py = ay + dy * t;
-      const w = size * 0.38;
-      ctx.beginPath();
-      ctx.moveTo(px - ux * w, py - uy * w);
-      ctx.lineTo(px + ux * w, py + uy * w);
-      ctx.lineTo(px + nx * size, py + ny * size);
-      ctx.closePath();
-      ctx.fill();
-    }
-  };
-  toothRow(hingeX, hingeY, upTip.x, upTip.y, 1, 5, r * 0.15);
-  toothRow(hingeX, hingeY, loTip.x, loTip.y, -1, 5, r * 0.15);
-
   ctx.strokeStyle = BODY;
-  ctx.lineWidth = r * 0.1;
+  ctx.lineWidth = r * 0.12;
   ctx.lineCap = 'round';
   ctx.beginPath();
-  ctx.moveTo(hingeX, hingeY);
-  ctx.lineTo(upTip.x, upTip.y);
+  ctx.moveTo(jawHingeX, jawHingeY);
+  ctx.lineTo(jawTipX, jawTipY);
   ctx.stroke();
-  ctx.beginPath();
-  ctx.moveTo(hingeX, hingeY);
-  ctx.lineTo(loTip.x, loTip.y);
+  ctx.strokeStyle = OUTLINE;
+  ctx.lineWidth = Math.max(1.2, r * 0.05);
   ctx.stroke();
 
+  const tdx = jawTipX - jawHingeX;
+  const tdy = jawTipY - jawHingeY;
+  const tlen = Math.hypot(tdx, tdy) || 1;
+  const tux = tdx / tlen;
+  const tuy = tdy / tlen;
+  const tnx = tuy;
+  const tny = -tux;
+  ctx.fillStyle = TEETH;
+  for (let i = 0; i < 5; i += 1) {
+    const t = 0.2 + (i / 4) * 0.66;
+    const px = jawHingeX + tdx * t;
+    const py = jawHingeY + tdy * t;
+    const w = r * 0.05;
+    ctx.beginPath();
+    ctx.moveTo(px - tux * w, py - tuy * w);
+    ctx.lineTo(px + tux * w, py + tuy * w);
+    ctx.lineTo(px + tnx * r * 0.14, py + tny * r * 0.14);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  const udx = L - jawHingeX;
+  const udy = -jawHingeY;
+  const ulen = Math.hypot(udx, udy) || 1;
+  const uux = udx / ulen;
+  const uuy = udy / ulen;
+  const unx = -uuy;
+  const uny = uux;
+  ctx.fillStyle = TEETH;
+  for (let i = 0; i < 5; i += 1) {
+    const t = 0.2 + (i / 4) * 0.66;
+    const px = jawHingeX + udx * t;
+    const py = jawHingeY + udy * t;
+    const w = r * 0.05;
+    ctx.beginPath();
+    ctx.moveTo(px - uux * w, py - uuy * w);
+    ctx.lineTo(px + uux * w, py + uuy * w);
+    ctx.lineTo(px + unx * r * 0.13, py + uny * r * 0.13);
+    ctx.closePath();
+    ctx.fill();
+  }
+
   ctx.beginPath();
-  ctx.arc(r * 1.9, -r * 0.12, r * 0.1, 0, TAU);
+  ctx.arc(r * 2.04, -r * 0.1, r * 0.1, 0, TAU);
   ctx.fillStyle = '#f0e6cf';
   ctx.fill();
   ctx.beginPath();
-  ctx.arc(r * 1.92, -r * 0.12, r * 0.05, 0, TAU);
+  ctx.arc(r * 2.06, -r * 0.1, r * 0.05, 0, TAU);
   ctx.fillStyle = '#101010';
   ctx.fill();
 
@@ -158,12 +172,14 @@ export class BlackSwallower extends Entity {
     this.vx = rand(-40, 40) || 30;
     this.vy = rand(-20, 20);
     this.gulp = 0;
+    this.swallow = 0;
     this.timer = rand(2, 4);
   }
 
   update(dt, players = [], speedScale = 1) {
     super.update(dt);
     this.gulp = Math.max(0, this.gulp - dt * 0.8);
+    this.swallow += (this.gulp - this.swallow) * (1 - Math.exp(-6 * dt));
     this.timer -= dt;
 
     let target = null;
@@ -205,7 +221,7 @@ export class BlackSwallower extends Entity {
     ctx.save();
     ctx.translate(this.x, this.y);
     ctx.scale(this.facing, 1);
-    drawBlackSwallower(ctx, this.radius, { age: this.age, gulp: this.gulp });
+    drawBlackSwallower(ctx, this.radius, { age: this.age, gulp: this.gulp, swallow: this.swallow });
     ctx.restore();
   }
 }

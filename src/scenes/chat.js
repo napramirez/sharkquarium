@@ -1,6 +1,7 @@
 import { Scene } from '../engine/scene.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect, fillCircle, measureTextWidth } from '../engine/render.js';
-import { COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE } from '../config.js';
+import { COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE, SETTINGS_KEY } from '../config.js';
+import { loadJSON } from '../engine/storage.js';
 import { isMobilite } from '../engine/mobilite.js';
 
 const BUBBLE_MAX = 430;
@@ -619,6 +620,11 @@ export class ChatScene extends Scene {
     return `${lead} ${body}${tail ? ` ${tail}` : ''}`.replace(/\s+/g, ' ').trim();
   }
 
+  playerFavourite() {
+    const fav = loadJSON(SETTINGS_KEY, {}).favorite;
+    return typeof fav === 'string' && fav ? fav : null;
+  }
+
   reply(text) {
     const raw = text.trim();
     const lower = raw.toLowerCase();
@@ -686,6 +692,18 @@ export class ChatScene extends Scene {
       return this.composeFact('I am FINN, the CPU you dive with. Ask me about any tank, minigame, difficulty, shop item, or just chat.');
     }
     if (has(/\b(help|topics|what can you do|what do you know|commands|what can i ask)\b/)) return TOPICS;
+
+    if (has(/\b(my favou?rite creature|what s my favou?rite|what is my favou?rite|who is my favou?rite)\b/)) {
+      const fav = this.playerFavourite();
+      if (fav) {
+        return this.pick([
+          `Your favourite creature is the ${fav} \u2014 noted, and honestly, great pick.`,
+          `${fav}? Excellent taste. I am a nautilus guy, but I see you.`,
+          `I have the ${fav} down as your favourite. The reef approves.`,
+        ]);
+      }
+      return 'You have not picked a favourite yet! Open FAVOURITE CREATURE on the menu and choose one \u2014 playable or enemy.';
+    }
 
     const { best, bestScore } = this.knowledgeMatch(padded, tok);
     if (best && bestScore >= 3) {

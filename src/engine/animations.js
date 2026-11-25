@@ -222,7 +222,7 @@ function makeSwallower() {
       entity.y = 0;
     },
     draw(ctx, r) {
-      drawBlackSwallower(ctx, r, { age: entity.age, gulp: entity.gulp });
+      drawBlackSwallower(ctx, r, { age: entity.age, gulp: entity.gulp, swallow: entity.swallow });
     },
   };
 }
@@ -300,15 +300,128 @@ function makeSacabambaspis() {
 }
 
 export const ANIMATIONS = [
-  { key: 'cuttlefish', name: 'CUTTLEFISH', action: 'FEEDING STRIKE', kind: 'EAT', radius: CUTTLEFISH.radius, make: makeCuttlefish },
-  { key: 'frogfish', name: 'FROGFISH', action: 'LURE WAVE', kind: 'EAT', radius: FROGFISH.playerRadius, make: makeFrogfish },
-  { key: 'loosejaw', name: 'STOPLIGHT LOOSEJAW', action: 'JAW SNAP', kind: 'EAT', radius: GOBLIN.playerRadius, center: -2.2, make: makeLoosejaw },
-  { key: 'goblinshark', name: 'GOBLIN SHARK', action: 'JAW LUNGE', kind: 'EAT', radius: GOBLIN.sharkRadius, center: 0.7, make: makeGoblinShark },
-  { key: 'swallower', name: 'BLACK SWALLOWER', action: 'GULP', kind: 'EAT', radius: BLACK_SWALLOWER.radius, center: -0.45, make: makeSwallower },
-  { key: 'angler', name: 'ANGLERFISH', action: 'LURE GLOW', kind: 'LURE', radius: ANGLER.radius, make: makeAnglerfish },
-  { key: 'hatchetfish', name: 'HATCHETFISH', action: 'GLOW FLASH', kind: 'LIGHT', radius: TWILIGHT_PLAYER_RADIUS, center: -0.35, make: makeHatchetfish },
-  { key: 'oarfish', name: 'OARFISH', action: 'RIPPLE', kind: 'SWIM', radius: OARFISH.radius, fit: 0.6, center: -4, make: makeOarfish },
-  { key: 'sacabamba', name: 'SACABAMBASPIS', action: 'SWIM WIGGLE', kind: 'SWIM', radius: REEF_RUSH.playerRadius, center: -0.9, make: makeSacabambaspis },
+  {
+    key: 'cuttlefish',
+    name: 'CUTTLEFISH',
+    action: 'FEEDING STRIKE',
+    kind: 'EAT',
+    radius: CUTTLEFISH.radius,
+    make: makeCuttlefish,
+    anatomy: [
+      { label: 'MANTLE', x: 0.1, y: -0.55 },
+      { label: 'FIN', x: -1.35, y: 0 },
+      { label: 'EYE', x: 1.05, y: 0.34 },
+      { label: 'FEEDING TENTACLES', x: 1.4, y: 0 },
+    ],
+  },
+  {
+    key: 'frogfish',
+    name: 'FROGFISH',
+    action: 'LURE WAVE',
+    kind: 'EAT',
+    radius: FROGFISH.playerRadius,
+    make: makeFrogfish,
+    anatomy: [
+      { label: 'LURE', x: 1.3, y: -1.1 },
+      { label: 'MOUTH', x: 1.1, y: 0.15 },
+      { label: 'CAMOUFLAGE', x: -0.4, y: -0.25 },
+      { label: 'PECTORAL FIN', x: -1.0, y: 0.5 },
+    ],
+  },
+  {
+    key: 'loosejaw',
+    name: 'STOPLIGHT LOOSEJAW',
+    action: 'JAW SNAP',
+    kind: 'EAT',
+    radius: GOBLIN.playerRadius,
+    center: -2.2,
+    make: makeLoosejaw,
+    anatomy: [
+      { label: 'PHOTOPHORES', x: -2.4, y: 0.34 },
+      { label: 'RED STOPLIGHT', x: 0.28, y: 0.34 },
+      { label: 'LOOSE JAW', x: 0.4, y: 0.2 },
+    ],
+  },
+  {
+    key: 'goblinshark',
+    name: 'GOBLIN SHARK',
+    action: 'JAW LUNGE',
+    kind: 'EAT',
+    radius: GOBLIN.sharkRadius,
+    center: 0.7,
+    make: makeGoblinShark,
+    anatomy: [
+      { label: 'PROTRUSIBLE JAW', x: 1.5, y: 0.2 },
+      { label: 'LONG SNOUT', x: 2.8, y: 0 },
+      { label: 'GILL SLITS', x: -0.4, y: 0.3 },
+    ],
+  },
+  {
+    key: 'swallower',
+    name: 'BLACK SWALLOWER',
+    action: 'GULP',
+    kind: 'EAT',
+    radius: BLACK_SWALLOWER.radius,
+    center: -0.45,
+    make: makeSwallower,
+    anatomy: [
+      { label: 'INFLATING STOMACH', x: -0.2, y: 0.7 },
+      { label: 'HINGED JAW', x: 1.7, y: 0.3 },
+    ],
+  },
+  {
+    key: 'angler',
+    name: 'ANGLERFISH',
+    action: 'LURE GLOW',
+    kind: 'LURE',
+    radius: ANGLER.radius,
+    make: makeAnglerfish,
+    anatomy: [
+      { label: 'LURE', x: 0.95, y: -1.6 },
+      { label: 'JAW', x: 1.1, y: 0.15 },
+    ],
+  },
+  {
+    key: 'hatchetfish',
+    name: 'HATCHETFISH',
+    action: 'GLOW FLASH',
+    kind: 'LIGHT',
+    radius: TWILIGHT_PLAYER_RADIUS,
+    center: -0.35,
+    make: makeHatchetfish,
+    anatomy: [
+      { label: 'PHOTOPHORES', x: -0.4, y: 0.9 },
+      { label: 'UPWARD EYES', x: 0.45, y: -0.45 },
+    ],
+  },
+  {
+    key: 'oarfish',
+    name: 'OARFISH',
+    action: 'RIPPLE',
+    kind: 'SWIM',
+    radius: OARFISH.radius,
+    fit: 0.6,
+    center: -4,
+    make: makeOarfish,
+    anatomy: [
+      { label: 'DORSAL CREST', x: 0.0, y: -0.8 },
+      { label: 'OAR PELVIC FINS', x: 0.5, y: 2.0 },
+    ],
+  },
+  {
+    key: 'sacabamba',
+    name: 'SACABAMBASPIS',
+    action: 'SWIM WIGGLE',
+    kind: 'SWIM',
+    radius: REEF_RUSH.playerRadius,
+    center: -0.9,
+    make: makeSacabambaspis,
+    anatomy: [
+      { label: 'GILL HOLES', x: -0.4, y: 0.1 },
+      { label: 'MOUTH', x: 0.75, y: 0.55 },
+      { label: 'EYES', x: 0.4, y: 0.08 },
+    ],
+  },
 ];
 
 export function animatedByKey(key) {

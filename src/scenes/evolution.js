@@ -8,6 +8,7 @@ import { drawStingrayBody } from '../entities/stingray.js';
 import { drawArcticShrimpBody } from '../entities/arcticshrimp.js';
 import { drawKelpCrabBody } from '../entities/kelpcrab.js';
 import { drawMoonJellyBody } from '../entities/moonjelly.js';
+import { drawLoosejawHead } from '../entities/deepfish.js';
 import { drawOctopusBody } from '../entities/octopus.js';
 import { drawSquidBody } from '../entities/squid.js';
 import { drawCuttlefishGlyph } from '../entities/cuttlefishshape.js';
@@ -265,46 +266,110 @@ function drawGlowPlankton(ctx, r, age) {
 }
 
 function drawDragonfish(ctx, r, age) {
+  const DARK = '#160d08';
+  const DARK2 = '#080402';
+  const EDGE = '#3d241a';
+  const FIN = 'rgba(122, 78, 38, 0.32)';
   ctx.save();
-  ctx.rotate(Math.sin(age * 2) * 0.04);
+
+  const segs = 22;
+  const len = r * 6.4;
+  const pts = [];
+  for (let i = 0; i <= segs; i += 1) {
+    const t = i / segs;
+    pts.push({ x: r * 0.2 - t * len, y: 0, w: r * (0.26 * (1 - t * 0.92)) + r * 0.03 });
+  }
+
+  const finA = 1;
+  const finB = segs - 2;
+  const finH = (i) => {
+    const t = (i - finA) / (finB - finA);
+    const edge = Math.min(t, 1 - t);
+    const k = Math.max(0, Math.min(1, edge / 0.2));
+    return r * 0.34 * Math.sin(k * Math.PI * 0.5);
+  };
+  ctx.fillStyle = FIN;
   ctx.beginPath();
-  ctx.moveTo(-r * 1.5, 0);
-  ctx.lineTo(-r * 2.2, -r * 0.5);
-  ctx.lineTo(-r * 2.0, 0);
-  ctx.lineTo(-r * 2.2, r * 0.5);
+  ctx.moveTo(pts[finA].x, pts[finA].y - pts[finA].w);
+  for (let i = finA; i <= finB; i += 1) ctx.lineTo(pts[i].x, pts[i].y - pts[i].w);
+  for (let i = finB; i >= finA; i -= 1) ctx.lineTo(pts[i].x, pts[i].y - pts[i].w - finH(i));
   ctx.closePath();
-  ctx.fillStyle = '#0d0d12';
   ctx.fill();
-  const grad = ctx.createLinearGradient(0, -r * 0.6, 0, r * 0.6);
-  grad.addColorStop(0, '#16161f');
-  grad.addColorStop(1, '#060608');
   ctx.beginPath();
-  ctx.ellipse(-r * 0.1, 0, r * 1.6, r * 0.55, 0, 0, TAU);
+  ctx.moveTo(pts[finA].x, pts[finA].y + pts[finA].w);
+  for (let i = finA; i <= finB; i += 1) ctx.lineTo(pts[i].x, pts[i].y + pts[i].w);
+  for (let i = finB; i >= finA; i -= 1) ctx.lineTo(pts[i].x, pts[i].y + pts[i].w + finH(i));
+  ctx.closePath();
+  ctx.fill();
+
+  const grad = ctx.createLinearGradient(0, -r * 0.4, 0, r * 0.4);
+  grad.addColorStop(0, DARK);
+  grad.addColorStop(1, DARK2);
+  ctx.beginPath();
+  ctx.moveTo(pts[0].x, pts[0].y - pts[0].w);
+  for (const p of pts) ctx.lineTo(p.x, p.y - p.w);
+  for (let i = pts.length - 1; i >= 0; i -= 1) ctx.lineTo(pts[i].x, pts[i].y + pts[i].w);
+  ctx.closePath();
   ctx.fillStyle = grad;
   ctx.fill();
-  ctx.strokeStyle = '#2a2a36';
-  ctx.lineWidth = r * 0.05;
+  ctx.strokeStyle = EDGE;
+  ctx.lineWidth = Math.max(1, r * 0.04);
   ctx.stroke();
-  ctx.fillStyle = '#bfe9ff';
-  for (let i = 0; i < 6; i += 1) {
+
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.35)';
+  ctx.lineWidth = Math.max(1, r * 0.03);
+  for (let i = 2; i < segs - 1; i += 2) {
+    const p = pts[i];
     ctx.beginPath();
-    ctx.arc(r * (0.8 - i * 0.5), -r * 0.4, r * 0.07, 0, TAU);
-    ctx.fill();
+    ctx.moveTo(p.x, p.y - p.w * 0.9);
+    ctx.lineTo(p.x, p.y + p.w * 0.9);
+    ctx.stroke();
   }
-  ctx.fillStyle = '#efe6d4';
-  for (let i = 0; i < 6; i += 1) {
-    const tx = r * (0.2 + i * 0.22);
-    ctx.beginPath();
-    ctx.moveTo(tx, r * 0.1);
-    ctx.lineTo(tx + r * 0.05, r * 0.1);
-    ctx.lineTo(tx + r * 0.025, r * 0.4);
-    ctx.closePath();
-    ctx.fill();
-  }
+
+  const tail = pts[pts.length - 1];
+  const tailPrev = pts[pts.length - 2];
+  const ang = Math.atan2(tail.y - tailPrev.y, tail.x - tailPrev.x);
+  ctx.save();
+  ctx.translate(tail.x, tail.y);
+  ctx.rotate(ang);
+  ctx.fillStyle = DARK;
   ctx.beginPath();
-  ctx.arc(r * 0.9, -r * 0.15, r * 0.12, 0, TAU);
-  ctx.fillStyle = '#e23a2e';
+  ctx.moveTo(0, 0);
+  ctx.lineTo(r * 0.5, -r * 0.24);
+  ctx.quadraticCurveTo(r * 0.62, 0, r * 0.5, r * 0.24);
+  ctx.closePath();
   ctx.fill();
+  ctx.strokeStyle = EDGE;
+  ctx.lineWidth = Math.max(1, r * 0.04);
+  ctx.stroke();
+  ctx.restore();
+
+  drawLoosejawHead(ctx, r, {
+    age,
+    headColor: DARK,
+    outlineColor: EDGE,
+    tilt: 0,
+    swing: 0,
+    noPhotophores: true,
+    noJaw: true,
+    noLigament: true,
+  });
+
+  ctx.strokeStyle = '#f2f0ea';
+  ctx.lineWidth = Math.max(1.4, r * 0.06);
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(r * 0.4, r * 0.24);
+  ctx.quadraticCurveTo(r * 0.78, r * 0.05, r * 0.6, -r * 0.72);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.ellipse(r * 0.6, -r * 0.78, r * 0.12, r * 0.18, 0, 0, TAU);
+  ctx.fillStyle = '#f7f5ef';
+  ctx.fill();
+  ctx.strokeStyle = '#cfccc4';
+  ctx.lineWidth = Math.max(1, r * 0.03);
+  ctx.stroke();
+
   ctx.restore();
 }
 

@@ -9,6 +9,7 @@ export function drawSacabambaspis(ctx, radius, pose = {}) {
   const r = radius;
 
   ctx.save();
+  ctx.scale(1, 0.66);
   ctx.rotate(Math.sin(age * 3) * 0.05);
 
   ctx.beginPath();
@@ -60,7 +61,7 @@ export function drawSacabambaspis(ctx, radius, pose = {}) {
     ctx.fill();
   }
 
-  for (const eye of [[0.4, 0.22], [1.14, 0.22]]) {
+  for (const eye of [[0.4, 0.08], [1.14, 0.08]]) {
     const ex = r * eye[0];
     const ey = r * eye[1];
     ctx.beginPath();
@@ -76,18 +77,18 @@ export function drawSacabambaspis(ctx, radius, pose = {}) {
     ctx.fill();
   }
 
-  for (const nose of [[0.62, 0.22], [0.94, 0.22]]) {
+  for (const nose of [[0.62, 0.08], [0.94, 0.08]]) {
     ctx.beginPath();
-    ctx.arc(r * nose[0], r * nose[1], r * 0.07, 0, TAU);
+    ctx.arc(r * nose[0], r * nose[1], r * 0.035, 0, TAU);
     ctx.fillStyle = '#1a140c';
     ctx.fill();
   }
 
   ctx.beginPath();
-  ctx.moveTo(r * 0.48, r * 0.4);
-  ctx.lineTo(r * 1.0, r * 0.4);
-  ctx.quadraticCurveTo(r * 0.82, r * 0.7, r * 0.74, r * 0.7);
-  ctx.quadraticCurveTo(r * 0.66, r * 0.7, r * 0.48, r * 0.4);
+  ctx.moveTo(r * 0.48, r * 0.3);
+  ctx.lineTo(r * 1.0, r * 0.3);
+  ctx.quadraticCurveTo(r * 0.82, r * 0.55, r * 0.74, r * 0.55);
+  ctx.quadraticCurveTo(r * 0.66, r * 0.55, r * 0.48, r * 0.3);
   ctx.closePath();
   ctx.fillStyle = '#4a2b30';
   ctx.fill();

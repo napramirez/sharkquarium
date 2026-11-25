@@ -231,7 +231,14 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   speeds as the tanks** (the cuttlefish and black swallower use their own entities, while the
   goblin shark, stoplight loosejaw, frogfish, hatchetfish and oarfish reuse their tanks' state
   machines and the `GOBLIN`/`TWILIGHT`/`OARFISH` constants). Creatures whose only animation is
-  an emote are excluded. The screen is `src/scenes/animations.js`.
+  an emote are excluded. The screen is `src/scenes/animations.js`. Pressing ENTER toggles an
+  **anatomy overlay** that draws leader lines and labels to each `anatomy` entry's part.
+- `HatcheryScene` (`hatchery`, opened from the menu's HATCHERY row) combines two owned
+  dive buddies into a **hybrid hatchling**: it shows two parent slots (`indexA`/`indexB`, a
+  `slot` cursor) drawn with `drawBuddyByKey()`, and ENTER spends `HATCHERY.cost` coins to save
+  the pair under `HATCHERY_KEY` and equip `companionByKey('hybrid')`. `drawCompanion()` renders
+  the hatchling with `drawHybrid()` — parent A's model with parent B's signature part overlaid (`PARTS`, e.g. the cuttlefish's `drawCuttlefishMantleFin`) — and names it with `hybridLabel()` (`src/engine/companion.js`, `src/scenes/hatchery.js`).
+- `FavoriteScene` (`favorite`, opened from the menu's FAVOURITE CREATURE row) browses the `SEA_FACTS` names and saves the pick to `SETTINGS_KEY.favorite`. That choice then feeds three places: `ChatScene` answers "my favourite creature" from it, `SeaFactsScene` opens on it with a star, and `companionCatalog()` appends a `favourite` DIVE BUDDIES entry that `drawCompanion()` renders via `drawCreatureMascot()` (`src/scenes/favorite.js`, `src/engine/companion.js`, `src/engine/codexicons.js`).
 - `TrackPlayerScene` (`tracks`, opened from SETTINGS) lists `TRACK_LIBRARY` from
   `src/assets/tracks.js` and plays or stops any tank theme through the shared
   `MusicPlayer`; playing sets `music.hold`, so the chosen theme keeps playing after the
@@ -702,8 +709,11 @@ Build tooling lives in `scripts/`: `bundle.mjs` (module bundler), `minify.mjs`
   `bugs` away from a `crab`; **`FrogfishScene`** (`frogfish`, `FROGFISH`) — the player camouflages while
   still and holds confirm to raise `lure`, drawing `prey` to the mouth, while a `moray` charges whatever
   moves; **`SunfishScene`** (`sunfish`, `SUNFISH`) — a sinking sunfish (`sink` drift) with an `oxygen`
-  meter refilled at the surface, eating `jellies` and dodging a batting `lion`. All six are reached from
-  CHOOSE TANK with their own records and LORE entries.
+  meter refilled at the surface, eating `jellies` and dodging a batting `lion`; **`SwallowerScene`**
+  (`swallower`, `SWALLOWER_TANK`) — a `sardine` player baits a lunging `swallower` (patrol → `wind` →
+  straight `lunge` → `recover`) into eating moving `schools`; each gulp swells its belly and fills toward
+  `goal`, and a lunge that catches the player costs a life. All these tanks are reached from
+  CHOOSE TANK with their own records.
 - **THE EVOLUTION TANK** (`src/scenes/evolution.js`, `EVOLUTION`) is a two-phase scene: a `setup` screen
   (`regionIndex`, `categoryIndex`, `row`) picks a depth region, a category and the lives, then `startPlay()`
   spawns the first `draws[stage]` form as a `Shark` player at `stageRadius(0)`. Eating `foods` raises

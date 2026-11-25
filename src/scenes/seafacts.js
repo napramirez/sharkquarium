@@ -1,7 +1,8 @@
 import { Scene } from '../engine/scene.js';
 import { drawWater, drawText, fillRoundRect, strokeRoundRect } from '../engine/render.js';
 import { clamp } from '../engine/math.js';
-import { SEA_FACTS, COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE } from '../config.js';
+import { SEA_FACTS, COLORS, LOGICAL_WIDTH, LOGICAL_HEIGHT, WATER_PALETTE, SETTINGS_KEY } from '../config.js';
+import { loadJSON } from '../engine/storage.js';
 import { checkAchievements } from '../engine/achievements.js';
 import { drawCreatureIcon } from '../engine/codexicons.js';
 import { memeName } from '../engine/meme.js';
@@ -60,6 +61,12 @@ export class SeaFactsScene extends Scene {
     this.time = 0;
     this.index = 0;
     this.page = 0;
+    const favorite = loadJSON(SETTINGS_KEY, {}).favorite;
+    this.favorite = typeof favorite === 'string' ? favorite : null;
+    if (this.favorite) {
+      const idx = SEA_FACTS.findIndex((fact) => fact.name === this.favorite);
+      if (idx >= 0) this.index = idx;
+    }
     checkAchievements({ openedFacts: true });
   }
 
@@ -116,7 +123,8 @@ export class SeaFactsScene extends Scene {
       if (active) {
         fillRoundRect(ctx, 40, y - 15, 192, 27, 8, 'rgba(255, 209, 102, 0.16)');
       }
-      drawText(ctx, memeName(fact.name), 54, y, {
+      const star = fact.name === this.favorite ? '\u2605 ' : '';
+      drawText(ctx, `${star}${memeName(fact.name)}`, 54, y, {
         size: 13,
         color: active ? COLORS.accent : COLORS.text,
         align: 'left',
@@ -154,6 +162,13 @@ export class SeaFactsScene extends Scene {
       glow: 'rgba(255, 209, 102, 0.4)',
       glowBlur: 14,
     });
+    if (this.fact.name === this.favorite) {
+      drawText(ctx, '\u2605 YOUR FAVOURITE', 910, 214, {
+        size: 12,
+        color: COLORS.accent,
+        align: 'right',
+      });
+    }
 
     const pages = this.pages();
     const lines = pages[this.page] ?? [];

@@ -1,5 +1,48 @@
 import { TAU } from '../engine/math.js';
 
+export function drawCuttlefishMantleFin(ctx, radius, pose = {}) {
+  const r = radius;
+  const age = pose.age ?? 0;
+  const finColor = pose.finColor ?? 'rgba(18, 48, 120, 0.7)';
+  const edge = [];
+  const quad = (ax, ay, cx, cy, bx, by, steps) => {
+    for (let i = 0; i <= steps; i += 1) {
+      const t = i / steps;
+      const mt = 1 - t;
+      edge.push([
+        mt * mt * ax + 2 * mt * t * cx + t * t * bx,
+        mt * mt * ay + 2 * mt * t * cy + t * t * by,
+      ]);
+    }
+  };
+  quad(r * 1.0, 0, r * 0.6, -r * 0.82, -r * 0.7, -r * 0.6, 9);
+  quad(-r * 0.7, -r * 0.6, -r * 1.6, -r * 0.2, -r * 1.6, 0, 6);
+  quad(-r * 1.6, 0, -r * 1.6, r * 0.2, -r * 0.7, r * 0.6, 6);
+  quad(-r * 0.7, r * 0.6, r * 0.6, r * 0.82, r * 1.0, 0, 9);
+  ctx.save();
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = finColor;
+  ctx.lineWidth = r * 0.3 + Math.sin(age * 5) * r * 0.04;
+  ctx.beginPath();
+  for (let i = 0; i < edge.length; i += 1) {
+    const n = edge.length;
+    const prev = edge[(i - 1 + n) % n];
+    const next = edge[(i + 1) % n];
+    const tx = next[0] - prev[0];
+    const ty = next[1] - prev[1];
+    const len = Math.hypot(tx, ty) || 1;
+    const wave = Math.sin(i * 0.9 - age * 6) * r * 0.07;
+    const px = edge[i][0] - (ty / len) * wave;
+    const py = edge[i][1] + (tx / len) * wave;
+    if (i === 0) ctx.moveTo(px, py);
+    else ctx.lineTo(px, py);
+  }
+  ctx.closePath();
+  ctx.stroke();
+  ctx.restore();
+}
+
 export function drawCuttlefishGlyph(ctx, radius, pose, bodyColor) {
   const r = radius;
   const age = pose.age ?? 0;
@@ -27,40 +70,7 @@ export function drawCuttlefishGlyph(ctx, radius, pose, bodyColor) {
   ctx.fillStyle = body;
   ctx.fill();
 
-  const edge = [];
-  const quad = (ax, ay, cx, cy, bx, by, steps) => {
-    for (let i = 0; i <= steps; i += 1) {
-      const t = i / steps;
-      const mt = 1 - t;
-      edge.push([
-        mt * mt * ax + 2 * mt * t * cx + t * t * bx,
-        mt * mt * ay + 2 * mt * t * cy + t * t * by,
-      ]);
-    }
-  };
-  quad(r * 1.0, 0, r * 0.6, -r * 0.82, -r * 0.7, -r * 0.6, 9);
-  quad(-r * 0.7, -r * 0.6, -r * 1.6, -r * 0.2, -r * 1.6, 0, 6);
-  quad(-r * 1.6, 0, -r * 1.6, r * 0.2, -r * 0.7, r * 0.6, 6);
-  quad(-r * 0.7, r * 0.6, r * 0.6, r * 0.82, r * 1.0, 0, 9);
-
-  ctx.strokeStyle = finColor;
-  ctx.lineWidth = r * 0.3 + Math.sin(age * 5) * r * 0.04;
-  ctx.beginPath();
-  for (let i = 0; i < edge.length; i += 1) {
-    const n = edge.length;
-    const prev = edge[(i - 1 + n) % n];
-    const next = edge[(i + 1) % n];
-    const tx = next[0] - prev[0];
-    const ty = next[1] - prev[1];
-    const len = Math.hypot(tx, ty) || 1;
-    const wave = Math.sin(i * 0.9 - age * 6) * r * 0.07;
-    const px = edge[i][0] - (ty / len) * wave;
-    const py = edge[i][1] + (tx / len) * wave;
-    if (i === 0) ctx.moveTo(px, py);
-    else ctx.lineTo(px, py);
-  }
-  ctx.closePath();
-  ctx.stroke();
+  drawCuttlefishMantleFin(ctx, radius, { age, finColor });
 
   ctx.fillStyle = 'rgba(120, 24, 24, 0.35)';
   for (const side of [-1, 1]) {

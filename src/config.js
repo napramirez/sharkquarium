@@ -9,6 +9,11 @@ export const STATS_KEY = 'sharkquarium.stats';
 export const SETTINGS_KEY = 'sharkquarium.settings';
 export const SHOP_KEY = 'sharkquarium.shop';
 export const COINS_KEY = 'sharkquarium.coins';
+export const HATCHERY_KEY = 'sharkquarium.hatchery';
+
+export const HATCHERY = {
+  cost: 250,
+};
 export const PETS_KEY = 'sharkquarium.pets';
 export const AQUARIUM_KEY = 'sharkquarium.aquarium';
 export const LABYRINTH_KEY = 'sharkquarium.labyrinth';
@@ -487,7 +492,7 @@ export const PASSES = [
     key: 'playpass8',
     label: 'PLAYPASS 8',
     cost: 1200,
-    grants: 'COMPANIONS — TWENTY-ONE FLOATING PALS',
+    grants: 'COMPANIONS — TWENTY-FOUR FLOATING PALS',
     skins: [],
     accessories: [],
     trails: [],
@@ -514,6 +519,8 @@ export const PASSES = [
       'minipuffer',
       'megasquid',
       'minicuttlefish',
+      'miniloosejaw',
+      'miniswallower',
     ],
   },
   {
@@ -651,6 +658,8 @@ export const COMPANIONS = [
   { key: 'minipuffer', label: 'MINI PUFFER', cost: 0, passOnly: true },
   { key: 'megasquid', label: 'MINI MEGASQUID', cost: 0, passOnly: true },
   { key: 'minicuttlefish', label: 'MINI CUTTLEFISH', cost: 0, passOnly: true },
+  { key: 'miniloosejaw', label: 'MINI STOPLIGHT LOOSEJAW', cost: 0, passOnly: true },
+  { key: 'miniswallower', label: 'MINI BLACK SWALLOWER', cost: 0, passOnly: true },
 ];
 
 export const TANK_INTROS = {
@@ -834,7 +843,7 @@ export const SOLO_VARIANT_SCENES = ['tag', 'dodgeball', 'labyrinth', 'pufferball
 export const RECORD_GROUPS = [
   {
     title: 'THE TANKS',
-    modes: ['reef', 'stingray', 'deepsea', 'arctic', 'kelp', 'jelly', 'nautilus', 'freshwater', 'pets', 'manta', 'cuttlefish', 'hermitcrab', 'lighthouse', 'pressure', 'cleaner', 'migration', 'deadcalm', 'twilight', 'hagfish', 'oarfish', 'whalefall', 'goblindep', 'archer', 'thresher', 'sawfish', 'mudskipper', 'frogfish', 'sunfish', 'evolution'],
+    modes: ['reef', 'stingray', 'deepsea', 'arctic', 'kelp', 'jelly', 'nautilus', 'freshwater', 'pets', 'manta', 'cuttlefish', 'hermitcrab', 'lighthouse', 'pressure', 'cleaner', 'migration', 'deadcalm', 'twilight', 'hagfish', 'oarfish', 'whalefall', 'goblindep', 'archer', 'thresher', 'sawfish', 'mudskipper', 'frogfish', 'sunfish', 'swallower', 'evolution'],
   },
   {
     title: 'MUTANT HORRORS',
@@ -3071,6 +3080,27 @@ export const BLACK_SWALLOWER = {
   penaltyScore: 14,
   knockback: 420,
   invulnerableTime: 1.3,
+};
+
+export const SWALLOWER_TANK = {
+  lives: 3,
+  goal: 6,
+  schoolCount: 7,
+  playerRadius: 12,
+  maxSpeed: 300,
+  accel: 8,
+  topBound: 70,
+  bottomBound: 500,
+  sharkRadius: 34,
+  patrolSpeed: 70,
+  windTime: 0.55,
+  lungeSpeed: 920,
+  lungeDist: 900,
+  recoverTime: 0.75,
+  cooldown: 1.1,
+  eatRadius: 30,
+  hitRadius: 30,
+  reCatch: 1.6,
 };
 
 export const CRAB = {

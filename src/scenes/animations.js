@@ -10,6 +10,7 @@ export class AnimationsScene extends Scene {
   enter() {
     this.time = 0;
     this.index = 0;
+    this.anatomy = false;
     this.animators = ANIMATIONS.map((entry) => entry.make());
   }
 
@@ -35,6 +36,10 @@ export class AnimationsScene extends Scene {
     if (input.wasPressed('down')) this.move(1);
     if (input.wasPressed('left')) this.move(-1);
     if (input.wasPressed('right')) this.move(1);
+    if (input.wasPressed('confirm')) {
+      this.anatomy = !this.anatomy;
+      this.game.audio.tone({ freq: this.anatomy ? 660 : 440, duration: 0.06, volume: 0.14 });
+    }
     if (input.wheel) this.move(Math.sign(input.wheel) * Math.min(4, Math.abs(input.wheel)));
   }
 
@@ -68,8 +73,13 @@ export class AnimationsScene extends Scene {
   renderPreview(ctx) {
     const entry = this.entry;
     const fit = entry.fit ?? 1;
+    const center = entry.center ?? 0;
     const cx = 595;
     const cy = 300;
+    const toScreen = (x, y) => ({
+      x: cx + (x * entry.radius - center * entry.radius) * fit,
+      y: cy + y * entry.radius * fit,
+    });
 
     ctx.save();
     ctx.beginPath();
@@ -77,9 +87,35 @@ export class AnimationsScene extends Scene {
     ctx.clip();
     ctx.translate(cx, cy);
     ctx.scale(fit, fit);
-    ctx.translate(-(entry.center ?? 0) * entry.radius, 0);
+    ctx.translate(-center * entry.radius, 0);
     this.animators[this.index].draw(ctx, entry.radius);
     ctx.restore();
+
+    if (this.anatomy && entry.anatomy) {
+      for (const part of entry.anatomy) {
+        const pt = toScreen(part.x, part.y);
+        const above = part.y < 0;
+        const ly = pt.y + (above ? -22 : 22);
+        ctx.save();
+        ctx.strokeStyle = 'rgba(255, 209, 102, 0.7)';
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(pt.x, pt.y);
+        ctx.lineTo(pt.x, ly);
+        ctx.stroke();
+        ctx.fillStyle = COLORS.accent;
+        ctx.beginPath();
+        ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+        drawText(ctx, part.label, pt.x, ly + (above ? -8 : 8), {
+          size: 10,
+          color: COLORS.accent,
+          glow: 'rgba(2, 10, 18, 0.9)',
+          glowBlur: 5,
+        });
+      }
+    }
   }
 
   render(ctx) {
@@ -131,10 +167,13 @@ export class AnimationsScene extends Scene {
 
     drawText(
       ctx,
-      'UP / DOWN OR SCROLL WHEEL \u2014 CREATURE      ESC \u2014 BACK',
+      'UP / DOWN OR SCROLL WHEEL \u2014 CREATURE      ENTER \u2014 ANATOMY LABELS      ESC \u2014 BACK',
       LOGICAL_WIDTH / 2,
       LOGICAL_HEIGHT - 26,
       { size: 12, color: COLORS.textDim },
     );
+    if (this.anatomy) {
+      drawText(ctx, 'ANATOMY', 910, 232, { size: 12, color: COLORS.accent, align: 'right' });
+    }
   }
 }

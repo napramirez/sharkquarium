@@ -1,7 +1,6 @@
 import { Entity } from './entity.js';
 import { rand, clamp, lerpAngle, TAU } from '../engine/math.js';
-import { CONTROLS, PLAYER, MOONJELLY, LOGICAL_WIDTH, LOGICAL_HEIGHT, COLORS } from '../config.js';
-import { playerColor } from '../engine/skin.js';
+import { CONTROLS, PLAYER, MOONJELLY, LOGICAL_WIDTH, LOGICAL_HEIGHT } from '../config.js';
 import { drawAccessory } from '../engine/accessory.js';
 import { drawEmote, startEmote, updateEmote } from '../engine/emotes.js';
 
@@ -70,66 +69,79 @@ export function drawMoonJellyBody(ctx, radius, pose) {
   const r = radius;
   const age = pose.age ?? 0;
   const pulse = 1 + Math.sin(pose.pulsePhase ?? 0) * 0.08;
-  const bell = playerColor('body', 'rgba(255, 143, 163, 0.5)');
-  const rim = playerColor('accent', COLORS.jelly);
+  const bell = 'rgba(74, 186, 255, 0.3)';
+  const rim = 'rgba(150, 232, 255, 0.72)';
+  const rib = 'rgba(140, 224, 255, 0.4)';
+  const gonad = 'rgba(120, 216, 255, 0.5)';
+  const thin = 'rgba(120, 210, 255, 0.38)';
+  const thick = 'rgba(96, 196, 255, 0.4)';
 
-  ctx.strokeStyle = 'rgba(255, 143, 163, 0.55)';
+  ctx.strokeStyle = thin;
   ctx.lineWidth = r * 0.04;
   ctx.lineCap = 'round';
   for (let i = 0; i < 9; i += 1) {
     const offset = (i - 4) * r * 0.22;
     const wobble = Math.sin(age * 2.6 + i * 1.3) * r * 0.2;
     ctx.beginPath();
-    ctx.moveTo(offset, r * 0.3);
+    ctx.moveTo(offset, r * 0.28);
     ctx.quadraticCurveTo(offset + wobble, r * 1.2, offset * 1.2 + wobble, r * 2.1);
     ctx.stroke();
   }
-  ctx.strokeStyle = 'rgba(255, 180, 200, 0.7)';
+  ctx.strokeStyle = thick;
   ctx.lineWidth = r * 0.16;
   for (let i = 0; i < 4; i += 1) {
     const offset = (i - 1.5) * r * 0.3;
     const wobble = Math.sin(age * 3 + i) * r * 0.15;
     ctx.beginPath();
-    ctx.moveTo(offset, r * 0.35);
+    ctx.moveTo(offset, r * 0.32);
     ctx.quadraticCurveTo(offset + wobble, r * 0.9, offset * 0.6 + wobble, r * 1.25);
     ctx.stroke();
   }
 
+  const tw = r * 1.3 * pulse;
+  const topY = -r * 0.72 * pulse;
+  const baseY = r * 0.34;
   ctx.beginPath();
-  ctx.moveTo(-r * pulse, r * 0.2);
-  ctx.quadraticCurveTo(-r * 1.2 * pulse, -r * pulse, 0, -r * 1.15 * pulse);
-  ctx.quadraticCurveTo(r * 1.2 * pulse, -r * pulse, r * pulse, r * 0.2);
-  ctx.quadraticCurveTo(r * 0.6 * pulse, r * 0.5, r * 0.3 * pulse, r * 0.24);
-  ctx.quadraticCurveTo(0, r * 0.5, -r * 0.3 * pulse, r * 0.24);
-  ctx.quadraticCurveTo(-r * 0.6 * pulse, r * 0.5, -r * pulse, r * 0.2);
+  ctx.moveTo(-tw, topY + r * 0.24);
+  ctx.quadraticCurveTo(-tw, topY, -tw + r * 0.32, topY);
+  ctx.lineTo(tw - r * 0.32, topY);
+  ctx.quadraticCurveTo(tw, topY, tw, topY + r * 0.24);
+  ctx.lineTo(tw, baseY);
+  for (let i = 0; i < 4; i += 1) {
+    const xa = tw - (2 * tw) * (i / 4);
+    const xb = tw - (2 * tw) * ((i + 1) / 4);
+    const dip = r * 0.1 + Math.sin(age * 3.2 + i) * r * 0.05;
+    ctx.quadraticCurveTo((xa + xb) / 2, baseY + dip, xb, baseY);
+  }
+  ctx.lineTo(-tw, topY + r * 0.24);
   ctx.closePath();
   ctx.fillStyle = bell;
   ctx.fill();
   ctx.strokeStyle = rim;
-  ctx.lineWidth = r * 0.07;
+  ctx.lineWidth = r * 0.12;
   ctx.stroke();
 
-  ctx.strokeStyle = 'rgba(255, 120, 150, 0.45)';
+  ctx.strokeStyle = rib;
   ctx.lineWidth = r * 0.05;
   for (let i = 0; i < 4; i += 1) {
     const a = (i / 4) * TAU;
     ctx.beginPath();
-    ctx.moveTo(0, -r * 0.1);
-    ctx.lineTo(Math.cos(a) * r * 0.72, -r * 0.2 + Math.sin(a) * r * 0.62);
+    ctx.moveTo(0, topY + r * 0.3);
+    ctx.lineTo(Math.cos(a) * tw * 0.62, topY + r * 0.5 + Math.sin(a) * r * 0.4);
     ctx.stroke();
   }
-  ctx.strokeStyle = 'rgba(255, 120, 150, 0.6)';
+  ctx.strokeStyle = gonad;
   ctx.lineWidth = r * 0.1;
   for (let i = 0; i < 4; i += 1) {
     const a = (i / 4) * TAU + Math.PI / 4;
     ctx.beginPath();
-    ctx.arc(Math.cos(a) * r * 0.42, -r * 0.14 + Math.sin(a) * r * 0.34, r * 0.16, 0.4, Math.PI * 1.4);
+    ctx.arc(Math.cos(a) * tw * 0.4, topY + r * 0.55 + Math.sin(a) * r * 0.28, r * 0.16, 0.4, Math.PI * 1.4);
     ctx.stroke();
   }
 
-  ctx.globalAlpha = 0.35;
+  ctx.globalAlpha = 0.3;
   ctx.beginPath();
-  ctx.ellipse(-r * 0.3, -r * 0.35, r * 0.4, r * 0.24, -0.4, 0, TAU);
+  ctx.ellipse(-tw * 0.3, topY + r * 0.28, r * 0.42, r * 0.2, -0.4, 0, TAU);
   ctx.fillStyle = '#ffffff';
   ctx.fill();
   ctx.globalAlpha = 1;

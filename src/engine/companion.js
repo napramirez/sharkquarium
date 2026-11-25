@@ -1,5 +1,7 @@
 import { TAU } from './math.js';
-import { COMPANIONS, EEL_VARIANTS } from '../config.js';
+import { COMPANIONS, EEL_VARIANTS, HATCHERY_KEY, SETTINGS_KEY } from '../config.js';
+import { loadJSON } from './storage.js';
+import { drawCreatureMascot } from './codexicons.js';
 import { drawSharkBody } from '../entities/shark.js';
 import { drawStingrayBody } from '../entities/stingray.js';
 import { drawSquidBody } from '../entities/squid.js';
@@ -12,20 +14,359 @@ import { drawZipEel } from '../entities/zipeel.js';
 import { drawElectricEel } from '../entities/electriceel.js';
 import { drawMegasquid, drawMegasquidEye } from '../entities/megasquid.js';
 import { drawCuttlefishBody } from '../entities/cuttlefish.js';
+import { drawCuttlefishMantleFin } from '../entities/cuttlefishshape.js';
+import { drawLoosejaw } from '../entities/deepfish.js';
+import { drawBlackSwallower } from '../entities/blackswallower.js';
 
 const catalog = new Map(COMPANIONS.map((entry) => [entry.key, entry]));
 const NONE = catalog.get('none');
 const states = new WeakMap();
 
+const TRAITS = {
+  snowfish: { adj: 'SNOW', color: '#eaf6ff', shape: 'frost' },
+  ghostfish: { adj: 'GHOST', color: 'rgba(220, 240, 255, 0.55)', shape: 'wash' },
+  fireworkfish: { adj: 'SPARK', color: '#ffd166', shape: 'spark' },
+  bubblepal: { adj: 'BUBBLE', color: '#cfefff', shape: 'bubble' },
+  babymoray: { adj: 'MORAY', color: '#6d7fa0', shape: 'zigzag' },
+  lanternfish: { adj: 'LANTERN', color: '#cfefff', shape: 'lure' },
+  tinyjelly: { adj: 'JELLY', color: '#a6e6ff', shape: 'wash' },
+  minicrab: { adj: 'CRAB', color: '#c96a3a', shape: 'claws' },
+  minishark: { adj: 'SHARK', color: '#4a6a86', shape: 'fin' },
+  ministingray: { adj: 'RAY', color: '#8a6a5a', shape: 'wing' },
+  minisquid: { adj: 'SQUID', color: '#c14d55', shape: 'tentacle' },
+  minishrimp: { adj: 'SHRIMP', color: '#e88a7a', shape: 'tentacle' },
+  mininautilus: { adj: 'NAUTILUS', color: '#d9c7a0', shape: 'shell' },
+  miniangler: { adj: 'ANGLER', color: '#4a567c', shape: 'lure' },
+  miniseal: { adj: 'SEAL', color: '#8b98a5', shape: 'whisker' },
+  minioctopus: { adj: 'OCTOPUS', color: '#c14d55', shape: 'tentacle' },
+  miniturtle: { adj: 'TURTLE', color: '#5e8a52', shape: 'shell' },
+  minichaser: { adj: 'CHASER', color: '#7ec8ff', shape: 'glow' },
+  minzipeel: { adj: 'ZIP', color: '#7fe3ff', shape: 'zigzag' },
+  minicatfish: { adj: 'CATFISH', color: '#5d6b78', shape: 'whisker' },
+  minivolt: { adj: 'VOLT', color: '#ffe45c', shape: 'bolt' },
+  minipiranha: { adj: 'PIRANHA', color: '#c9433b', shape: 'tooth' },
+  minipuffer: { adj: 'PUFFER', color: '#c9a86e', shape: 'spike' },
+  megasquid: { adj: 'MEGA', color: '#5a2a4a', shape: 'eye' },
+  minicuttlefish: { adj: 'CUTTLEFISH', color: '#b8541d', shape: 'tentacle' },
+  miniloosejaw: { adj: 'DEEP', color: '#e23a2e', shape: 'glow' },
+  miniswallower: { adj: 'SWALLOWER', color: '#1a1a20', shape: 'tooth' },
+};
+
+export function hybridLabel(a, b) {
+  const base = catalog.get(a)?.label ?? 'HATCHLING';
+  const trait = TRAITS[b];
+  return trait ? `${trait.adj} ${base}` : base;
+}
+
+function drawTentaclePart(ctx, r, age, phase, color) {
+  ctx.save();
+  ctx.strokeStyle = color;
+  ctx.lineWidth = r * 0.14;
+  ctx.lineCap = 'round';
+  for (let i = 0; i < 5; i += 1) {
+    const x = (i - 2) * r * 0.34;
+    const sway = Math.sin(age * 4 + phase + i * 1.2) * r * 0.3;
+    ctx.beginPath();
+    ctx.moveTo(x, r * 0.4);
+    ctx.quadraticCurveTo(x + sway, r * 1.0, x + sway * 1.4, r * 1.65);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+function drawShellPart(ctx, r, color, edge, scutes) {
+  ctx.save();
+  ctx.translate(-r * 0.45, 0);
+  ctx.fillStyle = color;
+  ctx.beginPath();
+  ctx.ellipse(0, 0, r * 1.1, r * 0.8, 0, 0, TAU);
+  ctx.fill();
+  ctx.strokeStyle = edge;
+  ctx.lineWidth = r * 0.08;
+  ctx.stroke();
+  if (scutes) {
+    ctx.lineWidth = r * 0.05;
+    for (let i = -1; i <= 1; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(i * r * 0.45, -r * 0.72);
+      ctx.lineTo(i * r * 0.45, r * 0.72);
+      ctx.stroke();
+    }
+    ctx.beginPath();
+    ctx.moveTo(-r * 1.0, 0);
+    ctx.lineTo(r * 1.0, 0);
+    ctx.stroke();
+  }
+  ctx.restore();
+}
+
+const PARTS = {
+  minicuttlefish: (ctx, r, age, phase) => drawCuttlefishMantleFin(ctx, r, { age: age + phase }),
+  minishrimp: (ctx, r, age, phase) => {
+    ctx.save();
+    ctx.globalAlpha = 1;
+    ctx.strokeStyle = '#e88a7a';
+    ctx.lineWidth = r * 0.06;
+    ctx.lineCap = 'round';
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(r * 0.75, side * r * 0.1);
+      ctx.quadraticCurveTo(r * 1.5, side * r * 0.45 + Math.sin(age * 4 + phase) * r * 0.12, r * 2.1, side * r * 0.2);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#141414';
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.arc(r * 0.72, side * r * 0.22, r * 0.16, 0, TAU);
+      ctx.fill();
+    }
+    ctx.restore();
+  },
+  minisquid: (ctx, r, age, phase) => drawTentaclePart(ctx, r, age, phase, '#c14d55'),
+  minioctopus: (ctx, r, age, phase) => drawTentaclePart(ctx, r, age, phase, '#c14d55'),
+  miniturtle: (ctx, r) => drawShellPart(ctx, r, '#5e8a52', '#3f6236', true),
+  mininautilus: (ctx, r) => {
+    drawShellPart(ctx, r, '#d9c7a0', '#8a7a52', false);
+    ctx.save();
+    ctx.fillStyle = '#c9b78a';
+    ctx.beginPath();
+    ctx.ellipse(r * 0.55, -r * 0.5, r * 0.5, r * 0.3, -0.3, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = '#8a7a52';
+    ctx.lineWidth = r * 0.06;
+    ctx.stroke();
+    ctx.restore();
+  },
+};
+
+function drawTrait(ctx, r, age, phase, trait, big = false) {
+  if (!trait) return;
+  const { color, shape } = trait;
+  const sway = Math.sin(age * 3 + phase);
+  ctx.save();
+  if (shape === 'wash') {
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(0, 0, r * (big ? 0.95 : 0.8), r * (big ? 1.5 : 1.15), 0, 0, TAU);
+    ctx.fill();
+  } else if (shape === 'frost') {
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.55, r * 0.7, r * 0.3, 0, 0, TAU);
+    ctx.fill();
+    ctx.globalAlpha = 0.6;
+    for (let i = 0; i < 4; i += 1) {
+      ctx.beginPath();
+      ctx.arc((i - 1.5) * r * 0.4, -r * 0.2, r * 0.08, 0, TAU);
+      ctx.fill();
+    }
+  } else if (shape === 'spark') {
+    for (let i = 0; i < 5; i += 1) {
+      ctx.globalAlpha = 0.8 - i * 0.12;
+      ctx.fillStyle = color;
+      ctx.beginPath();
+      ctx.arc(-r * (0.6 + i * 0.25), Math.sin(age * 5 + i) * r * 0.3, r * 0.12, 0, TAU);
+      ctx.fill();
+    }
+  } else if (shape === 'bubble') {
+    ctx.globalAlpha = 0.6;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = r * 0.12;
+    ctx.beginPath();
+    ctx.arc(0, 0, r * 0.95, 0, TAU);
+    ctx.stroke();
+  } else if (shape === 'lure') {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = r * 0.08;
+    ctx.beginPath();
+    ctx.moveTo(r * 0.2, -r * 0.5);
+    ctx.quadraticCurveTo(r * 0.5, -r * 1.1, r * 0.3, -r * 1.4);
+    ctx.stroke();
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(r * 0.3, -r * 1.4, r * 0.35, 0, TAU);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.beginPath();
+    ctx.arc(r * 0.3, -r * 1.4, r * 0.12, 0, TAU);
+    ctx.fill();
+  } else if (shape === 'claws') {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = r * 0.14;
+    ctx.lineCap = 'round';
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(r * 0.7, side * r * 0.4);
+      ctx.lineTo(r * 1.2, side * r * 0.55);
+      ctx.stroke();
+    }
+  } else if (shape === 'fin') {
+    ctx.globalAlpha = 0.9;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.1, -r * 0.6);
+    ctx.lineTo(r * 0.1, -r * 1.3);
+    ctx.lineTo(r * 0.4, -r * 0.55);
+    ctx.closePath();
+    ctx.fill();
+  } else if (shape === 'wing') {
+    ctx.globalAlpha = 0.7;
+    ctx.fillStyle = color;
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.ellipse(0, side * r * 1.1, r * 1.0, r * 0.35, side * 0.5, 0, TAU);
+      ctx.fill();
+    }
+  } else if (shape === 'tentacle') {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = r * 0.13;
+    ctx.lineCap = 'round';
+    for (let i = 0; i < 4; i += 1) {
+      const x = (i - 1.5) * r * 0.35;
+      ctx.beginPath();
+      ctx.moveTo(x, r * 0.4);
+      ctx.quadraticCurveTo(x + sway * r * 0.2, r * 1.0, x + sway * r * 0.3, r * 1.4);
+      ctx.stroke();
+    }
+  } else if (shape === 'shell') {
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.ellipse(0, -r * 0.1, r * 0.95, r * 0.7, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.25)';
+    ctx.lineWidth = r * 0.05;
+    for (let i = -1; i <= 1; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(i * r * 0.4, -r * 0.7);
+      ctx.lineTo(i * r * 0.4, r * 0.5);
+      ctx.stroke();
+    }
+  } else if (shape === 'glow') {
+    ctx.globalAlpha = 0.5;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(r * 0.6, -r * 0.2, r * 0.3, 0, TAU);
+    ctx.fill();
+  } else if (shape === 'zigzag') {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = r * 0.1;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    for (let i = 0; i <= 4; i += 1) {
+      const x = -r * 0.8 + i * r * 0.4;
+      const y = (i % 2 === 0 ? -1 : 1) * r * 0.4;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+  } else if (shape === 'whisker') {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = r * 0.07;
+    ctx.lineCap = 'round';
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(r * 0.7, side * r * 0.1);
+      ctx.lineTo(r * 1.3, side * r * 0.3);
+      ctx.stroke();
+    }
+  } else if (shape === 'bolt') {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = r * 0.12;
+    ctx.lineJoin = 'round';
+    ctx.beginPath();
+    ctx.moveTo(-r * 0.1, -r * 0.9);
+    ctx.lineTo(r * 0.25, -r * 0.2);
+    ctx.lineTo(-r * 0.05, -r * 0.1);
+    ctx.lineTo(r * 0.3, r * 0.7);
+    ctx.stroke();
+  } else if (shape === 'tooth') {
+    ctx.fillStyle = '#f4fbff';
+    for (let i = 0; i < 4; i += 1) {
+      ctx.beginPath();
+      ctx.moveTo(r * (0.2 + i * 0.16), r * 0.1);
+      ctx.lineTo(r * (0.28 + i * 0.16), r * 0.32);
+      ctx.lineTo(r * (0.36 + i * 0.16), r * 0.1);
+      ctx.closePath();
+      ctx.fill();
+    }
+  } else if (shape === 'spike') {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = r * 0.07;
+    for (let i = 0; i < 8; i += 1) {
+      const a = (i / 8) * TAU;
+      ctx.beginPath();
+      ctx.moveTo(Math.cos(a) * r * 0.8, Math.sin(a) * r * 0.8);
+      ctx.lineTo(Math.cos(a) * r * 1.15, Math.sin(a) * r * 1.15);
+      ctx.stroke();
+    }
+  } else if (shape === 'eye') {
+    ctx.globalAlpha = 0.85;
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.arc(r * 0.4, -r * 0.3, r * 0.35, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#f6e37a';
+    ctx.beginPath();
+    ctx.arc(r * 0.4, -r * 0.3, r * 0.14, 0, TAU);
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+export function drawHybrid(ctx, r, age, phase, parents) {
+  if (!parents) return;
+  const ghost = parents.b === 'ghostfish';
+  drawBuddyByKey(ctx, parents.a, r, age, phase);
+  if (ghost) {
+    ctx.save();
+    ctx.globalAlpha = 0.5;
+    ctx.translate(Math.sin(age * 1.8 + phase) * r * 0.14, -Math.cos(age * 1.5 + phase) * r * 0.12);
+    drawBuddyByKey(ctx, parents.a, r, age, phase);
+    ctx.restore();
+  }
+  const part = PARTS[parents.b];
+  if (part) {
+    ctx.save();
+    ctx.globalAlpha = ghost ? 0.6 : 0.9;
+    part(ctx, r, age, phase);
+    ctx.restore();
+  } else {
+    drawTrait(ctx, r, age, phase, TRAITS[parents.b], parents.a === 'megasquid');
+  }
+}
+
 let active = NONE;
 
 export function companionByKey(key) {
   if (key === 'mindarteel') key = 'minzipeel';
+  if (key === 'favourite') {
+    const name = favouriteName();
+    if (name) return { key: 'favourite', label: `FAVOURITE \u2014 ${name}`, favorite: name };
+    return NONE;
+  }
+  if (key === 'hybrid') {
+    const saved = loadJSON(HATCHERY_KEY, null);
+    if (saved && catalog.has(saved.a) && catalog.has(saved.b)) {
+      return { key: 'hybrid', label: hybridLabel(saved.a, saved.b), parents: saved };
+    }
+    return NONE;
+  }
   return catalog.get(key) ?? NONE;
 }
 
 export function companionCatalog() {
+  const favorite = loadJSON(SETTINGS_KEY, {}).favorite;
+  if (favorite) return [...COMPANIONS, { key: 'favourite', label: `FAVOURITE \u2014 ${favorite}` }];
   return COMPANIONS;
+}
+
+function favouriteName() {
+  const favorite = loadJSON(SETTINGS_KEY, {}).favorite;
+  return typeof favorite === 'string' && favorite ? favorite : null;
 }
 
 export function setActiveCompanion(companion) {
@@ -155,6 +496,29 @@ function drawMiniCuttlefish(ctx, r, age, phase) {
   const pose = buddyPose(age, phase);
   pose.splay = 0.35;
   drawCuttlefishBody(ctx, r * 0.66, pose);
+}
+
+function drawMiniLoosejaw(ctx, r, age, phase) {
+  drawLoosejaw(ctx, r * 0.32, { age, jawOpen: 0.7, swing: 0, spotRows: 3 });
+}
+
+function drawMiniSwallower(ctx, r, age, phase) {
+  drawBlackSwallower(ctx, r * 0.7, { age, gulp: 0 });
+}
+
+function drawFavouriteBuddy(ctx, r, age, phase, name) {
+  if (!name) return;
+  drawCreatureMascot(ctx, name, r, {
+    age,
+    armPhase: age * 3 + phase,
+    legPhase: age * 4 + phase,
+    tailPhase: age * 5 + phase,
+    pulsePhase: age * 3 + phase,
+    speed: 0,
+    flap: Math.sin(age * 2 + phase) * 0.6,
+    natural: true,
+    raw: true,
+  });
 }
 
 function drawMiniAngler(ctx, r, age, phase) {
@@ -703,30 +1067,41 @@ export function drawCompanion(ctx, entity) {
   ctx.translate(state.x, state.y);
   ctx.scale(facing, 1);
   ctx.globalAlpha = 0.95;
-  if (active.key === 'bubblepal') drawBubblePal(ctx, r, entity.age, state.phase);
-  else if (active.key === 'snowfish') drawSnowfish(ctx, r, entity.age, state.phase);
-  else if (active.key === 'ghostfish') drawGhostFish(ctx, r, entity.age, state.phase);
-  else if (active.key === 'fireworkfish') drawFireworkFish(ctx, r, entity.age, state.phase);
-  else if (active.key === 'babymoray') drawBabyMoray(ctx, r, entity.age, state.phase);
-  else if (active.key === 'lanternfish') drawLanternFish(ctx, r, entity.age, state.phase);
-  else if (active.key === 'tinyjelly') drawTinyJelly(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minicrab') drawMiniCrab(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minishark') drawMiniShark(ctx, r, entity.age, state.phase);
-  else if (active.key === 'ministingray') drawMiniStingray(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minisquid') drawMiniSquid(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minishrimp') drawMiniShrimp(ctx, r, entity.age, state.phase);
-  else if (active.key === 'mininautilus') drawMiniNautilus(ctx, r, entity.age, state.phase);
-  else if (active.key === 'miniangler') drawMiniAngler(ctx, r, entity.age, state.phase);
-  else if (active.key === 'miniseal') drawMiniSeal(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minioctopus') drawMiniOctopus(ctx, r, entity.age, state.phase);
-  else if (active.key === 'miniturtle') drawMiniTurtle(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minichaser') drawMiniChaser(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minzipeel') drawMiniZipEel(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minicatfish') drawMiniCatfish(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minivolt') drawMiniVolt(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minipiranha') drawMiniPiranha(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minipuffer') drawMiniPuffer(ctx, r, entity.age, state.phase);
-  else if (active.key === 'megasquid') drawMiniMegasquid(ctx, r, entity.age, state.phase);
-  else if (active.key === 'minicuttlefish') drawMiniCuttlefish(ctx, r, entity.age, state.phase);
+  if (active.key === 'hybrid' && active.parents) {
+    drawHybrid(ctx, r, entity.age, state.phase, active.parents);
+  } else {
+    drawBuddyByKey(ctx, active.key, r, entity.age, state.phase);
+  }
   ctx.restore();
+}
+
+export function drawBuddyByKey(ctx, key, r, age, phase) {
+  if (key === 'bubblepal') drawBubblePal(ctx, r, age, phase);
+  else if (key === 'snowfish') drawSnowfish(ctx, r, age, phase);
+  else if (key === 'ghostfish') drawGhostFish(ctx, r, age, phase);
+  else if (key === 'fireworkfish') drawFireworkFish(ctx, r, age, phase);
+  else if (key === 'babymoray') drawBabyMoray(ctx, r, age, phase);
+  else if (key === 'lanternfish') drawLanternFish(ctx, r, age, phase);
+  else if (key === 'tinyjelly') drawTinyJelly(ctx, r, age, phase);
+  else if (key === 'minicrab') drawMiniCrab(ctx, r, age, phase);
+  else if (key === 'minishark') drawMiniShark(ctx, r, age, phase);
+  else if (key === 'ministingray') drawMiniStingray(ctx, r, age, phase);
+  else if (key === 'minisquid') drawMiniSquid(ctx, r, age, phase);
+  else if (key === 'minishrimp') drawMiniShrimp(ctx, r, age, phase);
+  else if (key === 'mininautilus') drawMiniNautilus(ctx, r, age, phase);
+  else if (key === 'miniangler') drawMiniAngler(ctx, r, age, phase);
+  else if (key === 'miniseal') drawMiniSeal(ctx, r, age, phase);
+  else if (key === 'minioctopus') drawMiniOctopus(ctx, r, age, phase);
+  else if (key === 'miniturtle') drawMiniTurtle(ctx, r, age, phase);
+  else if (key === 'minichaser') drawMiniChaser(ctx, r, age, phase);
+  else if (key === 'minzipeel') drawMiniZipEel(ctx, r, age, phase);
+  else if (key === 'minicatfish') drawMiniCatfish(ctx, r, age, phase);
+  else if (key === 'minivolt') drawMiniVolt(ctx, r, age, phase);
+  else if (key === 'minipiranha') drawMiniPiranha(ctx, r, age, phase);
+  else if (key === 'minipuffer') drawMiniPuffer(ctx, r, age, phase);
+  else if (key === 'megasquid') drawMiniMegasquid(ctx, r, age, phase);
+  else if (key === 'minicuttlefish') drawMiniCuttlefish(ctx, r, age, phase);
+  else if (key === 'miniloosejaw') drawMiniLoosejaw(ctx, r, age, phase);
+  else if (key === 'miniswallower') drawMiniSwallower(ctx, r, age, phase);
+  else if (key === 'favourite') drawFavouriteBuddy(ctx, r, age, phase, active.favorite);
 }

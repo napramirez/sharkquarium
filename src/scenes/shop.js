@@ -322,6 +322,7 @@ export class ShopScene extends Scene {
 
   ownsOption(kind, key) {
     if (this.battle) return true;
+    if (kind === 'companion' && key === 'favourite') return true;
     const option = SLOTS[kind];
     if (option.list === 'accessories') return this.ownsAccessory(key);
     return this.shop[option.list].includes(key) || this.passGranted(option.list).includes(key);

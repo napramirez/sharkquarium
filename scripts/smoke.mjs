@@ -703,9 +703,81 @@ async function main() {
   assert.ok(!seenAnims.has('shark'), 'emote-only creatures like the shark should be excluded');
   await tapKey('ArrowDown');
   assert.notEqual(anims.entry.key, firstAnimKey, 'down should change the animated creature');
+  assert.equal(anims.anatomy, false, 'anatomy labels should start hidden');
+  await tapKey('Enter');
+  assert.equal(anims.anatomy, true, 'enter should toggle the anatomy labels');
+  await tapKey('Enter');
+  assert.equal(anims.anatomy, false, 'enter should toggle the anatomy labels back off');
   await tapKey('Escape');
   await frames(3);
   assert.equal(game.currentSceneName, 'menu', 'escape should leave the animation center');
+
+  game.changeScene('hatchery');
+  await frames(2);
+  const hatch = game.scene;
+  assert.equal(game.currentSceneName, 'hatchery', 'the hatchery should open');
+  assert.ok(hatch.catalog.length >= 2, 'the hatchery should list the dive buddies to combine');
+  const buddyKeys = new Set(hatch.catalog.map((entry) => entry.key));
+  assert.ok(buddyKeys.has('miniloosejaw'), 'the mini stoplight loosejaw should be a dive buddy');
+  assert.ok(buddyKeys.has('miniswallower'), 'the mini black swallower should be a dive buddy');
+  hatch.coins = 999;
+  hatch.indexA = 0;
+  hatch.indexB = 1;
+  await tapKey('Enter');
+  await frames(2);
+  const hatched = JSON.parse(storage.get('sharkquarium.hatchery'));
+  assert.ok(hatched && hatched.a && hatched.b, 'hatching should save the two parents');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.shop')).companion,
+    'hybrid',
+    'the hatchling should become the equipped dive buddy',
+  );
+  assert.ok(hatch.coins < 999, 'hatching should cost sea coins');
+  assert.equal(hatch.hybridName, 'GHOST SNOWFISH', 'the hatchling should combine the parents\u2019 traits into a name');
+  await tapKey('Escape');
+  await frames(3);
+  assert.equal(game.currentSceneName, 'menu', 'escape should leave the hatchery');
+
+  game.changeScene('favorite');
+  await frames(2);
+  const fav = game.scene;
+  assert.equal(game.currentSceneName, 'favorite', 'the favourite creature screen should open');
+  assert.ok(fav.menu.items.length > 5, 'the favourite screen should list the creatures');
+  fav.menu.setIndex(0, false);
+  const favName = fav.menu.items[0].name;
+  await tapKey('Enter');
+  assert.equal(
+    JSON.parse(storage.get('sharkquarium.settings')).favorite,
+    favName,
+    'choosing a creature should save it as the favourite',
+  );
+
+  game.changeScene('seafacts');
+  await frames(2);
+  const pinned = game.scene;
+  assert.equal(pinned.favorite, favName, 'the sea facts board should know your favourite');
+  assert.equal(pinned.fact.name, favName, 'the sea facts board should open on your favourite');
+  await tapKey('Escape');
+  await frames(3);
+
+  game.changeScene('chat');
+  await frames(2);
+  assert.ok(
+    new RegExp(favName, 'i').test(game.scene.reply('my favourite creature')),
+    'finn should know your favourite creature',
+  );
+  await tapKey('Escape');
+  await frames(3);
+
+  game.changeScene('hatchery');
+  await frames(2);
+  assert.ok(
+    game.scene.catalog.some((entry) => entry.key === 'favourite'),
+    'your favourite should be offered as a dive buddy',
+  );
+  await tapKey('Escape');
+  await frames(3);
+  assert.equal(game.currentSceneName, 'menu', 'escape should leave the favourite screen');
 
   storage.set('sharkquarium.settings', JSON.stringify({ difficulty: 'normal', meme: true }));
   game.changeScene('settings');
@@ -839,11 +911,12 @@ async function main() {
   assert.equal(game.scene.menu.items[34].label, 'THE TIDE-POOL WALKER', 'the mudskipper tank should join the list');
   assert.equal(game.scene.menu.items[35].label, 'THE FROGFISH GARDEN', 'the frogfish tank should join the list');
   assert.equal(game.scene.menu.items[36].label, 'THE SUNFISH DRIFT', 'the sunfish tank should join the list');
-  assert.equal(game.scene.menu.items[37].label, 'THE EVOLUTION TANK', 'the evolution tank should join the list');
-  assert.equal(game.scene.menu.items[38].label, 'MUTANT HORRORS', 'the mutant horrors submenu should join the tank list');
-  assert.equal(game.scene.menu.items[38].action, 'mutants', 'the mutant horrors row should open the submenu, not a normal run');
-  assert.equal(game.scene.menu.items[39].label, 'EMPTY TANK', 'the tank list should include every tank');
-  game.scene.menu.setIndex(38, false);
+  assert.equal(game.scene.menu.items[37].label, 'THE BLACK SWALLOWER', 'the black swallower tank should join the list');
+  assert.equal(game.scene.menu.items[38].label, 'THE EVOLUTION TANK', 'the evolution tank should join the list');
+  assert.equal(game.scene.menu.items[39].label, 'MUTANT HORRORS', 'the mutant horrors submenu should join the tank list');
+  assert.equal(game.scene.menu.items[39].action, 'mutants', 'the mutant horrors row should open the submenu, not a normal run');
+  assert.equal(game.scene.menu.items[40].label, 'EMPTY TANK', 'the tank list should include every tank');
+  game.scene.menu.setIndex(39, false);
   await tapKey('Enter');
   await frames(3);
   assert.equal(game.currentSceneName, 'mutantselect', 'the mutant horrors row should open its submenu');
@@ -857,14 +930,14 @@ async function main() {
     game.scene.menu.bounds.some((b) => b.index === 1),
     'the REEF tank should be reachable without scrolling',
   );
-  game.scene.menu.setIndex(39, false);
+  game.scene.menu.setIndex(40, false);
   await frames(1);
   assert.ok(game.scene.menu.scroll > 0, 'reaching EMPTY TANK should scroll the list');
-  const emptyRow = game.scene.menu.bounds.find((b) => b.index === 39);
+  const emptyRow = game.scene.menu.bounds.find((b) => b.index === 40);
   assert.ok(emptyRow, 'the EMPTY TANK row should be in the window');
   movePointer(emptyRow.x + emptyRow.width / 2, emptyRow.y + emptyRow.height / 2);
   await frames(2);
-  assert.equal(game.scene.menu.index, 39, 'pointer hover should select EMPTY TANK in the list');
+  assert.equal(game.scene.menu.index, 40, 'pointer hover should select EMPTY TANK in the list');
   await clickAt(emptyRow.x + emptyRow.width / 2, emptyRow.y + emptyRow.height / 2);
   await frames(5);
   assert.equal(game.currentSceneName, 'play', 'clicking EMPTY TANK should start the play scene');
@@ -2581,7 +2654,7 @@ async function main() {
 
   game.changeScene('menu');
   await frames(5);
-  assert.equal(game.scene.menu.items.length, 13, 'the menu should offer the thirteen base options');
+  assert.equal(game.scene.menu.items.length, 15, 'the menu should offer the fifteen base options');
   assert.equal(game.music.track.name, 'menu', 'the menu should restart the menu theme');
 
   await tapKey('ArrowDown');
@@ -4306,7 +4379,7 @@ async function main() {
   storage.set('sharkquarium.shop', ownedShop);
   game.changeScene('menu');
   await frames(5);
-  assert.equal(game.scene.menu.items.length, 17, 'the passes should fill the menu');
+  assert.equal(game.scene.menu.items.length, 19, 'the passes should fill the menu');
   assert.equal(game.scene.menu.items[3].label, 'MINIGAMES', 'minigames should sit below co-op');
   assert.equal(game.scene.menu.items[4].label, 'PETS TANK', 'the pets tank should sit below minigames');
   assert.equal(game.scene.menu.items[5].label, 'ENDLESS DIVE', 'endless dive should sit below the pets tank');
@@ -6186,7 +6259,7 @@ async function main() {
 
   game.changeScene('menu');
   await frames(5);
-  assert.equal(game.scene.menu.items.length, 17, 'the passes should fill the menu entries');
+  assert.equal(game.scene.menu.items.length, 19, 'the passes should fill the menu entries');
   assert.equal(
     game.scene.menu.items[4].label,
     'PETS TANK',
@@ -8306,6 +8379,23 @@ async function main() {
   sf.eaten = 10;
   await frames(2);
   assert.equal(sf.won, true, 'the sunfish run should be winnable');
+
+  game.changeScene('swallower');
+  await frames(3);
+  const swl = game.scene;
+  assert.equal(swl.name, 'swallower', 'the black swallower tank should open');
+  assert.ok(swl.player && swl.swallower && swl.schools.length >= 1, 'the swallower tank should field the swallower and its schools');
+  assert.equal(swl.swallower.state, 'patrol', 'the swallower should start patrolling');
+  swl.eaten = 0;
+  swl.swallower.state = 'lunge';
+  swl.swallower.timer = 1;
+  swl.schools[0].x = swl.swallower.x;
+  swl.schools[0].y = swl.swallower.y;
+  await frames(2);
+  assert.ok(swl.eaten >= 1, 'a lunge through a school should eat it');
+  swl.eaten = 6;
+  await frames(2);
+  assert.equal(swl.won, true, 'filling the swallower should win the tank');
 
   game.changeScene('evolution');
   await frames(3);

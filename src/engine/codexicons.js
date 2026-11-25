@@ -151,6 +151,20 @@ export function isCreatureName(name) {
   return ruleFor(name) !== null;
 }
 
+export function creatureDraw(name) {
+  const rule = ruleFor(name);
+  return {
+    fn: rule ? rule[1] : drawGenericFishIcon,
+    base: rule ? rule[2] : 26,
+    offset: rule ? rule[3] : 0,
+  };
+}
+
+export function drawCreatureMascot(ctx, name, radius, pose = {}) {
+  const { fn } = creatureDraw(name);
+  fn(ctx, radius, pose);
+}
+
 export function drawCreatureIcon(ctx, name, cx, cy, size, time = 0) {
   const rule = ruleFor(name);
   const fn = rule ? rule[1] : drawGenericFishIcon;

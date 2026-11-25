@@ -21,6 +21,7 @@ import {
   STATS_KEY,
   STORAGE_KEY,
   SHOP_KEY,
+  SETTINGS_KEY,
   COLORS,
   WATER_PALETTE,
   LOGICAL_WIDTH,
@@ -44,6 +45,7 @@ export class MenuScene extends Scene {
       ...loadJSON(STATS_KEY, {}),
     };
     this.shop = { owned: ['natural'], skin: 'natural', passes: [], ...loadJSON(SHOP_KEY, {}) };
+    this.favorite = loadJSON(SETTINGS_KEY, {}).favorite ?? null;
     setActiveAura(auraForShop(this.shop));
     this.skin = skinByKey(this.shop.skin);
     this.head = accessoryByKey(this.shop.head);
@@ -79,6 +81,8 @@ export class MenuScene extends Scene {
     items.push({ label: 'LORE', action: 'lore' });
     items.push({ label: 'SEA FACTS', action: 'seafacts' });
     items.push({ label: 'ANIMATION CENTER', action: 'animations' });
+    items.push({ label: 'HATCHERY', action: 'hatchery' });
+    items.push({ label: 'FAVOURITE CREATURE', action: 'favorite' });
     items.push({ label: 'ACHIEVEMENTS', action: 'achievements' });
     items.push({ label: 'ACCOUNT', action: 'account' });
     this.menu = new SelectList(items, {
@@ -112,6 +116,8 @@ export class MenuScene extends Scene {
     else if (action === 'lore') this.game.changeScene('lore');
     else if (action === 'seafacts') this.game.changeScene('seafacts');
     else if (action === 'animations') this.game.changeScene('animations');
+    else if (action === 'hatchery') this.game.changeScene('hatchery');
+    else if (action === 'favorite') this.game.changeScene('favorite');
     else if (action === 'achievements') this.game.changeScene('achievements');
     else if (action === 'account') this.game.changeScene('account');
   }
@@ -229,6 +235,14 @@ export class MenuScene extends Scene {
         alpha: 0.8,
       });
     });
+
+    if (this.favorite) {
+      drawText(ctx, `FAVOURITE \u2014 ${this.favorite}`, LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.4, {
+        size: 13,
+        color: COLORS.bubble,
+        alpha: 0.9,
+      });
+    }
 
     this.menu.render(ctx, LOGICAL_WIDTH / 2, LOGICAL_HEIGHT * 0.62);
 
